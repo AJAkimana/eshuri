@@ -1,0 +1,318 @@
+extends ../layout
+block content 
+	.main-panel
+		include ../partials/header
+		.wrapper.wrapper-full-page.full-page-background(ng-controller="reportCtrl",style="background-image: url('../imgs/register.jpeg')")
+			.full-page.login-page
+				.content
+					.col-md-4(ng-show="!messenger_on") 
+						.card
+							.card-content
+								a.btn-simple.btn.btn-primary.text-center eShuri Messenger   
+									i.material-icons chat_bubble
+								.form-group.label-floating
+									input.form-control(type="text", placeholder="Search people at your school" ng-model="searchWord")
+								.table-responsive(style="height:50vh; overflow:scroll;")
+									.card(ng-repeat="user in users | filter:searchWord | orderBy: 'isRead'",ng-click="setInterlocutor(user)",style="margin:0;")
+										.col-xs-2
+											.avatar: img(src='/pp.view/{{user._id}}')
+										.col-xs-10
+											a.wrap {{user.name}}
+												i.material-icons(ng-show="user.hasMessage") notifications
+					.col-md-4(ng-show="messenger_on")
+						.col-md-12
+							.col-md-12
+								.avatar-big(style="margin: 0 auto;",ng-click="messenger_on=!messenger_on") 
+									img(src='/pp.view/{{interlocutor._id}}',width="100%",height="auto")
+							br
+							button.btn.btn-primary(style="width:100%; margin:-1px",ng-click="messenger_on=!messenger_on") <strong>{{interlocutor.name|uppercase}} </strong>
+								i.material-icons clear
+						.col-md-12
+							.col-md-12#container
+								.table-responsive(style="height:50vh;background-color: white; overflow:scroll;")#inner
+									ul.timeline(ng-repeat="msg in messages")
+										li(ng-class="msg.from != '#{pic_id}'? '':'timeline-inverted'")
+											.timeline-panel(style="background-color:{{msg.from == '#{pic_id}'? 'lightblue':'lightyellow'}}") 
+												.col-md-12
+													p {{msg.msg}}
+												.col-md-12
+													p.category.stats(ng-class="msg.from != '#{pic_id}'? '':'pull-right'",style="margin:0px") {{msg.time|toMoment}}
+							.col-md-12
+								.card
+									.col-md-10.col-xs-10
+										form(ng-submit="sendMessage()")
+											.col-md-12
+												.form-group.label-floating
+													label.control-label {{newMsg|toNewMsg}}
+													input.form-control(type="text", ng-model="newMsg")
+										br
+									.col-md-2.col-xs-2
+										br
+										a.btn-simple.btn.label.btn-primary.material-icons(ng-click="sendMessage()") send
+					.col-md-4
+						.card
+							.card-content
+								.col-xs-12.no_padding
+									a.btn-simple.btn.label.btn-primary.text-center Hello dear, #{userName}
+									form(ng-submit="addPost()")
+										.col-xs-10.no_padding
+											.form-group.label-floating
+												label.control-label
+													h4 {{newPost|toNewPost}}
+												textarea.h3.form-control(type="text",rows="{{(newPost.length/100)+3}}" ng-model="newPost",maxlength="{{maxPost}}")
+										if access != 4		
+											.pull-left
+												input(type='checkbox', ng-model='newPostCategory')
+												|  For whole school
+										button.btn.btn-primary.pull-right(type="submit") Post
+						.table-responsive(style="height:58vh; overflow:scroll;")
+							.card(ng-repeat="post in publications")
+								.card-content
+									.col-xs-2.no_padding
+										.avatar: img(src='/pp.view/{{post.user_id}}', alt='..')
+									.col-md-7.no_padding
+										a.btn-simple.btn.label.btn-primary.pull-left: strong  {{post.user_name}}
+									.col-md-3.no_padding
+										p.category.pull-right Posted {{post.time|toMoment}}
+									.col-md-12.no_padding
+										h5 {{post.content}}
+									.col-xs-6.no_padding.pull-left
+										p.category  {{post.likes.length}} likes
+									.col-xs-6.no_padding.pull-right
+										p.category  {{post.comments.length}} comments
+									//.col-xs-12.no_padding(style="background-color:blue")
+									.col-xs-6.no_padding
+										button.btn-xs.btn(ng-click="likePost(post)",ng-class="post.likes.indexOf('#{pic_id}')>0? 'btn-primary':''" ) 
+											i.material-icons thumb_up
+											|		Like
+									.col-xs-6.no_padding
+										button.btn-xs.btn.pull-right(ng-click="post.show=!post.show")
+											i.material-icons comment
+											|		Leave a comment
+									.col-md-12(ng-show="post.show")
+										.col-xs-2.no_padding
+											.avatar: img(src='/pp.view/#{pic_id}')
+										.col-xs-10.no_padding
+											form(ng-submit="postComment(post)")
+												.form-group.label-floating
+													label.control-label 
+														h6 Leave a comment
+													input.form-control(type="text", ng-model="post.currentComment")
+									.col-md-12.no_padding
+										.partComments(ng-repeat="comment in post.comments")
+											.row
+												.col-xs-2.pull-left.no_padding
+													.avatar: img(src='/pp.view/{{comment.user_id}}')
+												.col-xs-10.no_padding
+													.col-xs-6.no_padding
+														p.category {{comment.user_name}}
+													.col-xs-6.no_padding
+														p.category {{comment.time|toMoment}}
+													.col-xs-12.no_padding
+														p {{comment.data}}	
+					if access == 4		
+						.col-md-4
+							.col-md-12.no_padding
+								.col-md-12#at_container
+									.card
+										.card-content
+											a.btn-simple.btn.label.btn-primary.center
+												i.material-icons notifications
+												|		Notifications
+								.col-md-12.no_padding
+									.table-responsive(style="height:80vh;width:inherited; overflow:scroll;")
+										.card(ng-repeat="notif in notifs")
+											.card-content
+												.col-md-2.no_padding
+													.avatar
+														img(src='/pp.view/{{notif.user_id}}')
+												.col-md-10
+													.col-md-12.no_padding
+														p.wrap: strong {{notif.content}}
+													.col-md-12.no_padding
+														p.pull-right.category {{notif.time|toMoment}}
+										a.btn-simple.btn.label.btn-primary.center(ng-show ="!notifs.length")
+											i.material-icons notifications
+											|		 No notifications here
+					if access != 4 && access !=1 && access != 5	
+						//Admin and teacher communication
+						.col-md-4
+							.table-responsive(style="height:80vh; overflow:scroll;")
+								.card(ng-repeat="post in Publications")
+									.card-content
+										.col-xs-2.no_padding
+											.avatar: img(src='/pp.view/{{post.user_id}}', alt='..')
+										.col-md-7.no_padding
+											a.btn-simple.btn.label.btn-primary.pull-left: strong  {{post.user_name}}
+										.col-md-3.no_padding
+											p.category.pull-right Posted {{post.time|toMoment}}
+										.col-md-12.no_padding
+											h5 {{post.content}}												
+block append scripts
+	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+	script(src="../js/MIT/MIT_moment.min.js", type="text/javascript")
+	script(src="../js/socket-io-172.min.js",type="text/javascript")
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute']);
+		app
+		.filter('toMoment', ['$interval', function ($interval){
+			// trigger digest every 60 seconds
+			$interval(function (){}, 60000);
+
+			function fromNowFilter(input){
+			  return moment(input).fromNow();
+			}
+			fromNowFilter.$stateful = true;
+			return fromNowFilter;
+		}])
+		.filter('toNewPost', function() {		
+			return function(input){				
+				return input ? '':"Tell your school what you think ";
+			}
+		})
+		.filter('toNewMsg', function() {		
+			return function(input){				
+				return input ? '':" Say hello !";
+			}
+		})
+		.controller('reportCtrl', function($scope, $http,$window){
+		
+			$scope.addPost = function(){
+				//console.log("Will be seen by whole school: "+$scope.newPostCategory)
+				$http
+				.post("/timeline.create.post",{_csrf:"#{csrf_token}",post:$scope.newPost, category:$scope.newPostCategory})
+				.then(function(response){
+					$scope.newPost =null;
+					$scope.getTimeline();
+					$scope.getAdminPosts();
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data)
+				});				 
+			};
+			$scope.postComment = function(post){
+				$http
+				.post("/timeline.post.comment",
+				{_csrf:"#{csrf_token}",comment:post.currentComment,post_id:post._id})
+				.then(function(response){
+					post.comments=response.data;
+					post.currentComment=null;
+					post.show =false;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data)
+				});	
+			}
+
+			$scope.likePost = function(post){
+				$http
+				.get("/timeline.post.like/"+post._id)
+				.then(function(response){
+					if(response.data.ok) post.likes.push("#{pic_id}");// just add my ike
+					else if(response.data.remove) post.likes.splice(post.likes.indexOf('#{pic_id}'),1);
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data)
+				});	
+			}
+			$scope.getTimeline = function(){
+				$http
+				.get("/timeline.get")
+				.then(function(response){
+					$scope.publications = response.data.publications;
+					$scope.notifs = response.data.notifs;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data)
+				});	
+			}
+			$scope.getAdminPosts = function(){
+				$http
+				.get('/timeline.get.adminpost')
+				.then(function(response){
+					$scope.Publications = response.data;
+					//console.log("Number of chats: "+response.data.length+" \n Admin posts: "+response.data)
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data)
+				})
+			}
+			$scope.scrollToLastMsg = function(){
+				$("#inner").animate({
+					scrollTop: $("#container").offset().top + 10000
+				}, {queue: false,duration: 'ease'});
+			}			
+			$scope.sendMessage = function(){
+				socket.emit('new_message',{msg:$scope.newMsg,from:'#{pic_id}',
+				dest:$scope.interlocutor._id})
+				$scope.messages.push({msg:$scope.newMsg,from:"#{pic_id}"});
+				$scope.newMsg =null;
+				$scope.scrollToLastMsg();
+				//$scope.$apply();
+			}
+			$scope.setInterlocutor =function(user){
+				$scope.messages= [];
+				$scope.interlocutor._id=user._id;
+				$scope.interlocutor.name=user.name;
+				$scope.messenger_on=true;
+				user.hasMessage=false;
+				user.isRead=0;
+				$scope.scrollToLastMsg();
+				$scope.loadMessages()
+			}
+			$scope.loadMessages =function(){
+				$http
+				.get("/messages.get/"+$scope.interlocutor._id)
+				.then(function(response){
+					$scope.messages=response.data;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data)
+				});
+			}
+			$scope.getListUsers = function(){				
+				$http
+				.get("/school.allUsers.list/#{school_id}")
+				.then(function(response){
+					$scope.users=response.data;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data)
+				});	
+			}
+			$scope.maxPost ="#{maxPost}";
+			$scope.users=[];
+			$scope.notifs=[];
+			$scope.interlocutor={};
+			$scope.messages=[];
+			$scope.getTimeline();
+			$scope.getListUsers();
+			$scope.getAdminPosts();
+			$scope.scrollToLastMsg();
+			var socket = io();
+			socket.on('connect', function(){
+				$scope.listenSocket();
+			});	
+			socket.on('msg_failed',function(clients){
+				Notifier.warning("The last message was not sent !");
+			})		
+			socket.on('new_message',function(msg){
+				if(msg.from == $scope.interlocutor._id){
+					$scope.messages.push({msg:msg.msg, from:msg.from, is_read:msg.is_read});
+					$scope.scrollToLastMsg();
+				}
+				else{
+					for(var i=0;i<$scope.users.length;i++){
+						if($scope.users[i]._id == msg.from || $scope.messages.is_read == 0){
+							$scope.users[i].hasMessage =true;
+							$scope.users[i].isRead = 1;
+							break;
+						}
+					}
+				}
+				$scope.$apply();
+			});
+			$scope.listenSocket = function(){
+				socket.emit('join',{myID:'#{pic_id}'});
+			}
+		})

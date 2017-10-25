@@ -1,0 +1,25 @@
+extends ./layout
+
+block content 
+	.main-panel
+		include partials/header 
+		.wrapper.wrapper-full-page.full-page-background(ng-controller="errorCtrl",style="background-image: url('../imgs/register.jpeg')")
+			.full-page.register-page(filter-color="white")
+				.container
+					.row
+						.col-md-10.center
+							.card
+								.card-content
+									h1.text-center.btn-rose
+										i.material-icons location_on
+										|		 Sorry, this page doesn't exists
+							
+
+block append scripts
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute']);
+
+		app.controller('errorCtrl', function($scope,$window){
+		 $scope.secs=3;
+		 setTimeout(function(){ $window.history.back();}, $scope.secs*1000);		 
+		});

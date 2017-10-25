@@ -1,0 +1,122 @@
+extends ../layout
+block content 
+	.main-panel
+		include ../partials/header
+		.wrapper.wrapper-full-page.full-page-background(ng-controller="settingsCtrl",style="background-image: url('../imgs/login.jpeg')")
+			.full-page.login-page(filter-color="yellow")
+				.content
+					.container-fluid
+						.row
+							.col-md-6.col-md-offset-3.col-sm-offset-3
+								.card
+									.card-header
+										.avatar-big.center
+											img.img-thumbnail(src="/school.profile/#{school_id}",style="height:30vh")
+									.card-content
+										.nav-center
+											ul.nav.nav-pills.nav-pills-success.col-md-offset-3
+												li.active: a(href="#profile", data-toggle="tab") School profile
+												li: a(href="#credentials", data-toggle="tab") additional information
+											.tab-content
+												.tab-pane.active#profile
+													form(action="/school.update.profile",method="post",enctype="multipart/form-data")
+														.col-md-3
+															.form-group.label-floating
+																.avatar-big.center
+																	img#profil_pic(src="/school.profile/#{school_id}",)
+																
+																input(type='file',accept="image/*",name="school_pic",onchange="loadFile(event)",required="true")
+																input.form-control(type="hidden",required="true",value="{{school_id}}",name="school_id")
+
+															button.btn-simple.btn.label.btn-rose(type="submit") Change picture 
+												.tab-pane#credentials
+													h1
+													p.category Additional info 
+													.col-md-6
+														.input-group
+															.form-group.label-floating
+																label.control-label School phone number
+																input.form-control(type="text",required="true",ng-model="phone_number")
+													.col-md-6
+														.input-group
+															.form-group.label-floating
+																label.control-label School Post Office
+																input.form-control(type="text",required="true",ng-model="po_box")
+													button.btn.btn-rose(ng-click="addInformation()") GO
+												
+block append scripts
+	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute']);
+		app
+		.filter('toLevelName', function() {		
+			return function(input){	
+				switch(input){
+					case 1: input="Super admin ";break;
+					case 1.05: input="Head of Department";break;
+					case 1.1: input="School Super Administrator";break;
+					case 2: input="School Administrator";break;
+					case 3: input="Teacher";break;
+					case 4: input="Student";break;
+					case 5: input="Parent";break;
+					default :break;
+				}
+				return input;
+			}
+		})
+		.controller('settingsCtrl', function($scope, $http, $window){
+			$scope.school_id="#{school_id}"
+			$scope.updatePicture = function(){
+				$http
+				.post('/school.update.profile', {school_id:school_id})
+				.then(function(){
+
+				})
+				.catch(function(err){
+					Notifier.danger(err.data)
+				})
+			}
+			$scope.anti_csrf ="#{csrf_token}";
+			$scope.addInformation=function(){
+				var pobox=$scope.po_box;
+				var phone=$scope.phone_number;
+				if(!pobox&&!phone) return;
+				$http
+				.post('/add.school.info', {_csrf:$scope.anti_csrf,phone:phone, school_id:$scope.school_id, po_box:pobox})
+				.then(function(){
+
+				})
+				.catch(function(error){
+					Notifier.danger(error.data);
+				})
+			}
+
+			$scope.addInfo = function(){
+				swal({
+					title: 'Set up a new email',
+					html: '<div class="form-group">' +
+							  '<input id="pobox" type="text" class="form-control" placeholder="School P.O Box" />' +
+							  '<input id="phone" type="text" class="form-control" placeholder="Phone number"/>' +
+						  '</div>',
+					showCancelButton: true,
+					confirmButtonClass: 'btn btn-success',
+					cancelButtonClass: 'btn btn-danger',
+					buttonsStyling: false
+				}).then(function(result) {					
+					var phone = $("#phone").val();
+					var po_box = $("#pobox").val();
+					$http
+					.post('/add.school.info', {phone:phone, school_id:$scope.school_id, po_box:po_box})
+					.then(function(){
+
+					})
+					.catch(function(error){
+						Notifier.danger(error.data);
+					})
+				}).catch(swal.noop)
+			}
+		})
+		var loadFile = function(event) {
+			var output = document.getElementById('profil_pic');
+			output.src = URL.createObjectURL(event.target.files[0]);
+		};

@@ -1,0 +1,30 @@
+.card-header(ng-show="video_notes.length&&unit_index==content_index")
+	h3.card-title.text-center <strong>Videos</strong>
+.card-content(ng-show ="video_notes.length&&unit_index==content_index")
+	table.table.table-responsive
+		thead
+			th.text-center #
+			th Name
+			th Upload time
+			if access <= 3
+				th Status
+				th Actions
+		tbody
+			tr(ng-repeat="content in video_notes")
+				td(width="1%" height="1%") {{$index + 1}}
+				td: a(href="/content.do.{{content.type|toLink}}/{{content._id}}") {{content.title|uppercase}}
+				td {{content.upload_time| my_timeAgo}}
+				if access <= 3
+					td: a.btn-simple.btn.label(ng-class="content.isPublished?'btn-ssuccess':'btn-rose'",ng-click="setPublish(content._id,7)") {{content.isPublished|toPublish}}
+						i.material-icons trending_up
+					td.td-actions.text-right
+						a.btn-simple.btn.label.btn-rose(type='button',href="/content.view/{{content._id}}",ng-show="donotShow")
+							i.material-icons pageview
+						a.btn-simple.btn.label.btn-success(ng-click="viewAnswersContent(content._id)",ng-show="c_type>=3 && c_type<=6",title="View Answers")
+							i.material-icons view_list
+						a.btn-simple.btn.label.btn-info(ng-click="editContent(content._id,content.title)",title="Edit")
+							i.material-icons edit
+						a.btn-simple.btn.label.btn-rose(href="/content.edit_marks/{{content._id}}",ng-show="c_type >=3 && c_type<=6",title="Edit Marks")
+							i.material-icons folder_special	
+						a.btn-simple.btn.label.btn-danger(ng-click="deleteContent(content._id,content.title)",title="Delete")
+							i.material-icons delete

@@ -1,0 +1,135 @@
+extends ../layout
+block content 
+	.main-panel
+		include ../partials/header 
+		.wrapper.wrapper-full-page.full-page-background(ng-controller="backupCtrl",style="background-image: url('../imgs/register.jpeg')")
+			.full-page.login-page
+				.content
+					.container-fluid
+						.row
+							.col-md-4
+								.card
+									.card-header.card-header-icon(data-background-color="rose")
+										i.material-icons school
+									.card-content
+										h4.card-title  List of all backups
+										.row
+											.col-md-12
+												.row
+													.col-md-8
+														h2 Create a backup
+													.col.-md-2
+														button.btn.btn-fill.btn-rose(ng-click="createBackup()") Go
+															i.material-icons backup
+											.col-md-12
+												.table-responsive(ng-show="backups.length")
+													table.table
+														thead
+															th.text-center #
+															th Backups
+															th Time
+															th Actions
+														tbody
+															tr(ng-repeat="backup in backups")
+																td(width="1%" height="1%") {{$index + 1}}
+																td: a(href="/backup.delete/{{backup}}") {{backup }}
+																td {{backup|toHumanDate}}
+																td: a.btn-simple.btn.label.btn-rose(href="/backup.download/{{backup}}")
+																	i.material-icons file_download
+												p.category.text-center(ng-show ="!backups.length") No available backups available here
+							.col-md-8
+								.card
+									.card-header.card-header-icon(data-background-color="rose")
+										i.material-icons school
+									.card-content
+										h4.card-title  List of encountered errors
+										.row
+											.col-md-12
+												.table-responsive.table-condensed(ng-show="errors.length")
+													table.table
+														thead
+															th.text-center #
+															th User
+															th Error
+															th Method
+															th Path
+															th Data
+															th Time
+														tbody
+															tr(ng-repeat="error in errors")
+																td(width="1%" height="1%") {{$index + 1}})
+																td: div(ng-repeat="(key, value) in error.user_info")
+																	p.category <strong>{{key}}</strong> = {{value}}
+																td: a.btn-simple.btn.label.btn-danger {{error.error}}
+																td {{error.method}}
+																td {{error.route}}
+																td {{error.request}}
+																td {{error.created_at|toMoment}}
+												p.category.text-center(ng-show ="!errors.length") Everything is fine, no errors
+block append scripts
+	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+	script(src="../js/MIT/MIT_moment.min.js", type="text/javascript")
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute']);
+		app
+		.filter('toHumanDate', function() {
+			return function(input){
+				input = input.toLowerCase().replace('eshuri_','')
+				input = input.replace('.tar.gz','');
+				console.log(input)
+				return moment(new Date(Number(input)).getTime()).fromNow();
+			}
+		})
+		.filter('toMoment', ['$interval', function ($interval){
+			// trigger digest every 60 seconds
+			$interval(function (){}, 60000);
+
+			function fromNowFilter(input){
+			  return moment(input).fromNow();
+			}
+			fromNowFilter.$stateful = true;
+			return fromNowFilter;
+		}])
+		.controller('backupCtrl', function($scope,$http){
+			$scope.createBackup = function(){
+				$http
+				.get("/backup.create")
+				.then(function(response){
+					$scope.getListBackups();
+					swal({
+						title: 'Created!',
+						text: 'Backup has been created.',
+						type: 'success',
+						confirmButtonClass: "btn btn-success",
+						buttonsStyling: false
+					})
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				}); 
+			}
+			$scope.getListBackups = function(){
+				$http
+				.get("/backup.list")
+				.then(function(response){
+					$scope.backups = response.data;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				});
+			}
+			$scope.getListErrors = function(){
+				$http
+					.get("/errors.list")
+					.then(function(response){
+						$scope.errors = response.data;
+					})
+					.catch(function(erreur){
+						Notifier.danger(erreur.data);
+					});
+			}
+				
+			$scope.anti_csrf ="#{csrf_token}";
+			$scope.getListBackups();
+			$scope.getListErrors();
+		})

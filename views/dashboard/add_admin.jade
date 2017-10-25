@@ -1,0 +1,105 @@
+extends ../layout
+block content 
+	.main-panel
+		include ../partials/header 
+		.wrapper.wrapper-full-page.full-page-background(ng-controller="adminCtrl",style="background-image: url('../imgs/register.jpeg')")
+			.full-page.login-page
+				.content
+					.container-fluid
+						.row
+							.col-md-8.center
+								.card
+									.card-header.card-header-icon(data-background-color="rose")
+										i.material-icons supervisor_account
+									.card-content
+										h5.card-title Give higher privileges to a teacher
+										.col-md-12.text-right
+											a.btn-simple.btn.label.btn-rose(ng-click="addNew=!addNew") Add new admin
+													i.material-icons person_outline
+										.col-md-12(ng-show='addNew')
+											.col-md-3
+												.form-group
+													p Pick among the teachers:
+													select(ng-model="teacher_choosen",ng-change="show_button=true")
+														option(disabled selected) Choose a teacher
+														option(value="{{teacher._id}}",ng-repeat="teacher in teachers") {{teacher.name}}
+											.col-md-3.pull-right(ng-show="show_button")
+												br
+												button.btn.btn-rose.center(ng-click="setAsAdmin()")
+													i.material-icons supervisor_account
+													| 					Change to admin
+										.col-md-12
+											h3.text-center List of administrators
+											.table-responsive(ng-show="admins.length")
+												table.table
+													thead
+														th.text-center #
+														th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b")  Name
+														th: a.btn-simple.btn.label.btn-rose(ng-click="a='email';b=!b")  E-mail
+														th Actions
+													tbody
+														tr(ng-repeat="admin in admins |orderBy:a:b")
+															td(width="1%" height="1%") {{$index + 1}}
+															td: a(href="/dashboard.course/{{classe._id}}") {{admin.name | uppercase}}
+															td {{admin.email }}
+															td.td-actions.text-right
+																button.btn.btn-danger(type='button',ng-click="removeAdmin(admin._id,admin.name)")
+																	i.material-icons close
+											p.category.text-center(ng-show ="!admins.length") No admins provided here
+block append scripts
+	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute']);
+		app
+		.controller('adminCtrl', function($scope,$http){
+			$scope.setAsAdmin = function(){
+				$http
+				.post("/school.admin.add",{_csrf:$scope.anti_csrf,
+				teacher_id:$scope.teacher_choosen,school_id:$scope.school_id})
+				.then(function(response){
+					Notifier.success("Operation successful !");
+					$scope.getListAdmins();
+					$scope.getListTeachers();
+					$scope.addNew=false;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				}); 
+			}
+			$scope.getListAdmins = function(){
+				$http
+				.post("/school.admins.list",{_csrf:$scope.anti_csrf,school_id:$scope.school_id })
+				.then(function(response){
+					$scope.admins = response.data;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				});
+			}
+			$scope.getListTeachers = function(){
+				$http
+				.get("/school.teachers.list/"+$scope.school_id)
+				.then(function(response){
+					$scope.teachers = response.data;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				});
+			}
+			$scope.removeAdmin = function(admin_id){
+				$http
+				.post("/school.teacher.to.admin",{_csrf:$scope.anti_csrf,admin_id:admin_id,school_id:$scope.school_id })
+				.then(function(response){
+					$scope.getListAdmins();
+					$scope.getListTeachers();
+					Notifier.success("Operation successful !");
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				});
+			}
+			$scope.anti_csrf ="#{csrf_token}";
+			$scope.school_id ="#{school_id}";
+			$scope.getListTeachers();
+			$scope.getListAdmins();
+		})

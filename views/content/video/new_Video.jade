@@ -1,0 +1,52 @@
+extends ../../layout
+block content 
+	.main-panel
+		include ../../partials/header
+		.wrapper.wrapper-full-page.full-page-background(ng-controller="add_Note_Ctrl",style="background-image: url('../imgs/register.jpeg')")
+			.full-page.login-page
+				.content
+					.container-fluid
+						.row
+							.col-md-6.center
+								.card
+									.card-header.card-header-icon(data-background-color="rose")
+										i.material-icons video
+									.card-content
+										.row
+											.col-md-12.center
+												a.label.btn.btn-fill.btn-danger.pull-right(href="/courses/#{course_id}") Cancel
+												h3.card-title.text-center Add a new video to <strong>{{'#{unit_name}'|uppercase}}</strong> 
+												form(ng-submit="SUBMITvIDEO()")
+													.form-group.label-floating
+														label.control-label Small description for this video this video
+														input.form-control(type="text",required="true",ng-model="title")
+													.form-group.label-floating
+														label.control-label Link of the video
+														input.form-control(type="text",required="true",name="link",ng-model="link")
+														input(type="hidden",value="#{unit_id}",name="unit_id")
+													button.btn.btn-fill.btn-rose(type="submit").pull-right Submit
+block append scripts
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute']);
+		app
+		.controller('add_Note_Ctrl', function($scope, $http,$window){
+			$scope.SUBMITvIDEO = function(){
+				$http
+				.post("/content.add.video/",{
+					_csrf:$scope.anti_csrf,
+					unit_id:"#{unit_id}",
+					title:$scope.title,
+					link:$scope.link,
+				})
+				.then(function(response){
+					Notifier.success(" Operation successful")
+					setTimeout(function(){$window.location.href="/courses/#{course_id}"},2000);					
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				}); 
+			}
+
+			$scope.unit_id ="#{unit_id}"
+			$scope.anti_csrf ="#{csrf_token}";			
+		})

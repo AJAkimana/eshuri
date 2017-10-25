@@ -1,0 +1,125 @@
+extends ../../layout
+block append css_code
+	link(rel="stylesheet", type="text/css", href="../css/font-awesome470/css/font-awesome.min.css")
+block content 
+	.main-panel
+		include ../../partials/header 
+		.wrapper.wrapper-full-page.full-page-background(ng-controller="addQuestion_Ctrl",style="background-image: url('../imgs/register.jpeg')")
+			.full-page.login-page
+				.content
+					.container-fluid
+						.row
+							.col-md-8.center
+								.card
+									.card-header.card-header-icon(data-background-color="rose")
+										i.material-icons assessment
+									h3.card-title.text-center Add a new written assessment to <strong>{{'#{unit_name}'|uppercase}}</strong>
+									a.btn-simple.btn.label.btn-rose(href="/courses/#{course_id}") Go back
+									h1
+									.card-content
+										form(ng-submit="addQuestion()")
+											.row
+												.col-md-6
+													.form-group.label-floating
+														label.control-label Question title
+														input.form-control(type="text",name="title",required="true",maxlength="300",ng-model="q.title")
+												.col-md-3
+													.form-group.label-floating
+														label.control-label Question marks
+														input.form-control(type="number",required="true",maxlength="30",ng-model="q.currentMark")
+												.col-md-1
+													button.btn.btn-fill.btn-rose(type="submit") Add to list
+							.col-md-10.center
+								.card
+									.card-header
+										h2.card-title.text-center {{Q.length || 0}} Questions up to<strong> {{getTotal()}} Pts</strong>
+									.card-content
+										.panel-group(role='tablist')#accordion
+											h5.card-title.text-center(ng-show="!Q.length") <i>No questions yet </i>
+											.panel.panel-default(ng-repeat="quest in Q")
+												.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentQuest($index)")
+													a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
+														h4.panel-title
+															| {{$index+1}}. {{quest.t|uppercase}}  ({{quest.m}} pts)
+															i.material-icons keyboard_arrow_down
+												.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
+													.panel-body
+														.col-md-12
+															.row
+																button.btn.btn-danger.btn-simple.pull-right(type="button",ng-click="delCurrentquest($index)")
+																	i.material-icons delete
+								.row
+									.card
+										.card-content									
+											.col-md-8
+												.form-group.label-floating
+													label.label-control Assessment title
+													input.form-control(type="text",maxlength="30",ng-model="title")
+											.col-md-2
+												.form-group.label-floating
+													label.label-control Set up a deadline
+													input.datetimepicker.form-control(type="text",ng-model="deadline")#deadline
+											.col-md-2
+												button.btn.btn-fill.btn-success.pull-right(ng-click="sendAutomated()") Submit
+
+block append scripts													
+	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+	script(src="../js/MIT/MIT_moment.min.js", type="text/javascript")
+	script(src="../js/MIT/bootstrap-datetimepicker.js", type="text/javascript")
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute']);
+		app
+		.controller('addQuestion_Ctrl', function($scope, $http,$window){
+			$scope.addQuestion = function(){
+				// t: title of kestion, m: marks, c: choice,p: penalty,asn
+				$scope.Q.push({t:$scope.q.title,m:$scope.q.currentMark});
+				$scope.q =null;
+			}
+			$scope.setCurrentQuest= function(quest_num){
+				$scope.currentQuest= quest_num;
+			}
+
+			$scope.delCurrentquest = function(index){
+				$scope.Q.splice(index, 1);
+			}
+			$scope.getTotal = function(){
+				var total = 0;
+				for(var i = 0; i < $scope.Q.length; i++){
+					total += $scope.Q[i].m;
+				}
+				return total;
+			}
+			$scope.sendAutomated = function(){
+				$http
+				.post("/content.add.written/",{
+					_csrf:$scope.anti_csrf,
+					unit_id:"#{unit_id}",
+					title:$scope.title,
+					deadline:$("#deadline").val(),
+					Q: $scope.Q,					
+				})
+				.then(function(response){
+					Notifier.success("Operation successful")
+					setTimeout(function(){$window.location.href="/courses/#{course_id}"},1000);					
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				}); 
+			}
+			$scope.Q =[];
+			$scope.anti_csrf ="#{csrf_token}";
+			$('.datetimepicker').datetimepicker({
+				icons: {
+					time: "fa fa-clock-o",
+					date: "fa fa-calendar",
+					up: "fa fa-chevron-up",
+					down: "fa fa-chevron-down",
+					previous: 'fa fa-chevron-left',
+					next: 'fa fa-chevron-right',
+					today: 'fa fa-screenshot',
+					clear: 'fa fa-trash',
+					close: 'fa fa-remove',
+					inline: true
+				}
+		 });			
+		})

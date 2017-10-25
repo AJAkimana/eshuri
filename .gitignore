@@ -1,0 +1,3 @@
+node_modules/
+.eShuri.env.DEV
+package-lock.json
