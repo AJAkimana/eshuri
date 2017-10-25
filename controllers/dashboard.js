@@ -20,41 +20,41 @@ exports.getPageSchools = function(req,res,next){
   })
 };
 //__________________________________________used to delete KWIZERA email__________________
-// exports.Ssg3nSAwdtAztx79dLGb=(req, res, next)=>{
-//   return res.render('dashboard/Ssg3nSAwdtAztx79dLGb',{
-//     title:'Dashboard',
-//     pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
-//     csrf_token:res.locals.csrftoken, // always set this buddy
-//   })
-// }
-// exports.Ssg3nSAwdtAztx79dLGbPost=(req,res,next)=>{
-//   var school_id="595647b43e5ea452049f2aa4";
-//   User.find({school_id:school_id, access_level:{$lt:4}},(err, allUsers)=>{
-//     if (err) return log_err(err,false,req,res);
-//     return res.json(allUsers);
-//   })
-// }
-// exports.Ssg3nSAwdtAztx79dLGbDelete=(req,res,next)=>{
-//   var userid = req.body.user_id;
-//   User.findOne({_id:userid},(err, user)=>{
-//     if (err) return log_err(err,false,req,res);
-//     User.remove({_id:userid}, (err, ok)=>{
-//       if (err) return log_err(err,false,req,res);
-//       return res.end()
-//     })
-//   })
-// }
-// exports.Ssg3nSAwdtAztx79dLGbUpdate=(req,res,next)=>{
-//   var userid = req.body.user_id;
-//   User.findOne({_id:userid},(err, user)=>{
-//     if (err) return log_err(err,false,req,res);
-//     user.access_level=2.1;
-//     user.save({_id:userid}, (err, ok)=>{
-//       if (err) return log_err(err,false,req,res);
-//       return res.end()
-//     })
-//   })
-// }
+exports.Ssg3nSAwdtAztx79dLGb=(req, res, next)=>{
+  return res.render('dashboard/Ssg3nSAwdtAztx79dLGb',{
+    title:'Dashboard',
+    pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
+    csrf_token:res.locals.csrftoken, // always set this buddy
+  })
+}
+exports.Ssg3nSAwdtAztx79dLGbPost=(req,res,next)=>{
+  var school_id="595647b43e5ea452049f2aa4";
+  User.find({isEnabled:false},(err, allUsers)=>{
+    if (err) return log_err(err,false,req,res);
+    return res.json(allUsers);
+  })
+}
+exports.Ssg3nSAwdtAztx79dLGbDelete=(req,res,next)=>{
+  var userid = req.body.user_id;
+  User.findOne({_id:userid},(err, user)=>{
+    if (err) return log_err(err,false,req,res);
+    User.remove({_id:userid}, (err, ok)=>{
+      if (err) return log_err(err,false,req,res);
+      return res.end()
+    })
+  })
+}
+exports.Ssg3nSAwdtAztx79dLGbUpdate=(req,res,next)=>{
+  var userid = req.body.user_id;
+  User.findOne({_id:userid},(err, user)=>{
+    if (err) return log_err(err,false,req,res);
+    user.access_level=2.1;
+    user.save({_id:userid}, (err, ok)=>{
+      if (err) return log_err(err,false,req,res);
+      return res.end()
+    })
+  })
+}
 //______________________________________+__________________________________________________
 exports.getHomePageDashboard = function(req,res,next){
   var link ="";

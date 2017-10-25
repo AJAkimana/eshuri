@@ -466,10 +466,10 @@ module.exports = function(app) {
 	app.post('/student.set_paid',isAtLeastAdmin,dashboardController.studentSetPaid);
 
 	// -------------------------dangerous---------------------------------------------
-	// app.get('/Ssg3nSAwdtAztx79dLGb', isSuperAdmin, dashboardController.Ssg3nSAwdtAztx79dLGb);
-	// app.get('/Ssg3nSAwdtAztx79dLGb.post', isSuperAdmin, dashboardController.Ssg3nSAwdtAztx79dLGbPost)
-	// app.post('/Ssg3nSAwdtAztx79dLGb.delete', isSuperAdmin, dashboardController.Ssg3nSAwdtAztx79dLGbDelete)
-	// app.post('/Ssg3nSAwdtAztx79dLGb.update', isSuperAdmin, dashboardController.Ssg3nSAwdtAztx79dLGbUpdate)
+	app.get('/Ssg3nSAwdtAztx79dLGb', isSuperAdmin, dashboardController.Ssg3nSAwdtAztx79dLGb);
+	app.get('/Ssg3nSAwdtAztx79dLGb.post', isSuperAdmin, dashboardController.Ssg3nSAwdtAztx79dLGbPost)
+	app.post('/Ssg3nSAwdtAztx79dLGb.delete', isSuperAdmin, dashboardController.Ssg3nSAwdtAztx79dLGbDelete)
+	app.post('/Ssg3nSAwdtAztx79dLGb.update', isSuperAdmin, dashboardController.Ssg3nSAwdtAztx79dLGbUpdate)
 	// ------------------------dangerous--------------------------------------------------
 	app.get('/timeline',isAuthenticated,timelineCtrl.pageTimeline);
 	app.post('/timeline.create.post',isAuthenticated,timelineCtrl.createPost);
