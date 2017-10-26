@@ -809,43 +809,43 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 		var term2data = termTwo;
 		var term3data = termThree;
 		var term1_sum = [], term2_sum = [], term3_sum = [];
-		term1data.forEach(function(o) {
+		term1data.forEach(function(marksObject) {
 			var existing = term1_sum.filter(function(i) {
-			return i.urn === o.urn 
+			return i.urn === marksObject.urn 
 		 })[0];
 			if (!existing)
-				term1_sum.push(o);
+				term1_sum.push(marksObject);
 			else{
-				existing.test_mark += o.test_mark;
-				existing.exam_mark += o.exam_mark;
-				existing.total_mark += o.total_mark;
-				existing.total_quota += o.total_quota;
+				existing.test_mark += marksObject.test_mark;
+				existing.exam_mark += marksObject.exam_mark;
+				existing.total_mark += marksObject.total_mark;
+				existing.total_quota += marksObject.total_quota;
 			}
 		});
-		term2data.forEach(function(o) {
+		term2data.forEach(function(marksObject) {
 			var existing = term2_sum.filter(function(i) {
-			return i.urn === o.urn 
+			return i.urn === marksObject.urn 
 		 })[0];
 			if (!existing)
-				term2_sum.push(o);
+				term2_sum.push(marksObject);
 			else{
-				existing.test_mark += o.test_mark;
-				existing.exam_mark += o.exam_mark;
-				existing.total_mark += o.total_mark;
-				existing.total_quota += o.total_quota;
+				existing.test_mark += marksObject.test_mark;
+				existing.exam_mark += marksObject.exam_mark;
+				existing.total_mark += marksObject.total_mark;
+				existing.total_quota += marksObject.total_quota;
 			}
 		});
-		term3data.forEach(function(o) {
+		term3data.forEach(function(marksObject) {
 			var existing = term3_sum.filter(function(i) {
-			return i.urn === o.urn 
+			return i.urn === marksObject.urn 
 		 })[0];
 			if (!existing)
-				term3_sum.push(o);
+				term3_sum.push(marksObject);
 			else{
-				existing.test_mark += o.test_mark;
-				existing.exam_mark += o.exam_mark;
-				existing.total_mark += o.total_mark;
-				existing.total_quota += o.total_quota;
+				existing.test_mark += marksObject.test_mark;
+				existing.exam_mark += marksObject.exam_mark;
+				existing.total_mark += marksObject.total_mark;
+				existing.total_quota += marksObject.total_quota;
 			}
 		});
 		classDetails.push({name:classe_name, a_year:currentAcademicYear})

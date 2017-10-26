@@ -434,7 +434,7 @@ module.exports = function(app) {
 	app.post('/content.offline.set_marks',isAtLeastTeacher,offlineController.setMarksStudent);
 	app.post('/content.offline.undo_marks',isAtLeastTeacher,offlineController.undoMarksStudent);
 
-	//app .get('/report',isAuthenticated, marksController.getPageReport);
+	app .get('/report',isAuthenticated, marksController.getPageReport);
 	app .get('/chart',isAuthenticated, marksController.getPageChart);
 	app .get('/report/:student_id',isAuthenticated, marksController.getPageReportUniversity);
 	app.post('/report.university',isAuthenticated,marksController.getReport_JSON);
@@ -443,7 +443,7 @@ module.exports = function(app) {
 	app.post('/report.all',isAuthenticated,marksController.getFullReportAllStudent);
 	app.post('/get.general.class.marks',isAuthenticated,marksController.getClassMarks);
 	//new administration report
-	//app.get('/printable.report',isAuthenticated,marksController.printableReport);
+	app.get('/printable.report',isAuthenticated,marksController.printableReport);
 
 	app .get('/class.academic_years',isAuthenticated,marksController.getListAcademicYears);
 	app .get('/class.academic_years/:class_id',isAuthenticated,marksController.getClassAcademicYears);
