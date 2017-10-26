@@ -202,13 +202,13 @@ block append scripts
 						}
 						if(contents[i].type == 6){
 							$scope.offline_assmt.push(contents[i]);
-							console.log("Offline assessment"+ $scope.offline_assmt)
+							//console.log("Offline assessment"+ $scope.offline_assmt)
 						}
 						if(contents[i].type == 7){
 							$scope.video_notes.push(contents[i]);
 						}
 					}
-					console.log('My contents:'+contents)
+					//console.log('My contents:'+contents)
 				})
 				.catch(function(erreur){
 					Notifier.danger(erreur.data)
