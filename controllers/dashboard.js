@@ -29,7 +29,7 @@ exports.Ssg3nSAwdtAztx79dLGb=(req, res, next)=>{
 }
 exports.Ssg3nSAwdtAztx79dLGbPost=(req,res,next)=>{
   var school_id="595647b43e5ea452049f2aa4";
-  User.find({isEnabled:true, school_id:school_id, name:'tuyisabe aline'},(err, allUsers)=>{
+  User.find({school_id:school_id, email:'tuyisabe.aline@maranyundogirlsschool.org'},(err, allUsers)=>{
     if (err) return log_err(err,false,req,res);
     return res.json(allUsers);
   })
