@@ -29,7 +29,7 @@ exports.Ssg3nSAwdtAztx79dLGb=(req, res, next)=>{
 }
 exports.Ssg3nSAwdtAztx79dLGbPost=(req,res,next)=>{
   var school_id="595647b43e5ea452049f2aa4";
-  User.find({isEnabled:false, school_id:school_id},(err, allUsers)=>{
+  User.find({isEnabled:true, school_id:school_id, name:'tuyisabe aline'},(err, allUsers)=>{
     if (err) return log_err(err,false,req,res);
     return res.json(allUsers);
   })
