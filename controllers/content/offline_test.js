@@ -53,6 +53,7 @@ exports.addOfflineTest = (req,res,next)=>{
     Classe.findOne({_id:course_exists.class_id},(err,class_exists)=>{
       if(err) return log_err(err,false,req,res);
       else if(!class_exists) return res.status(400).send('Invalid data');
+        var isexam=!req.body.isexam;
         new Content({
           title:req.body.title,
           marks:req.body.marks,
@@ -64,6 +65,7 @@ exports.addOfflineTest = (req,res,next)=>{
           type:req.app.locals.type.Offline_Assessment,
           currentTerm:class_exists.currentTerm,
           academic_year:class_exists.academic_year,
+          isCAT:isexam,
         }).save((err)=>{
           if(err) return log_err(err,false,req,res);
           return res.end();

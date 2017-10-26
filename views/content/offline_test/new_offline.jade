@@ -22,10 +22,15 @@ block content
 														.form-group.label-floating
 															label.control-label Title of the offline test
 															input.form-control(type="text",required="true",ng-model="title",maxlength="140")
-													.col-md-3
-														.form-group.label-floating
-															label.control-label Marks for this test
-															input.form-control(type="number",required="true",ng-model="marks")
+													.row
+														.col-md-3
+															.form-group.label-floating
+																label.control-label Marks for this test
+																input.form-control(type="number",required="true",ng-model="marks")
+														.col-md-3
+															.form-group.label-floating
+																label.control-label Tick the case if it is Exam
+																input.form-control(type="checkbox",ng-model="isexam")
 												button.btn.btn-fill.btn-rose(type="submit").pull-right Submit
 block append scripts
 	script.
@@ -39,6 +44,7 @@ block append scripts
 					unit_id:"#{unit_id}",
 					title:$scope.title,
 					marks:$scope.marks,
+					isexam:$scope.isexam,
 				})
 				.then(function(response){
 					Notifier.success(" Operation successful")
