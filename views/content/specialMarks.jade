@@ -21,21 +21,20 @@ block content
 														th #
 														th Name
 														th URN
-														th Marks
-														th Total
-														th.disabled-sorting Confirm
+														th.disabled-sorting Marks
 													tbody
 														tr(ng-repeat="student in StudentNotYet")
 															td(width="1%" height="1%") {{$index + 1}}.
 															td {{student.name|uppercase}}
 															td {{student.URN|uppercase}}
 															td
-																.form-group.label-floating
-																		label <strong>/{{totalMarks}}</strong>
+																form(ng-submit="setMarks(student._id,student.given_mark)")
+																	.input-group
 																		input.form-control(type="number",required="true",ng-model="student.given_mark",ng-init="student.given_mark? student.marks:0")
-															td /{{totalMarks}}
-															td
-																a.btn-simple.btn.label.btn-rose(ng-click="setMarks(student._id,student.given_mark)") Set marks
+																		span.input-group-addon 
+																			strong /{{totalMarks}}
+																		span.input-group-addon
+																			button.btn-primary(type="submit") Save
 											h4.category.text-center(ng-show="!StudentNotYet.length>0") No student to give marks here
 							.col-md-6
 								.card
