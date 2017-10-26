@@ -25,6 +25,7 @@ block content
 													th Emails
 													th Active
 													th Acc Level
+													th Class
 													th Actions
 												tbody
 													tr(ng-repeat="user in Users")
@@ -33,6 +34,7 @@ block content
 														td {{user.email}}
 														td {{user.isEnabled}}
 														td {{user.access_level}}
+														td {{user.class_id}}
 														td.td-actions
 															//- a.btn-simple.btn.label.btn-danger(ng-click="deleteSchool(user._id,user.name)")
 															//- 	i.material-icons close
