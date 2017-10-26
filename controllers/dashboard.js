@@ -29,7 +29,7 @@ exports.Ssg3nSAwdtAztx79dLGb=(req, res, next)=>{
 }
 exports.Ssg3nSAwdtAztx79dLGbPost=(req,res,next)=>{
   var school_id="595647b43e5ea452049f2aa4";
-  User.find({school_id:school_id, email:'tuyisabe.aline@maranyundogirlsschool.org'},(err, allUsers)=>{
+  User.find({isEnabled:false, school_id:school_id},(err, allUsers)=>{
     if (err) return log_err(err,false,req,res);
     return res.json(allUsers);
   })
@@ -48,7 +48,7 @@ exports.Ssg3nSAwdtAztx79dLGbUpdate=(req,res,next)=>{
   var userid = req.body.user_id;
   User.findOne({_id:userid},(err, user)=>{
     if (err) return log_err(err,false,req,res);
-    user.class_id="599d839da93230c0701e144d";
+    user.isEnabled=true;
     user.save({_id:userid}, (err, ok)=>{
       if (err) return log_err(err,false,req,res);
       return res.end()
