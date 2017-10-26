@@ -162,6 +162,7 @@ block append scripts
 				$scope.c_type =-1
 				$scope.currentUnit= unit_id;
 				$scope.currentUnitName= unit_name;
+				$scope.getContent(index);
 			}
 			$scope.addContent=function(){
 				if(!$scope.add_content||!$scope.this_unit) return;

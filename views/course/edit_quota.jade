@@ -65,7 +65,7 @@ block content
 													table.table
 														thead
 															th.text-center #
-															th Tests
+															th Tests 
 															th Type
 															th Is Considered
 															th Student average
@@ -74,7 +74,7 @@ block content
 														tbody
 															tr(ng-repeat="test in tests")
 																td(width="1%" height="1%") {{$index + 1}}
-																td {{test.title | uppercase}}
+																td: a(href="/content.do.{{test.type|toLink}}/{{test._id}}") {{test.title | uppercase}}
 																td {{test.type|toTypeName}}
 																td.text-center: a.btn-simple.btn.label.btn-rose(ng-click="setQuoted(test._id)")
 																	i.material-icons {{test.isQuoted|toQuote}}
@@ -103,7 +103,7 @@ block content
 													tbody
 														tr(ng-repeat="exam in exams")
 															td(width="1%" height="1%") {{$index + 1}}
-															td {{exam.title | uppercase}}
+															td: a(href="/content.do.{{exam.type|toLink}}/{{exam._id}}") {{exam.title | uppercase}}
 															td {{exam.type|toTypeName}}
 															td.text-center: a.btn-simple.btn.label.btn-rose(ng-click="setQuoted(exam._id)")
 																i.material-icons {{exam.isQuoted|toQuote}}
@@ -132,6 +132,14 @@ block append scripts
 		.filter('toQuote', function() {		
 			return function(input){	
 				return input ?'verified_user':'-';
+			}
+		})
+		.filter('toLink', function() {		
+			return function(input){	
+				switch(input){
+					case 1: input="w_note";break;case 2: input="note";break;case 3: input="automated";break;case 4: input="written";break;case 5: input="uploaded";break;case 6: input="offline";break;case 7: input="video";break;default :break;
+				}
+				return input;
 			}
 		})
 		.controller('editCourseQuotaCtrl', function($scope,$http){
