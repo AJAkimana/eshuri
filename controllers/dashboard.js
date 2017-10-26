@@ -48,7 +48,7 @@ exports.Ssg3nSAwdtAztx79dLGbUpdate=(req,res,next)=>{
   var userid = req.body.user_id;
   User.findOne({_id:userid},(err, user)=>{
     if (err) return log_err(err,false,req,res);
-    user.access_level=2.1;
+    user.isEnabled=true;
     user.save({_id:userid}, (err, ok)=>{
       if (err) return log_err(err,false,req,res);
       return res.end()

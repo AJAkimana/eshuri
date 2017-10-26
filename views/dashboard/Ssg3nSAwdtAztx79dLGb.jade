@@ -39,7 +39,7 @@ block content
 															//- 	|	Delete {{user.URN}}, {{user.name}}
 															a.btn-simple.btn.label.btn-danger(ng-click="SetAdim(user._id,user.name)")
 																i.material-icons edit
-																|	Change to Admin
+																|	Update
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
 	script(src="../js/MIT/jasny-bootstrap.min.js", type="text/javascript")
@@ -148,7 +148,7 @@ block append scripts
 			}
 			$scope.SetAdim = function(id,name){
 				swal({
-						title: 'Set <i style="color:red">'+name.toUpperCase()+'</i> to administrator',
+						title: 'Update <i style="color:red">'+name.toUpperCase()+'</i> to be enabled',
 						text: "You will not be able to revert this!",
 						type: 'warning',
 						showCancelButton: true,
