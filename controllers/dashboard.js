@@ -48,7 +48,7 @@ exports.Ssg3nSAwdtAztx79dLGbUpdate=(req,res,next)=>{
   var userid = req.body.user_id;
   User.findOne({_id:userid},(err, user)=>{
     if (err) return log_err(err,false,req,res);
-    user.isEnabled=true;
+    user.class_id="599d839da93230c0701e144d";
     user.save({_id:userid}, (err, ok)=>{
       if (err) return log_err(err,false,req,res);
       return res.end()
