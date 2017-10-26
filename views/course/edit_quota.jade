@@ -110,7 +110,7 @@ block content
 															td.text-center: a.btn-simple.btn.label.btn-rose {{(exam.__v*exam.marks/100).toFixed(1)}}
 															td.text-center: a.btn-simple.btn.label.btn-rose(ng-click="updateTotalMarks(exam)") / {{exam.marks}}   
 																i.material-icons edit
-															td: a(ng-click="setCAT(exam._id)") Send to CATs
+															td: a(href="#", ng-click="setCAT(exam._id)") Send to CATs
 											p.category.text-center(ng-show ="!exams.length") No available exams here
 							.col-md-12
 								br
