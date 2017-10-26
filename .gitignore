@@ -1,5 +1,4 @@
 node_modules/
-.eShuri.env.PROD
 .eShuri.env.DEV
 package-lock.json
 
