@@ -17,7 +17,7 @@ const passport = require('passport');
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
- dotenv.load({ path: '.eShuri.env.PROD'});
+ dotenv.load({ path: '.eShuri.env.DEV'});
 
 /**
  * API keys and Passport configuration.
@@ -43,7 +43,7 @@ mongoose.connection.on('error', () => {
  */
 app.set('port', process.env.PORT || 6000);
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 app.locals.pretty=process.env.devStatus =='DEV'
 
 app.use(compression());

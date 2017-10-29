@@ -91,6 +91,7 @@ exports.pageEditOfflineTest = (req,res,next)=>{
       title:'Update offline test',
       title_offline:content_exists.title,
       content_id:content_exists._id,
+      course_id:content_exists.course_id,
 	  marks:content_exists.marks,
 	  unit_id:content_exists.unit_id,
       pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,

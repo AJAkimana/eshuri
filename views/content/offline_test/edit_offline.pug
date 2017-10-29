@@ -1,0 +1,56 @@
+extends ../../layout
+block content 
+	.main-panel
+		include ../../partials/header
+		.wrapper.wrapper-full-page.full-page-background(ng-controller="add_Offline_Ctrl",style="background-image: url('../imgs/register.jpeg')")
+			.full-page.login-page
+				.content
+					.container-fluid
+						.row
+							.col-md-6.center
+								.card
+									.card-header.card-header-icon(data-background-color="rose")
+										i.material-icons person
+									.card-content
+										.row
+											.col-md-12.center
+												a.label.btn.btn-fill.btn-danger.pull-right(href="/courses/"+course_id) Cancel
+												h3.card-title.text-center Edit offline test 
+												strong {{'#{unit_name}'|uppercase}} 
+												form(ng-submit="submitNewOffline()")
+													.row
+														.col-md-10
+															.form-group.label-floating
+																label.control-label Title of this assessment
+																input.form-control(type="text",required="true",ng-model="title",maxlength="140")
+														.col-md-3
+															.form-group.label-floating
+																label.control-label Marks for this test
+																input.form-control(type="number",required="true",ng-model="marks")
+													button.btn.btn-fill.btn-rose(type="submit").pull-right Submit
+block append scripts
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute']);
+		app
+		.controller('add_Offline_Ctrl', function($scope, $http,$window){
+			$scope.submitNewOffline = function(){
+				$http
+				.post("/content.update.offline/",{
+					_csrf:$scope.anti_csrf,
+					content_id:"#{content_id}",
+					title:$scope.title,
+					marks:$scope.marks,
+				})
+				.then(function(response){
+					Notifier.success("Operation successful !")
+					setTimeout(function(){$window.history.back();},2000);
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				}); 
+			}
+			$scope.title ="#{title_offline}";
+			$scope.marks =Number("#{marks}");
+			$scope.unit_id ="#{unit_id}"
+			$scope.anti_csrf ="#{csrf_token}";
+		})

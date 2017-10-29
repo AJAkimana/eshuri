@@ -1,0 +1,30 @@
+doctype html
+html(lang="fr")
+	head
+		link(rel="stylesheet", type="text/css", href="../css/bootstrap.min.css")
+		link(rel="stylesheet", type="text/css", href="../css/ionicons.min.css")
+		link(rel="stylesheet", type="text/css", href="../css/monStyle.css")
+		link(rel="stylesheet", type="text/css", href="../js/strapdown/strapdown.css")
+		link(rel="stylesheet", type="text/css", href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons")
+		link(rel='shortcut icon', href='/favicon.png')
+	body
+		a(href="/courses/"+course_id)
+			button.btn.btn-label Go back
+		textarea(theme="") #{code_md}
+
+block scripts
+	script(src="../js/strapdown/strapdown.js", type="text/javascript")
+//- doctype html
+//- html
+//- 	title Hello Strapdown
+//- 	xmp(theme='united', style='display:none;')
+//- 		| # Markdown text goes in here
+//- 		| ## Chapter 1
+//- 		| Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore
+//- 		| et dolore magna aliqua.
+//- 		| ## Chapter 2
+//- 		| Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+//- 		| aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+//- 		| cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+//- 		| culpa qui officia deserunt mollit anim id est laborum.
+//- 	script(src='http://strapdownjs.com/v/0.2/strapdown.js')

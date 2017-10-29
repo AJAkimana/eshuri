@@ -1,0 +1,43 @@
+extends ../../layout
+block content 
+	.main-panel
+		include ../../partials/header 
+		.wrapper.wrapper-full-page.full-page-background(ng-controller="add_Uploaded_Ctrl",style="background-image: url('../imgs/register.jpeg')")
+			.full-page.login-page
+				.content
+					.container-fluid
+						.row
+							.col-md-6.center
+								.card
+									.card-header.card-header-icon(data-background-color="rose")
+										i.material-icons attach_file
+									.card-content
+										.row
+											.col-md-12.center
+												a.label.btn.btn-fill.btn-danger.pull-right(href="/courses/"+course_id) Cancel
+												h3.card-title.text-center Add a new pdf note to <strong>{{'#{unit_name}'|uppercase}}</strong> 
+												form(action="/content.add.uploaded",method="POST",enctype="multipart/form-data")
+													.row
+														.col-md-10
+															.form-group.label-floating
+																label.control-label Title of this pdf assessment
+																input.form-control(type="text",required="true",name="title",maxlength="140")
+														.col-md-3
+															.form-group.label-floating
+																label.control-label Marks for this test
+																input.form-control(type="number",required="true",name="marks")
+														.col-md-7
+															.form-group.label-floating
+																button.btn.btn-success.btn-round Click to upload
+																	i.material-icons attach_file
+																input(type="file",required="true",name="pdf_note",ng-model="noteName")
+																input(type="hidden",value="#{unit_id}",name="unit_id")
+													button.btn.btn-fill.btn-rose(type="submit").pull-right Submit
+block append scripts
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute']);
+		app
+		.controller('add_Uploaded_Ctrl', function($scope, $http){
+			$scope.unit_id ="#{unit_id}"
+			$scope.anti_csrf ="#{csrf_token}";
+		})

@@ -39,6 +39,7 @@
     "passport": "^0.3.2",
     "passport-facebook": "^2.1.1",
     "passport-local": "^1.0.0",
+    "pug": "^2.0.0-rc.4",
     "ramda": "^0.25.0",
     "redis": "^2.6.2",
     "serve-favicon": "^2.3.0",

@@ -1,0 +1,223 @@
+extends ../../layout
+block append css_code
+	link(rel="stylesheet", type="text/css", href="../css/font-awesome470/css/font-awesome.min.css")
+block content 
+	.main-panel
+		include ../../partials/header
+		.wrapper.wrapper-full-page.full-page-background(ng-controller="addQuestion_Ctrl",style="background-image: url('../imgs/register.jpeg')")
+			.full-page.login-page
+				.content
+					.container-fluid
+						.row
+							.col-md-8.center
+								.card
+									.card-header.card-header-icon(data-background-color="rose")
+										i.material-icons assessment
+									h3.card-title.text-center Edit automated assessment <strong>{{title| uppercase}}</strong>
+									a.btn-simple.btn.label.btn-rose(href="/courses/"+course_id) Go back
+									h1
+									.card-content
+										form(ng-submit="addQuestion()")
+											.row
+												.col-md-6
+													.form-group.label-floating
+														label.control-label Question title
+														input.form-control(type="text",name="title",required="true",maxlength="300",ng-model="q.title")
+												.col-md-3
+													.form-group.label-floating
+														label.control-label Question marks
+														input.form-control(type="number",required="true",ng-model="q.currentMark")
+												.col-md-1
+													button.btn.btn-fill.btn-rose(type="submit") Add to list
+							.col-md-10.center
+								.card
+									.card-header
+										h2.card-title.text-center {{Q.length || 0}} Questions up to<strong> {{getTotal()}} Pts</strong>
+									.card-content
+										.panel-group(role='tablist')#accordion
+											h5.card-title.text-center(ng-show="!Q.length") <i>No questions yet </i>
+											.panel.panel-default(ng-repeat="quest in Q")
+												.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentQuest($index)")
+													a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
+														h4.panel-title
+															| {{$index+1}}. {{quest.t|uppercase}}  ({{quest.m}} pts)
+															i.material-icons keyboard_arrow_down
+												.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
+													.panel-body
+														.col-md-12
+															.row
+																button.btn.btn-danger.btn-simple.pull-right(type="button",ng-click="delCurrentquest($index)")
+																	i.material-icons delete
+																a.btn-simple.btn.label.btn-rose(ng-click="addChoice()") Add choices 
+																	i.material-icons add_box
+																a.btn-simple.btn.label.btn-rose(ng-click="editPenalty()")<strong>-</strong> {{quest.p}} pts per wrong answer 
+																	i.material-icons edit
+
+														.col-md-10
+															.table-responsive(ng-show ="quest.c.length")
+																table.table
+																	tbody
+																		tr(ng-repeat="choix in quest.c")
+																			td.td-actions.text-right
+																				button.btn.btn-danger.btn-simple(type='button',ng-click="deleteChoice($index)")
+																					i.material-icons close
+																			td(width="1%" height="1%") {{$index + 1}})
+																			td {{choix.a|uppercase}}
+																			td.td-actions.text-right
+																				button.btn.btn-success.btn-simple(type='button',ng-click="setChoiceAsAnswer($index)")
+																					i.material-icons  {{choix.b|toCheckName}}
+															p.category.text-center(ng-show ="!quest.c.length") No choice available
+								.row
+									.card
+										.card-content
+											.col-md-8
+												.form-group.label-floating
+													label.label-control Assessment title
+													input.form-control(type="text",ng-model="title |uppercase")
+											.col-md-2
+												.form-group.label-floating
+													label.label-control Set up a deadline
+													input.datetimepicker.form-control(type="text",ng-model="deadline")#deadline
+											.col-md-2
+												button.btn.btn-fill.btn-success.pull-right(ng-click="sendAutomated()") Submit
+
+block append scripts
+	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+	script(src="../js/MIT/MIT_moment.min.js", type="text/javascript")
+	script(src="../js/MIT/bootstrap-datetimepicker.js", type="text/javascript")
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute']);
+		app
+		.filter('toLink', function(){
+			return function(input){
+				switch(input){
+					case 1: input="w_note";break;case 2: input="note";break;case 3: input="automated";break;case 4: input="written";break;case 5: input="uploaded";break;default :break;
+				}
+				return input;
+			};
+		})
+		.filter('toCheckName', function() {
+			return function(input){	
+				var radioButton = input==true ? 'radio_button_checked' :'radio_button_unchecked';
+				return radioButton;
+			}
+		})
+		.controller('addQuestion_Ctrl', function($scope, $http,$window){
+			$scope.addQuestion = function(){
+				// t: title of kestion, m: marks, c: choice,p: penalty,asn
+				$scope.Q.push({t:$scope.q.title,m:$scope.q.currentMark,c:[],p:0});
+				$scope.q =null;
+			}
+			$scope.setCurrentQuest= function(quest_num){
+				$scope.currentQuest= quest_num;
+			}
+			$scope.addChoice = function(){
+				swal({
+					title: 'Enter the choice here',
+					html: '<div class="form-group">' +
+							  '<input id="input1" type="text" class="form-control" placeholder="Give the choice" />' +
+						  '</div>',
+					showCancelButton: true,
+					confirmButtonClass: 'btn btn-success',
+					cancelButtonClass: 'btn btn-danger',
+					buttonsStyling: false
+				}).then(function(result) {
+					$scope.appendChoice();
+				}).catch(swal.noop)
+			}	
+			$scope.appendChoice = function(){
+				$scope.Q[Number($scope.currentQuest)].c.push({a:$('#input1').val(),b:false});
+				$scope.$apply();
+			}
+			$scope.deleteChoice = function(index){
+				$scope.Q[$scope.currentQuest].c.splice(index, 1);
+			}
+			$scope.delCurrentquest = function(index){
+				$scope.Q.splice(index, 1);
+			}
+			$scope.setChoiceAsAnswer = function(index){
+				$scope.Q[$scope.currentQuest].c[index].b=!$scope.Q[$scope.currentQuest].c[index].b;
+			}
+			$scope.editPenalty = function(){
+				swal({
+					title: 'Give the penalty per wrong answer',
+					html: '<div class="form-group">' +
+							  '<input id="input2" type="number" class="form-control" placeholder="Give the penalty per wrong answer" />' +
+						  '</div>',
+					showCancelButton: true,
+					confirmButtonClass: 'btn btn-success',
+					cancelButtonClass: 'btn btn-danger',
+					buttonsStyling: false
+				}).then(function(result) {
+					$scope.setPenalty($('#input2').val());
+				}).catch(swal.noop)
+			}	
+			$scope.setPenalty = function(value){
+				if(value < 0 ||value > $scope.Q[$scope.currentQuest].m){
+					Notifier.danger("Penalty value must be > 0 and < total marks");
+					return;
+				}
+				else{
+					$scope.Q[$scope.currentQuest].p=value;
+					$scope.$apply();
+				}
+			}
+			$scope.getTotal = function(){
+				var total = 0;
+				for(var i = 0; i < $scope.Q.length; i++){
+					total += $scope.Q[i].m;
+				}
+				return total;
+			}
+			$scope.sendAutomated = function(){
+				console.log(" I am sending "+new Date($("#deadline").val()).getTime())
+				$http
+				.post("/content.update.automated/",{
+					_csrf:$scope.anti_csrf,
+					unit_id:"#{unit_id}",
+					content_id:"#{content_id}",
+					title:$scope.title,
+					deadline:new Date($("#deadline").val()),
+					Q: $scope.Q,
+				})
+				.then(function(response){
+					Notifier.success(" Operation successful");
+					setTimeout(function(){$window.location.href="/courses/#{course_id}"},1000);
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				}); 
+			}
+			$scope.loadInfo = function(){
+				$http
+				.get("/content.edit.get.automated/#{content_id}")
+				.then(function(response){
+					$scope.Q =response.data.Q;
+					console.log("=>"+JSON.stringify($scope.Q))
+					$scope.title =response.data.title;
+					$scope.deadline =moment(response.data.deadline).format('MM/D/YYYY h:mm a');
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				}); 
+			}
+			$scope.Q=[];
+			$scope.q ={};
+			$scope.anti_csrf ="#{csrf_token}";
+			$('.datetimepicker').datetimepicker({
+				icons: {
+					time: "fa fa-clock-o",
+					date: "fa fa-calendar",
+					up: "fa fa-chevron-up",
+					down: "fa fa-chevron-down",
+					previous: 'fa fa-chevron-left',
+					next: 'fa fa-chevron-right',
+					today: 'fa fa-screenshot',
+					clear: 'fa fa-trash',
+					close: 'fa fa-remove',
+					inline: true
+				}
+		 	
+		 	});
+		 	$scope.loadInfo();
+		})
