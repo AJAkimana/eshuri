@@ -8,6 +8,6 @@ const client = new Tweet({
 });
 // send a tweet 
 module.exports =(msg)=>{
-  client.post('statuses/update', {status: ' @ngendlio @manshuajo '+msg})
+  client.post('statuses/update', {status: ' @AJAkimana @manshuajo '+msg})
   .then(function (tweet) {}).catch(function (error){});
 }
