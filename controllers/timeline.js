@@ -36,17 +36,19 @@ exports.createPost = (req,res,next)=>{
 	req.assert('post'," Post is invalid").notEmpty();
 	const errors = req.validationErrors();
     var category;
-    if(req.body.category){
-      console.log('This post will be seen by whole school: 1 '+req.body.category);
+    if(!req.body.category || 'undefined'){
       category = 1;
+      console.log('This post will be seen by whole school: 1 '+req.body.category);
     }
     else{
-      console.log('This post is for admin and teachers only: 2 '+req.body.category);
       category = 2;
+      console.log('This post is for admin and teachers only: 2 '+category);
     }
   	if(errors) return ;
   	var tags =require('find-hashtags')(req.body.post);
   	req.body.post = req.body.post.replace(/(^|\s)(#[a-z\d-]+)/ig, "$1<a href='/timeline/tag/$2'>$2</a>");
+    //var category=!req.body.category;
+    //console.log('This post is for admin and teachers only: 2 '+category);
   	new Publication({
   		user_id:req.user._id,
   		content:req.body.post,
@@ -86,6 +88,7 @@ exports.getAdminPosts = (req, res, next)=>{
   var school = req.user.school_id;
   Publication.find({school_id:school, category:2}).sort({time:-1}).exec(function(err, postList){
     if (err) console.log("Something went wrong");
+    console.log(accLvl+" and "+school+" Working fine I guess: "+postList);
     return res.json(postList);
   })
 }

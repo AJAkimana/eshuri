@@ -47,23 +47,24 @@ block content
 										br
 										h2.card-title.text-center.text-info(ng-show="!units") <strong>Loading ...</strong>
 									.card-content
-										.col-md-12.center
-											.row
-												.col-md-6
-													.form-group.label-floating
-														h3.control-label Add new content
-														select.form-control(ng-model="add_content",ng-change="loadUnits")
-															option(ng-repeat="type in types", value="{{type.no|toLink}}",) {{type.name}}
-														//span.input-group-btn
-												.col-md-4
-													.form-group.label-floating
-														h3.control-label Choose unit
-														select.form-control(ng-model="this_unit",ng-change="addContent()")
-															option(ng-repeat="unit in units", value="{{unit._id}}",) {{unit.title|uppercase}}
-														
-												.col-md-2
-													.form-group.label-floating
-															button.btn.btn-primary(ng-click="addContent()") Go
+										if access > 2 && access <= 3
+											.col-md-12.center
+												.row
+													.col-md-6
+														.form-group.label-floating
+															h3.control-label Add new content
+															select.form-control(ng-model="add_content",ng-change="loadUnits")
+																option(ng-repeat="type in types", value="{{type.no|toLink}}",) {{type.name}}
+															//span.input-group-btn
+													.col-md-4
+														.form-group.label-floating
+															h3.control-label Choose unit
+															select.form-control(ng-model="this_unit",ng-change="addContent()")
+																option(ng-repeat="unit in units", value="{{unit._id}}",) {{unit.title|uppercase}}
+															
+													.col-md-2
+														.form-group.label-floating
+																button.btn.btn-primary(ng-click="addContent()") Go
 													
 										.panel-group(role='tablist')#accordion
 											h5.card-title.text-center(ng-show="!units.length") <i>No units here </i>

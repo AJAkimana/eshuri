@@ -23,7 +23,7 @@ block content
 													.form-group.label-floating
 														label.control-label Link of the video
 														input.form-control(type="text",required="true",name="link",ng-model="link")
-														input(type="hidden",value="#{unit_id}",name="unit_id")
+														input(type="hidden",value="{{unit_id}}",name="unit_id")
 													button.btn.btn-fill.btn-rose(type="submit").pull-right Submit
 block append scripts
 	script.

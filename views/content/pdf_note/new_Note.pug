@@ -24,7 +24,7 @@ block content
 														button.btn.btn-success.btn-round Click to upload
 															i.material-icons attach_file
 														input(type="file",required="true",name="pdf_note",ng-model="noteName")
-														input(type="hidden",value="#{unit_id}",name="unit_id")
+														input(type="hidden",value="{{unit_id}}",name="unit_id")
 													button.btn.btn-fill.btn-rose(type="submit").pull-right Submit
 block append scripts
 	script.

@@ -50,7 +50,9 @@ block content
 																	i.material-icons delete
 																a.btn-simple.btn.label.btn-rose(ng-click="addChoice()") Add choices 
 																	i.material-icons add_box
-																a.btn-simple.btn.label.btn-rose(ng-click="editPenalty()")<strong>-</strong> {{quest.p}} pts in case of a wrong answer
+																a.btn-simple.btn.label.btn-rose(ng-click="editPenalty()")
+																	b -
+																	| {{quest.p}} pts in case of a wrong answer
 																	i.material-icons edit
 
 														.col-md-10

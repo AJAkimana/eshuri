@@ -22,7 +22,7 @@ block content
 														button.btn.btn-success.btn-round Click to upload your pdf
 															i.material-icons attach_file
 														input(type="file",required="true",name="pdf_note",ng-model="noteName")
-														input(type="hidden",value="#{content_id}",name="content_id")
+														input(type="hidden",value="{{content_id}}",name="content_id")
 													.form-group.label-floating
 														label.control-label A small comment on this post (optional)
 														input.form-control(type="text",required="true",name="comment",maxlength="140")
@@ -90,6 +90,7 @@ block append scripts
 				$window.location.href ="/pdf.download/#{content_id}";
 			}
 			$scope.loaded =false;
+			$scope.content_id ="#{content_id}"
 			$scope.unit_id ="#{unit_id}"
 			$scope.anti_csrf ="#{csrf_token}";
 		});

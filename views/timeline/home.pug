@@ -60,7 +60,7 @@ block content
 												label.control-label
 													h4 {{newPost|toNewPost}}
 												textarea.h3.form-control(type="text",rows="{{(newPost.length/100)+3}}" ng-model="newPost",maxlength="{{maxPost}}")
-										if access != 4
+										if access < 4
 											.pull-left
 												input(type='checkbox', ng-model='newPostCategory')
 												|  For whole school
