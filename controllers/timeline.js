@@ -35,20 +35,14 @@ exports.pageTimeline = (req,res,next)=>{
 exports.createPost = (req,res,next)=>{
 	req.assert('post'," Post is invalid").notEmpty();
 	const errors = req.validationErrors();
-    var category;
-    if(!req.body.category || 'undefined'){
-      category = 1;
-      console.log('This post will be seen by whole school: 1 '+req.body.category);
-    }
-    else{
-      category = 2;
-      console.log('This post is for admin and teachers only: 2 '+category);
+    var category=!req.body.category;
+    var postcat = 1;
+    if(category){
+      postcat = 2;
     }
   	if(errors) return ;
   	var tags =require('find-hashtags')(req.body.post);
   	req.body.post = req.body.post.replace(/(^|\s)(#[a-z\d-]+)/ig, "$1<a href='/timeline/tag/$2'>$2</a>");
-    //var category=!req.body.category;
-    //console.log('This post is for admin and teachers only: 2 '+category);
   	new Publication({
   		user_id:req.user._id,
   		content:req.body.post,
@@ -56,7 +50,7 @@ exports.createPost = (req,res,next)=>{
   		school_id:req.user.school_id,
       isAuto:false, // Here it is a post with will
       user_name:req.user.name,
-      category:category,
+      category:postcat,
   		tags:tags,
   	}).save((err)=>{
   		if(err) return log_err(err,false,req,res);
