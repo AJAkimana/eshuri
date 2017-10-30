@@ -35,10 +35,11 @@ exports.pageTimeline = (req,res,next)=>{
 exports.createPost = (req,res,next)=>{
 	req.assert('post'," Post is invalid").notEmpty();
 	const errors = req.validationErrors();
-    var category=!req.body.category;
-    var postcat = 1;
-    if(category){
-      postcat = 2;
+    var postcat;
+    if(req.user.access_level>=req.app.locals.access_level.STUDENT) postcat = 1;
+    else{
+      if(req.body.category) postcat = 1;
+      else postcat = 2;
     }
   	if(errors) return ;
   	var tags =require('find-hashtags')(req.body.post);
