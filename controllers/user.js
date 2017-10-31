@@ -53,10 +53,10 @@ exports.postSignIn = (req, res, next) => {
   })(req, res, next);
 };
 exports.postOfflineSignIn = (req, res, next) => {
-  console.log('HE POSTED BODY '+JSON.stringify(req.body));
-  console.log('HE POSTED HEADERS '+JSON.stringify(req.headers));
-  console.log('HE POSTED PARAMS'+JSON.stringify(req.params));
-  console.log('HE POSTED QUERY'+JSON.stringify(req.query));
+  // console.log('HE POSTED BODY '+JSON.stringify(req.body));
+  // console.log('HE POSTED HEADERS '+JSON.stringify(req.headers));
+  // console.log('HE POSTED PARAMS'+JSON.stringify(req.params));
+  // console.log('HE POSTED QUERY'+JSON.stringify(req.query));
 
   req.assert('email', 'Email is not valid').isEmail();
   req.assert('password', 'Password cannot be blank').notEmpty();

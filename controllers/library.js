@@ -4,7 +4,7 @@ const Library = require('../models/Library'),
 
 
 exports.getLibraryViewPage = (req,res,next)=>{
-	res.render('library/viewBook',{
+	res.render('library/view_library',{
       title:"Library",
       userName:req.user.name,
       pic_id:req.user._id,
@@ -26,7 +26,7 @@ exports.postLibraryFile= (req,res,next)=>{
 			});
 			return log_err(err,false,req,res);
 		} 
-		else if(bookExists!=""){
+		else if(bookExists){
 			require("fs").unlink(req.file.path,(err)=>{
 			});
 			return res.render("./lost",{msg:"Sorry the title exists"})
@@ -159,10 +159,29 @@ exports.updatePhoto = (req,res,next)=>{
 exports.getPhoto = (req,res)=>{
 	req.assert('bookId', 'Invalid data').isMongoId();
 	const errors = req.validationErrors();
-	if (errors) return res.status(400).send(errors[0].msg);
+	var picture_location=process.env.LIBRARY_PICTURE;
+	if (errors) return res.sendFile(picture_location+"/bookdef.png");
+
+	var img_path;
 	Library.findById(req.params.bookId,(err,bookDetails)=>{
-		var photoPath=process.env.LIBRARY_PICTURE+"/"+bookDetails.image;
-		return res.sendFile(photoPath);
+		if(err){
+	      console.log("Error picture "+err);
+	      return res.sendFile(picture_location+"/bookdef.png");
+	    }
+	    if(bookDetails&&bookDetails.image!="") img_path =bookDetails.image;
+	    else  img_path ="bookdef.png";
+
+	    var file_location=picture_location+"/"+img_path;
+	    var fs=require("fs");
+	    fs.access(file_location, fs.constants.F_OK | fs.constants.R_O,(err)=>{
+	      if(err) {
+	        file_location=picture_location+"/bookdef.png";
+	      }
+	     	console.log("I am sending "+file_location)
+	      return res.sendFile(file_location);  
+	    }); 
+		// var photoPath=process.env.LIBRARY_PICTURE+"/"+bookDetails.image;
+		// return res.sendFile(photoPath);
 	})
 	
 }

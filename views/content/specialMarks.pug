@@ -64,7 +64,7 @@ block content
 
 block append scripts
 	script.
-		var app =angular.module('eshuri_App', ['ngRoute']);
+		var app =angular.module('eshuri_App', ['ngRoute', 'angularUtils.directives.dirPagination']);
 		app	
 		.controller('setSpecialMarksCtrl', function($scope,$http){
 			

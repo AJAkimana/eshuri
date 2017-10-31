@@ -107,21 +107,14 @@ block content
 													br 
 													input.form-control(type="number",required="true",name="level",ng-model="bookToEdit.level",maxlength="1")
 												button.btn.btn-fill.btn-rose(ng-click="updateBook()").pull-right Update details
-								.col-md-2.pull-right(ng-show="!overView && !viewBook && !EditBookInfo")
-									.card
-										.card-content
-											.row
-												.col-md-12.text-center
-													h3.card-title <strong> Levels</strong>
-													.btn.btn-danger.btn-simple(ng-click="changeLevel('')") All
-													.levels(ng-repeat="onelevel in levelList")
-														.btn.btn-danger.btn-simple(ng-click="changeLevel(onelevel)") Level {{onelevel}}
+								
 								.col-md-10(ng-show="!overView && !viewBook && !EditBookInfo")
 									.col-md-4(ng-repeat="book in bookList")
-										.card(style="height:20vh")
-											.card-product(id='{{book._id}}')
+										//.card.col-sm-4(style="height:20vh")
+										.card.col-sm-4
+											.card-header(id='{{book._id}}')
 												a(href="",ng-click="readBook(book)")
-													.card-image(data-header-animation='true' style="height:10vh")
+													.card-image(data-header-animation='true')
 														img.img(src='/library.get.photo/{{book._id}}',alt="{{book.title|uppercase}}",)
 											.card-content
 												.card-actions
@@ -137,6 +130,16 @@ block content
 												a(style="word-wrap: break-word",href="",ng-click="readBook(book)") {{book.title|uppercase}}
 												.price Author: 
 													strong(style="word-wrap: break-word") {{book.author|uppercase}}
+								.col-md-2(ng-show="!overView && !viewBook && !EditBookInfo")
+									.card
+										.card-header
+											.col-md-12.text-center
+													h3.card-title <strong> Levels</strong>
+										.card-content
+											.col-md-12.text-center
+												.btn.btn-danger.btn-simple(ng-click="changeLevel('')") All
+												.levels(ng-repeat="onelevel in levelList")
+													.btn.btn-danger.btn-simple(ng-click="changeLevel(onelevel)") Level {{onelevel}}
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
 	script(src="../js/MIT/jasny-bootstrap.min.js", type="text/javascript")

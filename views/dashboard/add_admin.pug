@@ -86,13 +86,13 @@ block append scripts
 					Notifier.danger(erreur.data);
 				});
 			}
-			$scope.removeAdmin = function(admin_id){
+			$scope.removeAdmin = function(admin_id, admin_name){
 				$http
 				.post("/school.teacher.to.admin",{_csrf:$scope.anti_csrf,admin_id:admin_id,school_id:$scope.school_id })
 				.then(function(response){
 					$scope.getListAdmins();
 					$scope.getListTeachers();
-					Notifier.success("Operation successful !");
+					Notifier.success("Operation successful! "+admin_name.toUpperCase()+" is no longer admin.");
 				})
 				.catch(function(erreur){
 					Notifier.danger(erreur.data);

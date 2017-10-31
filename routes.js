@@ -480,8 +480,8 @@ module.exports = function(app) {
 	app .get('/messages.get/:from_id',isAuthenticated,timelineCtrl.getMEssageFromOne);
 
 	app.get('/library',isAuthenticated,libraryCtrl.getLibraryViewPage)
-	app.post('/library.book.list',isAuthenticated,isAtLeastStudent,libraryCtrl.getLibraryBookList)
-	app.post('/library.do.upload',isAuthenticated,isAtLeastTeacher,upload_File,libraryCtrl.postLibraryFile)
+	app.post('/library.book.list',isAtLeastStudent,libraryCtrl.getLibraryBookList)
+	app.post('/library.do.upload',isAtLeastTeacher,upload_File,libraryCtrl.postLibraryFile)
 	app.get('/library.get.pdf/:bookId',isAuthenticated,libraryCtrl.getPdfFile)
 	app.get('/library.level.list',isAuthenticated,libraryCtrl.getLevelList)
 	app.delete('/delete.Book/:bookId',isAuthenticated,isAtLeastTeacher,libraryCtrl.deleteBook)
