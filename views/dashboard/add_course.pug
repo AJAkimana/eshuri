@@ -111,6 +111,14 @@ block content
 										.col-md-12
 											h3.text-center List of courses in <b>{{classe_name|uppercase}}</b> at {{school_name|uppercase}}
 											.table-responsive(ng-show="courses.length")
+												form.form-inline
+													.form-group.pull-left
+														strong Show
+														select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
+															option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
+														strong entries
+													.form-group.pull-right
+														input.form-control(type='text', ng-model='search', placeholder='Search')
 												table.table
 													thead
 														th.text-center #
@@ -121,7 +129,7 @@ block content
 														th: a.btn-simple.btn.label.btn-rose(ng-click="a='teacher_list';b=!b") Number of teachers
 														th Actions
 													tbody
-														tr(ng-repeat="course in courses |orderBy:a:b")
+														tr(pagination-id="allcourses", dir-paginate="course in courses |orderBy:a:b|filter:search|itemsPerPage:n_pages")
 															td(width="1%" height="1%") {{$index + 1}}
 															td {{course.name | uppercase}}
 															td {{course.code|uppercase}}
@@ -138,6 +146,7 @@ block content
 																button.btn-success.btn.label(type='button',ng-click="editCourseName(course._id,course.name, course.currentTerm)")
 																	i.material-icons edit
 																p.category.text-center(ng-show ="!courses.length") No courses provided yet
+												dir-pagination-controls.pull-right(pagination-id='allcourses', max-size='5', direction-links='true', boundary-links='true')
 										#add_teacher_Modal.modal.fade(role='dialog')
 											.modal-dialog
 												.modal-content
@@ -162,7 +171,7 @@ block content
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
 	script.
-		var app =angular.module('eshuri_App', ['ngRoute']);
+		var app =angular.module('eshuri_App', ['ngRoute', 'angularUtils.directives.dirPagination']);
 		app
 		.filter('toTermName', function() {
 			return function(input){
@@ -451,6 +460,7 @@ block append scripts
 					Notifier.danger(erreur.data);
 				});
 			}
+			$scope.pages=[3,5,10,15,20,25];
 			$scope.school_name ="#{school_name}";
 			$scope.classe_name ="#{classe_name}";
 			$scope.academic_year ="#{academic_year}";
