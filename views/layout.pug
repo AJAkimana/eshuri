@@ -20,9 +20,10 @@ html(lang="en" ng-app="eshuri_App")
             //link(rel="stylesheet", type="text/css", href="../css/fontcss/robotocss.css")
             link(rel="stylesheet", type="text/css", href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons")
     body.ng-cloak
-        .wraper.navbar-fixed-top
-            block menuBar
-                include partials/navbar
+        if (access)
+            .wraper.navbar-fixed-top
+                block menuBar
+                    include partials/navbar
         block content
         // Best at the end of the body
         block scripts
