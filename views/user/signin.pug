@@ -2,7 +2,7 @@ extends ../layout
 block content
 	.main-panel
 		include ../partials/header
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="SigninCtrl",style="background-image: url('../imgs/login.jpeg')")
+		.wrapper.wrapper-full-page.full-page-background(ng-controller="SigninCtrl",style="background-image: url('../imgs/maranyu2.jpg')")
 			.full-page.login-page(filter-color="black")
 				.content
 					.container
@@ -10,16 +10,16 @@ block content
 							.col-md-4.col-sm-6.col-md-offset-4.col-sm-offset-3
 								form(ng-submit="signin()")
 									.card.card-login.card-hidden
-										.card-header.text-center(data-background-color="rose")
-											h4.card-title Login
-												.social-line
-													a(href="#").btn.btn-just-icon.btn-simple
-														i.icon.ion-social-facebook-outline
-													a(href="#").btn.btn-just-icon.btn-simple
-														i.icon.ion-social-twitter-outline
-													a(href="#").btn.btn-just-icon.btn-simple
-														i.icon.ion-social-googleplus-outline
-										p.category.text-center Or Be Classical
+										
+										p.category.text-center
+											center
+												h3
+													strong Login Into Your Account
+												h4 
+													strong Don't have one? 
+													a(href="/user.signup")
+														|	SIGNUP
+
 										.card-content
 											.input-group
 												span.input-group-addon.icon.ion-ios-person
@@ -32,11 +32,13 @@ block content
 													label.control-label Password
 													input.form-control(type="password",autocomplete="off",ng-model="nvUser.password")
 										.footer.text-center
-											button.btn.btn-rose.btn-simple.btn-wd.btn-lg(type="submit") Let's go
+											button.btn.btn-rose.btn-lg(type="submit") Login
 											.forgot
 												button.btn.label.label-info(ng-click="forgotPassword()") Forgot your password?
 											.forgot
-												a(href="/user.signup") Create a new account ?
+												h4
+													strong
+														a(href="/user.signup") Create a new account ?
 											.forgot
 												button.btn.label.label-danger(ng-click="resendValidationCode()",ng-show="resend_show") Resend validation code ?
 block append scripts
