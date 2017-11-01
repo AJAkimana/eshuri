@@ -324,14 +324,18 @@ exports.getPageClasse = (req,res,next)=>{
     });  
 }
 exports.getPageRegisterCourse = (req,res)=>{
+  var npgs = [];
   School.findOne({_id:req.params.school_id},(err, school_exists)=>{
     if (err) return log_err(err, true, req, res);
+    //console.log('my n pages: '+req.app.locals.per_pages)
+    npgs=req.app.locals.per_pages;
     return res.render('dashboard/register_course',{
       title:'Register courses',
       school_id:school_exists._id, // send the school_id
       school_name:school_exists.name,
       term_name:school_exists.term_name,
       pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
+      n_pages:npgs,
       csrf_token:res.locals.csrftoken, // always set this buddy
     });
   }) 

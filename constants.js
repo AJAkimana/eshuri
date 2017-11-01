@@ -1,6 +1,7 @@
 /* HERE WE WILL ST SOME COMSTANTS VARIABLES*/
 module.exports = function(app) {
 	/* TYpes of contents*/
+	app.locals.per_pages=[3,5,10,15,20,25];
 	app.locals.type={
 		W_Note:1,
 		PDF_Note:2,
