@@ -1,25 +1,25 @@
 extends ../layout
 
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../partials/header 
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="homePageCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container
-						.row
-							.col-md-6.col-md-offset-2.col-sm-offset-3
-								.card.card-testimonial
-									p.icon.ion-quote
-									.card-content
-										h5.card-description
-											| Anyone can code but not anyone  can code with passion and security in mind. My passion is to build awesome code and make a great work !
-									.footer
-										h4.card-title Ngendakuriyo Lionel
-										h6.card-title Cryptography and Information Security
-										h6.card-avatar
-											a(href="http://www.twitter.com/ngendlio")
-												img.img(src="https://pbs.twimg.com/profile_images/774430671775338496/9a0ExLaX_bigger.jpg")
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="homePageCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container
+					.row
+						.col-md-6.col-md-offset-2.col-sm-offset-3
+							.card.card-testimonial
+								p.icon.ion-quote
+								.card-content
+									h5.card-description
+										| Anyone can code but not anyone  can code with passion and security in mind. My passion is to build awesome code and make a great work !
+								.footer
+									h4.card-title Ngendakuriyo Lionel
+									h6.card-title Cryptography and Information Security
+									h6.card-avatar
+										a(href="http://www.twitter.com/ngendlio")
+											img.img(src="https://pbs.twimg.com/profile_images/774430671775338496/9a0ExLaX_bigger.jpg")
 block append scripts
 	script.
 		var app =angular.module('eshuri_App', ['ngRoute']);

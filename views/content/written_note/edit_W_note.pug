@@ -4,28 +4,28 @@ block menuBar
 block append css_code
 	link(rel="stylesheet", type="text/css", href="../css/simplemde.min.css")
 	link(rel="stylesheet", type="text/css", href="../css/font-awesome470/css/font-awesome.min.css")
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../../partials/header 
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="update_Note_Ctrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page
-				.content
-					.container-fluid
-						.row
-							.col-md-12
-								.card
-									.card-header.card-header-icon(data-background-color="rose")
-										i.material-icons note
-									.card-content
-										.row
-											.col-md-12
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="update_Note_Ctrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page
+			.content
+				.container-fluid
+					.row
+						.col-md-12
+							.card
+								.card-header.card-header-icon(data-background-color="rose")
+									i.material-icons note
+								.card-content
+									.row
+										.col-md-12
+											a.label.btn.btn-fill.btn-danger.pull-right(href="/courses/"+course_id) Cancel
+											h3.card-title.text-center Edit note :<strong>{{title|uppercase}}</strong>
+											form(ng-submit="update_Note()")
+												.form-group.label-floating
+													textarea.form-control(rows="4" cols="50",ng-model="w_note.code_md")#myTextArea #{code_md}
+												button.btn.btn-fill.btn-rose(type="submit") Submit
 												a.label.btn.btn-fill.btn-danger.pull-right(href="/courses/"+course_id) Cancel
-												h3.card-title.text-center Edit note :<strong>{{title|uppercase}}</strong>
-												form(ng-submit="update_Note()")
-													.form-group.label-floating
-														textarea.form-control(rows="4" cols="50",ng-model="w_note.code_md")#myTextArea #{code_md}
-													button.btn.btn-fill.btn-rose(type="submit") Submit
-													a.label.btn.btn-fill.btn-danger.pull-right(href="/courses/"+course_id) Cancel
 
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")

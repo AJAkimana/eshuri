@@ -1,22 +1,22 @@
 extends ../layout
 
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../partials/header 
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="homePageCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container
-						.row
-							.col-md-6.col-md-offset-2.col-sm-offset-3
-								.card.card-testimonial
-									p.icon.ion-quote
-									.card-content
-										h5
-											| Here we will put the terms and conditions
-									.footer
-										h4.card-title Ngendakuriyo Lionel
-										h6.card-title Eshuri.rw Team
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="homePageCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container
+					.row
+						.col-md-6.col-md-offset-2.col-sm-offset-3
+							.card.card-testimonial
+								p.icon.ion-quote
+								.card-content
+									h5
+										| Here we will put the terms and conditions
+								.footer
+									h4.card-title Ngendakuriyo Lionel
+									h6.card-title Eshuri.rw Team
 								
 block append scripts
 	script.

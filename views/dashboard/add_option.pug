@@ -1,97 +1,97 @@
 extends ../layout
 block append scripts
 	script(src="../js/MIT/jquery.select-bootstrap.js",type="application/javascript")
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../partials/header 
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="optionCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container
-						.row
-							.col-md-7.center
-								.card(ng-show="add_option")
-									.card-header.card-header-icon(data-background-color="rose")
-										i.material-icons school
-									.card-content
-										h3 {{fac_name|uppercase}}
-										h4.card-title Add a new {{school.partnership|toPartnership}} option named: <strong>{{school.name|uppercase}} </strong>
-										form
-											.row
-												.col-md-6
-													.form-group
-														input(type="hidden",ng-model="school.institution",value="1")
-												.col-md-6
-													.form-group.label-floating
-														label.control-label Choose partnership
-														select.form-control(ng-model="school.partnership")
-															option(value="{{$index + 1}}", ng-repeat="partnership in partnerships") {{partnership}}
-												.col-md-6
-													.form-group.label-floating
-														label.control-labelSchool Name
-														input.form-control(type="text", ng-model="school.name")
-												.col-md-6
-													.form-group.label-floating
-														label.control-label Choose a district
-														select.form-control(ng-model="school.district_name")
-															option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
-												.col-md-6
-													.form-group.label-floating
-														label.control-label Choose school category
-														select.form-control(ng-model="school.category")
-															option(value="{{$index + 1}}", ng-repeat="category in categories") {{category}}
-												.col-md-6
-													.form-group.label-floating
-														label.control-label Choose school gender
-														select.form-control(ng-model="school.genderness")
-															option(value="{{$index + 1}}", ng-repeat="genderness in genderness_list") {{genderness}}
-												.col-md-6
-													.form-group.label-floating
-														label.control-label Choose school part name
-														select.form-control(ng-model="school.term_name")
-															option(value="S") They use semesters
-															option(value="T") They use terms
-												.col-md-6
-													.form-group.label-floating
-														label.control-label How many per year?
-														input.form-control(type="number", ng-model="school.term_quantity")
-												.col-md-6
-													.form-group.label-floating
-														label.control-label Percentage for student after retaking successfuly a course
-														input.form-control(type="number",max="100" ng-model="school.retake_marks")
-												.col-md-12
-													.form-group.label-floating
-														label.control-label A small description of the school
-														textarea.form-control(rows="4" cols="50", ng-model="school.description",maxlength="120")
-										button.btn.btn-fill.btn-rose(ng-click="addSchool()") Submit
-										button.btn.btn-fill.btn-danger.pull-right(ng-click="add_option=!add_option") Cancel
-							.col-md-10.center(ng-show="!add_option")
-								.card
-									.card-header.card-header-icon(data-background-color="rose")
-										i.material-icons school
-									.card-content
-										h3 List of options in {{department_name| uppercase}}
-										a.btn-simple.btn.label.btn-rose.pull-right.card-title(ng-click="add_option= !add_option") Add new option
-										h3.category.text-center(ng-show ="!schools.length") No option yet registered
-										.table-responsive(ng-show ="schools.length")
-											table.table
-												thead
-													th.text-center #
-													th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Option
-													th: a.btn-simple.btn.label.btn-rose(ng-click="a='admin_mail';b=!b") Admin
-													th: a.btn-simple.btn.label.btn-rose(ng-click="a='genderness';b=!b") Genderness
-													th: a.btn-simple.btn.label.btn-rose(ng-click="a='category';b=!b") Category
-													th Actions
-												tbody
-													tr(ng-repeat="school in schools |orderBy:a:b")
-														td(width="1%" height="1%") {{$index + 1}}
-														td: a(href="/dashboard.classe/{{school._id}}") {{school.name|uppercase}}
-														td {{school.admin_mail || 'Not defined'}}
-														td {{school.genderness|to_Gender}}
-														td {{school.category|to_Category}}
-														td.td-actions.text-right
-															button.btn.btn-danger(type='button',ng-click="deleteSchool(school._id,school.name)")
-																i.material-icons close
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="optionCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container
+					.row
+						.col-md-7.center
+							.card(ng-show="add_option")
+								.card-header.card-header-icon(data-background-color="rose")
+									i.material-icons school
+								.card-content
+									h3 {{fac_name|uppercase}}
+									h4.card-title Add a new {{school.partnership|toPartnership}} option named: <strong>{{school.name|uppercase}} </strong>
+									form
+										.row
+											.col-md-6
+												.form-group
+													input(type="hidden",ng-model="school.institution",value="1")
+											.col-md-6
+												.form-group.label-floating
+													label.control-label Choose partnership
+													select.form-control(ng-model="school.partnership")
+														option(value="{{$index + 1}}", ng-repeat="partnership in partnerships") {{partnership}}
+											.col-md-6
+												.form-group.label-floating
+													label.control-labelSchool Name
+													input.form-control(type="text", ng-model="school.name")
+											.col-md-6
+												.form-group.label-floating
+													label.control-label Choose a district
+													select.form-control(ng-model="school.district_name")
+														option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+											.col-md-6
+												.form-group.label-floating
+													label.control-label Choose school category
+													select.form-control(ng-model="school.category")
+														option(value="{{$index + 1}}", ng-repeat="category in categories") {{category}}
+											.col-md-6
+												.form-group.label-floating
+													label.control-label Choose school gender
+													select.form-control(ng-model="school.genderness")
+														option(value="{{$index + 1}}", ng-repeat="genderness in genderness_list") {{genderness}}
+											.col-md-6
+												.form-group.label-floating
+													label.control-label Choose school part name
+													select.form-control(ng-model="school.term_name")
+														option(value="S") They use semesters
+														option(value="T") They use terms
+											.col-md-6
+												.form-group.label-floating
+													label.control-label How many per year?
+													input.form-control(type="number", ng-model="school.term_quantity")
+											.col-md-6
+												.form-group.label-floating
+													label.control-label Percentage for student after retaking successfuly a course
+													input.form-control(type="number",max="100" ng-model="school.retake_marks")
+											.col-md-12
+												.form-group.label-floating
+													label.control-label A small description of the school
+													textarea.form-control(rows="4" cols="50", ng-model="school.description",maxlength="120")
+									button.btn.btn-fill.btn-rose(ng-click="addSchool()") Submit
+									button.btn.btn-fill.btn-danger.pull-right(ng-click="add_option=!add_option") Cancel
+						.col-md-10.center(ng-show="!add_option")
+							.card
+								.card-header.card-header-icon(data-background-color="rose")
+									i.material-icons school
+								.card-content
+									h3 List of options in {{department_name| uppercase}}
+									a.btn-simple.btn.label.btn-rose.pull-right.card-title(ng-click="add_option= !add_option") Add new option
+									h3.category.text-center(ng-show ="!schools.length") No option yet registered
+									.table-responsive(ng-show ="schools.length")
+										table.table
+											thead
+												th.text-center #
+												th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Option
+												th: a.btn-simple.btn.label.btn-rose(ng-click="a='admin_mail';b=!b") Admin
+												th: a.btn-simple.btn.label.btn-rose(ng-click="a='genderness';b=!b") Genderness
+												th: a.btn-simple.btn.label.btn-rose(ng-click="a='category';b=!b") Category
+												th Actions
+											tbody
+												tr(ng-repeat="school in schools |orderBy:a:b")
+													td(width="1%" height="1%") {{$index + 1}}
+													td: a(href="/dashboard.classe/{{school._id}}") {{school.name|uppercase}}
+													td {{school.admin_mail || 'Not defined'}}
+													td {{school.genderness|to_Gender}}
+													td {{school.category|to_Category}}
+													td.td-actions.text-right
+														button.btn.btn-danger(type='button',ng-click="deleteSchool(school._id,school.name)")
+															i.material-icons close
 
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")

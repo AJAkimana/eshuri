@@ -1,177 +1,177 @@
 extends ../layout
 block append scripts
 	script(src="../js/MIT/jquery.select-bootstrap.js",type="application/javascript")
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../partials/header 
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="reportCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container-fluid
-						.row
-							.col-md-8.center
-								.card
-									.card-header.card-header-icon(data-background-color="rose")
-										i.material-icons school
-									.card-content
-										h4.card-title Complete the parameters to generate the report
-										.row
-											.col-md-3
-												.form-group.label-floating
-													label.control-label Choose the academic year
-													select.form-control(required="true",ng-model="choosen_year",ng-change="getListTerms()")
-														option(value="", disabled selected)
-														option(value="{{umwaka}}", ng-repeat="umwaka in academic_years") {{umwaka|toNormal}}
-											.col-md-3
-												.form-group.label-floating
-													label.control-label Choose the {{term_name|toTermName}}
-													select.form-control(required="true",ng-model="choosen_term")
-														option(value="", disabled selected)
-														option(value="-1",) All terms 
-														option(value="{{term}}", ng-repeat="term in list_terms") {{term_name|toTermName}} {{term}}
-											.col-md-3
-												button.btn.btn-rose.center(ng-click="generateReport()") Get report
-							.col-md-10.center
-								.card
-									.card-header.card-header-icon(data-background-color="rose")
-										i.material-icons report
-									.card-content
-										.col-md-12
-											.box
-												.box-body
-													div(name='max_marks_and_time')
-													br
-													br
-													br
-													div(name='report')
-														div( style='border:1px solid black;')
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="reportCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-md-8.center
+							.card
+								.card-header.card-header-icon(data-background-color="rose")
+									i.material-icons school
+								.card-content
+									h4.card-title Complete the parameters to generate the report
+									.row
+										.col-md-3
+											.form-group.label-floating
+												label.control-label Choose the academic year
+												select.form-control(required="true",ng-model="choosen_year",ng-change="getListTerms()")
+													option(value="", disabled selected)
+													option(value="{{umwaka}}", ng-repeat="umwaka in academic_years") {{umwaka|toNormal}}
+										.col-md-3
+											.form-group.label-floating
+												label.control-label Choose the {{term_name|toTermName}}
+												select.form-control(required="true",ng-model="choosen_term")
+													option(value="", disabled selected)
+													option(value="-1",) All terms 
+													option(value="{{term}}", ng-repeat="term in list_terms") {{term_name|toTermName}} {{term}}
+										.col-md-3
+											button.btn.btn-rose.center(ng-click="generateReport()") Get report
+						.col-md-10.center
+							.card
+								.card-header.card-header-icon(data-background-color="rose")
+									i.material-icons report
+								.card-content
+									.col-md-12
+										.box
+											.box-body
+												div(name='max_marks_and_time')
+												br
+												br
+												br
+												div(name='report')
+													div( style='border:1px solid black;')
+														br
+														.col-md-6
+															.img-icon
+																img(src='/pp.view/'+pic_id)
 															br
-															.col-md-6
-																.img-icon
-																	img(src='/pp.view/'+pic_id)
+															br
+															br
+															br
+															p
+																| Eshuri report
 																br
+														.col-md-6
+															.img-icon
+																img(src='/pp.view/'+pic_id)
+															br
+															br
+															br
+															br
+															p.col-md-8.col-md-push-5
+																| STUDENT NAME: 
+																label {{user_name}}
 																br
-																br
-																br
-																p
-																	| Eshuri report
-																	br
-															.col-md-6
-																.img-icon
-																	img(src='/pp.view/'+pic_id)
-																br
-																br
-																br
-																br
-																p.col-md-8.col-md-push-5
-																	| STUDENT NAME: 
-																	label {{user_name}}
-																	br
-																	| Class :  
-																	label {{user_class}}
-															center
-																h3
-																	label PROGRESSIVE REPORT
-																label
-																	u {{user_academic_year}} ANNUAL REPORT
-														br
-														br
-														div(name='marks_data', style='border:1px solid black;')
-															table.table.table-condensed.table-striped.table-bordered
-																thead
-																	tr
-																		th(rowspan='3') Subject
-																	tr
-																		th(colspan='3', style='text-align:center;font-weight: bold;background: #CCC') MAX POINTS
-																		th(colspan='3').cell-report FIRST TERM
-																		th(colspan='3').cell-report SECOND TERM
-																		th(colspan='3').cell-report THIRD TERM
-																		th(colspan='3').cell-report ANNUAL POINTS
-																	tr(align='center')
-																		th.cell-strong TEST
-																		th.cell-strong EXAM
-																		th.cell-strong TOTAL
-																		th.cell-report TEST
-																		th.cell-report EXAM
-																		th.cell-report TOTAL
-																		th.cell-report TEST
-																		th.cell-report EXAM
-																		th.cell-report TOTAL
-																		th.cell-report TEST
-																		th.cell-report EXAM
-																		th.cell-report TOTAL
-																		th(style='text-align:center;font-weight: bold; background: #CCC') MAX
-																		th.cell-report TOTAL
-																		th.cell-report %
-																tbody(align='right')
-																	tr
-																		td(align='left').cell-mi-strong IP
-																		td(style='font-weight: bold; background: #CCC') 30
-																		td(style='font-weight: bold; background: #CCC') 30
-																		td(style='font-weight: bold; background: #CCC') 60
-																		td 18
-																		td 25
-																		td 43
-																		td 18
-																		td 25
-																		td 43
-																		td 18
-																		td 25
-																		td 43
-																		td(style='font-weight: bold; background: #CCC') 25
-																		td 43
-																		td 43%
-																	tr
-																		td(align='left').cell-mi-strong DATABASE
-																		td(style='font-weight: bold; background: #CCC') 30
-																		td(style='font-weight: bold; background: #CCC') 30
-																		td(style='font-weight: bold; background: #CCC') 60
-																		td 109
-																		td 25
-																		td 43
-																		td 18
-																		td 25
-																		td 43
-																		td 18
-																		td 25
-																		td 43
-																		td(style='font-weight: bold; background: #CCC') 25
-																		td 43
-																		td 43%
-																tfoot(align='right')
-																	tr
-																		td(align='left', style='font-weight: bold; ') Total
-																		td(style='font-weight: bold; background: #CCC;') 60
-																		td(style='font-weight: bold; background: #CCC;') 60
-																		td(style='font-weight: bold;background: #CCC;') 120
-																		td 36
-																		td 50
-																		td 86
-																		td 36
-																		td 50
-																		td 86
-																		td 36
-																		td 50
-																		td 86
-																		td(style='font-weight: bold; background: #CCC') 25
-																		td 43
-																		td 43%
-																	tr
-																		td(align='left', style='font-weight: bold;') %
-																		td(colspan='6', style='font-weight: bold;') 30%
-																		td(colspan='3', style='font-weight: bold;') 30%
-																		td(colspan='3', style='font-weight: bold;') 30%
-																		td(colspan='3', style='font-weight: bold;') 30%
-																	tr
-																		td(align='left', style='font-weight: bold;') Position
-																		td(colspan='6', style='font-weight: bold;') 1 / 47
-																		td(colspan='3', style='font-weight: bold;') 1 / 47
-																		td(colspan='3', style='font-weight: bold;') 1 / 47
-																		td(colspan='3', style='font-weight: bold;') 1 / 47
-															h5.pull.pull-right
-																| MADE BY: 
-																label(color='red')
-																	u eShuri.rw
+																| Class :  
+																label {{user_class}}
+														center
+															h3
+																label PROGRESSIVE REPORT
+															label
+																u {{user_academic_year}} ANNUAL REPORT
+													br
+													br
+													div(name='marks_data', style='border:1px solid black;')
+														table.table.table-condensed.table-striped.table-bordered
+															thead
+																tr
+																	th(rowspan='3') Subject
+																tr
+																	th(colspan='3', style='text-align:center;font-weight: bold;background: #CCC') MAX POINTS
+																	th(colspan='3').cell-report FIRST TERM
+																	th(colspan='3').cell-report SECOND TERM
+																	th(colspan='3').cell-report THIRD TERM
+																	th(colspan='3').cell-report ANNUAL POINTS
+																tr(align='center')
+																	th.cell-strong TEST
+																	th.cell-strong EXAM
+																	th.cell-strong TOTAL
+																	th.cell-report TEST
+																	th.cell-report EXAM
+																	th.cell-report TOTAL
+																	th.cell-report TEST
+																	th.cell-report EXAM
+																	th.cell-report TOTAL
+																	th.cell-report TEST
+																	th.cell-report EXAM
+																	th.cell-report TOTAL
+																	th(style='text-align:center;font-weight: bold; background: #CCC') MAX
+																	th.cell-report TOTAL
+																	th.cell-report %
+															tbody(align='right')
+																tr
+																	td(align='left').cell-mi-strong IP
+																	td(style='font-weight: bold; background: #CCC') 30
+																	td(style='font-weight: bold; background: #CCC') 30
+																	td(style='font-weight: bold; background: #CCC') 60
+																	td 18
+																	td 25
+																	td 43
+																	td 18
+																	td 25
+																	td 43
+																	td 18
+																	td 25
+																	td 43
+																	td(style='font-weight: bold; background: #CCC') 25
+																	td 43
+																	td 43%
+																tr
+																	td(align='left').cell-mi-strong DATABASE
+																	td(style='font-weight: bold; background: #CCC') 30
+																	td(style='font-weight: bold; background: #CCC') 30
+																	td(style='font-weight: bold; background: #CCC') 60
+																	td 109
+																	td 25
+																	td 43
+																	td 18
+																	td 25
+																	td 43
+																	td 18
+																	td 25
+																	td 43
+																	td(style='font-weight: bold; background: #CCC') 25
+																	td 43
+																	td 43%
+															tfoot(align='right')
+																tr
+																	td(align='left', style='font-weight: bold; ') Total
+																	td(style='font-weight: bold; background: #CCC;') 60
+																	td(style='font-weight: bold; background: #CCC;') 60
+																	td(style='font-weight: bold;background: #CCC;') 120
+																	td 36
+																	td 50
+																	td 86
+																	td 36
+																	td 50
+																	td 86
+																	td 36
+																	td 50
+																	td 86
+																	td(style='font-weight: bold; background: #CCC') 25
+																	td 43
+																	td 43%
+																tr
+																	td(align='left', style='font-weight: bold;') %
+																	td(colspan='6', style='font-weight: bold;') 30%
+																	td(colspan='3', style='font-weight: bold;') 30%
+																	td(colspan='3', style='font-weight: bold;') 30%
+																	td(colspan='3', style='font-weight: bold;') 30%
+																tr
+																	td(align='left', style='font-weight: bold;') Position
+																	td(colspan='6', style='font-weight: bold;') 1 / 47
+																	td(colspan='3', style='font-weight: bold;') 1 / 47
+																	td(colspan='3', style='font-weight: bold;') 1 / 47
+																	td(colspan='3', style='font-weight: bold;') 1 / 47
+														h5.pull.pull-right
+															| MADE BY: 
+															label(color='red')
+																u eShuri.rw
 
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")

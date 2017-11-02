@@ -4,39 +4,39 @@ extends ../../layout
 	//- link(rel="stylesheet", type="text/css", href="../css/monStyle.css")
 	//- link(rel="stylesheet", type="text/css", href="../js/strapdown/strapdown.css")
 	//- link(rel="stylesheet", type="text/css", href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons")
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../../partials/header 
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="DocCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.register-page(filter-color="white")
-				.container
-					.card
-						a.btn-simple.btn.label.btn-rose(href="/courses/"+course_id) Go back
-						h1.card-title.text-center  {{pdfName|uppercase}}
-						a.btn-simple.btn.label.btn-rose.pull-right(ng-show="!loaded") Loading ...
-					ng-pdf.center(template-url="../display_pdf.html",canvasid="pdf", ng-show="loaded")
-					.enBas(ng-show="loaded")
-						nav.card(ng-class="getNavStyle(scroll)")
-							a.btn-simple.btn.label.btn-rose(ng-click='goPrevious()')
-								| Previous
-								i.material-icons skip_previous
-							a.btn-simple.btn.label.btn-rose(ng-click='goNext()')
-								| Next
-								i.material-icons skip_next
-							a.btn-simple.btn.label.btn-rose(ng-click='zoomIn()')
-								| Zoom in
-								i.material-icons zoom_in
-							a.btn-simple.btn.label.btn-rose(ng-click='fit()')
-								| Fit page
-								i.material-icons fullscreen
-							a.btn-simple.btn.label.btn-rose(ng-click='zoomOut()')
-								| Zoom out
-								i.material-icons zoom_out
-							span Page: 
-							input(type='text', min='1', ng-model='pageNum')
-							span  / {{pageCount}}
-						h1.center.category  {{loading}}
-						canvas#pdf.rotate0.center
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="DocCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.register-page(filter-color="white")
+			.container
+				.card
+					a.btn-simple.btn.label.btn-rose(href="/courses/"+course_id) Go back
+					h1.card-title.text-center  {{pdfName|uppercase}}
+					a.btn-simple.btn.label.btn-rose.pull-right(ng-show="!loaded") Loading ...
+				ng-pdf.center(template-url="../display_pdf.html",canvasid="pdf", ng-show="loaded")
+				.enBas(ng-show="loaded")
+					nav.card(ng-class="getNavStyle(scroll)")
+						a.btn-simple.btn.label.btn-rose(ng-click='goPrevious()')
+							| Previous
+							i.material-icons skip_previous
+						a.btn-simple.btn.label.btn-rose(ng-click='goNext()')
+							| Next
+							i.material-icons skip_next
+						a.btn-simple.btn.label.btn-rose(ng-click='zoomIn()')
+							| Zoom in
+							i.material-icons zoom_in
+						a.btn-simple.btn.label.btn-rose(ng-click='fit()')
+							| Fit page
+							i.material-icons fullscreen
+						a.btn-simple.btn.label.btn-rose(ng-click='zoomOut()')
+							| Zoom out
+							i.material-icons zoom_out
+						span Page: 
+						input(type='text', min='1', ng-model='pageNum')
+						span  / {{pageCount}}
+					h1.center.category  {{loading}}
+					canvas#pdf.rotate0.center
 
 block scripts
 	script(src="../js/pdf/pdf.js", type="text/javascript")

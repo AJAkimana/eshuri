@@ -1,50 +1,50 @@
 extends ../layout
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../partials/header
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="studentMarksCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container
-						.row
-							.col-md-4.center
-								.card
-									.card-content
-										a.btn-simple.btn.label.btn-rose(href="/courses/"+course_id) Go back
-										h6.category.text-center {{'#{course_name}'|uppercase}} MARKS
-							.col-md-12
-								.card
-									.card-content
-										h3.card-title <strong>{{studentsMarks.length}} contents</strong> for this course
-										.table-responsive(ng-show="studentsMarks.length>0")
-											form.form-inline
-														.form-group.pull-left
-															label Show
-															select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
-																option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
-															label /page
-														.form-group.pull-right
-															input.form-control(type='text', ng-model='search', placeholder='Search')
-											table.table
-												thead
-													th.text-center #
-													th Type
-													th:a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Content name
-													th Marks
-													th Percentage
-													th isCAT
-													th Will be on the report
-												tbody
-													tr(pagination-id="allcontents", dir-paginate="content in studentsMarks |orderBy:a:b|filter:search|itemsPerPage:n_pages")
-														td(width="1%" height="1%") {{$index + 1}})
-														td: a(href="#") {{content.content_type |toTypeName}}
-														td {{content.content_name|uppercase}}
-														td {{(content.percentage*content.content_Total_marks/100).toFixed(1)}}/{{content.content_Total_marks}}
-														td(ng-class="") {{(content.percentage).toFixed(1)}} %
-														td {{content.isCAT|toCAT}}	
-														td {{content.isQuoted}}
-											dir-pagination-controls.pull-right(pagination-id='allcontents', max-size='5', direction-links='true', boundary-links='true')
-										p.category(ng-show="!studentsMarks.length") No content here
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="studentMarksCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container
+					.row
+						.col-md-4.center
+							.card
+								.card-content
+									a.btn-simple.btn.label.btn-rose(href="/courses/"+course_id) Go back
+									h6.category.text-center {{'#{course_name}'|uppercase}} MARKS
+						.col-md-12
+							.card
+								.card-content
+									h3.card-title <strong>{{studentsMarks.length}} contents</strong> for this course
+									.table-responsive(ng-show="studentsMarks.length>0")
+										form.form-inline
+													.form-group.pull-left
+														label Show
+														select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
+															option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
+														label /page
+													.form-group.pull-right
+														input.form-control(type='text', ng-model='search', placeholder='Search')
+										table.table
+											thead
+												th.text-center #
+												th Type
+												th:a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Content name
+												th Marks
+												th Percentage
+												th isCAT
+												th Will be on the report
+											tbody
+												tr(pagination-id="allcontents", dir-paginate="content in studentsMarks |orderBy:a:b|filter:search|itemsPerPage:n_pages")
+													td(width="1%" height="1%") {{$index + 1}})
+													td: a(href="#") {{content.content_type |toTypeName}}
+													td {{content.content_name|uppercase}}
+													td {{(content.percentage*content.content_Total_marks/100).toFixed(1)}}/{{content.content_Total_marks}}
+													td(ng-class="") {{(content.percentage).toFixed(1)}} %
+													td {{content.isCAT|toCAT}}	
+													td {{content.isQuoted}}
+										dir-pagination-controls.pull-right(pagination-id='allcontents', max-size='5', direction-links='true', boundary-links='true')
+									p.category(ng-show="!studentsMarks.length") No content here
 block append scripts													
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
 	script(src="../js/MIT/jasny-bootstrap.min.js", type="text/javascript")

@@ -1,62 +1,61 @@
 extends ../../layout
-
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../../partials/header 
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="DocCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container-fluid
-						if access == 4
-							.col-md-6.center(ng-show='add_view')
-								.card
-									.card-header.card-header-icon(data-background-color="rose")
-										i.material-icons attach_file
-									.card-content
-										.row
-											.col-md-12.center
-												a.label.btn.btn-fill.btn-danger.pull-right(ng-click='add_view=false') Cancel
-												h3.card-title.text-center Add a new pdf note to <strong>{{'#{unit_name}'|uppercase}}</strong> 
-												form(action="/content.do.uploaded",method="POST",enctype="multipart/form-data")
-													.form-group.label-floating
-														button.btn.btn-success.btn-round Click to upload your pdf
-															i.material-icons attach_file
-														input(type="file",required="true",name="pdf_note",ng-model="noteName")
-														input(type="hidden",value="{{content_id}}",name="content_id")
-													.form-group.label-floating
-														label.control-label A small comment on this post (optional)
-														input.form-control(type="text",required="true",name="comment",maxlength="140")
-													button.btn.btn-fill.btn-rose(type="submit").pull-right Submit
-						.col-md-10.center
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="DocCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					if access == 4
+						.col-md-6.center(ng-show='add_view')
 							.card
-								a.btn-simple.btn.label.btn-rose.pull-left(href="/courses/"+course_id) Go back
-								if access ==4
-									button.btm.btn-primary.pull-right(ng-click='add_view=!add_view') Upload your answer 
-								h1.card-title.text-center  {{pdfName|uppercase}}
-								a.btn-simple.btn.label.btn-rose.pull-right(ng-show="!loaded") Loading ...
-							ng-pdf.center(template-url="../display_pdf.html",canvasid="pdf", ng-show="loaded")
-							.enBas(ng-show="loaded")
-								nav.card(ng-class="getNavStyle(scroll)")
-									a.btn-simple.btn.label.btn-rose(ng-click='goPrevious()')
-										| Previous
-										i.material-icons skip_previous
-									a.btn-simple.btn.label.btn-rose(ng-click='goNext()')
-										| Next
-										i.material-icons skip_next
-									a.btn-simple.btn.label.btn-rose(ng-click='zoomIn()')
-										| Zoom in
-										i.material-icons zoom_in
-									a.btn-simple.btn.label.btn-rose(ng-click='fit()')
-										| Fit page
-										i.material-icons fullscreen
-									a.btn-simple.btn.label.btn-rose(ng-click='zoomOut()')
-										| Zoom out
-										i.material-icons zoom_out
-									span Page: 
-									input(type='text', min='1', ng-model='pageNum')
-									span  / {{pageCount}}
-								h1.center.category  {{loading}}
-								canvas#pdf.rotate0.center
+								.card-header.card-header-icon(data-background-color="rose")
+									i.material-icons attach_file
+								.card-content
+									.row
+										.col-md-12.center
+											a.label.btn.btn-fill.btn-danger.pull-right(ng-click='add_view=false') Cancel
+											h3.card-title.text-center Add a new pdf note to <strong>{{'#{unit_name}'|uppercase}}</strong> 
+											form(action="/content.do.uploaded",method="POST",enctype="multipart/form-data")
+												.form-group.label-floating
+													button.btn.btn-success.btn-round Click to upload your pdf
+														i.material-icons attach_file
+													input(type="file",required="true",name="pdf_note",ng-model="noteName")
+													input(type="hidden",value="{{content_id}}",name="content_id")
+												.form-group.label-floating
+													label.control-label A small comment on this post (optional)
+													input.form-control(type="text",required="true",name="comment",maxlength="140")
+												button.btn.btn-fill.btn-rose(type="submit").pull-right Submit
+					.col-md-10.center
+						.card
+							a.btn-simple.btn.label.btn-rose.pull-left(href="/courses/"+course_id) Go back
+							if access ==4
+								button.btm.btn-primary.pull-right(ng-click='add_view=!add_view') Upload your answer 
+							h1.card-title.text-center  {{pdfName|uppercase}}
+							a.btn-simple.btn.label.btn-rose.pull-right(ng-show="!loaded") Loading ...
+						ng-pdf.center(template-url="../display_pdf.html",canvasid="pdf", ng-show="loaded")
+						.enBas(ng-show="loaded")
+							nav.card(ng-class="getNavStyle(scroll)")
+								a.btn-simple.btn.label.btn-rose(ng-click='goPrevious()')
+									| Previous
+									i.material-icons skip_previous
+								a.btn-simple.btn.label.btn-rose(ng-click='goNext()')
+									| Next
+									i.material-icons skip_next
+								a.btn-simple.btn.label.btn-rose(ng-click='zoomIn()')
+									| Zoom in
+									i.material-icons zoom_in
+								a.btn-simple.btn.label.btn-rose(ng-click='fit()')
+									| Fit page
+									i.material-icons fullscreen
+								a.btn-simple.btn.label.btn-rose(ng-click='zoomOut()')
+									| Zoom out
+									i.material-icons zoom_out
+								span Page: 
+								input(type='text', min='1', ng-model='pageNum')
+								span  / {{pageCount}}
+							h1.center.category  {{loading}}
+							canvas#pdf.rotate0.center
 
 block append scripts
 	script(src="../js/pdf/pdf.js", type="text/javascript")

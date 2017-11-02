@@ -1,97 +1,97 @@
 extends ../layout
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../partials/header 
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="CourseViewCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container-fluid
-						.row
-							.col-md-4.center
-								.card(ng-show="add_unit",ng-init="var1 = '#{_id}'")
-									.card-header.card-header-icon(data-background-color="rose")
-										i.material-icons note
-									.card-content
-										h4.card-title Add a new unit: <strong>{{unit.title}}  </strong>
-										form(ng-submit="addUnit()")
-											.form-group.label-floating
-												label.control-label Title of the unit
-												input.form-control(type="text", ng-model="unit.title")
-											.form-group.label-floating
-												label.control-label A small description of the unit
-												textarea.form-control(rows="4" cols="50", ng-model="unit.description",maxlength="140")
-											button.btn.btn-fill.btn-rose(type="submit") Submit
-											button.btn.btn-fill.btn-danger.pull-right(ng-click="add_unit=!add_unit") Cancel
-							.col-md-10.center
-								.card
-									.card-header
-										.row
-											.col-md-5
-												h3.card-title <strong>{{'#{school_name}'|uppercase}}</strong>
-												h4.card-title Course: <strong>{{course_name|uppercase}}</strong>
-												h5.card-title Teacher: {{teacher_name}} 
-												h5.card-title {{term_name|toTermName}} {{actual_term}}
-											.col-md-5
-												if access >= 4 && access <= 5
-													a.btn-simple.btn.label.btn-rose(href="/student.marks.page/"+course_id) View marks
-														i.material-icons view_stream
-												if access <= 3
-													.row
-														a.col-md-3.btn-simple.btn.label.btn-rose(ng-click="add_unit=!add_unit") New unit  
-															i.material-icons add
-														a.col-md-6.btn-simple.btn.label.btn-rose(href="/students/"+course_id) Students following this course
-															i.material-icons add_to_queue
-														a.col-md-3.btn-simple.btn.label.btn-rose(ng-click="sendToEditQuota()")  Course settings 
-															i.material-icons settings
-										h2.card-title.text-center <strong>Units</strong>
-										br
-										h2.card-title.text-center.text-info(ng-show="!units") <strong>Loading ...</strong>
-									.card-content
-										if access > 2 && access <= 3
-											.col-md-12.center
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="CourseViewCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-md-4.center
+							.card(ng-show="add_unit",ng-init="var1 = '#{_id}'")
+								.card-header.card-header-icon(data-background-color="rose")
+									i.material-icons note
+								.card-content
+									h4.card-title Add a new unit: <strong>{{unit.title}}  </strong>
+									form(ng-submit="addUnit()")
+										.form-group.label-floating
+											label.control-label Title of the unit
+											input.form-control(type="text", ng-model="unit.title")
+										.form-group.label-floating
+											label.control-label A small description of the unit
+											textarea.form-control(rows="4" cols="50", ng-model="unit.description",maxlength="140")
+										button.btn.btn-fill.btn-rose(type="submit") Submit
+										button.btn.btn-fill.btn-danger.pull-right(ng-click="add_unit=!add_unit") Cancel
+						.col-md-10.center
+							.card
+								.card-header
+									.row
+										.col-md-5
+											h3.card-title <strong>{{'#{school_name}'|uppercase}}</strong>
+											h4.card-title Course: <strong>{{course_name|uppercase}}</strong>
+											h5.card-title Teacher: {{teacher_name}} 
+											h5.card-title {{term_name|toTermName}} {{actual_term}}
+										.col-md-5
+											if access >= 4 && access <= 5
+												a.btn-simple.btn.label.btn-rose(href="/student.marks.page/"+course_id) View marks
+													i.material-icons view_stream
+											if access <= 3
 												.row
-													.col-md-6
-														.form-group.label-floating
-															h3.control-label Add new content
-															select.form-control(ng-model="add_content",ng-change="loadUnits")
-																option(ng-repeat="type in types", value="{{type.no|toLink}}",) {{type.name}}
-															//span.input-group-btn
-													.col-md-4
-														.form-group.label-floating
-															h3.control-label Choose unit
-															select.form-control(ng-model="this_unit",ng-change="addContent()")
-																option(ng-repeat="unit in units", value="{{unit._id}}",) {{unit.title|uppercase}}
-															
-													.col-md-2
-														.form-group.label-floating
-																button.btn.btn-primary(ng-click="addContent()") Go
-													
-										.panel-group(role='tablist')#accordion
-											h5.card-title.text-center(ng-show="!units.length") <i>No units here </i>
-											.panel.panel-default(ng-repeat="unit in units")
-												.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentUnit(unit._id,unit.title, $index)")
-													a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
-														h4.panel-title
-															| {{$index+1}}. {{unit.title|uppercase}}
-															i.material-icons keyboard_arrow_down
-												.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
-													.panel-body
-														.col-md-12
-															a.btn.btn-success.pull-left(ng-click="getContent($index)") View all contents
-															if access <= 3
-																.row
-																	a.btn-simple.btn.label.btn-rose.pull-right(type='button',ng-click="delCurrentUnit()") 
-																		i.material-icons delete
-																		| Delete {{unit.title|uppercase}}
+													a.col-md-3.btn-simple.btn.label.btn-rose(ng-click="add_unit=!add_unit") New unit  
+														i.material-icons add
+													a.col-md-6.btn-simple.btn.label.btn-rose(href="/students/"+course_id) Students following this course
+														i.material-icons add_to_queue
+													a.col-md-3.btn-simple.btn.label.btn-rose(ng-click="sendToEditQuota()")  Course settings 
+														i.material-icons settings
+									h2.card-title.text-center <strong>Units</strong>
+									br
+									h2.card-title.text-center.text-info(ng-show="!units") <strong>Loading ...</strong>
+								.card-content
+									if access > 2 && access <= 3
+										.col-md-12.center
+											.row
+												.col-md-6
+													.form-group.label-floating
+														h3.control-label Add new content
+														select.form-control(ng-model="add_content",ng-change="loadUnits")
+															option(ng-repeat="type in types", value="{{type.no|toLink}}",) {{type.name}}
+														//span.input-group-btn
+												.col-md-4
+													.form-group.label-floating
+														h3.control-label Choose unit
+														select.form-control(ng-model="this_unit",ng-change="addContent()")
+															option(ng-repeat="unit in units", value="{{unit._id}}",) {{unit.title|uppercase}}
+														
+												.col-md-2
+													.form-group.label-floating
+															button.btn.btn-primary(ng-click="addContent()") Go
+												
+									.panel-group(role='tablist')#accordion
+										h5.card-title.text-center(ng-show="!units.length") <i>No units here </i>
+										.panel.panel-default(ng-repeat="unit in units")
+											.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentUnit(unit._id,unit.title, $index)")
+												a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
+													h4.panel-title
+														| {{$index+1}}. {{unit.title|uppercase}}
+														i.material-icons keyboard_arrow_down
+											.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
+												.panel-body
+													.col-md-12
+														a.btn.btn-success.pull-left(ng-click="getContent($index)") View all contents
+														if access <= 3
+															.row
+																a.btn-simple.btn.label.btn-rose.pull-right(type='button',ng-click="delCurrentUnit()") 
+																	i.material-icons delete
+																	| Delete {{unit.title|uppercase}}
 
-															.card
-																include partials/wtn_note
-																include partials/pdf_note
-																include partials/video_note
-																include partials/auto_assessmt
-																include partials/wtn_assessmt
-																include partials/upload_assessmt
-																include partials/off_assessmt
+														.card
+															include partials/wtn_note
+															include partials/pdf_note
+															include partials/video_note
+															include partials/auto_assessmt
+															include partials/wtn_assessmt
+															include partials/upload_assessmt
+															include partials/off_assessmt
 
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")

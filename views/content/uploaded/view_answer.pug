@@ -1,50 +1,50 @@
 extends ../../layout
 
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../../partials/header 
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="DocCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.register-page(filter-color="white")
-				.container
-					.card
-						a.btn-simple.btn.label.btn-rose(href="/courses/"+course_id) Go back 
-						h1.card-title.text-center  {{pdfName|uppercase}}
-						.col-md-4
-							.row
-								.col-md-5
-									.form-group.label-floating
-										label.control-label Give marks
-										input.form-control(type="number",required="true",max="{{totalMarks}}" ,ng-model="marks_given")
-								.col-md-3
-									.form-group.label-floating
-										h5  /<strong>{{totalMarks|uppercase}}</strong>
-								.col-md-3
-									button.btn.btn-fill.btn-rose(ng-click="submitMarks()") Submit marks
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="DocCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.register-page(filter-color="white")
+			.container
+				.card
+					a.btn-simple.btn.label.btn-rose(href="/courses/"+course_id) Go back 
+					h1.card-title.text-center  {{pdfName|uppercase}}
+					.col-md-4
+						.row
 							.col-md-5
-								a.btn-simple.btn.label.btn-rose.pull-right(ng-show="!loaded") Loading ...
-					ng-pdf.center(template-url="../display_pdf.html",canvasid="pdf", ng-show="loaded")
-					.enBas(ng-show="loaded")
-						nav.card(ng-class="getNavStyle(scroll)")
-							a.btn-simple.btn.label.btn-rose(ng-click='goPrevious()')
-								| Previous
-								i.material-icons skip_previous
-							a.btn-simple.btn.label.btn-rose(ng-click='goNext()')
-								| Next
-								i.material-icons skip_next
-							a.btn-simple.btn.label.btn-rose(ng-click='zoomIn()')
-								| Zoom in
-								i.material-icons zoom_in
-							a.btn-simple.btn.label.btn-rose(ng-click='fit()')
-								| Fit page
-								i.material-icons fullscreen
-							a.btn-simple.btn.label.btn-rose(ng-click='zoomOut()')
-								| Zoom out
-								i.material-icons zoom_out
-							span Page: 
-							input(type='text', min='1', ng-model='pageNum')
-							span  / {{pageCount}}
-						h1.center.category  {{loading}}
-						canvas#pdf.rotate0.center
+								.form-group.label-floating
+									label.control-label Give marks
+									input.form-control(type="number",required="true",max="{{totalMarks}}" ,ng-model="marks_given")
+							.col-md-3
+								.form-group.label-floating
+									h5  /<strong>{{totalMarks|uppercase}}</strong>
+							.col-md-3
+								button.btn.btn-fill.btn-rose(ng-click="submitMarks()") Submit marks
+						.col-md-5
+							a.btn-simple.btn.label.btn-rose.pull-right(ng-show="!loaded") Loading ...
+				ng-pdf.center(template-url="../display_pdf.html",canvasid="pdf", ng-show="loaded")
+				.enBas(ng-show="loaded")
+					nav.card(ng-class="getNavStyle(scroll)")
+						a.btn-simple.btn.label.btn-rose(ng-click='goPrevious()')
+							| Previous
+							i.material-icons skip_previous
+						a.btn-simple.btn.label.btn-rose(ng-click='goNext()')
+							| Next
+							i.material-icons skip_next
+						a.btn-simple.btn.label.btn-rose(ng-click='zoomIn()')
+							| Zoom in
+							i.material-icons zoom_in
+						a.btn-simple.btn.label.btn-rose(ng-click='fit()')
+							| Fit page
+							i.material-icons fullscreen
+						a.btn-simple.btn.label.btn-rose(ng-click='zoomOut()')
+							| Zoom out
+							i.material-icons zoom_out
+						span Page: 
+						input(type='text', min='1', ng-model='pageNum')
+						span  / {{pageCount}}
+					h1.center.category  {{loading}}
+					canvas#pdf.rotate0.center
 
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")

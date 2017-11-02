@@ -1,85 +1,85 @@
 extends ../../layout
 block append css_code
 	link(rel="stylesheet", type="text/css", href="../css/font-awesome470/css/font-awesome.min.css")
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../../partials/header
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="addQuestion_Ctrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container-fluid
-						.row
-							.col-md-8.center
-								.card
-									.card-header.card-header-icon(data-background-color="rose")
-										i.material-icons assessment
-									h3.card-title.text-center Edit automated assessment <strong>{{title| uppercase}}</strong>
-									a.btn-simple.btn.label.btn-rose(href="/courses/"+course_id) Go back
-									h1
-									.card-content
-										form(ng-submit="addQuestion()")
-											.row
-												.col-md-6
-													.form-group.label-floating
-														label.control-label Question title
-														input.form-control(type="text",name="title",required="true",maxlength="300",ng-model="q.title")
-												.col-md-3
-													.form-group.label-floating
-														label.control-label Question marks
-														input.form-control(type="number",required="true",ng-model="q.currentMark")
-												.col-md-1
-													button.btn.btn-fill.btn-rose(type="submit") Add to list
-							.col-md-10.center
-								.card
-									.card-header
-										h2.card-title.text-center {{Q.length || 0}} Questions up to<strong> {{getTotal()}} Pts</strong>
-									.card-content
-										.panel-group(role='tablist')#accordion
-											h5.card-title.text-center(ng-show="!Q.length") <i>No questions yet </i>
-											.panel.panel-default(ng-repeat="quest in Q")
-												.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentQuest($index)")
-													a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
-														h4.panel-title
-															| {{$index+1}}. {{quest.t|uppercase}}  ({{quest.m}} pts)
-															i.material-icons keyboard_arrow_down
-												.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
-													.panel-body
-														.col-md-12
-															.row
-																button.btn.btn-danger.btn-simple.pull-right(type="button",ng-click="delCurrentquest($index)")
-																	i.material-icons delete
-																a.btn-simple.btn.label.btn-rose(ng-click="addChoice()") Add choices 
-																	i.material-icons add_box
-																a.btn-simple.btn.label.btn-rose(ng-click="editPenalty()")<strong>-</strong> {{quest.p}} pts per wrong answer 
-																	i.material-icons edit
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="addQuestion_Ctrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-md-8.center
+							.card
+								.card-header.card-header-icon(data-background-color="rose")
+									i.material-icons assessment
+								h3.card-title.text-center Edit automated assessment <strong>{{title| uppercase}}</strong>
+								a.btn-simple.btn.label.btn-rose(href="/courses/"+course_id) Go back
+								h1
+								.card-content
+									form(ng-submit="addQuestion()")
+										.row
+											.col-md-6
+												.form-group.label-floating
+													label.control-label Question title
+													input.form-control(type="text",name="title",required="true",maxlength="300",ng-model="q.title")
+											.col-md-3
+												.form-group.label-floating
+													label.control-label Question marks
+													input.form-control(type="number",required="true",ng-model="q.currentMark")
+											.col-md-1
+												button.btn.btn-fill.btn-rose(type="submit") Add to list
+						.col-md-10.center
+							.card
+								.card-header
+									h2.card-title.text-center {{Q.length || 0}} Questions up to<strong> {{getTotal()}} Pts</strong>
+								.card-content
+									.panel-group(role='tablist')#accordion
+										h5.card-title.text-center(ng-show="!Q.length") <i>No questions yet </i>
+										.panel.panel-default(ng-repeat="quest in Q")
+											.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentQuest($index)")
+												a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
+													h4.panel-title
+														| {{$index+1}}. {{quest.t|uppercase}}  ({{quest.m}} pts)
+														i.material-icons keyboard_arrow_down
+											.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
+												.panel-body
+													.col-md-12
+														.row
+															button.btn.btn-danger.btn-simple.pull-right(type="button",ng-click="delCurrentquest($index)")
+																i.material-icons delete
+															a.btn-simple.btn.label.btn-rose(ng-click="addChoice()") Add choices 
+																i.material-icons add_box
+															a.btn-simple.btn.label.btn-rose(ng-click="editPenalty()")<strong>-</strong> {{quest.p}} pts per wrong answer 
+																i.material-icons edit
 
-														.col-md-10
-															.table-responsive(ng-show ="quest.c.length")
-																table.table
-																	tbody
-																		tr(ng-repeat="choix in quest.c")
-																			td.td-actions.text-right
-																				button.btn.btn-danger.btn-simple(type='button',ng-click="deleteChoice($index)")
-																					i.material-icons close
-																			td(width="1%" height="1%") {{$index + 1}})
-																			td {{choix.a|uppercase}}
-																			td.td-actions.text-right
-																				button.btn.btn-success.btn-simple(type='button',ng-click="setChoiceAsAnswer($index)")
-																					i.material-icons  {{choix.b|toCheckName}}
-															p.category.text-center(ng-show ="!quest.c.length") No choice available
-								.row
-									.card
-										.card-content
-											.col-md-8
-												.form-group.label-floating
-													label.label-control Assessment title
-													input.form-control(type="text",ng-model="title |uppercase")
-											.col-md-2
-												.form-group.label-floating
-													label.label-control Set up a deadline
-													input.datetimepicker.form-control(type="text",ng-model="deadline")#deadline
-											.col-md-2
-												button.btn.btn-fill.btn-success.pull-right(ng-click="sendAutomated()") Submit
+													.col-md-10
+														.table-responsive(ng-show ="quest.c.length")
+															table.table
+																tbody
+																	tr(ng-repeat="choix in quest.c")
+																		td.td-actions.text-right
+																			button.btn.btn-danger.btn-simple(type='button',ng-click="deleteChoice($index)")
+																				i.material-icons close
+																		td(width="1%" height="1%") {{$index + 1}})
+																		td {{choix.a|uppercase}}
+																		td.td-actions.text-right
+																			button.btn.btn-success.btn-simple(type='button',ng-click="setChoiceAsAnswer($index)")
+																				i.material-icons  {{choix.b|toCheckName}}
+														p.category.text-center(ng-show ="!quest.c.length") No choice available
+							.row
+								.card
+									.card-content
+										.col-md-8
+											.form-group.label-floating
+												label.label-control Assessment title
+												input.form-control(type="text",ng-model="title |uppercase")
+										.col-md-2
+											.form-group.label-floating
+												label.label-control Set up a deadline
+												input.datetimepicker.form-control(type="text",ng-model="deadline")#deadline
+										.col-md-2
+											button.btn.btn-fill.btn-success.pull-right(ng-click="sendAutomated()") Submit
 
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")

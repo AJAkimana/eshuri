@@ -1,5 +1,5 @@
 extends ../layout
-block content 
+block append content 
 	.wrapper.wrapper-full-page.full-page-background(ng-controller="SignupCtrl",style="background-image: url('../imgs/register.jpeg')")
 		.full-page.register-page(filter-color="white")
 			.content
@@ -10,6 +10,7 @@ block content
 							form(action="", method="", name="registrationForm")
 								// You can switch " data-color="purple" "  with one of the next bright colors: "green", "orange", "red", "blue"
 								.wizard-header
+									a.btn.btn-simple.btn-success.pull-left(href="/user.signin") Go back
 									h3.wizard-title Build Your Profile
 									h5 This information will let us know more about you.
 								.wizard-navigation

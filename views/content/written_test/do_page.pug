@@ -1,38 +1,38 @@
 extends ../../layout
 block append css_code
 	link(rel="stylesheet", type="text/css", href="../css/font-awesome470/css/font-awesome.min.css")
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../../partials/header 
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="doExamWrittenCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container-fluid
-						.row
-							.col-md-10.center
-								.card
-									.card-header
-										a.btn-simple.btn.label.btn-rose(href="/courses/"+course_id) Go back and abort test
-										h4.card-title.text-center {{Q.length || 0}} Questions up to<strong> {{getTotal()}} Pts</strong>
-										h2.text-danger.text-center(ng-show='alreadyDone') You have already submitted your answers
-										h6 Subject: {{title|uppercase}}
-										h6 Deadline: <strong>{{deadline|fromNow}}</strong> <small>{{deadline}}</small>
-									.card-content
-										.panel-group(role='tablist')#accordion
-											h5.card-title.text-center(ng-show="!Q.length") <i>No questions yet </i>
-											.panel.panel-default(ng-repeat="quest in Q")
-												.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentQuest($index)")
-													a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
-														h4.panel-title
-															| {{$index+1}}. {{quest.t|uppercase}}  ({{quest.m}} pts)
-															i.material-icons keyboard_arrow_down
-												.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
-													.panel-body
-														a.btn-simple.btn.label.btn-rose(ng-click="quest.size=quest.size+3") add rows ++
-														.form-group
-															textarea.form-control(rows="{{quest.size}}",ng-model="quest.reponse",placeholder="Enter your response here for question {{$index+1}}")
-											.col-md-12
-												button.btn.btn-fill.btn-success.pull-right(ng-click="submitAnswers()") Submit
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="doExamWrittenCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-md-10.center
+							.card
+								.card-header
+									a.btn-simple.btn.label.btn-rose(href="/courses/"+course_id) Go back and abort test
+									h4.card-title.text-center {{Q.length || 0}} Questions up to<strong> {{getTotal()}} Pts</strong>
+									h2.text-danger.text-center(ng-show='alreadyDone') You have already submitted your answers
+									h6 Subject: {{title|uppercase}}
+									h6 Deadline: <strong>{{deadline|fromNow}}</strong> <small>{{deadline}}</small>
+								.card-content
+									.panel-group(role='tablist')#accordion
+										h5.card-title.text-center(ng-show="!Q.length") <i>No questions yet </i>
+										.panel.panel-default(ng-repeat="quest in Q")
+											.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentQuest($index)")
+												a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
+													h4.panel-title
+														| {{$index+1}}. {{quest.t|uppercase}}  ({{quest.m}} pts)
+														i.material-icons keyboard_arrow_down
+											.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
+												.panel-body
+													a.btn-simple.btn.label.btn-rose(ng-click="quest.size=quest.size+3") add rows ++
+													.form-group
+														textarea.form-control(rows="{{quest.size}}",ng-model="quest.reponse",placeholder="Enter your response here for question {{$index+1}}")
+										.col-md-12
+											button.btn.btn-fill.btn-success.pull-right(ng-click="submitAnswers()") Submit
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
 	script(src="../js/MIT/MIT_moment.min.js", type="text/javascript")

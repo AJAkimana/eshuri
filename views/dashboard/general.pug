@@ -1,65 +1,65 @@
 extends ../layout
 block append scripts
 	script(src="../js/MIT/jquery.select-bootstrap.js",type="application/javascript")
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../partials/header
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="dashboardCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container-fluid
-						.row
-							.col-md-3
-								.card.card-stats
-									.card-header.card-header-icon(data-background-color="orange")
-										i.material-icons school
-									.card-content
-										p.category Total schools registered
-										h3.card-title: a(href="/dashboard.school/") {{num_schools}} schools
-									.card-footer
-										.stats
-											i.material-icons local_offer </i> Tracked by eShuri Analytics
-							.col-md-3
-								.card.card-stats
-									.card-header.card-header-icon(data-background-color="green")
-										i.material-icons school
-									.card-content
-										p.category Total universities registered
-										h3.card-title: a(href="/dashboard.university/") {{num_univs}} universities<br/> {{num_faculties}} faculties
-									.card-footer
-										.stats
-											i.material-icons local_offer </i> Click to view details
-							.col-md-3
-								.card.card-stats
-									.card-header.card-header-icon(data-background-color="rose")
-										i.material-icons person
-									.card-content
-										p.category Total number of users registered
-										h3.card-title {{num_users}} users
-									.card-footer
-										.stats
-											i.material-icons local_offer </i> Click to view details
-							.col-md-3
-								.card.card-stats
-									.card-header.card-header-icon(data-background-color="green")
-										i.material-icons equalizer
-									.card-content
-										p.category Classes registered
-										h3.card-title {{num_classes}} classes
-										h3.card-title {{num_courses}} courses
-										h3.card-title {{num_units}} units
-									.card-footer
-										.stats
-											i.material-icons local_offer </i> Click to view details
-							.col-md-3
-								.card.card-stats
-									.card-header.card-header-icon(data-background-color="green")
-										i.material-icons backup
-									.card-content
-										a.btn-simple.btn.label.btn-rose(href="/backup.page") Manage backups
-										br
-										h3 {{errors_num}} errors
-										br
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="dashboardCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-md-3
+							.card.card-stats
+								.card-header.card-header-icon(data-background-color="orange")
+									i.material-icons school
+								.card-content
+									p.category Total schools registered
+									h3.card-title: a(href="/dashboard.school/") {{num_schools}} schools
+								.card-footer
+									.stats
+										i.material-icons local_offer </i> Tracked by eShuri Analytics
+						.col-md-3
+							.card.card-stats
+								.card-header.card-header-icon(data-background-color="green")
+									i.material-icons school
+								.card-content
+									p.category Total universities registered
+									h3.card-title: a(href="/dashboard.university/") {{num_univs}} universities<br/> {{num_faculties}} faculties
+								.card-footer
+									.stats
+										i.material-icons local_offer </i> Click to view details
+						.col-md-3
+							.card.card-stats
+								.card-header.card-header-icon(data-background-color="rose")
+									i.material-icons person
+								.card-content
+									p.category Total number of users registered
+									h3.card-title {{num_users}} users
+								.card-footer
+									.stats
+										i.material-icons local_offer </i> Click to view details
+						.col-md-3
+							.card.card-stats
+								.card-header.card-header-icon(data-background-color="green")
+									i.material-icons equalizer
+								.card-content
+									p.category Classes registered
+									h3.card-title {{num_classes}} classes
+									h3.card-title {{num_courses}} courses
+									h3.card-title {{num_units}} units
+								.card-footer
+									.stats
+										i.material-icons local_offer </i> Click to view details
+						.col-md-3
+							.card.card-stats
+								.card-header.card-header-icon(data-background-color="green")
+									i.material-icons backup
+								.card-content
+									a.btn-simple.btn.label.btn-rose(href="/backup.page") Manage backups
+									br
+									h3 {{errors_num}} errors
+									br
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
 	script.

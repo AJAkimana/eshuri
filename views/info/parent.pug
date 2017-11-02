@@ -1,84 +1,84 @@
 extends ../layout
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../partials/header
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="parentCtrl",style="background-image: url('../imgs/login.jpeg')")
-			.full-page.login-page(filter-color="white")
-				.content
-					.container
-						.row
-							.card.card-login.card-hidden
-								.card-content
-									if access == 5
-										h2.text-center My <strong>children</strong>
-										h4(ng-show='!children.length').text-center If you want to see your children's performance, enter his/her URN
-										.col-md-12
-											.col-md-4.center
-												.col-md-10
-													.input-group
-														span.input-group-addon.icon.ion-ios-face
-														.form-group.label-floating
-															label.control-label Enter here the URN of your child
-															input.form-control(type="text",autocomplete="off",ng-model="student_urn")
-												.col-md-2
-													button.btn.btn-fill.btn-rose(ng-click="addChild()") Add
-									if access == 4
-										h2.text-center My <strong>Parents</strong>
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="parentCtrl",style="background-image: url('../imgs/login.jpeg')")
+		.full-page.login-page(filter-color="white")
+			.content
+				.container
+					.row
+						.card.card-login.card-hidden
+							.card-content
+								if access == 5
+									h2.text-center My <strong>children</strong>
+									h4(ng-show='!children.length').text-center If you want to see your children's performance, enter his/her URN
 									.col-md-12
-										if access == 5
-											.col-md-6.center
-												.table-responsive(ng-show="children.length")
-													table.table
-														thead
-															th
-															th.text-center #
-															th(ng-click="a='name';b=!b")  Student URN
-															th(ng-click="a='status';b=!b") Status
-															th Actions
-														tbody
-															tr(ng-repeat="child in children| orderBy:a:b")
-																td.td-actions.text-right
-																	a.btn-simple.btn.label.btn-success.btn-fab.col-md-1(ng-show="(currentStudent_URN==child.student_URN)? true: false")
-																		i.material-icons checkmark
-																td(width="1%" height="1%") {{$index + 1}}
-																td(ng-click="selectedStudent(child)") {{child.student_URN| uppercase}}
-																td: a.btn-simple.btn.label.btn-rose(ng-show="child.allowed==0") {{child.allowed|toAllowed}}
-																	a.btn-simple.btn.label.btn-success(ng-show="child.allowed==1") {{child.allowed|toAllowed}}
-																	a.btn-simple.btn.label.btn-danger(ng-show="child.allowed==-1") {{child.allowed|toAllowed}}
-																td.td-actions
-																	a.text-left.col-md-1.btn-simple.btn.label.btn-rose.btn-fab(ng-show="(currentStudent_URN==child.student_URN)? true: false",type='button',href="/parent.get.student.report" title="view report")
-																		i.material-icons local_activity
-																	a.col-md-1.text-right.btn-simple.btn.label.btn-rose.btn-fab(type='button',ng-click="removeChild(child.student_URN)" title="remove account")
-																		i.material-icons close
-												p.category.text-center(ng-show ="!children.length") No available children here
-										if access == 4
-											h2(ng-show='Parents.length').text-center You are currently being followed by {{Parents.length}} Parents
-											h5.text-center See below the list
-											.col-md-4.center
-												.table-responsive(ng-show="Parents.length")
-													table.table
-														thead
-															th.text-center #
-															th(ng-click="a='name';b=!b") Parent URN
-															th(ng-click="a='status';b=!b") Status
-															th.text-center(colspan="2") Actions
+										.col-md-4.center
+											.col-md-10
+												.input-group
+													span.input-group-addon.icon.ion-ios-face
+													.form-group.label-floating
+														label.control-label Enter here the URN of your child
+														input.form-control(type="text",autocomplete="off",ng-model="student_urn")
+											.col-md-2
+												button.btn.btn-fill.btn-rose(ng-click="addChild()") Add
+								if access == 4
+									h2.text-center My <strong>Parents</strong>
+								.col-md-12
+									if access == 5
+										.col-md-6.center
+											.table-responsive(ng-show="children.length")
+												table.table
+													thead
+														th
+														th.text-center #
+														th(ng-click="a='name';b=!b")  Student URN
+														th(ng-click="a='status';b=!b") Status
+														th Actions
+													tbody
+														tr(ng-repeat="child in children| orderBy:a:b")
+															td.td-actions.text-right
+																a.btn-simple.btn.label.btn-success.btn-fab.col-md-1(ng-show="(currentStudent_URN==child.student_URN)? true: false")
+																	i.material-icons checkmark
+															td(width="1%" height="1%") {{$index + 1}}
+															td(ng-click="selectedStudent(child)") {{child.student_URN| uppercase}}
+															td: a.btn-simple.btn.label.btn-rose(ng-show="child.allowed==0") {{child.allowed|toAllowed}}
+																a.btn-simple.btn.label.btn-success(ng-show="child.allowed==1") {{child.allowed|toAllowed}}
+																a.btn-simple.btn.label.btn-danger(ng-show="child.allowed==-1") {{child.allowed|toAllowed}}
+															td.td-actions
+																a.text-left.col-md-1.btn-simple.btn.label.btn-rose.btn-fab(ng-show="(currentStudent_URN==child.student_URN)? true: false",type='button',href="/parent.get.student.report" title="view report")
+																	i.material-icons local_activity
+																a.col-md-1.text-right.btn-simple.btn.label.btn-rose.btn-fab(type='button',ng-click="removeChild(child.student_URN)" title="remove account")
+																	i.material-icons close
+											p.category.text-center(ng-show ="!children.length") No available children here
+									if access == 4
+										h2(ng-show='Parents.length').text-center You are currently being followed by {{Parents.length}} Parents
+										h5.text-center See below the list
+										.col-md-4.center
+											.table-responsive(ng-show="Parents.length")
+												table.table
+													thead
+														th.text-center #
+														th(ng-click="a='name';b=!b") Parent URN
+														th(ng-click="a='status';b=!b") Status
+														th.text-center(colspan="2") Actions
 
-														tbody
-															tr(ng-repeat="parent in Parents| orderBy:a:b")
-																td(width="1%" height="1%") {{$index + 1}}
-																td {{parent.parent_URN| uppercase}}
-																td: a.btn-simple.btn.label.btn-rose(ng-show="parent.allowed==0") {{parent.allowed|toAllowed}}
-																	a.btn-simple.btn.label.btn-success(ng-show="parent.allowed==1") {{parent.allowed|toAllowed}}
-																	a.btn-simple.btn.label.btn-danger(ng-show="parent.allowed==-1") {{parent.allowed|toAllowed}}
-																td.td-actions.text-right
-																	select.form-control(required="true",ng-model="studentAction",ng-change="triggerStdAction(studentAction,parent.parent_URN)")
-																		option(value="", disabled selected)
-																		option(value="-1") Deny
-																		option(value="1") Accept
-																td.td-actions.text-right
-																	a.btn-simple.btn.label.btn-rose.btn-fab(type='button',ng-click="removeParent(parent.parent_URN)")
-																		i.material-icons close
-												p.category.text-center(ng-show ="!Parents.length") No available parents here
+													tbody
+														tr(ng-repeat="parent in Parents| orderBy:a:b")
+															td(width="1%" height="1%") {{$index + 1}}
+															td {{parent.parent_URN| uppercase}}
+															td: a.btn-simple.btn.label.btn-rose(ng-show="parent.allowed==0") {{parent.allowed|toAllowed}}
+																a.btn-simple.btn.label.btn-success(ng-show="parent.allowed==1") {{parent.allowed|toAllowed}}
+																a.btn-simple.btn.label.btn-danger(ng-show="parent.allowed==-1") {{parent.allowed|toAllowed}}
+															td.td-actions.text-right
+																select.form-control(required="true",ng-model="studentAction",ng-change="triggerStdAction(studentAction,parent.parent_URN)")
+																	option(value="", disabled selected)
+																	option(value="-1") Deny
+																	option(value="1") Accept
+															td.td-actions.text-right
+																a.btn-simple.btn.label.btn-rose.btn-fab(type='button',ng-click="removeParent(parent.parent_URN)")
+																	i.material-icons close
+											p.category.text-center(ng-show ="!Parents.length") No available parents here
 
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")

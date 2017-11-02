@@ -1,53 +1,53 @@
 extends ../layout
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../partials/header
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="homePageSchoolCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container-fluid
-						.row
-							.col-md-12
-								.col-md-8.center
-								
-									.card
-										.card-header
-											h3.card-title <strong>{{'#{school_name}'|uppercase}}</strong>
-											h4.card-title.text-center Available classes
-											if access ==3
-												span.btn-simple.btn.label.btn-rose Your courses are marked with 
-													i.icon.ion-ios-checkmark
-											br
-											h2.card-title.text-center.text-info(ng-show="!years") <strong>Loading ...</strong>
-										.card-content
-											.panel-group(role='tablist')#accordion
-												.panel.panel-default(ng-repeat="year in years")
-													.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentYear(year._id)")
-														a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="true", aria-controls="{{'collapse_'+$index}}")
-															h4.panel-title.text-center
-																| {{year.name| uppercase}}
-																i.material-icons keyboard_arrow_down
-													.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
-														.panel-body
-															.col-md-12
-																.row
-																	.col-md-4
-																		ul.nav.nav-pills.nav-pills-rose.nav-stacked
-																			li(ng-repeat="i in getTerms_Limit()")
-																				a.btn.label(ng-click="getCurrentCourses($index+1)",ng-class="currentTerm==$index?'btn-primary':'btn-rose'") {{term_name|toTermName}} {{$index + 1}}	
-																	.col-md-8
-																		.table-responsive(ng-show ="courses.length")
-																			table.table
-																				thead
-																					th.text-center #
-																					th Course
-																				tbody
-																					tr(ng-repeat="cours in courses")
-																						td(width="1%" height="1%") {{$index + 1}}
-																						td: h6.btn-simple.btn.label.btn-rose(ng-click="showCourse(cours)") {{cours.name|uppercase}}
-																						td: span.btn-simple.btn.label(ng-show="cours.teacher_list.indexOf(teacher_id)>=0").btn-rose
-																							i.icon.ion-ios-checkmark 
-																		p.category.text-center(ng-show ="!courses.length") No courses defined yet
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="homePageSchoolCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-md-12
+							.col-md-8.center
+							
+								.card
+									.card-header
+										h3.card-title <strong>{{'#{school_name}'|uppercase}}</strong>
+										h4.card-title.text-center Available classes
+										if access ==3
+											span.btn-simple.btn.label.btn-rose Your courses are marked with 
+												i.icon.ion-ios-checkmark
+										br
+										h2.card-title.text-center.text-info(ng-show="!years") <strong>Loading ...</strong>
+									.card-content
+										.panel-group(role='tablist')#accordion
+											.panel.panel-default(ng-repeat="year in years")
+												.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentYear(year._id)")
+													a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="true", aria-controls="{{'collapse_'+$index}}")
+														h4.panel-title.text-center
+															| {{year.name| uppercase}}
+															i.material-icons keyboard_arrow_down
+												.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
+													.panel-body
+														.col-md-12
+															.row
+																.col-md-4
+																	ul.nav.nav-pills.nav-pills-rose.nav-stacked
+																		li(ng-repeat="i in getTerms_Limit()")
+																			a.btn.label(ng-click="getCurrentCourses($index+1)",ng-class="currentTerm==$index?'btn-primary':'btn-rose'") {{term_name|toTermName}} {{$index + 1}}	
+																.col-md-8
+																	.table-responsive(ng-show ="courses.length")
+																		table.table
+																			thead
+																				th.text-center #
+																				th Course
+																			tbody
+																				tr(ng-repeat="cours in courses")
+																					td(width="1%" height="1%") {{$index + 1}}
+																					td: h6.btn-simple.btn.label.btn-rose(ng-click="showCourse(cours)") {{cours.name|uppercase}}
+																					td: span.btn-simple.btn.label(ng-show="cours.teacher_list.indexOf(teacher_id)>=0").btn-rose
+																						i.icon.ion-ios-checkmark 
+																	p.category.text-center(ng-show ="!courses.length") No courses defined yet
 
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")

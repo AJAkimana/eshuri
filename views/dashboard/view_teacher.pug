@@ -1,51 +1,51 @@
 extends ../layout
 block append scripts
 	script(src="../js/MIT/jquery.select-bootstrap.js",type="application/javascript")
-block content 
-	.main-panel
-		include ../partials/header 
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="teacherCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container-fluid
-						.row
-							.col-md-10.center
-								.card
-									.card-header.card-header-icon(data-background-color="rose")
-										i.material-icons person
-									.card-content
-										h3.category.text-center(ng-show ="!teachers.length") No teacher registered yet
-										h3.text-center List of teachers for #{school_name}
-										.table-responsive(ng-show ="teachers.length")
-											form.form-inline
-												.form-group.pull-left
-													strong Show
-													select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
-														option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
-													strong entries
-												.form-group.pull-right
-													input.form-control(type='text', ng-model='search', placeholder='Search')
-											table.table
-												thead
-													th.text-center #
-													th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Name
-													th: a.btn-simple.btn.label.btn-rose(ng-click="a='urn';b=!b") URN
-													th: a.btn-simple.btn.label.btn-rose(ng-click="a='email';b=!b") Email
-													th: a.btn-simple.btn.label.btn-rose(ng-click="") Phone Number
-													th: a.btn-simple.btn.label.btn-rose(ng-click="a='status';b=!b") Access to system
-													th Actions
-												tbody
-													tr(pagination-id="allteachers", dir-paginate="teacher in teachers| orderBy:a:b|filter:search|itemsPerPage:n_pages")
-														td(width="1%" height="1%") {{$index + 1}}
-														td: a(href="/dashboard.teachers/{{teacher._id}}") {{teacher.name|uppercase}}
-														td {{teacher.URN|uppercase}}
-														td {{teacher.email}}
-														td {{teacher.phone_number}}
-														td: a.btn-simple.btn.label(ng-click='activateUser(teacher)',ng-class="teacher.isEnabled?'btn-success':'btn-danger'") {{teacher.isEnabled|toURL}}
-														td.td-actions
-															button.btn.btn-danger(type='button',ng-click="deleteTeacher(teacher._id,teacher.name)")
-																i.material-icons close
-											dir-pagination-controls.pull-right(pagination-id='allteachers', max-size='5', direction-links='true', boundary-links='true')
+block append content
+	//.main-panel
+		include ../partials/header
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="teacherCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-md-10.center
+							.card
+								.card-header.card-header-icon(data-background-color="rose")
+									i.material-icons person
+								.card-content
+									h3.category.text-center(ng-show ="!teachers.length") No teacher registered yet
+									h3.text-center List of teachers for #{school_name}
+									.table-responsive(ng-show ="teachers.length")
+										form.form-inline
+											.form-group.pull-left
+												strong Show
+												select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
+													option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
+												strong entries
+											.form-group.pull-right
+												input.form-control(type='text', ng-model='search', placeholder='Search')
+										table.table
+											thead
+												th.text-center #
+												th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Name
+												th: a.btn-simple.btn.label.btn-rose(ng-click="a='urn';b=!b") URN
+												th: a.btn-simple.btn.label.btn-rose(ng-click="a='email';b=!b") Email
+												th: a.btn-simple.btn.label.btn-rose(ng-click="") Phone Number
+												th: a.btn-simple.btn.label.btn-rose(ng-click="a='status';b=!b") Access to system
+												th Actions
+											tbody
+												tr(pagination-id="allteachers", dir-paginate="teacher in teachers| orderBy:a:b|filter:search|itemsPerPage:n_pages")
+													td(width="1%" height="1%") {{$index + 1}}
+													td: a(href="/dashboard.teachers/{{teacher._id}}") {{teacher.name|uppercase}}
+													td {{teacher.URN|uppercase}}
+													td {{teacher.email}}
+													td {{teacher.phone_number}}
+													td: a.btn-simple.btn.label(ng-click='activateUser(teacher)',ng-class="teacher.isEnabled?'btn-success':'btn-danger'") {{teacher.isEnabled|toURL}}
+													td.td-actions
+														button.btn.btn-danger(type='button',ng-click="deleteTeacher(teacher._id,teacher.name)")
+															i.material-icons close
+										dir-pagination-controls.pull-right(pagination-id='allteachers', max-size='5', direction-links='true', boundary-links='true')
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
 	script(src="../js/MIT/jasny-bootstrap.min.js", type="text/javascript")

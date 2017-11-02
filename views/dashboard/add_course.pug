@@ -1,173 +1,173 @@
 extends ../layout
 block append scripts
 	script(src="../js/MIT/jquery.select-bootstrap.js",type="application/javascript")
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../partials/header 
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="course_ManageCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container-fluid
-						.row
-							.col-md-7.center
-								.card(ng-show="teacher_add")
-									.card-header(data-background-color="rose")
-										i.material-icons school
-										h5.card-title Choose teacher for {{course_name|uppercase}}
-									.card-content
-										.col-md-8
-											h4 Teacher list
-											div(ng-repeat ="t in currentTeachers")
-												h4: strong {{$index+1}}) {{t|toTeacher_name:teachers}}
-													.btn.btn-danger.btn-fab.btn-fab-mini(ng-click="dissociateTeacher(t)")
-														i.material-icons close
-										.col-md-4
-											h4 Add a new teacher
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="course_ManageCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-md-7.center
+							.card(ng-show="teacher_add")
+								.card-header(data-background-color="rose")
+									i.material-icons school
+									h5.card-title Choose teacher for {{course_name|uppercase}}
+								.card-content
+									.col-md-8
+										h4 Teacher list
+										div(ng-repeat ="t in currentTeachers")
+											h4: strong {{$index+1}}) {{t|toTeacher_name:teachers}}
+												.btn.btn-danger.btn-fab.btn-fab-mini(ng-click="dissociateTeacher(t)")
+													i.material-icons close
+									.col-md-4
+										h4 Add a new teacher
+										.form-group.label-floating
+											select.form-control(ng-model="teacher_choosen",ng-change="affectTeacher(course_concerned,teacher_choosen)")
+												option(disabled, selected) Pick a teacher
+												option(value="{{teacher._id}}",ng-repeat="teacher in teachers") {{teacher.name}}
+						.col-md-3.center
+							.card(ng-show="change_academic")
+								.card-header(data-background-color="rose")
+									i.material-icons school
+									h5.card-title Edit class settings
+								.card-content
+									.row.col-md-10.center
+										.input-group
+											span.input-group-addon.icon.ion-ios-settings
 											.form-group.label-floating
-												select.form-control(ng-model="teacher_choosen",ng-change="affectTeacher(course_concerned,teacher_choosen)")
-													option(disabled, selected) Pick a teacher
-													option(value="{{teacher._id}}",ng-repeat="teacher in teachers") {{teacher.name}}
-							.col-md-3.center
-								.card(ng-show="change_academic")
-									.card-header(data-background-color="rose")
-										i.material-icons school
-										h5.card-title Edit class settings
-									.card-content
-										.row.col-md-10.center
-											.input-group
-												span.input-group-addon.icon.ion-ios-settings
-												.form-group.label-floating
-													label.control-label New Academic year (e.g 2017)
-													input.form-control(type="text",autocomplete="off",ng-model="nv.academic_year")
-											.input-group
-												span.input-group-addon.icon.ion-ios-settings
-												.form-group.label-floating
-													label.control-label Choose the current term
-													select.form-control(required="true",ng-model="nv.currentTerm")
-														option(value="{{$index + 1}}", ng-repeat="i in getTerms_Limit()") {{term_name|toTermName}} {{$index + 1}}
-											button.btn.btn-fill.btn-rose.pull-right(ng-click="updateClass()") Change
-											
-							.col-md-5.center
-								.card(ng-show="!teacher_add && c_add")
-									.card-header(data-background-color="rose")
-										i.material-icons school
-										h5.card-title {{institution|toNiceName}}: <strong>{{school_name|uppercase}}</strong>
-										h6.pull-right.card-title {{classe_name|uppercase}}
-										h1
-									.card-content
-										.formu
-											.row
-												.col-md-12
-													.form_yanje
-														.form-group
-																p.category.text-info If you see few courses, 
-																	a(href="/dashboard.register.course/{{school_id}}") click to add more..
-														.form-group.label-floating
-															label.control-label Enter a new course
-															select.form-control(required="true", title="Choose course", ng-model="newCourse.name", , ng-change="setCourseCode()")
-																option(value="{{cours.name}}", ng-repeat="cours in schoolCourses") {{cours.name|uppercase}}
-															//input.form-control(type="text",required="true",ng-model="newCourse.name")
-														.row
-															.col-md-4
-																.form-group.label-floating
-																	label.control-label {{term_name|toTermName}}:
-																	br
-																	select.form-control(required="true", title="Choose the {{term_name|toTermName}}",ng-model="newCourse.currentTerm", ng-change="setCourseCode()")
-																		option(value="{{$index + 1}}", ng-repeat="i in getTerms_Limit()") {{term_name|toTermName}} {{$index + 1}}
-															.col-md-8
-																.form-group.label-floating
-																	label.control-label Course code 
-																	br
-																	input.form-control(type="text",autocomplete="off",required="true",ng-model="newCourse.code")
-													
-														.form-group.label-floating
-															label.control-label Weight on report
-															input.form-control(type="text",autocomplete="off",required="true",ng-model="newCourse.weightOnReport")
-
-														
-														.form-group.label-floating
-															label.control-label Teacher of course
-															select.form-control(required="true",ng-model="newCourse.teacher_id")
-																option(disabled selected) Choose a teacher
-																option(value="{{teacher._id}}",ng-repeat="teacher in teachers") {{teacher.name}}
-														.form-group
-															p.category The teacher of the course can be changed later..
-														.form-group
-															button.btn.btn-fill.btn-rose(ng-click="addNewCourse()") Add
-															button.btn.btn-fill.btn-danger.pull-right(ng-click="c_add =false") Cancel
-							.col-md-10.center
-								.card
-									.card-header.card-header-icon(data-background-color="rose")
-										i.material-icons school
-									.card-content
-										.col-md-12
-											h5 Academic year: {{academic_year|yearToDate}} <br/> Current {{term_name|toTermName}}: {{currentTerm}}
-										.col-md-12.text-right
-											a.btn-simple.btn.label.btn-rose(ng-click="c_add=!c_add") Add a new course +
-											a.btn-simple.btn.label.btn-rose(ng-click="change_academic=!change_academic") Change class settings
-											a.btn-simple.btn.label.btn-rose(href="/dashboard.students/"+classe_id) View class students
-												i.material-icons person_outline
-
-										.col-md-12
-											h3.text-center List of courses in <b>{{classe_name|uppercase}}</b> at {{school_name|uppercase}}
-											.table-responsive(ng-show="courses.length")
-												form.form-inline
-													.form-group.pull-left
-														strong Show
-														select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
-															option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
-														strong entries
-													.form-group.pull-right
-														input.form-control(type='text', ng-model='search', placeholder='Search')
-												table.table
-													thead
-														th.text-center #
-														th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Course name
-														th: a.btn-simple.btn.label.btn-rose(ng-click="a='code';b=!b") Course code
-														th: a.btn-simple.btn.label.btn-rose(ng-click="a='code';b=!b") Weight on report
-														th: a.btn-simple.btn.label.btn-rose(ng-click="a='code';b=!b") Course term
-														th: a.btn-simple.btn.label.btn-rose(ng-click="a='teacher_list';b=!b") Number of teachers
-														th Actions
-													tbody
-														tr(pagination-id="allcourses", dir-paginate="course in courses |orderBy:a:b|filter:search|itemsPerPage:n_pages")
-															td(width="1%" height="1%") {{$index + 1}}
-															td {{course.name | uppercase}}
-															td {{course.code|uppercase}}
-															td {{course.weightOnReport|uppercase}}
-															td {{course.currentTerm|toTermName}} {{course.currentTerm}}
-															td {{course.teacher_list.length}} teachers
-																a.btn-simple.btn.label.btn-rose(type='button',ng-click="setCurrentCourse(course)",data-target='#add_teacher_Modal', data-toggle='modal')
-																a.btn-simple.btn.label.btn-rose(type='button',ng-click="setCurrentCourse(course)")
-																	i.material-icons edit
-																	|  Edit teachers
-															td.td-actions
-																button.btn.btn-danger(type='button',ng-click="deleteCourse(course._id,course.name)")
-																	i.material-icons close
-																button.btn-success.btn.label(type='button',ng-click="editCourseName(course._id,course.name, course.currentTerm)")
-																	i.material-icons edit
-																p.category.text-center(ng-show ="!courses.length") No courses provided yet
-												dir-pagination-controls.pull-right(pagination-id='allcourses', max-size='5', direction-links='true', boundary-links='true')
-										#add_teacher_Modal.modal.fade(role='dialog')
-											.modal-dialog
-												.modal-content
-													.modal-header
-														i.material-icons school
-														h5.card-title Choose teacher for {{course_name|uppercase}}
-													.modal-body
-														.col-md-8
-															h4 Teacher list
-															div(ng-repeat ="t in currentTeachers")
-																h4: strong {{$index+1}}) {{t|toTeacher_name:teachers}}
-																	.btn.btn-danger.btn-fab.btn-fab-mini(ng-click="dissociateTeacher(t)")
-																		i.material-icons close
+												label.control-label New Academic year (e.g 2017)
+												input.form-control(type="text",autocomplete="off",ng-model="nv.academic_year")
+										.input-group
+											span.input-group-addon.icon.ion-ios-settings
+											.form-group.label-floating
+												label.control-label Choose the current term
+												select.form-control(required="true",ng-model="nv.currentTerm")
+													option(value="{{$index + 1}}", ng-repeat="i in getTerms_Limit()") {{term_name|toTermName}} {{$index + 1}}
+										button.btn.btn-fill.btn-rose.pull-right(ng-click="updateClass()") Change
+										
+						.col-md-5.center
+							.card(ng-show="!teacher_add && c_add")
+								.card-header(data-background-color="rose")
+									i.material-icons school
+									h5.card-title {{institution|toNiceName}}: <strong>{{school_name|uppercase}}</strong>
+									h6.pull-right.card-title {{classe_name|uppercase}}
+									h1
+								.card-content
+									.formu
+										.row
+											.col-md-12
+												.form_yanje
+													.form-group
+															p.category.text-info If you see few courses, 
+																a(href="/dashboard.register.course/{{school_id}}") click to add more..
+													.form-group.label-floating
+														label.control-label Enter a new course
+														select.form-control(required="true", title="Choose course", ng-model="newCourse.name", , ng-change="setCourseCode()")
+															option(value="{{cours.name}}", ng-repeat="cours in schoolCourses") {{cours.name|uppercase}}
+														//input.form-control(type="text",required="true",ng-model="newCourse.name")
+													.row
 														.col-md-4
-															h4 Add a new teacher
 															.form-group.label-floating
-																select.form-control(ng-model="teacher_choosen",ng-change="affectTeacher(course_concerned,teacher_choosen)")
-																	option(disabled, selected) Pick a teacher
-																	option(value="{{teacher._id}}",ng-repeat="teacher in teachers") {{teacher.name}}
-													.modal-footer
-														button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
+																label.control-label {{term_name|toTermName}}:
+																br
+																select.form-control(required="true", title="Choose the {{term_name|toTermName}}",ng-model="newCourse.currentTerm", ng-change="setCourseCode()")
+																	option(value="{{$index + 1}}", ng-repeat="i in getTerms_Limit()") {{term_name|toTermName}} {{$index + 1}}
+														.col-md-8
+															.form-group.label-floating
+																label.control-label Course code 
+																br
+																input.form-control(type="text",autocomplete="off",required="true",ng-model="newCourse.code")
+												
+													.form-group.label-floating
+														label.control-label Weight on report
+														input.form-control(type="text",autocomplete="off",required="true",ng-model="newCourse.weightOnReport")
+
+													
+													.form-group.label-floating
+														label.control-label Teacher of course
+														select.form-control(required="true",ng-model="newCourse.teacher_id")
+															option(disabled selected) Choose a teacher
+															option(value="{{teacher._id}}",ng-repeat="teacher in teachers") {{teacher.name}}
+													.form-group
+														p.category The teacher of the course can be changed later..
+													.form-group
+														button.btn.btn-fill.btn-rose(ng-click="addNewCourse()") Add
+														button.btn.btn-fill.btn-danger.pull-right(ng-click="c_add =false") Cancel
+						.col-md-10.center
+							.card
+								.card-header.card-header-icon(data-background-color="rose")
+									i.material-icons school
+								.card-content
+									.col-md-12
+										h5 Academic year: {{academic_year|yearToDate}} <br/> Current {{term_name|toTermName}}: {{currentTerm}}
+									.col-md-12.text-right
+										a.btn-simple.btn.label.btn-rose(ng-click="c_add=!c_add") Add a new course +
+										a.btn-simple.btn.label.btn-rose(ng-click="change_academic=!change_academic") Change class settings
+										a.btn-simple.btn.label.btn-rose(href="/dashboard.students/"+classe_id) View class students
+											i.material-icons person_outline
+
+									.col-md-12
+										h3.text-center List of courses in <b>{{classe_name|uppercase}}</b> at {{school_name|uppercase}}
+										.table-responsive(ng-show="courses.length")
+											form.form-inline
+												.form-group.pull-left
+													strong Show
+													select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
+														option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
+													strong entries
+												.form-group.pull-right
+													input.form-control(type='text', ng-model='search', placeholder='Search')
+											table.table
+												thead
+													th.text-center #
+													th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Course name
+													th: a.btn-simple.btn.label.btn-rose(ng-click="a='code';b=!b") Course code
+													th: a.btn-simple.btn.label.btn-rose(ng-click="a='code';b=!b") Weight on report
+													th: a.btn-simple.btn.label.btn-rose(ng-click="a='code';b=!b") Course term
+													th: a.btn-simple.btn.label.btn-rose(ng-click="a='teacher_list';b=!b") Number of teachers
+													th Actions
+												tbody
+													tr(pagination-id="allcourses", dir-paginate="course in courses |orderBy:a:b|filter:search|itemsPerPage:n_pages")
+														td(width="1%" height="1%") {{$index + 1}}
+														td {{course.name | uppercase}}
+														td {{course.code|uppercase}}
+														td {{course.weightOnReport|uppercase}}
+														td {{course.currentTerm|toTermName}} {{course.currentTerm}}
+														td {{course.teacher_list.length}} teachers
+															a.btn-simple.btn.label.btn-rose(type='button',ng-click="setCurrentCourse(course)",data-target='#add_teacher_Modal', data-toggle='modal')
+															a.btn-simple.btn.label.btn-rose(type='button',ng-click="setCurrentCourse(course)")
+																i.material-icons edit
+																|  Edit teachers
+														td.td-actions
+															button.btn.btn-danger(type='button',ng-click="deleteCourse(course._id,course.name)")
+																i.material-icons close
+															button.btn-success.btn.label(type='button',ng-click="editCourseName(course._id,course.name, course.currentTerm)")
+																i.material-icons edit
+															p.category.text-center(ng-show ="!courses.length") No courses provided yet
+											dir-pagination-controls.pull-right(pagination-id='allcourses', max-size='5', direction-links='true', boundary-links='true')
+									#add_teacher_Modal.modal.fade(role='dialog')
+										.modal-dialog
+											.modal-content
+												.modal-header
+													i.material-icons school
+													h5.card-title Choose teacher for {{course_name|uppercase}}
+												.modal-body
+													.col-md-8
+														h4 Teacher list
+														div(ng-repeat ="t in currentTeachers")
+															h4: strong {{$index+1}}) {{t|toTeacher_name:teachers}}
+																.btn.btn-danger.btn-fab.btn-fab-mini(ng-click="dissociateTeacher(t)")
+																	i.material-icons close
+													.col-md-4
+														h4 Add a new teacher
+														.form-group.label-floating
+															select.form-control(ng-model="teacher_choosen",ng-change="affectTeacher(course_concerned,teacher_choosen)")
+																option(disabled, selected) Pick a teacher
+																option(value="{{teacher._id}}",ng-repeat="teacher in teachers") {{teacher.name}}
+												.modal-footer
+													button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
 	script.

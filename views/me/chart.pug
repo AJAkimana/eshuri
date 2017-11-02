@@ -1,36 +1,36 @@
 extends ../layout
 
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../partials/header
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="chartistController",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container-fluid
-						.row
-							.col-xs-12.col-sm-12.col-md-6
-								.row
-									h4 1. Show area Chart
-									.ct-chart.ct-perfect-fourth#showAreaChart
-							.col-xs-12.col-sm-12.col-md-6.col-lg-6
-								.row
-									h4 2. ColouredRoundedLineChart
-									.ct-chart.ct-perfect-fourth#colouredRoundedLineChart
-							.col-xs-12.col-sm-12.col-md-6.col-lg-6
-								.row
-									h4 3. Simple Bar chart
-									.ct-chart.ct-perfect-fourth#simpleBarChart
-									
-							.col-xs-12.col-sm-12.col-md-6.col-lg-6
-								.row
-									h4 4. Multiple Bar chart
-									.ct-chart.ct-perfect-fourth#multipleBarsChart
-							.col-xs-12.col-sm-12.col-md-6.col-lg-6
-								.row
-									h4 5. Pie Chart with start angle
-									.ct-chart.ct-perfect-fourth#pie
-							.col-xs-12.col-sm-12.col-md-6.col-lg-6
-								.ct-chart.ct-perfect-fourth#chart4
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="chartistController",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-xs-12.col-sm-12.col-md-6
+							.row
+								h4 1. Show area Chart
+								.ct-chart.ct-perfect-fourth#showAreaChart
+						.col-xs-12.col-sm-12.col-md-6.col-lg-6
+							.row
+								h4 2. ColouredRoundedLineChart
+								.ct-chart.ct-perfect-fourth#colouredRoundedLineChart
+						.col-xs-12.col-sm-12.col-md-6.col-lg-6
+							.row
+								h4 3. Simple Bar chart
+								.ct-chart.ct-perfect-fourth#simpleBarChart
+								
+						.col-xs-12.col-sm-12.col-md-6.col-lg-6
+							.row
+								h4 4. Multiple Bar chart
+								.ct-chart.ct-perfect-fourth#multipleBarsChart
+						.col-xs-12.col-sm-12.col-md-6.col-lg-6
+							.row
+								h4 5. Pie Chart with start angle
+								.ct-chart.ct-perfect-fourth#pie
+						.col-xs-12.col-sm-12.col-md-6.col-lg-6
+							.ct-chart.ct-perfect-fourth#chart4
 
 block append scripts
 	script(src="../js/chartist.min.js",type="application/javascript")

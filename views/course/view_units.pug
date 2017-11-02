@@ -1,142 +1,142 @@
 extends ../layout
-block content 
-	.main-panel
+block append content
+	//- .main-panel
 		include ../partials/header 
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="UnitViewCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container-fluid
-						.row
-							.col-md-12
-								.col-md-4.center
-									.card(ng-show="add_unit",ng-init="var1 = '#{_id}'")
-										.card-header.card-header-icon(data-background-color="rose")
-											i.material-icons note
-										.card-content
-											h4.card-title Add a new unit: <strong>{{unit.title}}  </strong>
-											form(ng-submit="addUnit()")
-												.form-group.label-floating
-													label.control-label Title of the unit
-													input.form-control(type="text", ng-model="unit.title")
-												.form-group.label-floating
-													label.control-label A small description of the unit
-													textarea.form-control(rows="4" cols="50", ng-model="unit.description",maxlength="140")
-												button.btn.btn-fill.btn-rose(type="submit") Submit
-												button.btn.btn-fill.btn-danger.pull-right(ng-click="add_unit=!add_unit") Cancel
-							.col-md-12
-								.col-md-3
-									.card
-										.card.card-nav-tabs
-										.card-header(data-background-color='purple')
-											.nav-tabs-navigation
-												.nav-tabs-wrapper
-													span.nav-tabs-title <strong>Summaries </strong> :
-													ul.nav.nav-tabs(data-tabs='tabs')
-														//- li.active
-														//- 	a(href='#profile', data-toggle='tab')
-														//- 		i.material-icons bug_report
-														//- 		|	5 Units
-														//- 		.ripple-container
-														//- li
-														//- 	a(href='#messages', data-toggle='tab')
-														//- 		i.material-icons code
-														//- 		|	4 Assessments
-														//- 		.ripple-container
-														//- li
-														//- 	a(href='#settings', data-toggle='tab')
-														//- 		i.material-icons cloud
-														//- 		|	S7 Videos
-														//- 		.ripple-container
-														li
-															if access >= 4 && access <= 5
-																a.btn-simple.btn.label.btn-rose(href="/student.marks.page/"+course_id) View marks
-								.col-md-9
-									.card
-										.card-header
-											.row
-												.col-md-6
-													.row
-														.col-md-6
-															h3.card-title <strong>{{'#{school_name}'|uppercase}}</strong>
-															h4.card-title Course: <strong>{{course_name|uppercase}}</strong>
-															h5.card-title Teacher: {{teacher_name}} 
-															h5.card-title {{term_name|toTermName}} {{actual_term}}
-														.col-md-6
-															if access >= 4 && access <= 5
-																a.btn-simple.btn.label.btn-rose(href="/student.marks.page/"+course_id) View marks
-																	i.material-icons view_stream
-															if access <= 3
-																a.btn-simple.btn.label.btn-rose(ng-click="add_unit=!add_unit") New unit  
-																	i.material-icons add
-																a.btn-simple.btn.label.btn-rose(href="/students/"+course_id) Students following this course
-																	i.material-icons add_to_queue
-																a.btn-simple.btn.label.btn-rose(ng-click="sendToEditQuota()")  Course settings 
-																	i.material-icons settings
-											h2.card-title.text-center <strong>Units</strong>
-											br
-											h2.card-title.text-center.text-info(ng-show="!units") <strong>Loading ...</strong>
-										.card-content
-											.panel-group(role='tablist')#accordion
-												h5.card-title.text-center(ng-show="!units.length") <i>No units here </i>
-												.panel.panel-default(ng-repeat="unit in units")
-													.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentUnit(unit._id,unit.title)")
-														a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
-															h4.panel-title
-																| {{$index+1}}. {{unit.title|uppercase}}
-																i.material-icons keyboard_arrow_down
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="UnitViewCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-md-12
+							.col-md-4.center
+								.card(ng-show="add_unit",ng-init="var1 = '#{_id}'")
+									.card-header.card-header-icon(data-background-color="rose")
+										i.material-icons note
+									.card-content
+										h4.card-title Add a new unit: <strong>{{unit.title}}  </strong>
+										form(ng-submit="addUnit()")
+											.form-group.label-floating
+												label.control-label Title of the unit
+												input.form-control(type="text", ng-model="unit.title")
+											.form-group.label-floating
+												label.control-label A small description of the unit
+												textarea.form-control(rows="4" cols="50", ng-model="unit.description",maxlength="140")
+											button.btn.btn-fill.btn-rose(type="submit") Submit
+											button.btn.btn-fill.btn-danger.pull-right(ng-click="add_unit=!add_unit") Cancel
+						.col-md-12
+							.col-md-3
+								.card
+									.card.card-nav-tabs
+									.card-header(data-background-color='purple')
+										.nav-tabs-navigation
+											.nav-tabs-wrapper
+												span.nav-tabs-title <strong>Summaries </strong> :
+												ul.nav.nav-tabs(data-tabs='tabs')
+													//- li.active
+													//- 	a(href='#profile', data-toggle='tab')
+													//- 		i.material-icons bug_report
+													//- 		|	5 Units
+													//- 		.ripple-container
+													//- li
+													//- 	a(href='#messages', data-toggle='tab')
+													//- 		i.material-icons code
+													//- 		|	4 Assessments
+													//- 		.ripple-container
+													//- li
+													//- 	a(href='#settings', data-toggle='tab')
+													//- 		i.material-icons cloud
+													//- 		|	S7 Videos
+													//- 		.ripple-container
+													li
+														if access >= 4 && access <= 5
+															a.btn-simple.btn.label.btn-rose(href="/student.marks.page/"+course_id) View marks
+							.col-md-9
+								.card
+									.card-header
+										.row
+											.col-md-6
+												.row
+													.col-md-6
+														h3.card-title <strong>{{'#{school_name}'|uppercase}}</strong>
+														h4.card-title Course: <strong>{{course_name|uppercase}}</strong>
+														h5.card-title Teacher: {{teacher_name}} 
+														h5.card-title {{term_name|toTermName}} {{actual_term}}
+													.col-md-6
+														if access >= 4 && access <= 5
+															a.btn-simple.btn.label.btn-rose(href="/student.marks.page/"+course_id) View marks
+																i.material-icons view_stream
+														if access <= 3
+															a.btn-simple.btn.label.btn-rose(ng-click="add_unit=!add_unit") New unit  
+																i.material-icons add
+															a.btn-simple.btn.label.btn-rose(href="/students/"+course_id) Students following this course
+																i.material-icons add_to_queue
+															a.btn-simple.btn.label.btn-rose(ng-click="sendToEditQuota()")  Course settings 
+																i.material-icons settings
+										h2.card-title.text-center <strong>Units</strong>
+										br
+										h2.card-title.text-center.text-info(ng-show="!units") <strong>Loading ...</strong>
+									.card-content
+										.panel-group(role='tablist')#accordion
+											h5.card-title.text-center(ng-show="!units.length") <i>No units here </i>
+											.panel.panel-default(ng-repeat="unit in units")
+												.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentUnit(unit._id,unit.title)")
+													a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
+														h4.panel-title
+															| {{$index+1}}. {{unit.title|uppercase}}
+															i.material-icons keyboard_arrow_down
 
-													.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
-														.panel-body
-															.col-md-12
-																.row
-																	if access <= 3
-																		a.btn-simple.btn.label.btn-rose.pull-right(type="button",ng-click="delCurrentUnit()")
-																			i.material-icons delete
-																		a.btn-simple.btn.label.btn-rose.pull-right(href="/content.add.{{c_type|toLink}}/{{currentUnit}}",ng-show="c_type>0") Add a new <strong>{{ c_type|toContentName|uppercase}} </strong>
-																			i.material-icons attach_file
-																	.col-md-2
-																		ul.nav.nav-spills.nav-pills-rose.nav-stacked
-																			li: a.btn.label(ng-click="getContent(1)",ng-class="c_type==1?'btn-primary':'btn-rose'",ng-show="!show_asssmnt") Written notes
-																			li: a.btn.label(ng-click="getContent(2)",ng-class="c_type==2?'btn-primary':'btn-rose'",ng-show="!show_asssmnt") Pdf notes
-																			li: a.btn.label.btn-rose.dropdown-toggle(type='button', data-toggle='dropdown',ng-click="showSelectBox()",ng-class="c_type>=3 && c_type<=6?'btn-primary':'btn-rose'")
-																					| Assessments
-																					span.caret
-																				ul(ng-show="show_asssmnt")		
-																					li: a.btn-simple.btn.label.btn-rose(ng-click="getContent(3)") Automated
-																					li: a.btn-simple.btn.label.btn-rose(ng-click="getContent(4)") Written
-																					li: a.btn-simple.btn.label.btn-rose(ng-click="getContent(5)") Uploaded
-																					li: a.btn-simple.btn.label.btn-rose(ng-click="getContent(6)") Offline
-																			li: a.btn.label(ng-click="getContent(7)",ng-class="c_type==7?'btn-primary':'btn-rose'",ng-show="!show_asssmnt") Video
-																	.col-md-10
-																		.table-responsive(ng-show ="pdfs.length")
-																			table.table
-																				thead
-																					th.text-center #
-																					th {{c_type|toContentName|uppercase}}
-																					th Upload time
+												.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
+													.panel-body
+														.col-md-12
+															.row
+																if access <= 3
+																	a.btn-simple.btn.label.btn-rose.pull-right(type="button",ng-click="delCurrentUnit()")
+																		i.material-icons delete
+																	a.btn-simple.btn.label.btn-rose.pull-right(href="/content.add.{{c_type|toLink}}/{{currentUnit}}",ng-show="c_type>0") Add a new <strong>{{ c_type|toContentName|uppercase}} </strong>
+																		i.material-icons attach_file
+																.col-md-2
+																	ul.nav.nav-spills.nav-pills-rose.nav-stacked
+																		li: a.btn.label(ng-click="getContent(1)",ng-class="c_type==1?'btn-primary':'btn-rose'",ng-show="!show_asssmnt") Written notes
+																		li: a.btn.label(ng-click="getContent(2)",ng-class="c_type==2?'btn-primary':'btn-rose'",ng-show="!show_asssmnt") Pdf notes
+																		li: a.btn.label.btn-rose.dropdown-toggle(type='button', data-toggle='dropdown',ng-click="showSelectBox()",ng-class="c_type>=3 && c_type<=6?'btn-primary':'btn-rose'")
+																				| Assessments
+																				span.caret
+																			ul(ng-show="show_asssmnt")		
+																				li: a.btn-simple.btn.label.btn-rose(ng-click="getContent(3)") Automated
+																				li: a.btn-simple.btn.label.btn-rose(ng-click="getContent(4)") Written
+																				li: a.btn-simple.btn.label.btn-rose(ng-click="getContent(5)") Uploaded
+																				li: a.btn-simple.btn.label.btn-rose(ng-click="getContent(6)") Offline
+																		li: a.btn.label(ng-click="getContent(7)",ng-class="c_type==7?'btn-primary':'btn-rose'",ng-show="!show_asssmnt") Video
+																.col-md-10
+																	.table-responsive(ng-show ="pdfs.length")
+																		table.table
+																			thead
+																				th.text-center #
+																				th {{c_type|toContentName|uppercase}}
+																				th Upload time
+																				if access <= 3
+																					th Status
+																					th Actions
+																			tbody
+																				tr(ng-repeat="pdf in pdfs")
+																					td(width="1%" height="1%") {{$index + 1}}
+																					td: a(href="/content.do.{{pdf.type|toLink}}/{{pdf._id}}") {{pdf.title|uppercase}}
+																					td {{pdf.upload_time| my_timeAgo}}
 																					if access <= 3
-																						th Status
-																						th Actions
-																				tbody
-																					tr(ng-repeat="pdf in pdfs")
-																						td(width="1%" height="1%") {{$index + 1}}
-																						td: a(href="/content.do.{{pdf.type|toLink}}/{{pdf._id}}") {{pdf.title|uppercase}}
-																						td {{pdf.upload_time| my_timeAgo}}
-																						if access <= 3
-																							td: a.btn-simple.btn.label(ng-class="pdf.isPublished?'btn-ssuccess':'btn-rose'",ng-click="setPublish(pdf._id)") {{pdf.isPublished|toPublish}}
-																								i.material-icons trending_up
-																							td.td-actions.text-right
-																								a.btn-simple.btn.label.btn-rose(type='button',href="/content.view/{{pdf._id}}",ng-show="donotShow")
-																									i.material-icons pageview
-																								a.btn-simple.btn.label.btn-success(ng-click="viewAnswersContent(pdf._id)",ng-show="c_type>=3 && c_type<=6",title="View Answers")
-																									i.material-icons view_list
-																								a.btn-simple.btn.label.btn-info(ng-click="editContent(pdf._id,pdf.title)",title="Edit")
-																									i.material-icons edit
-																								a.btn-simple.btn.label.btn-rose(href="/content.edit_marks/{{pdf._id}}",ng-show="c_type >=3 && c_type<=6",title="Edit Marks")
-																									i.material-icons folder_special	
-																								a.btn-simple.btn.label.btn-danger(ng-click="deleteContent(pdf._id,pdf.title)",title="Delete")
-																									i.material-icons delete
-																		p.category.text-center(ng-show ="!pdfs.length") No content available
+																						td: a.btn-simple.btn.label(ng-class="pdf.isPublished?'btn-ssuccess':'btn-rose'",ng-click="setPublish(pdf._id)") {{pdf.isPublished|toPublish}}
+																							i.material-icons trending_up
+																						td.td-actions.text-right
+																							a.btn-simple.btn.label.btn-rose(type='button',href="/content.view/{{pdf._id}}",ng-show="donotShow")
+																								i.material-icons pageview
+																							a.btn-simple.btn.label.btn-success(ng-click="viewAnswersContent(pdf._id)",ng-show="c_type>=3 && c_type<=6",title="View Answers")
+																								i.material-icons view_list
+																							a.btn-simple.btn.label.btn-info(ng-click="editContent(pdf._id,pdf.title)",title="Edit")
+																								i.material-icons edit
+																							a.btn-simple.btn.label.btn-rose(href="/content.edit_marks/{{pdf._id}}",ng-show="c_type >=3 && c_type<=6",title="Edit Marks")
+																								i.material-icons folder_special	
+																							a.btn-simple.btn.label.btn-danger(ng-click="deleteContent(pdf._id,pdf.title)",title="Delete")
+																								i.material-icons delete
+																	p.category.text-center(ng-show ="!pdfs.length") No content available
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
 	script(src="../js/MIT/jasny-bootstrap.min.js", type="text/javascript")

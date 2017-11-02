@@ -1,48 +1,48 @@
 extends ../layout
-block content 
-	.main-panel
+block append content 
+	//- .main-panel
 		include ../partials/header 
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="departmentCtrl",style="background-image: url('../imgs/register.jpeg')")
-			.full-page.login-page
-				.content
-					.container-fluid
-						.row
-							.col-md-8.center
-								.card
-									.card-header.card-header-icon(data-background-color="rose")
-										i.material-icons school
-									.card-content
-										.row
-											.col-md-12
-												.row
-													.col-md-8
-														.input-group
-															span.input-group-addon.icon.ion-ios-person
-															.form-group.label-floating
-																label.control-label Enter the name of a new department
-																input.form-control(type="text",autocomplete="off",ng-model="newDepartment.name")
-													.col.-md-2
-														button.btn.btn-fill.btn-rose(ng-click="addDepartment()") Add
-											.col-md-12
-												h3.text-center List of departments at {{fac_name|uppercase}}
-												.table-responsive(ng-show="departments.length")
-													table.table
-														thead
-															th.text-center #
-															th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b")  Departments
-															th: a.btn-simple.btn.label.btn-rose(ng-click="a='admin_mail';b=!b") Head of department
-															th Actions
-														tbody
-															tr(ng-repeat="depart in departments| orderBy:a:b")
-																td(width="1%" height="1%") {{$index + 1}}
-																td: a(href="/dashboard.options/{{depart._id}}") {{depart.name | uppercase}}
-																td {{depart.admin_mail|| 'Not defined'}}
-																td.td-actions.text-right
-																	button.btn.btn-success(type='button',ng-click="setHOD(depart._id,depart.name)")
-																		i.material-icons edit
-																	button.btn.btn-danger(type='button',ng-click="deleteDepartment(depart._id,depart.name)")
-																		i.material-icons close
-												p.category.text-center(ng-show ="!departments.length") No available departments here
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="departmentCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-md-8.center
+							.card
+								.card-header.card-header-icon(data-background-color="rose")
+									i.material-icons school
+								.card-content
+									.row
+										.col-md-12
+											.row
+												.col-md-8
+													.input-group
+														span.input-group-addon.icon.ion-ios-person
+														.form-group.label-floating
+															label.control-label Enter the name of a new department
+															input.form-control(type="text",autocomplete="off",ng-model="newDepartment.name")
+												.col.-md-2
+													button.btn.btn-fill.btn-rose(ng-click="addDepartment()") Add
+										.col-md-12
+											h3.text-center List of departments at {{fac_name|uppercase}}
+											.table-responsive(ng-show="departments.length")
+												table.table
+													thead
+														th.text-center #
+														th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b")  Departments
+														th: a.btn-simple.btn.label.btn-rose(ng-click="a='admin_mail';b=!b") Head of department
+														th Actions
+													tbody
+														tr(ng-repeat="depart in departments| orderBy:a:b")
+															td(width="1%" height="1%") {{$index + 1}}
+															td: a(href="/dashboard.options/{{depart._id}}") {{depart.name | uppercase}}
+															td {{depart.admin_mail|| 'Not defined'}}
+															td.td-actions.text-right
+																button.btn.btn-success(type='button',ng-click="setHOD(depart._id,depart.name)")
+																	i.material-icons edit
+																button.btn.btn-danger(type='button',ng-click="deleteDepartment(depart._id,depart.name)")
+																	i.material-icons close
+											p.category.text-center(ng-show ="!departments.length") No available departments here
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
 	script.
