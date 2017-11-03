@@ -8,7 +8,6 @@ html(lang="en" ng-app="eshuri_App")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")      
         meta(http-equiv="X-UA-Compatible", content="IE=edge,chrome=1")
         meta(name="description", content="eShuri Learning Management System")
-        meta(http-equiv="refresh", content="30")
         meta(name="#{csrf_token}", content=_csrf)
         title #{title} @ eShuri.rw
         - var access = access_lvl
@@ -20,10 +19,6 @@ html(lang="en" ng-app="eshuri_App")
             link(rel="stylesheet", type="text/css", href="../css/monStyle.css?v=1.2.0")
             link(rel="stylesheet", type="text/css", href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons")
     body.ng-cloak
-        if (access)
-            .wraper.navbar-fixed-top
-                //block menuBar
-                //include partials/navbar
         block content
             include partials/header
         // Best at the end of the body

@@ -22,13 +22,13 @@ block append content
 										click on the name to sort names
 									.table-responsive(ng-show="studentsInClass.length>0")
 										form.form-inline
-													.form-group.pull-left
-														label Show
-														select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
-															option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
-														label /page
-													.form-group.pull-right
-														input.form-control(type='text', ng-model='search', placeholder='Search')
+												.form-group.pull-left
+													label Show
+													select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
+														option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
+													label /page
+												.form-group.pull-right
+													input.form-control(type='text', ng-model='search', placeholder='Search')
 										table.table
 											thead
 												th.text-center #
