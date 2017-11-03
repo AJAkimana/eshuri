@@ -7,16 +7,15 @@ block content
 					.row
 						.col-md-4.col-sm-6.col-md-offset-4.col-sm-offset-3
 							.card.card-login.card-hidden
-								.card-header.text-center(data-background-color="rose")
-									h4.card-title Login
-										.social-line
-											a(href="#").btn.btn-just-icon.btn-simple
-												i.icon.ion-social-facebook-outline
-											a(href="#").btn.btn-just-icon.btn-simple
-												i.icon.ion-social-twitter-outline
-											a(href="#").btn.btn-just-icon.btn-simple
-												i.icon.ion-social-googleplus-outline
+								
 								p.category.text-center Or Be Classical
+									center
+										h3
+											strong Login Into Your Account
+										h4 
+											strong Don't have one? 
+											a(href="/user.signup")
+												|	SIGNUP
 								.card-content
 									.input-group
 										span.input-group-addon.icon.ion-ios-person
@@ -33,7 +32,9 @@ block content
 									.forgot
 										button.btn.label.label-info(ng-click="forgotPassword()") Forgot your password?
 									.forgot
-										a(href="/user.signup") Create a new account ?
+										h4
+											strong
+												a(href="/user.signup") Create a new account ?
 									.forgot
 										button.btn.label.label-danger(ng-click="resendValidationCode()",ng-show="resend_show") Resend validation code ?
 block append scripts
