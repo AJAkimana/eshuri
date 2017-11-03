@@ -21,30 +21,6 @@ html(lang='en')
   body
     //
       ==========================
-      Hero Section
-      ============================
-    section#hero
-      .hero-container
-        .wow.fadeIn
-          h1 eShuri LMS
-          h2
-            | Experience the best of eLearning at your school. 
-            br
-            span.rotating(style='color:#ff0000;')
-              | eShuri is a cloud repository, of academic contents, that uses interactive methodologies, in distributing online courses, and by offering flexibility, to take classes at home
-            .col-md-12
-              .col-md-6
-                h2
-                  a.btn.btn-success.btn-raised.btn-lg(href='https://www.microsoft.com/store/apps/9PJ798LP9BH1',   target='_blank')
-                    i.material-icons file_download
-                    |   Offline
-              .col-md-6
-                h2
-                  a.btn.btn-success.btn-raised.btn-lg(href='/home')
-                    i.material-icons star_half
-                    |   Let's go !
-    //
-      ==========================
       Header Section
       ============================
     header#header
@@ -68,6 +44,55 @@ html(lang='en')
               a(href='/user.signin') Sign in
             li
               a(href='user.signup') Register
+    //
+      ==========================
+      Hero Section
+      ============================
+    section#hero
+      .hero-container
+        .wow.fadeIn
+          h1 eShuri LMS
+          h2
+            | Experience the best of eLearning at your school. 
+            br
+            span.rotating(style='color:#4caf50;')
+              | eShuri is a cloud repository, of academic contents, that uses interactive methodologies, in distributing online courses, and by offering flexibility, to take classes at home
+            .col-md-12
+              .col-md-6
+                h2
+                  a.btn.btn-success.btn-raised.btn-lg(href='https://www.microsoft.com/store/apps/9PJ798LP9BH1',   target='_blank')
+                    i.material-icons file_download
+                    |   Offline
+              .col-md-6
+                h2
+                  a.btn.btn-success.btn-raised.btn-lg(href='/home')
+                    i.material-icons star_half
+                    |   Let's go !
+    //
+      ==========================
+      Header Section
+      ============================
+    //- header#header
+    //-   .container
+    //-     #logo.pull-left
+    //-       a(href='#hero')
+    //-         h2
+    //-           b
+    //-             span(style='color:#fff;border:solid 1px #fff;border-radius:3px;font-weight: 700;font-family:Times New Roman;') eShuri LMS
+    //-     nav#nav-menu-container
+    //-       ul.nav-menu
+    //-         li.menu-active
+    //-           a(href='/home') Home
+    //-         li
+    //-           a(href='#features') Features
+    //-         li
+    //-           a(href='#vision') Vision
+    //-         li
+    //-           a(href='https://www.youtube.com/watch?v=RSHB1ylo0-U', target='_blank') Watch video
+    //-         li
+    //-           a(href='/user.signin') Sign in
+    //-         li
+    //-           a(href='user.signup') Register
     //
       ==========================
       Features Section
