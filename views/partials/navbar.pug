@@ -1,0 +1,71 @@
+.sidebar(style="position:fixed;")
+	.logo
+		.avatar
+			img(src='/favicon.png', alt='...',width="100%",height="auto")
+		a.navbar-brand(href="/") eShuri Platform
+	.sidebar-wrapper
+		ul.nav.navbar-nav
+			if access > 1
+				li: a.btn-simple.btn.label.btn-info(href="/timeline")
+					i.material-icons web_asset
+					| Eshuri Wall
+			if access > 1 && access!=5
+				li: a.btn-simple.btn.label.btn-success(href="/school")
+					i.material-icons school
+					| My school
+			if access <= 4 && access != 1
+				li: a.btn-simple.btn.label.btn-success(href="/library")
+					i.material-icons book
+					| Library
+			if access ==4
+				li: a.btn-simple.btn.label.btn-success(href="/parents")
+					i.material-icons school
+					| My parents 
+			if access ==5
+				li: a.btn-simple.btn.label.btn-success(href="/parent")
+					i.material-icons school
+					| Select Student
+			//Only admins has dashboard
+			if access <= 2.1
+				li: a.btn-simple.btn.label.btn-warning(href="/dashboard")
+					i.material-icons dashboard
+					| Dashboard
+			if access == 4
+				li: a(href="/report/"+pic_id)
+					i.material-icons local_activity
+					| My report
+			li: a(href="http://gocoderz.com/wp-content/uploads/articulate_uploads/Lesson_1:_Drivetrain/story_html5.html" target="_blank")
+					i.material-icons code
+					| Robotics Programming
+			li.dropdown
+				if access
+					a.btn-simple.btn.label.btn-info.dropdown-toggle(data-toggle="dropdown")
+						i.material-icons person
+						| {{'#{pic_name}'|| 'Account'|uppercase}}
+				if !access
+					a.btn-simple.btn.label.btn-info.dropdown-toggle(data-toggle="dropdown")
+						i.material-icons person
+						| New Account
+				ul.dropdown-menu
+					if access
+						li
+							a(href="/user.settings")
+								i.material-icons settings
+								| Change your settings
+					if !access
+						li.divider
+						li
+							a(href="/user.signup")
+								i.material-icons person
+								| New account
+						li.divider
+						li
+							a(href="/user.signin")
+								i.material-icons person
+								| Login
+					if access
+						li.divider
+						li
+							a(href="/user.logout")
+								i.material-icons face
+								| Logout

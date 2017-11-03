@@ -1,0 +1,121 @@
+extends ../layout
+block append content 
+	//- .main-panel
+		include ../partials/header
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="homePageSchoolCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-md-12
+							.col-md-8.center
+								.card
+									.card-header
+										h3.card-title <strong>{{'#{school_name}'|uppercase}}</strong>
+										h4.card-title.text-center Available classes
+										if access ==3
+											span.btn-simple.btn.label.btn-rose Your courses are marked with 
+												i.icon.ion-ios-checkmark
+										br
+										h2.card-title.text-center.text-info(ng-show="!years") <strong>Loading ...</strong>
+									.card-content
+										.panel-group(role='tablist')#accordion
+											.panel.panel-default(ng-repeat="year in years")
+												.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentYear(year._id)")
+													a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="true", aria-controls="{{'collapse_'+$index}}")
+														h4.panel-title.text-center
+															| {{year.name| uppercase}}
+															i.material-icons keyboard_arrow_down
+												.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
+													.panel-body
+														.col-md-12
+															.row
+																.col-md-4
+																	ul.nav.nav-pills.nav-pills-rose.nav-stacked
+																		li(ng-repeat="i in getTerms_Limit()")
+																			a.btn.label(ng-click="getCurrentCourses($index+1)",ng-class="currentTerm==$index?'btn-primary':'btn-rose'") {{term_name|toTermName}} {{$index + 1}}	
+																.col-md-8
+																	.table-responsive(ng-show ="courses.length")
+																		table.table
+																			thead
+																				th.text-center #
+																				th Course
+																			tbody
+																				tr(ng-repeat="cours in courses")
+																					td(width="1%" height="1%") {{$index + 1}}
+																					td: h6.btn-simple.btn.label.btn-rose(ng-click="showCourse(cours)") {{cours.name|uppercase}}
+																					td: span.btn-simple.btn.label(ng-show="cours.teacher_list.indexOf(teacher_id)>=0").btn-rose
+																						i.icon.ion-ios-checkmark 
+																	p.category.text-center(ng-show ="!courses.length") No courses defined yet
+
+block append scripts
+	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+	script(src="../js/MIT/jasny-bootstrap.min.js", type="text/javascript")
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute']);
+		app
+		.filter('toTermName', function() {
+			return function(input){	
+				return input=='S'?'Semester':'Term'
+			}
+		})
+		.controller('homePageSchoolCtrl', function($scope, $http,$window){
+			// We receive years[], allCourses[],term_name,term_quantity			
+			$scope.load_SchoolContent = function(){
+				$http
+				.get("/school.content.list/"+$scope.school_id)
+				.then(function(response){
+					$scope.term_name =response.data.term_name;
+					$scope.term_quantity=response.data.term_quantity;
+					$scope.years =response.data.classes;
+					//console.log('We have Conteont '+JSON.stringify(response.data))
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				}); 
+			}
+			$scope.getTerms_Limit = function() {
+			    return Array.apply(null, {length: $scope.term_quantity}).map(Number.call, Number)
+			}
+			$scope.getCurrentCourses = function(term){
+				$scope.currentTerm =term-1;
+				$scope.courses=[];
+				$http
+				.post("/school.content.courses",
+				{"_csrf":$scope.anti_csrf,"class_id":$scope.currentYear,"currentTerm":term})
+				.then(function(response){
+					$scope.courses =response.data;
+					//console.log("COURSE "+JSON.stringify($scope.courses))
+					//console.log(" or teacher_id"+$scope.teacher_id)
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				}); 
+			}
+			$scope.getTeacherID = function(){
+				$http
+				.get("/user.get.id",{"_csrf":$scope.anti_csrf})
+				.then(function(response){
+					$scope.teacher_id =response.data;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				}); 
+			}
+			$scope.showCourse = function(cours){
+				//if($scope.teacher_id != cours.teacher_id)
+				//	Notifier.danger("This course is not yours")
+				//else
+				 $window.location.href="/courses/"+cours._id
+			}
+			$scope.setCurrentYear= function(year){
+				$scope.courses =[];
+				$scope.currentTerm =-1;
+				$scope.currentYear= year;
+			}
+			$scope.currentTerm =-1;
+			$scope.anti_csrf ="#{csrf_token}";
+			$scope.school_id ="#{school_id}";
+			$scope.load_SchoolContent();
+			$scope.getTeacherID();
+		})

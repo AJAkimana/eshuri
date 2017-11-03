@@ -1,0 +1,88 @@
+                            button.btn.btn-success(type='button',title="Print reports of selected")
+                                    i.material-icons print
+                            .table-responsive()
+                              table.table.table-condensed.table-striped.table-bordered
+                                thead
+                                  tr
+                                    th(rowspan='4',title="Select all"): input(type="checkbox")
+                                    th(rowspan='4')
+                                      | Students
+                                    //Terms 
+                                      ___________________+___________________+_______________________________
+                                    th(colspan='4', style='text-align:center;font-weight: bold;')
+                                      | Term I
+                                    th(colspan='4', style='text-align:center;font-weight: bold;')
+                                      | Term II
+                                    th(colspan='4', style='text-align:center;font-weight: bold;')
+                                      | Term III
+                                    th(style='text-align:center;font-weight: bold;',rowspan="3",colspan="2")
+                                      | Grand Total
+                                    th(style='text-align:center;font-weight: bold;',rowspan='3')
+                                      |       
+          
+
+                                  //Assessment test and exam
+                                    ____________________+_______________+_______________+____________+_____
+                                  tr(align='center')
+                                    th(style='text-align:center;font-weight: bold;')
+                                      | Test
+                                    th(style='text-align:center;font-weight: bold;')
+                                      | Exam
+                                    th(style='text-align:center;font-weight: bold;')
+                                      | Total
+                                    th(style='text-align:center;font-weight: bold;')
+                                      | %
+                                    th(style='text-align:center;font-weight: bold;')
+                                      | Test
+                                    th(style='text-align:center;font-weight: bold;')
+                                      | Exam
+                                    th(style='text-align:center;font-weight: bold;')
+                                      | Total
+                                    th(style='text-align:center;font-weight: bold;')
+                                      | %
+                                    th(style='text-align:center;font-weight: bold;')
+                                      | Test
+                                    th(style='text-align:center;font-weight: bold;')
+                                      | Exam
+                                    th(style='text-align:center;font-weight: bold;')
+                                      | Total   
+                                    th(style='text-align:center;font-weight: bold;')
+                                      | %
+                                            
+                                tbody(align='right')
+                                  tr
+                                    td: input(type="checkbox")
+                                    td(align='left', style='font-weight: bold; background: #e3e7ed')
+                                      | Akimana
+                                    td
+                                      | 60%
+                                    td
+                                      | 60%
+                                    td
+                                      | 60%
+                                    td(style='font-weight: bold; background: #CCC')
+                                      | tp
+                                    td
+                                      | 60%
+                                    td
+                                      | 60%
+                                    td
+                                      | 60%
+                                    td(style='font-weight: bold; background: #CCC')
+                                      | tp
+                                    td
+                                      | 60%
+                                    td
+                                      | 60%
+                                    td
+                                      | 60%
+                                    td(style='font-weight: bold; background: #CCC')
+                                      | tp
+                                    td(style='font-weight: bold; background: #CCC',)
+                                      | gtp
+                                    td(style='font-weight: bold; background: #CCC',)
+                                      | %
+                                    td
+                                      a.btn-simple.btn.label.btn-rose(ng-click="sendToEditQuota()") 
+                                        i| view   
+                            p.category.text-center(ng-show ="!classes.length") No class provided here

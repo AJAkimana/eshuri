@@ -1,0 +1,135 @@
+extends ../layout
+block append content 
+	//- .main-panel
+		include ../partials/header 
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="setSpecialMarksCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-md-6
+							.card
+								.card-header.card-header-icon(data-background-color='purple')
+									i.material-icons assignment
+								.card-content
+									h3.card-title Students waiting for marks
+									h6.category {{StudentNotYet.length|| '0'}} students
+									.col-md-12
+										.table-responsive(ng-show ="StudentNotYet.length")
+											table.table
+												thead
+													th #
+													th Name
+													th URN
+													th.disabled-sorting Marks
+												tbody
+													tr(ng-repeat="student in StudentNotYet")
+														td(width="1%" height="1%") {{$index + 1}}.
+														td {{student.name|uppercase}}
+														td {{student.URN|uppercase}}
+														td
+															form(ng-submit="setMarks(student._id,student.given_mark)")
+																.input-group
+																	input.form-control(type="number",required="true",ng-model="student.given_mark",ng-init="student.given_mark? student.marks:0")
+																	span.input-group-addon 
+																		strong /{{totalMarks}}
+																	span.input-group-addon
+																		button.btn-primary(type="submit") Save
+										h4.category.text-center(ng-show="!StudentNotYet.length>0") No student to give marks here
+						.col-md-6
+							.card
+								.card-header.card-header-icon(data-background-color='purple')
+									i.material-icons assignment
+								.card-content
+									h3.card-title List of marks affected to students
+									h6.category {{StudentAlready.length|| '0'}} students
+									.col-md-12
+										.table-responsive(ng-show ="StudentAlready.length")
+											table.table
+												thead
+													th #
+													th Name
+													th URN
+													th Total
+													th.disabled-sorting Cancel
+												tbody
+													tr(ng-repeat="student in StudentAlready")
+														td(width="1%" height="1%") {{$index + 1}}.
+														td {{student.name|uppercase}}
+														td {{student.student_URN|uppercase}}
+														td {{(student.percentage*totalMarks/100).toFixed(1)}} /{{totalMarks}}
+														td
+															a.btn-simple.btn.label.btn-rose(ng-click="removeFromMarks(student.student_id)") Change
+										h4.category.text-center(ng-show="!StudentAlready.length>0") No students  here
+
+block append scripts
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute', 'angularUtils.directives.dirPagination']);
+		app	
+		.controller('setSpecialMarksCtrl', function($scope,$http){
+			
+			$scope.getStudents = function(){
+				$http
+				.post("/content.list.students.offline",
+				{_csrf:$scope.anti_csrf,content_id:$scope.content_id})
+				.then(function(response){
+					$scope.StudentAlready =response.data.studentsAlready;
+					$scope.allStudents =response.data.allStudents;
+					// allStudents is the list of all students that are in this class + those who are retaking it
+					// StudentAlready is the list that you have set the marks already
+					// Me trying to add name attribute to StudentAlready elt
+					for(var i=0; i<$scope.StudentAlready.length;i++){
+						for(var j=0;j<$scope.allStudents.length;j++){
+						 if($scope.allStudents[j]._id ==$scope.StudentAlready[i].student_id){
+								$scope.StudentAlready[i].name =$scope.allStudents[j].name;
+								//also remove it from allStudent
+								$scope.allStudents.splice(j,1);
+							}
+						}
+						
+					}
+					$scope.StudentNotYet =$scope.allStudents;
+					//alert("Already in marks==>"+JSON.stringify($scope.StudentAlready));
+					//alert("NOT in marks==>"+JSON.stringify($scope.StudentNotYet));
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				});
+			}
+			$scope.setMarks = function(student_id, student_marks){
+				$http
+				.post("/content.offline.set_marks",
+				{_csrf:$scope.anti_csrf,content_id:$scope.content_id,
+					student_id:student_id,student_marks:student_marks
+				})
+				.then(function(response){
+					$scope.getStudents();
+					//alert("Here you should just updat one student per one")
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				});
+			}
+			$scope.removeFromMarks =function(student_id){
+				$http
+				.post("/content.offline.undo_marks",
+				{_csrf:$scope.anti_csrf,content_id:$scope.content_id,
+					student_id:student_id
+				})
+				.then(function(response){
+					$scope.getStudents();
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				});
+			}
+			$scope.totalMarks ="#{totalMarks}"
+			$scope.StudentNotYet =[];
+			$scope.StudentAlready=[];
+			$scope.show_chooseClass=false;
+			$scope.content_id ="#{content_id}";
+			$scope.school_name ="#{school_name}";
+			$scope.school_id ="#{school_id}";
+			$scope.anti_csrf ="#{csrf_token}";
+			$scope.getStudents();
+		})

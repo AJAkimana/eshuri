@@ -1,0 +1,116 @@
+extends ../layout
+	
+block append content 
+	//- .main-panel
+		include ../partials/header 
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="homePageCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-md-12
+							.container
+								.row
+									.amashuri(ng-repeat="_school in schools")
+										.col-md-4
+											.card.card-product
+												.card-image(data-header-animation="true")
+													.div(ng-click="view_school(_school._id)")
+														img.img(src="{{_school.cover_photo}}")
+												.card-content(ng-click="view_school(_school._id)")
+													.card-title
+														h3: a {{_school.name|to_Capital}}
+													.card-description
+														p {{_school.description|to_Capital}}
+												.card-footer
+													.price
+														h4 {{_school.genderness|to_Gender}}
+													.stats.pull-right
+														p.category
+															{{_school.category|to_Category}}
+									.amashuri(ng-repeat="_school in departments")
+										.col-md-4
+											.card.card-product
+												.card-image(data-header-animation="true")
+													.div(ng-click="view_school(_school._id)")
+														img.img(src="{{_school.cover_photo}}")
+												.card-content(ng-click="view_school(_school._id)")
+													.card-title
+														h3: a {{_school.name|to_Capital}}
+													.card-description
+														p {{_school.description|to_Capital}}
+												.card-footer
+													.price
+														h4 {{_school.genderness|to_Gender}}
+													.stats.pull-right
+														p.category
+															{{_school.category|to_Category}}
+block append scripts
+	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+	//script(src="../js/MIT/jquery.select-bootstrap.js",type="application/javascript")
+	script(src="../js/MIT/jasny-bootstrap.min.js", type="text/javascript")
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute']);
+		app
+		.filter('to_Capital', function() {
+			return function(input){
+				return input.charAt(0).toUpperCase() + input.slice(1);
+			}
+		})
+		.filter('to_Gender', function() {
+			return function(input){
+				if(isNaN(input)) return input;
+				switch(input){
+					case '1': input ="Mixted";break;
+					case '2': input ="Boys";break;
+					case '3': input ="Girls";break;
+					default: input="Unknown Gender";break;
+				}
+				return input;
+			}
+		})
+		.filter('to_Category', function() {
+			return function(input){
+				if(isNaN(input)) return input;
+				switch(input){
+					case '1': input ="All";break;
+					case '2': input ="Internals only";break;
+					case '3': input ="Externals only";break;
+					default: input="Unknown category";break;
+				}
+				return input;
+			}
+		})
+		.controller('homePageCtrl', function($scope, $http,$window){
+		
+			$scope.view_school = function(id_school){
+				$window.location.href ="/school/"+id_school;
+			}
+			$scope.reload = function(){
+				$scope.getSchools();
+				$scope.getDepartments();
+			}
+			$scope.getSchools = function(){
+				$http
+		 		.get("/school.list")
+		 		.then(function(response){
+					$scope.schools=response.data;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data)
+				});				 
+			}
+			$scope.getDepartments = function(){
+				$http
+		 		.get("/school.department.list")
+		 		.then(function(response){
+					$scope.departments=response.data;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data)
+				});				 
+			}
+			
+			$scope.reload();
+			Notifier.info('Page Schools');
+		})

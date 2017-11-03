@@ -1,0 +1,177 @@
+extends ../layout
+block append content 
+	//- .main-panel
+		include ../partials/header 
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="confirmAccountCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-md-9
+							h1
+							h1
+						.col-md-6
+							.card
+								.card-header.card-header-icon(data-background-color='purple')
+									i.material-icons assignment
+								.card-content
+									h3.card-title List of new teachers to confirm
+									.col-md-12
+										col-md-12
+											.col-md-7.pull-right
+												.form-group.label-floating
+													label.control-label Search
+													input.form-control(type="text",autocomplete="off",required="true",ng-model="searchedWord")
+									.col-md-12
+										.table-responsive(ng-show ="teachers.length")
+											table.table
+												thead
+													th #
+													th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Name
+													th: a.btn-simple.btn.label.btn-rose(ng-click="a='email';b=!b") E-mail
+													th: a.btn-simple.btn.label.btn-rose(ng-click="a='URN';b=!b") URN
+													th: a.btn-simple.btn.label.btn-rose(ng-click="a='isEnabled';b=!b") Enabled
+													th.disabled-sorting.text-right Actions
+												tbody
+													tr(ng-repeat="teacher in teachers |filter:searchedWord|orderBy:a:b")
+														td(width="1%" height="1%") {{$index + 1}}
+														td {{teacher.name|uppercase}}
+														td {{teacher.email}}
+														td {{teacher.URN|uppercase}}
+														td: a.btn-simple.btn.label.btn-rose(ng-click="activateTeacher(teacher._id)") confirm
+															i.material-icons verified_user
+														td.text-right
+															a.btn.btn-simple.btn-danger.btn-icon.remove
+																i.material-icons close
+										h4.category.text-center(ng-show="!teachers.length>0") No teacher to validate here
+						.col-md-6
+							.card
+								.card-header.card-header-icon(data-background-color='purple')
+									i.material-icons assignment
+								.card-content
+									.card-content
+										h3.card-title {{students.length}} new students accounts to confirm
+									.panel-group(role='tablist')#accordion
+										h5.card-title.text-center(ng-show="!classes.length") <i>No classes here </i>
+										.panel.panel-default(ng-repeat="class in classes")
+											.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentClass(class._id,class.title)")
+												a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
+													h4.panel-title
+														| {{$index+1}}.  {{class.name|uppercase}} <strong>({{class.students}} new)</strong>
+														i.material-icons keyboard_arrow_down
+
+											.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
+												.panel-body
+													p.category.text-center(ng-show="!students.length > 0") No students to validate here
+													.col-md-12(ng-show ="students.length")
+														.col-md-12
+															.col-md-7.pull-right
+																.form-group.label-floating
+																	label.control-label Search
+																	input.form-control(type="text",autocomplete="off",required="true",ng-model="searchedWord")
+														.col-md-12
+															.table-responsive
+																table.table
+																	thead
+																		th #
+																		th Name
+																		th E-mail
+																		th URN
+																		th Enabled
+																	tbody
+																		tr(ng-repeat="student in students|filter:searchedWord",ng-show="student.class_id == class._id")
+																			td(width="1%" height="1%") {{$index + 1}}
+																			td {{student.name|uppercase}}
+																			td {{student.email}}
+																			td {{student.URN|uppercase}}
+																			td: a.btn-simple.btn.label.btn-rose(ng-click="activateStudent(student._id,student.class_id)") confirm
+																				i.material-icons verified_user
+block append scripts
+	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute', 'angularUtils.directives.dirPagination']);
+		app
+		.filter('toDefined', function() {
+			return function(input){
+				return !input? 'Choose/Edit class':'Ok';
+			}
+		})		
+		.controller('confirmAccountCtrl', function($scope,$http){
+			$scope.getListAccounts = function(limit){
+				$http
+				.post("/dashboard.accounts.tovalidate",{_csrf:$scope.anti_csrf,school_id:$scope.school_id})
+				.then(function(response){
+					$scope.users = response.data;
+					$scope.teachers=[];
+					$scope.students=[];
+					//iterat over users to extract teachers and students
+					for(var i=0;i<$scope.users.length;i++){
+						if($scope.users[i].access_level == Number('#{level_student}')){
+							$scope.students.push($scope.users[i]);
+						}
+						else if($scope.users[i].access_level == Number('#{level_teacher}')){
+							$scope.teachers.push($scope.users[i]);
+						}
+					}
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				});
+			}
+			$scope.confirmClass = function(){
+				$scope.students[$scope.currentStudentIndex].class_id =$scope.class_id_choosen;	
+				$scope.abort();
+			}
+			$scope.activateStudent = function(student_id,student_class_id){
+				$http
+				.post("/dashboard.validate.student",{_csrf:$scope.anti_csrf,student_id:student_id})
+				.then(function(response){
+					// Now we wil remove the account _id instead of reload all the apge
+					for(var i =0; i<$scope.students.length;i++)
+						if($scope.students[i]._id == student_id){
+							$scope.students.splice(i,1);
+							break;
+						}
+					Notifier.success("Student has been activated");
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				});
+			};
+			$scope.activateTeacher = function(teacher_id){
+				$http
+				.post("/dashboard.validate.teacher",{_csrf:$scope.anti_csrf,teacher_id:teacher_id})
+				.then(function(response){
+					// NOw we wil remove the account _id instead of reload all the apge
+					for(var i =0; i<$scope.teachers.length;i++)
+						if($scope.teachers[i]._id == teacher_id){
+							$scope.teachers.splice(i,1);
+							break;
+						}
+					Notifier.success("Teacher has been activated");
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				});
+			}
+			$scope.getClasses = function(){
+				$http
+				.get("/classe.list.confirm/"+$scope.school_id)
+				.then(function(response){
+					$scope.classes =response.data;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				});
+			}
+			$scope.pages=[3,5,10,15,20,25];
+			$scope.teachers =[];
+			$scope.students=[];
+			$scope.show_chooseClass=false;
+			$scope.school_name ="#{school_name}";
+			$scope.school_id ="#{school_id}";
+			$scope.anti_csrf ="#{csrf_token}";
+			$scope.getListAccounts(10);
+			$scope.getClasses();
+		})
+
