@@ -21,11 +21,14 @@ exports.getPageReport = function(req,res,next){
 		});
 	}
 	if(req.user.access_level==req.app.locals.access_level.ADMIN||req.user.access_level==req.app.locals.access_level.ADMIN_TEACHER){
+		//console.log(school_exists.po_box+"_________"+school_exists.phone_number)
 		return 	res.render('me/mark_report',{
 			title:"General marks",
 			school_id:req.user.school_id,
 			school_name:school_exists.name,
 			school_district:school_exists.district_name,
+			school_phone:school_exists.phone_number,
+			school_pob:school_exists.po_box,
 			pic_id:req.user._id,pic_name:req.user.name,access_lvl:req.user.access_level,
 			csrf_token:res.locals.csrftoken, // always set this buddy
 		});
@@ -647,21 +650,28 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 
 	var currentAcademicYear=req.body.academic_year;
 	var thisClass = req.body.class_id;
-	//var thisStudent = "58c970ef708c4a9f40dfbb87";
-	var reportData = [];
-	var termLists = [];
-	var listStudents = [], listOfCourses=[];
-	var students = [];
-	var listCourses = []; //you have to include course quota
-	var listAssessments = [];
-	var termOne = [], termTwo = [], termThree = [];
-	var totals = [], studentMark=[];
-	var term1Marks = [], term2Marks = [], term3Marks = [];
-	var totalQuizzes=0, totalExams=0, totalQuotes=0, totalTESTS=0, totalEXAMS=0, totalTOTALS=0;
-	var totalQuizzT1=0, totalQuizzT2=0, totalQuizzT3=0, totalExamT1=0, totalExamT2=0, totalExamT3=0, courseTerm1Marks=0, courseTerm2Marks=0, courseTerm3Marks=0;
+	//*****************************************************************
+		// All arrays variables
+	//*****************************************************************
+	var reportData = [],
+		termLists = [],
+		listStudents = [],
+		listOfCourses=[],
+		students = [],
+		listCourses = [],
+		listAssessments = [],
+		termOne = [],
+		termTwo = [],
+		termThree = [],
+		totals = [],
+		studentMark=[],
+		allMarksPackage = [],
+		classDetails=[];
+	//*****************************************************************
+		// All arrays variables
+	//*****************************************************************
 
 	var async = require('async');
-	var Terms = [], allMarksPackage = [], classDetails=[];
 	Classe.findOne({_id:thisClass},{name:1,},(err, class_details)=>{
 		if(err) return log_err(err, false, req, res);
 		//userDetails.push({classe:class_details});

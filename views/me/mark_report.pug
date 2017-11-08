@@ -1,6 +1,14 @@
 extends ../layout
 block append scripts
   script(src="../js/MIT/jquery.select-bootstrap.js",type="application/javascript")
+block append css_code
+  style.
+    .print-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translateX(-50%) translateY(-50%);
+    }
 block append content 
   //- .main-panel
     include ../partials/header 
@@ -31,11 +39,10 @@ block append content
 
                     .col-md-3
                       button.btn.btn-rose.center(ng-click="getAllStudentsReport()") Get report
-            .col-md-12.center(ng-show="students_list")
+            .col-md-10.center(ng-show="students_list")
               .card
                 .card-header.card-header-icon(data-background-color="rose")
                   i.material-icons report
-                  h2.card-title.text-center.text-info(ng-show="!studentsMark") <strong>Loading ...</strong>
                 .card-content
                   .col-md-12
                     .box
@@ -44,129 +51,133 @@ block append content
                         br
                         br
                         br
-                        div
-                          .col-md-12
-                              center(ng-repeat="classinfo in classInfo")
-                                h3
-                                  strong Students progress for class {{classinfo.name|uppercase}} in {{classinfo.a_year|toNormal}}
-                                strong {{classinfo.a_year|toNormal}} ANNUAL REPORT
-                              form.form-inline
-                                .form-group.pull-left
-                                    select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
-                                        option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
-                                    strong pages
-                                .form-group.pull-right
-                                    input.form-control(type='text', ng-model='search', placeholder='Search')
-                              table.table.table-condensed.table-striped.table-bordered
-                                thead
-                                  tr
-                                    th(rowspan='4')
-                                      | Student names
-                                    //Terms 
-                                      ___________________+___________________+_______________________________
-                                    th(colspan='4', style='text-align:center;font-weight: bold;')
-                                      | Term I
-                                    th(colspan='4', style='text-align:center;font-weight: bold;')
-                                      | Term II
-                                    th(colspan='4', style='text-align:center;font-weight: bold;')
-                                      | Term III
-                                    th(style='text-align:center;font-weight: bold;',rowspan="3",colspan="2")
-                                      | Grand Total
-                                    //th(style='text-align:center;font-weight: bold;',rowspan='3')
-                                      |       
-          
+                        h2.card-title.text-center.text-info(ng-show="!studentsMark.length") <strong>Loading, please wait...</strong>
+                        .col-md-12(ng-show="studentsMark.length")
+                          .table-responsive.table-condensed.table-striped
+                            center(ng-repeat="classinfo in classInfo")
+                              h3
+                                strong Students progress for class {{classinfo.name|uppercase}} in {{classinfo.a_year|toNormal}}
+                              strong {{classinfo.a_year|toNormal}} ANNUAL REPORT
+                            form.form-inline
+                              .form-group.pull-left
+                                  select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
+                                      option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
+                                  strong pages
+                              .form-group.pull-right
+                                  input.form-control(type='text', ng-model='search', placeholder='Search')
+                            
+                            table.table.table-bordered
+                              thead
+                                tr
+                                  th(rowspan='4')
+                                    | Student names
+                                  //Terms 
+                                    ___________________+___________________+_______________________________
+                                  th(colspan='4', style='text-align:center;font-weight: bold;')
+                                    | Term I
+                                  th(colspan='4', style='text-align:center;font-weight: bold;')
+                                    | Term II
+                                  th(colspan='4', style='text-align:center;font-weight: bold;')
+                                    | Term III
+                                  th(style='text-align:center;font-weight: bold;',rowspan="3",colspan="2")
+                                    | Grand Total
+                                  //th(style='text-align:center;font-weight: bold;',rowspan='3')
+                                    |       
+        
 
-                                  //Assessment test and exam
-                                    ____________________+_______________+_______________+____________+_____
-                                  tr(align='center')
-                                    th(style='text-align:center;font-weight: bold;')
-                                      | Test
-                                    th(style='text-align:center;font-weight: bold;')
-                                      | Ex
-                                    th(style='text-align:center;font-weight: bold;')
-                                      | Tot
-                                    th(style='text-align:center;font-weight: bold;')
-                                      | %
-                                    th(style='text-align:center;font-weight: bold;')
-                                      | Test
-                                    th(style='text-align:center;font-weight: bold;')
-                                      | Ex
-                                    th(style='text-align:center;font-weight: bold;')
-                                      | Tot
-                                    th(style='text-align:center;font-weight: bold;')
-                                      | %
-                                    th(style='text-align:center;font-weight: bold;')
-                                      | Test
-                                    th(style='text-align:center;font-weight: bold;')
-                                      | Ex
-                                    th(style='text-align:center;font-weight: bold;')
-                                      | Tot   
-                                    th(style='text-align:center;font-weight: bold;')
-                                      | %
-                                tbody(align='right')
-                                  tr(pagination-id='allsmarks', dir-paginate="mark in studentsMark|orderBy:name|filter:search|itemsPerPage:n_pages")
-                                    td(style='font-weight: bold; background: #e3e7ed; text-align:left;')
-                                      label.btn-simple.btn-link(ng-click="getOneStudentReport(mark.urn)") {{mark.name|uppercase}}
-                                    td
-                                      | {{(mark.test_t1_mark).toFixed(1)}}
-                                    td
-                                      | {{(mark.exam_t1_mark).toFixed(1)}}
-                                    td
-                                      | {{(mark.total_t1_mark).toFixed(1)}}
-                                    td(style='font-weight: bold; background: #CCC')
-                                      | {{(mark.total_t1_pct).toFixed(1)}}%
-                                    td
-                                      | {{(mark.test_t2_mark).toFixed(1)}}
-                                    td
-                                      | {{(mark.exam_t2_mark).toFixed(1)}}
-                                    td
-                                      | {{(mark.total_t2_mark).toFixed(1)}}
-                                    td(style='font-weight: bold; background: #CCC')
-                                      | {{(mark.total_t2_pct).toFixed(1)}}%
-                                    td
-                                      | {{(mark.test_t3_mark).toFixed(1)}}
-                                    td
-                                      | {{(mark.exam_t3_mark).toFixed(1)}}
-                                    td
-                                      | {{(mark.total_t3_mark).toFixed(1)}}
-                                    td(style='font-weight: bold; background: #CCC')
-                                      | {{(mark.total_t3_pct).toFixed(1)}}%
-                                    td(style='font-weight: bold; background: #CCC',)
-                                      | {{(mark.annual).toFixed(1)}}
-                                    td(style='font-weight: bold; background: #CCC',)
-                                      | {{(mark.annual_pct).toFixed(1)}}%
-                              dir-pagination-controls(pagination-id='allsmarks', max-size='5', direction-links='true', boundary-links='true')
+                                //Assessment test and exam
+                                  ____________________+_______________+_______________+____________+_____
+                                tr(align='center')
+                                  th(style='text-align:center;font-weight: bold;')
+                                    | Test
+                                  th(style='text-align:center;font-weight: bold;')
+                                    | Ex
+                                  th(style='text-align:center;font-weight: bold;')
+                                    | Tot
+                                  th(style='text-align:center;font-weight: bold;')
+                                    | %
+                                  th(style='text-align:center;font-weight: bold;')
+                                    | Test
+                                  th(style='text-align:center;font-weight: bold;')
+                                    | Ex
+                                  th(style='text-align:center;font-weight: bold;')
+                                    | Tot
+                                  th(style='text-align:center;font-weight: bold;')
+                                    | %
+                                  th(style='text-align:center;font-weight: bold;')
+                                    | Test
+                                  th(style='text-align:center;font-weight: bold;')
+                                    | Ex
+                                  th(style='text-align:center;font-weight: bold;')
+                                    | Tot   
+                                  th(style='text-align:center;font-weight: bold;')
+                                    | %
+                              tbody(align='right')
+                                tr(pagination-id='allsmarks', dir-paginate="mark in studentsMark|orderBy:name|filter:search|itemsPerPage:n_pages")
+                                  td(style='font-weight: bold; background: #e3e7ed; text-align:left;')
+                                    label.btn-simple.btn-link(ng-click="getOneStudentReport(mark.urn)") {{mark.name|uppercase}}
+                                  td
+                                    | {{(mark.test_t1_mark).toFixed(1)}}
+                                  td
+                                    | {{(mark.exam_t1_mark).toFixed(1)}}
+                                  td
+                                    | {{(mark.total_t1_mark).toFixed(1)}}
+                                  td(style='font-weight: bold; background: #CCC')
+                                    | {{(mark.total_t1_pct).toFixed(1)}}%
+                                  td
+                                    | {{(mark.test_t2_mark).toFixed(1)}}
+                                  td
+                                    | {{(mark.exam_t2_mark).toFixed(1)}}
+                                  td
+                                    | {{(mark.total_t2_mark).toFixed(1)}}
+                                  td(style='font-weight: bold; background: #CCC')
+                                    | {{(mark.total_t2_pct).toFixed(1)}}%
+                                  td
+                                    | {{(mark.test_t3_mark).toFixed(1)}}
+                                  td
+                                    | {{(mark.exam_t3_mark).toFixed(1)}}
+                                  td
+                                    | {{(mark.total_t3_mark).toFixed(1)}}
+                                  td(style='font-weight: bold; background: #CCC')
+                                    | {{(mark.total_t3_pct).toFixed(1)}}%
+                                  td(style='font-weight: bold; background: #CCC',)
+                                    | {{(mark.annual).toFixed(1)}}
+                                  td(style='font-weight: bold; background: #CCC',)
+                                    | {{(mark.annual_pct).toFixed(1)}}%
+                            dir-pagination-controls(pagination-id='allsmarks', max-size='5', direction-links='true', boundary-links='true')
                           .col-md-12        
                             .col-md-6
                               center
                                 h4
                                   strong Courses
-                              table.table.table-borded
-                                thead
-                                  tr
-                                    th #
-                                    th Name
-                                    th Test
-                                    th Exam
-                                    th Total
-                                tbody
-                                  tr(ng-repeat="course in courses|orderBy:'name'")
-                                    th {{$index+1}}
-                                    th {{course.name|uppercase}}
-                                    th {{course.test_quota}}
-                                    th {{course.exam_quota}}
-                                    th {{course.weightOnReport}}
+                              .table-responsive.table-condensed.table-striped
+                                table.table.table-bordered
+                                  thead
+                                    tr
+                                      th #
+                                      th Name
+                                      th Test
+                                      th Exam
+                                      th Total
+                                  tbody
+                                    tr(ng-repeat="course in courses|orderBy:'name'")
+                                      th {{$index+1}}
+                                      th {{course.name|uppercase}}
+                                      th {{course.test_quota}}
+                                      th {{course.exam_quota}}
+                                      th {{course.weightOnReport}}
                             //.col-md-6
                               .card-title Code HINTS
                               .col-md-12
                                 .details.center(ng-repeat="course in courses")
                                   p <strong>{{course.code|uppercase}}</strong> = {{course.name|uppercase}} 
-            .col-md-12(ng-show="students_report")
+            .col-md-10.center(ng-show="students_report")
               .card
                 .card-header.card-header-icon(data-background-color="rose")
                   i.material-icons report
-                  h2.card-title.text-center.text-info(ng-show="!studentMark") <strong>Loading ...</strong>
                 .card-content
+                  button.btn.btn-label.pull-left(ng-click="showDivs()") Close
+                  button.btn.btn-label.btn-primary.pull-right(ng-click="printDiv('printReport')") Print
                   .col-md-12
                     .box
                       .box-body
@@ -174,229 +185,227 @@ block append content
                         br
                         br
                         br
-                        div
-                          .col-md-12
-                              center
-                                button.btn.btn-warning.pull-left(ng-click="showDivs()")
-                                  i.fa.fa-close
-                                  |  Close
-                                button.btn.btn-primary.pull-right(ng-click="printDiv('printReport')")
-                                  i.fa.fa-print
-                                  |  Print
-                                .col-md-12#printReport(style="margin:0 auto")
-                                  .surround.surround-perfect
-                                    table.table-bordered.table-resposive
-                                      tr
-                                        td
-                                          .col-md-6
-                                            p: strong
-                                              | Ministry of Education
-                                              br
-                                              | {{school_district|toDistrict}}
-                                              br
-                                              | {{school_name|uppercase}}
-                                              br
-                                              | TeL : 0788879304
-                                              br
-                                              | P.O BOX 4048
-                                        td
-                                          .col-md-6
-                                            p(ng-repeat="user in userInfo")
-                                              | Names: <strong>{{user.uname|uppercase}}</strong>
-                                              br
-                                              | Class : <strong> {{user.classe|uppercase}}</strong> 
-                                      tr
-                                        td(colspan='2', style='text-align:left;')
-                                          .col-md-12
-                                            center
-                                              h3
-                                                strong STUDENT'S PROGRESSIVE REPORT
-                                              strong 2017 ANNUAL REPORT
-                                      tr
-                                        td(colspan='2', align='left',style="text-align:left;")
-                                          table.table.table-condensed.table-striped.table-bordered
-                                            thead
-                                              tr(print-remove)
-                                                th(rowspan='3')
-                                                  | Subject
-                                              tr(print-remove)
-                                                th(colspan='3', style='text-align:center;font-weight: bold;background: #CCC')
-                                                  | MAX POINTS
-                                                th(colspan='3', style='text-align:center;font-weight: bold;')
-                                                  | FIRST TERM
-                                                th(colspan='3', style='text-align:center;font-weight: bold;')
-                                                  | SECOND TERM
-                                                th(colspan='3', style='text-align:center;font-weight: bold;')
-                                                  | THIRD TERM
-                                                th(colspan='3', style='text-align:center;font-weight: bold;')
-                                                  | ANNUAL POINTS
-                                              tr(align='center')
-                                                th(style='text-align:center;font-weight: bold;background: #CCC')
-                                                  | TEST
-                                                th(style='text-align:center;font-weight: bold;background: #CCC')
-                                                  | EX
-                                                th(style='text-align:center;font-weight: bold;background: #CCC')
-                                                  | TOT
-                                                th(style='text-align:center;font-weight: bold;')
-                                                  | TEST
-                                                th(style='text-align:center;font-weight: bold;')
-                                                  | EX
-                                                th(style='text-align:center;font-weight: bold;')
-                                                  | TOT
-                                                th(style='text-align:center;font-weight: bold;')
-                                                  | TEST
-                                                th(style='text-align:center;font-weight: bold;')
-                                                  | EX
-                                                th(style='text-align:center;font-weight: bold;')
-                                                  | TOT
-                                                th(style='text-align:center;font-weight: bold;')
-                                                  | TEST
-                                                th(style='text-align:center;font-weight: bold;')
-                                                  | EX
-                                                th(style='text-align:center;font-weight: bold;')
-                                                  | TOT
-                                                th(style='text-align:center;font-weight: bold; background: #CCC')
-                                                  | MAX
-                                                th(style='text-align:center;font-weight: bold;')
-                                                  | TOTAL
-                                                th(style='text-align:center;font-weight: bold;')
-                                                  | %
-                                            tbody
-                                              tr(ng-repeat="mark in studentMark|orderBy:'-course_quota'")
-                                                td(style='font-weight: bold; background: #e3e7ed; text-align:left;')
-                                                  | {{mark.name|uppercase}}
-                                                td(style='font-weight: bold; background: #CCC')
-                                                  | {{mark.test_quota}}
-                                                td(style='font-weight: bold; background: #CCC')
-                                                  | {{mark.exam_quota}}
-                                                td(style='font-weight: bold; background: #CCC')
-                                                  | {{mark.course_quota}}
-                                                td
-                                                  | {{(mark.testTerm1).toFixed(1)}}
-                                                td
-                                                  | {{(mark.examTerm1).toFixed(1)}}
-                                                td
-                                                  | {{(mark.totalTerm1).toFixed(1)}}
-                                                td
-                                                  | {{(mark.testTerm2).toFixed(1)}}
-                                                td
-                                                  | {{(mark.examTerm2).toFixed(1)}}
-                                                td
-                                                  | {{(mark.totalTerm2).toFixed(1)}}
-                                                td
-                                                  | {{(mark.testTerm3).toFixed(1)}}
-                                                td
-                                                  | {{(mark.examTerm3).toFixed(1)}}
-                                                td
-                                                  | {{(mark.totalTerm3).toFixed(1)}}
-                                                td(style='font-weight: bold; background: #CCC')
-                                                  | {{mark.anualQuotaTotal}}
-                                                td
-                                                  | {{(mark.anualMarkTotal).toFixed(1)}}
-                                                td
-                                                  | {{(mark.anualMarkPct).toFixed(1)}}% 
+                        h2.card-title.text-center.text-info(ng-show="!studentMark.length") <strong>Loading, please wait...</strong>
+                        .col-md-12(ng-show="studentMark.length")
+                          .col-md-12#printReport
+                            .surround.surround-perfect
+                              .table-responsive.table-condensed.table-striped
+                                table.table
+                                  tr
+                                    td
+                                      .col-md-6
+                                        p: strong
+                                          | Ministry of Education
+                                          br
+                                          | {{school_district|toDistrict}}
+                                          br
+                                          | {{school_name|uppercase}}
+                                          br
+                                          | TeL : {{school_phone}}
+                                          br
+                                          | {{school_pob|uppercase}}
+                                    td.align-baseline
+                                      .col-md-6
+                                        p(ng-repeat="user in userInfo")
+                                          | Names: <strong>{{user.uname|uppercase}}</strong>
+                                          br
+                                          | Class : <strong> {{user.classe|uppercase}}</strong> 
+                                          br
+                                          br
+                                          br
+                                          br
+                                  tr
+                                    td(colspan='2', style='text-align:left;')
+                                      .col-md-12
+                                        center
+                                          h3
+                                            strong STUDENT'S PROGRESSIVE REPORT
+                                          strong 2017 ANNUAL REPORT
+                                  tr
+                                    td(colspan='2', align='left',style="text-align:left;")
+                                      table.table.table-condensed.table-striped.table-bordered
+                                        thead
+                                          tr(print-remove)
+                                            th(rowspan='3')
+                                              | Subject
+                                          tr(print-remove)
+                                            th(colspan='3', style='text-align:center;font-weight: bold;background: #CCC')
+                                              | MAX POINTS
+                                            th(colspan='3', style='text-align:center;font-weight: bold;')
+                                              | FIRST TERM
+                                            th(colspan='3', style='text-align:center;font-weight: bold;')
+                                              | SECOND TERM
+                                            th(colspan='3', style='text-align:center;font-weight: bold;')
+                                              | THIRD TERM
+                                            th(colspan='3', style='text-align:center;font-weight: bold;')
+                                              | ANNUAL POINTS
+                                          tr(align='center')
+                                            th(style='text-align:center;font-weight: bold;background: #CCC')
+                                              | TEST
+                                            th(style='text-align:center;font-weight: bold;background: #CCC')
+                                              | EX
+                                            th(style='text-align:center;font-weight: bold;background: #CCC')
+                                              | TOT
+                                            th(style='text-align:center;font-weight: bold;')
+                                              | TEST
+                                            th(style='text-align:center;font-weight: bold;')
+                                              | EX
+                                            th(style='text-align:center;font-weight: bold;')
+                                              | TOT
+                                            th(style='text-align:center;font-weight: bold;')
+                                              | TEST
+                                            th(style='text-align:center;font-weight: bold;')
+                                              | EX
+                                            th(style='text-align:center;font-weight: bold;')
+                                              | TOT
+                                            th(style='text-align:center;font-weight: bold;')
+                                              | TEST
+                                            th(style='text-align:center;font-weight: bold;')
+                                              | EX
+                                            th(style='text-align:center;font-weight: bold;')
+                                              | TOT
+                                            th(style='text-align:center;font-weight: bold; background: #CCC')
+                                              | MAX
+                                            th(style='text-align:center;font-weight: bold;')
+                                              | TOTAL
+                                            th(style='text-align:center;font-weight: bold;')
+                                              | %
+                                        tbody
+                                          tr(ng-repeat="mark in studentMark|orderBy:'-course_quota'")
+                                            td(style='font-weight: bold; background: #e3e7ed; text-align:left;')
+                                              | {{mark.name|uppercase}}
+                                            td(style='font-weight: bold; background: #CCC')
+                                              | {{mark.test_quota}}
+                                            td(style='font-weight: bold; background: #CCC')
+                                              | {{mark.exam_quota}}
+                                            td(style='font-weight: bold; background: #CCC')
+                                              | {{mark.course_quota}}
+                                            td
+                                              | {{(mark.testTerm1).toFixed(1)}}
+                                            td
+                                              | {{(mark.examTerm1).toFixed(1)}}
+                                            td
+                                              | {{(mark.totalTerm1).toFixed(1)}}
+                                            td
+                                              | {{(mark.testTerm2).toFixed(1)}}
+                                            td
+                                              | {{(mark.examTerm2).toFixed(1)}}
+                                            td
+                                              | {{(mark.totalTerm2).toFixed(1)}}
+                                            td
+                                              | {{(mark.testTerm3).toFixed(1)}}
+                                            td
+                                              | {{(mark.examTerm3).toFixed(1)}}
+                                            td
+                                              | {{(mark.totalTerm3).toFixed(1)}}
+                                            td(style='font-weight: bold; background: #CCC')
+                                              | {{mark.anualQuotaTotal}}
+                                            td
+                                              | {{(mark.anualMarkTotal).toFixed(1)}}
+                                            td
+                                              | {{(mark.anualMarkPct).toFixed(1)}}% 
+                                          
+                                        tfoot(align='right')
+                                          tr
+                                            td(align='left', style='font-weight: bold; ')
+                                              | Total
+                                            td(style='font-weight: bold; background: #CCC')
+                                              | {{qTest}}
+                                            td(style='font-weight: bold; background: #CCC')
+                                              | {{qExam}}
+                                            td(style='font-weight: bold; background: #CCC')
+                                              | {{qtotal}}
+                                            td
+                                              | {{testT1.toFixed(1)}}
+                                            td
+                                              | {{ExamT1.toFixed(1)}}
+                                            td
+                                              | {{totalT1.toFixed(1)}}
+                                            td
+                                              | {{testT2.toFixed(1)}}
+                                            td
+                                              | {{ExamT2.toFixed(1)}}
+                                            td
+                                              | {{totalT2.toFixed(1)}}
+                                            td
+                                              | {{testT3.toFixed(1)}}
+                                            td
+                                              | {{ExamT3.toFixed(1)}}
+                                            td
+                                              | {{totalT3.toFixed(1)}}
+                                            td(style='font-weight: bold; background: #CCC')
+                                              | {{yQuotaTotal}}
+                                            td
+                                              | {{mQuotaTotal.toFixed(1)}}
+                                            td
                                               
-                                            tfoot(align='right')
-                                              tr
-                                                td(align='left', style='font-weight: bold; ')
-                                                  | Total
-                                                td(style='font-weight: bold; background: #CCC')
-                                                  | {{qTest}}
-                                                td(style='font-weight: bold; background: #CCC')
-                                                  | {{qExam}}
-                                                td(style='font-weight: bold; background: #CCC')
-                                                  | {{qtotal}}
-                                                td
-                                                  | {{testT1.toFixed(1)}}
-                                                td
-                                                  | {{ExamT1.toFixed(1)}}
-                                                td
-                                                  | {{totalT1.toFixed(1)}}
-                                                td
-                                                  | {{testT2.toFixed(1)}}
-                                                td
-                                                  | {{ExamT2.toFixed(1)}}
-                                                td
-                                                  | {{totalT2.toFixed(1)}}
-                                                td
-                                                  | {{testT3.toFixed(1)}}
-                                                td
-                                                  | {{ExamT3.toFixed(1)}}
-                                                td
-                                                  | {{totalT3.toFixed(1)}}
-                                                td(style='font-weight: bold; background: #CCC')
-                                                  | {{yQuotaTotal}}
-                                                td
-                                                  | {{mQuotaTotal.toFixed(1)}}
-                                                td
-                                                  
-                                              tr
-                                                td(align='left', style='font-weight: bold;')
-                                                  | %
-                                                td(colspan='3', style='font-weight: bold;')
-                                                  | 
-                                                td(colspan='3', style='font-weight: bold;')
-                                                  | {{totalT1Pct.toFixed(1)}}
-                                                td(colspan='3', style='font-weight: bold;')
-                                                  | {{totalT2Pct.toFixed(1)}}
-                                                td(colspan='3', style='font-weight: bold;')
-                                                  | {{totalT3Pct.toFixed(1)}}
-                                                td(colspan='3', style='font-weight: bold;')
-                                                  | {{anualTotalT3Pct.toFixed(1)}}%
-                                              tr
-                                                td(align='left', style='font-weight: bold;text-align:left;')
-                                                  | Position
-                                                td(colspan='3', style='font-weight: bold;')
-                                                td(colspan='3', style='font-weight: bold;')
-                                                  | /{{mark.length}}
-                                                td(colspan='3', style='font-weight: bold;')
-                                                  | /{{mark.length}}
-                                                td(colspan='3', style='font-weight: bold;')
-                                                  | /{{mark.length}}
-                                                td(colspan='3', style='font-weight: bold;')
-                                                  | /{{mark.length}}
-                                              if school_name == 'maranyundo girls school'
-                                                tr
-                                                  td(align='left', style='font-weight: bold;text-align:left;')
-                                                    | Parish Priest Signature
-                                                  td(colspan='6', style='font-weight: bold;')
-                                                  td(colspan='3', style='font-weight: bold;')
-                                                  td(colspan='3', style='font-weight: bold;')
-                                                  td(colspan='3', style='font-weight: bold;')
-                                              tr
-                                                td(align='left', style='font-weight: bold;text-align:left;')
-                                                  | Teacher's Signature
-                                                td(colspan='6', style='font-weight: bold;')
-                                                td(colspan='3', style='font-weight: bold;')
-                                                td(colspan='3', style='font-weight: bold;')
-                                                td(colspan='3', style='font-weight: bold;')
-                                              tr
-                                                td(align='left', style='font-weight: bold;text-align:left;')
-                                                  | Parent's Signature
-                                                td(colspan='6', style='font-weight: bold;')
-                                                td(colspan='3', style='font-weight: bold;')
-                                                td(colspan='3', style='font-weight: bold;')
-                                                td(colspan='3', style='font-weight: bold;')
-                                      tr
-                                        td
-                                          strong Pass
-                                          br
-                                          strong Repeat
-                                          br
-                                          strong Discontinued
-                                        td
-                                          | Done at 
-                                          strong {{school_district|toDistrict}}
-                                          br
-                                          br
-                                          | HeadMistress:
-                                          br
-                                          | (Signature and stamps)
-                                    .pull.pull-right
-                                      | MADE BY: 
-                                      label(style="color:red")
-                                        | e-Shuri.rw
+                                          tr
+                                            td(align='left', style='font-weight: bold;')
+                                              | %
+                                            td(colspan='3', style='font-weight: bold;')
+                                              | 
+                                            td(colspan='3', style='font-weight: bold;')
+                                              | {{totalT1Pct.toFixed(1)}}
+                                            td(colspan='3', style='font-weight: bold;')
+                                              | {{totalT2Pct.toFixed(1)}}
+                                            td(colspan='3', style='font-weight: bold;')
+                                              | {{totalT3Pct.toFixed(1)}}
+                                            td(colspan='3', style='font-weight: bold;')
+                                              | {{anualTotalT3Pct.toFixed(1)}}%
+                                          tr
+                                            td(align='left', style='font-weight: bold;text-align:left;')
+                                              | Position
+                                            td(colspan='3', style='font-weight: bold;')
+                                            td(colspan='3', style='font-weight: bold;')
+                                              | /{{mark.length}}
+                                            td(colspan='3', style='font-weight: bold;')
+                                              | /{{mark.length}}
+                                            td(colspan='3', style='font-weight: bold;')
+                                              | /{{mark.length}}
+                                            td(colspan='3', style='font-weight: bold;')
+                                              | /{{mark.length}}
+                                          if school_name == 'maranyundo girls school'
+                                            tr
+                                              td(align='left', style='font-weight: bold;text-align:left;')
+                                                | Parish Priest Signature
+                                              td(colspan='6', style='font-weight: bold;')
+                                              td(colspan='3', style='font-weight: bold;')
+                                              td(colspan='3', style='font-weight: bold;')
+                                              td(colspan='3', style='font-weight: bold;')
+                                          tr
+                                            td(align='left', style='font-weight: bold;text-align:left;')
+                                              | Teacher's Signature
+                                            td(colspan='6', style='font-weight: bold;')
+                                            td(colspan='3', style='font-weight: bold;')
+                                            td(colspan='3', style='font-weight: bold;')
+                                            td(colspan='3', style='font-weight: bold;')
+                                          tr
+                                            td(align='left', style='font-weight: bold;text-align:left;')
+                                              | Parent's Signature
+                                            td(colspan='6', style='font-weight: bold;')
+                                            td(colspan='3', style='font-weight: bold;')
+                                            td(colspan='3', style='font-weight: bold;')
+                                            td(colspan='3', style='font-weight: bold;')
+                                  tr
+                                    td
+                                      strong Pass
                                       br
+                                      strong Repeat
+                                      br
+                                      strong Discontinued
+                                    td
+                                      | Done at 
+                                      strong {{school_district|toDistrict}}
+                                      br
+                                      br
+                                      | HeadMistress:
+                                      br
+                                      | (Signature and stamps)
+                              .pull.pull-right
+                                | MADE BY: 
+                                label(style="color:red")
+                                  | e-Shuri.rw
+                                br
 block append scripts
   script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
   //script(src="../js/Controlers/markCtlr.js", type="text/javascript")
@@ -478,7 +487,7 @@ block append scripts
         var newWin = window.open("", "_blank", winAttr);
         var writeDoc = newWin.document;
         writeDoc.open();
-        writeDoc.write('<!doctype html><html>' + docHead + '<body onLoad="window.print()" class="center">' + printContents + '</body></html>');
+        writeDoc.write('<!doctype html><html>' + docHead + '<body onLoad="window.print()" class="col-md-8 center"' + printContents + '</body></html>');
         writeDoc.close();
         newWin.focus();
       }
@@ -505,6 +514,7 @@ block append scripts
           Notifier.danger(err.data);
         })
       }
+      console.log('My requested data: '+$scope.school_phone+" and "+$scope.school_pob);
       $scope.getAllStudentsReport = function(){
         $scope.students_list = true;
         $scope.studentsMark = [];
@@ -549,6 +559,8 @@ block append scripts
               }
             }
           }
+        }).catch(function(err){
+          Notifier.danger(err.data);
         })
       }
       $scope.getOneStudentReport = function(studentid){
@@ -629,6 +641,8 @@ block append scripts
       $scope.school_name="#{school_name}";
       $scope.school_district="#{school_district}";
       $scope.term_name="#{term_name}";
+      $scope.school_phone="#{school_phone}";
+      $scope.school_pob="#{school_pob}";
       //- $scope.user_name ="Lionel Ngendakuriyo";
       //- $scope.user_class= "S4MCE";
       $scope.students_report = false;

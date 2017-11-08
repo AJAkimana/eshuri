@@ -1,10 +1,8 @@
 extends ./layout
 
-block content 
-	.main-panel
-		include partials/header 
-		.wrapper.wrapper-full-page.full-page-background(ng-controller="lostCtrl")
-			.full-page.register-page(filter-color="black")
+block append content 
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="lostCtrl")
+		.full-page.register-page(filter-color="black")
 
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")

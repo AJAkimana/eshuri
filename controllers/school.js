@@ -85,26 +85,26 @@ exports.getSchoolProfile = (req,res,next)=>{
   })
 }
 exports.changeSchoolProfile = (req,res,next)=>{
-  //console.log("_______________"+JSON.stringify(req.body.school_id));
   const multer = require('multer'); 
   const MB = 1024*1024;
-  const imgMaxSize =2*MB;
-  var pictureName = require('mongodb').ObjectID()
+  const imgMaxSize =1*MB;
   var img_extension;
+  var img_name;
   var storage = multer.diskStorage({
     destination: function (req, file, cb) {
       img_extension="."+file.originalname.split('.').pop();
+      img_name=require('mongodb').ObjectID();
       cb(null, process.env.SCHOOL_PIC_PATH)
     },
     filename: function (req, file, cb) {
-    cb(null, pictureName+img_extension);
+    cb(null, img_name+img_extension);
     }
   });
   var upload = multer({ 
     storage:storage,
     limits:{fileSize:imgMaxSize},
     fileFilter: (req, file, cb)=>{
-      console.log("Saving school profile"+JSON.stringify(file))
+      console.log(" File before saving"+JSON.stringify(file))
       if(!file.mimetype.startsWith("image/")) return cb("Sorry, only images are accepted")
       return cb(null, true);
     },
@@ -112,16 +112,18 @@ exports.changeSchoolProfile = (req,res,next)=>{
   .single('school_pic'); // the name of the file to be uploaded
   upload(req,res,(uploadErr)=>{
     if(uploadErr) return res.render("./lost",{msg:uploadErr});
+    //console.log("File name:"+img_name+img_extension+"___File path: "+process.env.SCHOOL_PIC_PATH)
+    
     School.findOne({_id:req.body.school_id},(err,schoolExists)=>{
       if(err) return log_err(err,true,req,res);
       else if(!schoolExists) return res.render("./lost",{msg:"Invalid data"})
       var oldPic =schoolExists.cover_photo;
       
-      schoolExists.cover_photo=pictureName+img_extension;
+      schoolExists.cover_photo=img_name+img_extension;
       schoolExists.save((err)=>{
         if(err) return log_err(err,true,req,res);
         else if((oldPic != schoolExists.cover_photo)&& oldPic){
-          var fileToDelete=process.env.SCHOOL_PIC_PATH+"/"+schoolExists.cover_photo;
+          var fileToDelete=process.env.SCHOOL_PIC_PATH+"/"+oldPic;
           require("fs").unlink(fileToDelete,(err)=>{
               if(err) console.log("===>>DELETION ERROR " + err);
               console.log("===>>Success AKIMANA ");
@@ -130,7 +132,7 @@ exports.changeSchoolProfile = (req,res,next)=>{
         return res.redirect("back");
       })
     });
-  })  
+  })
 };
 exports.addSchoolInfo = (req, res, next)=>{
   req.assert('school_id', 'Invalid data').isMongoId();

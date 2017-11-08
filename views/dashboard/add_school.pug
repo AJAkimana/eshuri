@@ -90,7 +90,7 @@ block append content
 												tr(ng-repeat="school in schools")
 													td(width="1%" height="1%") {{$index + 1}}
 													th 
-														img.img-thumbnail(src="/school.profile/{{school._id}}",alt='School profile', width='10%', height='10%')
+														img.img-thumbnail(src="/school.profile/{{school._id}}",alt='School profile',)
 													td: a(href="/dashboard.classe/{{school._id}}") {{school.name|uppercase}}
 													td {{school.admin_mail || 'Not defined'}}
 													td.text-info: strong {{school.numUsers}} users

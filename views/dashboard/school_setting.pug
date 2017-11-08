@@ -75,6 +75,8 @@ block append scripts
 					Notifier.danger(err.data)
 				})
 			}
+			$scope.po_box="#{school_po_box}"
+			$scope.phone_number="#{school_phone}"
 			$scope.anti_csrf ="#{csrf_token}";
 			$scope.addInformation=function(){
 				var pobox=$scope.po_box;
@@ -83,7 +85,13 @@ block append scripts
 				$http
 				.post('/add.school.info', {_csrf:$scope.anti_csrf,phone:phone, school_id:$scope.school_id, po_box:pobox})
 				.then(function(){
-
+					swal({
+						title: 'Successfully changed!',
+						text: 'Phone number:'+phone.toUpperCase()+' and PO.:'+pobox.toUpperCase()+' added.',
+						type: 'success',
+						confirmButtonClass: "btn btn-success",
+						buttonsStyling: false
+					});
 				})
 				.catch(function(error){
 					Notifier.danger(error.data);
@@ -107,7 +115,13 @@ block append scripts
 					$http
 					.post('/add.school.info', {phone:phone, school_id:$scope.school_id, po_box:po_box})
 					.then(function(){
-
+						swal({
+							title: 'Successfully changed!',
+							text: 'Phone number:'+phone.toUpperCase()+' and PO.:'+po_box.toUpperCase()+' added.',
+							type: 'success',
+							confirmButtonClass: "btn btn-success",
+							buttonsStyling: false
+						});
 					})
 					.catch(function(error){
 						Notifier.danger(error.data);

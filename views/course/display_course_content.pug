@@ -144,6 +144,7 @@ block append scripts
 			}
 		})
 		.controller('CourseViewCtrl', function($scope, $http,$window){
+			$scope.units=[];
 			$scope.loadUnits = function(){
 				$http
 				.post("/unit.list",{_csrf:$scope.anti_csrf,course_id :$scope.course_id})
@@ -342,7 +343,15 @@ block append scripts
 				if(!URL) return;
 				$window.location.href=URL+content_id;
 			}
-			
+			$scope.loadFirstUnit=function(){
+				for(var i=0;i<=$scope.units.length;i++){
+					if(i=0){
+						$scope.setCurrentUnit($scope.units[i]._id,$scope.units[i].name,0)
+						console.log('my log: '+$scope.units[i]._id+' and '+$scope.units[i].name)
+					}
+				}
+			}
+			$scope.loadFirstUnit();
 			//Initial values
 			$scope.teacher_name ="#{teacher_name}";
 			$scope.course_name ="#{course_name}";

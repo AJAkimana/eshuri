@@ -17,18 +17,20 @@ block content
 											a(href="/user.signup")
 												|	SIGNUP
 								.card-content
-									.input-group
-										span.input-group-addon.icon.ion-ios-person
-										.form-group.label-floating
-											label.control-label Enter your email
-											input.form-control(type="email",autocomplete="off",ng-model="nvUser.email")
-									.input-group
-										span.input-group-addon.icon.ion-ios-locked-outline
-										.form-group.label-floating
-											label.control-label Password
-											input.form-control(type="password",autocomplete="off",ng-model="nvUser.password")
+									form(ng-submit="signin()")
+										.input-group
+											span.input-group-addon.icon.ion-ios-person
+											.form-group.label-floating
+												label.control-label Enter your email
+												input.form-control(type="email",autocomplete="off",ng-model="nvUser.email")
+										.input-group
+											span.input-group-addon.icon.ion-ios-locked-outline
+											.form-group.label-floating
+												label.control-label Password
+												input.form-control(type="password",autocomplete="off",ng-model="nvUser.password")
+										.text-center
+											button.btn.btn-rose.btn-simple.btn-wd.btn-lg(type="submit") Let's go
 								.footer.text-center
-									button.btn.btn-rose.btn-simple.btn-wd.btn-lg(ng-click="signin()") Let's go
 									.forgot
 										button.btn.label.label-info(ng-click="forgotPassword()") Forgot your password?
 									.forgot

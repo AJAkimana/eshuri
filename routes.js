@@ -344,8 +344,7 @@ module.exports = function(app) {
 		You receive a list unit_name, unit_id 
 	*/
 	app.post('/unit.list',isAuthenticated, unitsController.getUnit_JSON);	
-	app.post('/unit.delete',isAtLeastTeacher, unitsController.removeUnit);
-				
+	app.post('/unit.delete',isAtLeastTeacher, unitsController.removeUnit);			
 				/* CONTENTS THINGS*/	
 	/*
 		You send POST @ "/content.list" -- {"unit_id":"58c971c5708c4a9f40dfbb92","type":X}
@@ -488,8 +487,6 @@ module.exports = function(app) {
 	app.put('/update.book.details',isAuthenticated,isAtLeastTeacher,libraryCtrl.updateBookInfo)
 	app.post('/update.book.photo',isAuthenticated,isAtLeastTeacher,libraryCtrl.updatePhoto)
 	app.get('/library.get.photo/:bookId',isAuthenticated,libraryCtrl.getPhoto)
-
-	
 
 	// app .get('/report3',isAuthenticated,marksController.getReport_JSON);
 	// app .get('/charts', chartsController.getPageCharts);
