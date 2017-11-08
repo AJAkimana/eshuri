@@ -21,6 +21,31 @@ html(lang='en')
   body
     //
       ==========================
+      Header Section
+      ============================
+    header#header
+      .container
+        #logo.pull-left
+          a(href='#hero')
+            h2
+              b
+                span(style='color:#fff;border:solid 1px #fff;border-radius:3px;font-weight: 700;font-family:Times New Roman;') eShuri LMS
+        nav#nav-menu-container(style='top:23%')
+          ul.nav-menu 
+            li.menu-active
+              a(href='/home') Home
+            li
+              a(href='#features') Features
+            li
+              a(href='#vision') Vision
+            li
+              a(href='https://www.youtube.com/watch?v=RSHB1ylo0-U', target='_blank') Watch video
+            li
+              a(href='/user.signin') Sign in
+            li
+              a(href='user.signup') Register
+    //
+      ==========================
       Hero Section
       ============================
     section#hero
@@ -30,7 +55,7 @@ html(lang='en')
           h2
             | Experience the best of eLearning at your school. 
             br
-            span.rotating(style='color:#ff0000;')
+            span.rotating(style='color:#4caf50;')
               | eShuri is a cloud repository, of academic contents, that uses interactive methodologies, in distributing online courses, and by offering flexibility, to take classes at home
             .col-md-12
               .col-md-6
@@ -47,27 +72,27 @@ html(lang='en')
       ==========================
       Header Section
       ============================
-    header#header
-      .container
-        #logo.pull-left
-          a(href='#hero')
-            h2
-              b
-                span(style='color:#fff;border:solid 1px #fff;border-radius:3px;font-weight: 700;font-family:Times New Roman;') eShuri LMS
-        nav#nav-menu-container
-          ul.nav-menu
-            li.menu-active
-              a(href='/home') Home
-            li
-              a(href='#features') Features
-            li
-              a(href='#vision') Vision
-            li
-              a(href='https://www.youtube.com/watch?v=RSHB1ylo0-U', target='_blank') Watch video
-            li
-              a(href='/user.signin') Sign in
-            li
-              a(href='user.signup') Register
+    //- header#header
+    //-   .container
+    //-     #logo.pull-left
+    //-       a(href='#hero')
+    //-         h2
+    //-           b
+    //-             span(style='color:#fff;border:solid 1px #fff;border-radius:3px;font-weight: 700;font-family:Times New Roman;') eShuri LMS
+    //-     nav#nav-menu-container
+    //-       ul.nav-menu
+    //-         li.menu-active
+    //-           a(href='/home') Home
+    //-         li
+    //-           a(href='#features') Features
+    //-         li
+    //-           a(href='#vision') Vision
+    //-         li
+    //-           a(href='https://www.youtube.com/watch?v=RSHB1ylo0-U', target='_blank') Watch video
+    //-         li
+    //-           a(href='/user.signin') Sign in
+    //-         li
+    //-           a(href='user.signup') Register
     //
       ==========================
       Features Section
