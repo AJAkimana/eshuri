@@ -170,7 +170,7 @@ block append scripts
 				return total;
 			}
 			$scope.sendAutomated = function(){
-				console.log(" I am sending "+new Date($("#deadline").val()).getTime())
+				//console.log(" I am sending "+new Date($("#deadline").val()).getTime())
 				$http
 				.post("/content.update.automated/",{
 					_csrf:$scope.anti_csrf,

@@ -195,7 +195,7 @@ exports.getPageOfflineStudents = (req,res,next)=>{
           var reponse ={};
           reponse.allStudents =completeList;
           reponse.studentsAlready =studentsAlready;
-          console.log(" i am sending "+JSON.stringify(studentsAlready));
+          //console.log(" i am sending "+JSON.stringify(studentsAlready));
           return res.json(reponse);
         })
       })

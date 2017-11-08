@@ -177,7 +177,7 @@ exports.getPhoto = (req,res)=>{
 	      if(err) {
 	        file_location=picture_location+"/bookdef.png";
 	      }
-	     	console.log("I am sending "+file_location)
+	     //console.log("I am sending "+file_location)
 	      return res.sendFile(file_location);  
 	    }); 
 		// var photoPath=process.env.LIBRARY_PICTURE+"/"+bookDetails.image;

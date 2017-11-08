@@ -17,20 +17,20 @@ block append content
       .content
         .container-fluid
           .row
-            .col-md-8.center
+            .col-md-6.center
               .card
                 .card-header.card-header-icon(data-background-color="rose")
                   i.material-icons school
                 .card-content
-                  h4.card-title Complete the parameters to generate the report
+                  h3.card-title Complete the parameters to generate the report
                   .row
-                    .col-md-6
+                    .col-md-5
                       .form-group.label-floating
                         label.control-label Choose the class
                         select.form-control(required="true",ng-model="selectClass",ng-change="getAcademicYearsList()")
                           option(value="", disabled selected)
                           option(value="{{class._id}}", ng-repeat="class in ClassList") {{class.name|uppercase}}
-                    .col-md-6
+                    .col-md-4
                       .form-group.label-floating
                         label.control-label Choose the academic year
                         select.form-control(required="true",ng-model="choosen_year",ng-change="getAllStudentsReport()")
@@ -44,13 +44,10 @@ block append content
                 .card-header.card-header-icon(data-background-color="rose")
                   i.material-icons report
                 .card-content
+                  h4.card-title.text-center.text-info <strong>Click on student NAME to get the full report</strong>
                   .col-md-12
                     .box
                       .box-body
-                        div
-                        br
-                        br
-                        br
                         h2.card-title.text-center.text-info(ng-show="!studentsMark.length") <strong>Loading, please wait...</strong>
                         .col-md-12(ng-show="studentsMark.length")
                           .table-responsive.table-condensed.table-striped
@@ -71,8 +68,8 @@ block append content
                                 tr
                                   th(rowspan='4')
                                     | Student names
-                                  //Terms 
-                                    ___________________+___________________+_______________________________
+
+                                  //Terms ______+___________+_______________
                                   th(colspan='4', style='text-align:center;font-weight: bold;')
                                     | Term I
                                   th(colspan='4', style='text-align:center;font-weight: bold;')
@@ -81,12 +78,8 @@ block append content
                                     | Term III
                                   th(style='text-align:center;font-weight: bold;',rowspan="3",colspan="2")
                                     | Grand Total
-                                  //th(style='text-align:center;font-weight: bold;',rowspan='3')
-                                    |       
-        
 
-                                //Assessment test and exam
-                                  ____________________+_______________+_______________+____________+_____
+                                //Assessment test and exam____+_______________+__
                                 tr(align='center')
                                   th(style='text-align:center;font-weight: bold;')
                                     | Test
@@ -166,11 +159,7 @@ block append content
                                       th {{course.test_quota}}
                                       th {{course.exam_quota}}
                                       th {{course.weightOnReport}}
-                            //.col-md-6
-                              .card-title Code HINTS
-                              .col-md-12
-                                .details.center(ng-repeat="course in courses")
-                                  p <strong>{{course.code|uppercase}}</strong> = {{course.name|uppercase}} 
+                            
             .col-md-10.center(ng-show="students_report")
               .card
                 .card-header.card-header-icon(data-background-color="rose")
@@ -192,28 +181,30 @@ block append content
                               .table-responsive.table-condensed.table-striped
                                 table.table
                                   tr
-                                    td
-                                      .col-md-6
-                                        p: strong
-                                          | Ministry of Education
-                                          br
-                                          | {{school_district|toDistrict}}
-                                          br
-                                          | {{school_name|uppercase}}
-                                          br
-                                          | TeL : {{school_phone}}
-                                          br
-                                          | {{school_pob|uppercase}}
-                                    td.align-baseline
-                                      .col-md-6
-                                        p(ng-repeat="user in userInfo")
-                                          | Names: <strong>{{user.uname|uppercase}}</strong>
-                                          br
-                                          | Class : <strong> {{user.classe|uppercase}}</strong> 
-                                          br
-                                          br
-                                          br
-                                          br
+                                    td(colspan='2')
+                                      table.table
+                                        tr(ng-repeat="user in userInfo")
+                                          td(width="40%")
+                                            p: strong
+                                              | Ministry of Education
+                                              br
+                                              | {{school_district|toDistrict}}
+                                              br
+                                              | {{school_name|uppercase}}
+                                              br
+                                              | TeL : {{school_phone}}
+                                              br
+                                              | {{school_pob|uppercase}}
+                                          td(width="40%")
+                                            | Names: <strong>{{user.uname|uppercase}}</strong>
+                                            br
+                                            | Class : <strong> {{user.classe|uppercase}}</strong> 
+                                            br
+                                            br
+                                            br
+                                            br
+                                          td(width="20%")
+                                            img.img-thumbnail(src="/pp.view/{{user.upic}}")
                                   tr
                                     td(colspan='2', style='text-align:left;')
                                       .col-md-12

@@ -633,7 +633,7 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 	}],(err)=>{
 		if(err) return log_err(err,false,req,res);
 		//reportData.push({marks:termMarks})
-		userDetails.push({uname:user_name, classe:classe_name});
+		userDetails.push({uname:user_name, classe:classe_name, upic:thisStudent});
 		reportData.push({term1:termOne, term2:termTwo, term3:termThree, userInfo:userDetails})
 		//console.log("REPORTmarks =>>>>"+JSON.stringify(reportData.marks))
 		//console.log("REPORT total =>>>>"+JSON.stringify(reportData.total));
