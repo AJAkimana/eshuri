@@ -17,7 +17,7 @@ const passport = require('passport');
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
- dotenv.load({ path: '.eShuri.env.DEV'});
+ dotenv.load({ path: '.eShuri.env.PROD'});
 
 /**
  * API keys and Passport configuration.
