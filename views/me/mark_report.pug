@@ -27,6 +27,11 @@ block append css_code
       background: #e3e7ed; 
       text-align:left;
     }
+    .set-height td {
+      position: relative;
+      overflow: hidden;
+      height: 2em;
+    }
 block append content 
   //- .main-panel
     include ../partials/header 
@@ -167,7 +172,7 @@ block append content
                         .col-md-12(ng-show="studentMark.length")
                           .col-md-12#printReport
                             .surround.surround-perfect
-                              .table-responsive.table-condensed.table-striped
+                              .table-responsive.table-condensed
                                 table.table
                                   tr
                                     td(colspan='2')
@@ -181,9 +186,9 @@ block append content
                                               br
                                               | {{school_name|uppercase}}
                                               br
-                                              | TeL : {{school_phone}}
+                                              | TeL : {{school_phone||'________________'}}
                                               br
-                                              | {{school_pob|uppercase}}
+                                              | {{school_pob||'POBox.:_____________'|uppercase}}
                                           td(width="40%")
                                             | Names: <strong>{{user.uname|uppercase}}</strong>
                                             br
@@ -193,7 +198,7 @@ block append content
                                             br
                                             br
                                           td(width="20%")
-                                            img.img-thumbnail(src="/pp.view/{{user.upic}}")
+                                            img(src="/pp.view/{{user.upic}}")
                                   tr
                                     td(colspan='2', style='text-align:left;')
                                       .col-md-12
@@ -437,7 +442,7 @@ block append scripts
       }
       $scope.getClassList = function(){
         $http
-        .get("/classe.list/"+$scope.school_id)
+        .get("/classe.list.for.report/"+$scope.school_id)
         .then(function(response){
           $scope.ClassList= response.data;
           //console.log("Classes: "+$scope.ClassList)
@@ -461,6 +466,7 @@ block append scripts
       console.log('My requested data: '+$scope.school_phone+" and "+$scope.school_pob);
       $scope.getAllStudentsReport = function(){
         $scope.students_list = true;
+        $scope.students_report = false;
         $scope.studentsMark = [];
         $http
         .post('/report.all', {academic_year:$scope.choosen_year,class_id:$scope.selectClass})

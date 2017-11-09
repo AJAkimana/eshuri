@@ -114,6 +114,7 @@ exports.getClassAcademicYears =function(req,res,next){
 	Marks.find({class_id:req.params.class_id}).distinct("academic_year",
 		(err,listYears)=>{
 		if(err) return log_err(err,false,req,res);
+		else if(listYears.length==0) return res.status(400).send("This class does not have enough contents");
 		return res.json(listYears);
 	})
 }
@@ -426,9 +427,9 @@ exports.getReport_JSON =(req,res,next)=>{
 							noteCat =noteCat>0?noteCat:0;
 							noteExam =noteExam>0?noteExam:0;
 							var totalCourse = noteCat + noteExam;
-							console.log("  CAT marks "+studentCATMarks+"/"+totalCAT);
-							console.log("  Exam marks "+studentExamMarks+"/"+totalExam);
-							console.log(" TOTAL "+currentCourse.name+" "+totalCourse);
+							//console.log("  CAT marks "+studentCATMarks+"/"+totalCAT);
+							//console.log("  Exam marks "+studentExamMarks+"/"+totalExam);
+							//console.log(" TOTAL "+currentCourse.name+" "+totalCourse);
 							reportData[0].marks.push({
 										 name:currentCourse.name,
 										 code:currentCourse.code,
@@ -454,9 +455,9 @@ exports.getReport_JSON =(req,res,next)=>{
 		}
 	],(err)=>{
 		if(err) return log_err(err,false,req,res);
-		console.log("REPORTmarks =>>>>"+JSON.stringify(reportData.marks))
-		console.log("REPORT total =>>>>"+JSON.stringify(reportData.total));
-		console.log("REPORT =>>>>"+JSON.stringify(reportData));
+		//console.log("REPORTmarks =>>>>"+JSON.stringify(reportData.marks))
+		//console.log("REPORT total =>>>>"+JSON.stringify(reportData.total));
+		//console.log("REPORT =>>>>"+JSON.stringify(reportData));
 		reportData[0].term_num =req.body.currentTerm;
 		//console.log()
 		return res.json(reportData)
@@ -502,7 +503,7 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 			if (err) return getTermLists(err);
 			termLists = terms;
 			Terms.push({Terms:termLists})
-			console.warn("Terms -=> "+JSON.stringify(termLists));
+			//console.warn("Terms -=> "+JSON.stringify(termLists));
 			getTermLists(null);
 		});
 	},(coursesOfEveryTerm)=>{
@@ -512,7 +513,7 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 				Course.find({school_id:req.user.school_id,class_id:thisClass, currentTerm:thisTerm},{_id:1, name:1, code:1, currentTerm:1, test_quota:1, exam_quota:1, weightOnReport:1},(err, coursesList)=>{
 					if(err) return callbackCourse(err);
 					listOfCourses = coursesList;
-					console.warn("Courses -=-=-=-=-=-=-=> "+JSON.stringify(listOfCourses));
+					//console.warn("Courses -=-=-=-=-=-=-=> "+JSON.stringify(listOfCourses));
 					callbackCourse(null);
 				});
 			},(testAndExamOfEveryCourse)=>{
@@ -525,14 +526,14 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 							Marks.find().distinct("content_id",{class_id:thisClass,student_id:thisStudent,isQuoted:true, academic_year:currentAcademicYear,course_id:thisCourse._id,isCAT:true},(err, testsList)=>{
 								if(err) return testCallback(err);
 								listTESTs = testsList;
-								console.warn("------Test in "+thisCourse.name+" in Term "+thisTerm+" -=-=-=-=-=-=-=> "+JSON.stringify(listTESTs));
+								//console.warn("------Test in "+thisCourse.name+" in Term "+thisTerm+" -=-=-=-=-=-=-=> "+JSON.stringify(listTESTs));
 								return testCallback(null);
 							})
 						},(examCallback)=>{
 							Marks.find().distinct("content_id",{class_id:thisClass,student_id:thisStudent,isQuoted:true, academic_year:currentAcademicYear,course_id:thisCourse._id,isCAT:false},(err, examsList)=>{
 								if(err) return examCallback(err);
 								listExams = examsList;
-								console.warn("------Exam in "+thisCourse.name+" in Term "+thisTerm+" -+-+-+-+-+-+-> "+JSON.stringify(listExams));
+								//console.warn("------Exam in "+thisCourse.name+" in Term "+thisTerm+" -+-+-+-+-+-+-> "+JSON.stringify(listExams));
 								return examCallback(null);
 							})
 						}],(err)=>{
@@ -590,9 +591,9 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 								exam:noteExam,
 								total:totalCourse,
 							})
-							console.log("  CAT marks "+studentCATMarks+"/"+totalCAT);
-							console.log("  Exam marks "+studentExamMarks+"/"+totalExam);
-							console.log(" TOTAL "+thisCourse.name+" in Term "+thisTerm+"=+=+=+---->"+totalCourse);
+							//console.log("  CAT marks "+studentCATMarks+"/"+totalCAT);
+							//console.log("  Exam marks "+studentExamMarks+"/"+totalExam);
+							//console.log(" TOTAL "+thisCourse.name+" in Term "+thisTerm+"=+=+=+---->"+totalCourse);
 							if(thisTerm ==1){
 								totalQuizzT1 += noteCat?noteCat:0;
 								totalExamT1 += noteExam?noteExam:0;
@@ -623,7 +624,7 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 			}],(err)=>{
 				if(err) return log_err(err,false,req,res);
 
-				console.log("------------------------Term "+thisTerm+"--------------------")
+				//console.log("------------------------Term "+thisTerm+"--------------------")
 				return termsCallback(err)
 				
 			})
@@ -637,8 +638,8 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 		reportData.push({term1:termOne, term2:termTwo, term3:termThree, userInfo:userDetails})
 		//console.log("REPORTmarks =>>>>"+JSON.stringify(reportData.marks))
 		//console.log("REPORT total =>>>>"+JSON.stringify(reportData.total));
-		console.log("REPORT =>>>>"+JSON.stringify(reportData));
-		console.log('_________________-----_____________________________');
+		//console.log("REPORT =>>>>"+JSON.stringify(reportData));
+		//console.log('_________________-----_____________________________');
 		return res.json(reportData)
 	})
 }
@@ -678,199 +679,202 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 		classe_name=class_details.name;
 	});
 	//++++++++++++++++++Validate mark for errors
-	// Marks.find().distinct("currentTerm", {school_id:req.user.school_id},(err, allterms)=>{
-	// 	if(err) return log_err(err, false, req, res);
-	// 	alterms=allterms;
-	// 	console.log('term quantity:'+alterms.length)
-	// 	if(alterms.length==3) return res.status(400).send("All terms must have marks!");
-	// })
-	
-	async.series([(getAllStudentsInClass)=>{
-		User.find({class_id:thisClass,access_level:req.app.locals.access_level.STUDENT},{_id:1,name:1,class_id:1, URN:1},(error, student_list)=>{
-			if(error) return log_err(error, false, req, res);
-			listStudents = student_list;
-			console.warn("students -=> "+JSON.stringify(listStudents));
-			getAllStudentsInClass(null);
-		})
-	},(treatEachStudent)=>{
-		async.each(listStudents,(thisStudent, studentsCallback)=>{
-			async.series([(getTermLists)=>{
-				Marks.find().distinct("currentTerm", {school_id:req.user.school_id},(err, terms)=>{
-					if (err) return getTermLists(err);
-					termLists = terms;
-					//Terms.push({Terms:termLists})
-				//console.warn("Terms -=> "+JSON.stringify(termLists));
-					getTermLists(null);
-				});
-			},(coursesOfEveryTerm)=>{
-				async.each(termLists, (thisTerm, termsCallback)=>{
-					async.series([(callbackCourse)=>{
-						Course.find({school_id:req.user.school_id,class_id:thisClass, currentTerm:thisTerm},{_id:1, name:1, code:1, currentTerm:1, test_quota:1, exam_quota:1, weightOnReport:1},(err, coursesList)=>{
-							if(err) return callbackCourse(err);
-							listOfCourses = coursesList;
-						//console.warn("Courses -=-=-=-=-=-=-=> "+JSON.stringify(listOfCourses));
-							callbackCourse(null);
-						});
-					},(testAndExamOfEveryCourse)=>{
-						// _________________list assessments in all courses_____________________________-
-						async.each(listOfCourses, (thisCourse, coursesCallback)=>{
-							var listTESTs = [], listExams = [];
-							async.series([(testAndExamCallback)=>{
-								async.series([(testCallback)=>{
-									Marks.find().distinct("content_id",{class_id:thisClass,student_id:thisStudent._id,isQuoted:true, academic_year:currentAcademicYear,course_id:thisCourse._id,isCAT:true},(err, testsList)=>{
-										if(err) return testCallback(err);
-										listTESTs = testsList;
-									//console.warn("------Test in "+thisCourse.name+" in Term "+thisTerm+" -=-=-=-=-=-=-=> "+JSON.stringify(listTESTs));
-										return testCallback(null);
-									})
-								},(examCallback)=>{
-									Marks.find().distinct("content_id",{class_id:thisClass,student_id:thisStudent._id,isQuoted:true, academic_year:currentAcademicYear,course_id:thisCourse._id,isCAT:false},(err, examsList)=>{
-										if(err) return examCallback(err);
-										listExams = examsList;
-									//console.warn("------Exam in "+thisCourse.name+" in Term "+thisTerm+" -+-+-+-+-+-+-> "+JSON.stringify(listExams));
-										return examCallback(null);
-									})
-								}],(err)=>{
-									return testAndExamCallback(err);
-								})
-							},(marksCallback)=>{
-								var studentCATMarks =0,studentExamMarks=0,totalCAT=0,totalExam=0;
-								async.series([(eachTestCallback)=>{
-									async.each(listTESTs, (thisTest, thisTestCallback)=>{
-										Content.findOne({_id:thisTest},(err,currentMark)=>{
-											if(err) return thisTestCallback(err);
-											Marks.findOne({content_id:thisTest,student_id:thisStudent._id},(err,marksCAT)=>{
-												if(err) return thisTestCallback(err);
-												var amanota =(marksCAT.percentage*currentMark.marks)/100;
-													studentCATMarks+= amanota>0? amanota:0;
-													totalCAT+= currentMark.marks>0?currentMark.marks:0;
-												thisTestCallback(null);
-											})
-										})
-									},(err)=>{
-										eachTestCallback(err)
-									})
-								},(eachExamCallback)=>{
-									async.each(listExams, (thisExam, thisExamCallback)=>{
-										Content.findOne({_id:thisExam},(err,currentMark)=>{
-											if(err) return thisExamCallback(err);
-											Marks.findOne({content_id:thisExam,student_id:thisStudent._id},(err,marksEXAM)=>{
-												if(err) return thisExamCallback(err);
-												var amanota =(marksEXAM.percentage*currentMark.marks)/100;
-												studentExamMarks+= amanota>0? amanota:0;
-												totalExam+= currentMark.marks>0?currentMark.marks:0;
-												thisExamCallback(null);
-											})
-										})
-									},(err)=>{
-										eachExamCallback(err);
-									})
-								}],(err)=>{
-									var testWeight = thisCourse.test_quota;
-									var examWeight = thisCourse.exam_quota;
-									var courseWeight = !thisCourse.weightOnReport ? testWeight+examWeight : thisCourse.weightOnReport;
-
-									var noteCat=(studentCATMarks*testWeight)/totalCAT;
-									var noteExam =(studentExamMarks*examWeight)/totalExam;
-									noteCat =noteCat>0?noteCat:0;
-									noteExam =noteExam>0?noteExam:0;
-									var totalCourse = noteCat + noteExam;
-
-									// Marks of all students in term 1
-									allMarksPackage.push({name:thisStudent.name,urn:thisStudent._id,test_mark:noteCat,exam_mark:noteExam,total_mark:totalCourse,test_quota:thisCourse.test_quota,exam_quota:thisCourse.exam_quota,total_quota:thisCourse.weightOnReport, term:thisTerm});
-
-									if(thisTerm==1){
-										termOne.push({name:thisStudent.name,urn:thisStudent._id,test_mark:noteCat,exam_mark:noteExam,total_mark:totalCourse,total_quota:thisCourse.weightOnReport,});
-									}
-									
-									if(thisTerm==2){
-										termTwo.push({name:thisStudent.name,urn:thisStudent._id,test_mark:noteCat,exam_mark:noteExam,total_mark:totalCourse,total_quota:thisCourse.weightOnReport,});
-									}
-									
-									if(thisTerm==3){
-										termThree.push({name:thisStudent.name,urn:thisStudent._id,test_mark:noteCat,exam_mark:noteExam,total_mark:totalCourse,total_quota:thisCourse.weightOnReport,});
-									}
-
-								//console.log("  CAT marks "+studentCATMarks+"/"+totalCAT);
-								//console.log("  Exam marks "+studentExamMarks+"/"+totalExam);
-								//console.log(" TOTAL+++++++++++++++++ "+thisCourse.name+" in Term "+thisTerm+"=+=+=+---->"+totalCourse+'-------->'+thisStudent.name);
-
-									return marksCallback(err);
-								})
-							}],(err)=>{
-							//console.log("-----------------------"+thisCourse.name+"---------------------")
-								return coursesCallback(err);
-							})
-						},(err)=>{
-							return testAndExamOfEveryCourse(err);
-						})
-					}],(err)=>{
-						if(err) return log_err(err,false,req,res);
-
-					//console.log("------------------------Term "+thisTerm+"--------------------")
-						return termsCallback(err)
-						
-					})
-				},(err)=>{
-					return coursesOfEveryTerm(err)
-				})
-			}],(err)=>{
-			//console.log('========================'+thisStudent.name+'============================')
-				return studentsCallback(err)
-			})
-		},(err)=>{
-			return treatEachStudent(err)
-		})
-	}],(err)=>{
-		if (err) return log_err(err, false, req, res);
-		var term1data = termOne;
-		var term2data = termTwo;
-		var term3data = termThree;
-		var term1_sum = [], term2_sum = [], term3_sum = [];
-		term1data.forEach(function(marksObject) {
-			var existing = term1_sum.filter(function(i) {
-			return i.urn === marksObject.urn 
-		 })[0];
-			if (!existing)
-				term1_sum.push(marksObject);
-			else{
-				existing.test_mark += marksObject.test_mark;
-				existing.exam_mark += marksObject.exam_mark;
-				existing.total_mark += marksObject.total_mark;
-				existing.total_quota += marksObject.total_quota;
-			}
-		});
-		term2data.forEach(function(marksObject) {
-			var existing = term2_sum.filter(function(i) {
-			return i.urn === marksObject.urn 
-		 })[0];
-			if (!existing)
-				term2_sum.push(marksObject);
-			else{
-				existing.test_mark += marksObject.test_mark;
-				existing.exam_mark += marksObject.exam_mark;
-				existing.total_mark += marksObject.total_mark;
-				existing.total_quota += marksObject.total_quota;
-			}
-		});
-		term3data.forEach(function(marksObject) {
-			var existing = term3_sum.filter(function(i) {
-			return i.urn === marksObject.urn 
-		 })[0];
-			if (!existing)
-				term3_sum.push(marksObject);
-			else{
-				existing.test_mark += marksObject.test_mark;
-				existing.exam_mark += marksObject.exam_mark;
-				existing.total_mark += marksObject.total_mark;
-				existing.total_quota += marksObject.total_quota;
-			}
-		});
-		classDetails.push({name:classe_name, a_year:currentAcademicYear})
-		reportData.push({term1:term1_sum,term2:term2_sum, term3:term3_sum, class_info:classDetails, courses:listOfCourses});
-		//reportData.push({term1:termOne, term2:termTwo, term3:termThree})
-		console.log('-------------------------(__________)+++++++++++++++++++++++++++++++++++++');
-		console.log('Report:------->'+JSON.stringify(reportData))
-		return res.json(reportData);
+	Marks.find().distinct("currentTerm", {school_id:req.user.school_id,class_id:thisClass},(err, allterms)=>{
+		if(err) return log_err(err, false, req, res);
+		alterms=allterms;
+		//console.log('term quantity:'+alterms.length)
+		if(alterms.length!=3) return res.status(400).send(classe_name.toUpperCase()+" does not have marks for all terms!");
+		allReportDatasMarks();
 	})
+	
+	function allReportDatasMarks(){
+		async.series([(getAllStudentsInClass)=>{
+			User.find({class_id:thisClass,access_level:req.app.locals.access_level.STUDENT},{_id:1,name:1,class_id:1, URN:1},(error, student_list)=>{
+				if(error) return log_err(error, false, req, res);
+				listStudents = student_list;
+				//console.warn("students -=> "+JSON.stringify(listStudents));
+				getAllStudentsInClass(null);
+			})
+		},(treatEachStudent)=>{
+			async.each(listStudents,(thisStudent, studentsCallback)=>{
+				async.series([(getTermLists)=>{
+					Marks.find().distinct("currentTerm", {school_id:req.user.school_id},(err, terms)=>{
+						if (err) return getTermLists(err);
+						termLists = terms;
+						//Terms.push({Terms:termLists})
+					//console.warn("Terms -=> "+JSON.stringify(termLists));
+						getTermLists(null);
+					});
+				},(coursesOfEveryTerm)=>{
+					async.each(termLists, (thisTerm, termsCallback)=>{
+						async.series([(callbackCourse)=>{
+							Course.find({school_id:req.user.school_id,class_id:thisClass, currentTerm:thisTerm},{_id:1, name:1, code:1, currentTerm:1, test_quota:1, exam_quota:1, weightOnReport:1},(err, coursesList)=>{
+								if(err) return callbackCourse(err);
+								listOfCourses = coursesList;
+							//console.warn("Courses -=-=-=-=-=-=-=> "+JSON.stringify(listOfCourses));
+								callbackCourse(null);
+							});
+						},(testAndExamOfEveryCourse)=>{
+							// _________________list assessments in all courses_____________________________-
+							async.each(listOfCourses, (thisCourse, coursesCallback)=>{
+								var listTESTs = [], listExams = [];
+								async.series([(testAndExamCallback)=>{
+									async.series([(testCallback)=>{
+										Marks.find().distinct("content_id",{class_id:thisClass,student_id:thisStudent._id,isQuoted:true, academic_year:currentAcademicYear,course_id:thisCourse._id,isCAT:true},(err, testsList)=>{
+											if(err) return testCallback(err);
+											listTESTs = testsList;
+										//console.warn("------Test in "+thisCourse.name+" in Term "+thisTerm+" -=-=-=-=-=-=-=> "+JSON.stringify(listTESTs));
+											return testCallback(null);
+										})
+									},(examCallback)=>{
+										Marks.find().distinct("content_id",{class_id:thisClass,student_id:thisStudent._id,isQuoted:true, academic_year:currentAcademicYear,course_id:thisCourse._id,isCAT:false},(err, examsList)=>{
+											if(err) return examCallback(err);
+											listExams = examsList;
+										//console.warn("------Exam in "+thisCourse.name+" in Term "+thisTerm+" -+-+-+-+-+-+-> "+JSON.stringify(listExams));
+											return examCallback(null);
+										})
+									}],(err)=>{
+										return testAndExamCallback(err);
+									})
+								},(marksCallback)=>{
+									var studentCATMarks =0,studentExamMarks=0,totalCAT=0,totalExam=0;
+									async.series([(eachTestCallback)=>{
+										async.each(listTESTs, (thisTest, thisTestCallback)=>{
+											Content.findOne({_id:thisTest},(err,currentMark)=>{
+												if(err) return thisTestCallback(err);
+												Marks.findOne({content_id:thisTest,student_id:thisStudent._id},(err,marksCAT)=>{
+													if(err) return thisTestCallback(err);
+													var amanota =(marksCAT.percentage*currentMark.marks)/100;
+														studentCATMarks+= amanota>0? amanota:0;
+														totalCAT+= currentMark.marks>0?currentMark.marks:0;
+													thisTestCallback(null);
+												})
+											})
+										},(err)=>{
+											eachTestCallback(err)
+										})
+									},(eachExamCallback)=>{
+										async.each(listExams, (thisExam, thisExamCallback)=>{
+											Content.findOne({_id:thisExam},(err,currentMark)=>{
+												if(err) return thisExamCallback(err);
+												Marks.findOne({content_id:thisExam,student_id:thisStudent._id},(err,marksEXAM)=>{
+													if(err) return thisExamCallback(err);
+													var amanota =(marksEXAM.percentage*currentMark.marks)/100;
+													studentExamMarks+= amanota>0? amanota:0;
+													totalExam+= currentMark.marks>0?currentMark.marks:0;
+													thisExamCallback(null);
+												})
+											})
+										},(err)=>{
+											eachExamCallback(err);
+										})
+									}],(err)=>{
+										var testWeight = thisCourse.test_quota;
+										var examWeight = thisCourse.exam_quota;
+										var courseWeight = !thisCourse.weightOnReport ? testWeight+examWeight : thisCourse.weightOnReport;
+
+										var noteCat=(studentCATMarks*testWeight)/totalCAT;
+										var noteExam =(studentExamMarks*examWeight)/totalExam;
+										noteCat =noteCat>0?noteCat:0;
+										noteExam =noteExam>0?noteExam:0;
+										var totalCourse = noteCat + noteExam;
+
+										// Marks of all students in term 1
+										allMarksPackage.push({name:thisStudent.name,urn:thisStudent._id,test_mark:noteCat,exam_mark:noteExam,total_mark:totalCourse,test_quota:thisCourse.test_quota,exam_quota:thisCourse.exam_quota,total_quota:thisCourse.weightOnReport, term:thisTerm});
+
+										if(thisTerm==1){
+											termOne.push({name:thisStudent.name,urn:thisStudent._id,test_mark:noteCat,exam_mark:noteExam,total_mark:totalCourse,total_quota:thisCourse.weightOnReport,});
+										}
+										
+										if(thisTerm==2){
+											termTwo.push({name:thisStudent.name,urn:thisStudent._id,test_mark:noteCat,exam_mark:noteExam,total_mark:totalCourse,total_quota:thisCourse.weightOnReport,});
+										}
+										
+										if(thisTerm==3){
+											termThree.push({name:thisStudent.name,urn:thisStudent._id,test_mark:noteCat,exam_mark:noteExam,total_mark:totalCourse,total_quota:thisCourse.weightOnReport,});
+										}
+
+									//console.log("  CAT marks "+studentCATMarks+"/"+totalCAT);
+									//console.log("  Exam marks "+studentExamMarks+"/"+totalExam);
+									//console.log(" TOTAL+++++++++++++++++ "+thisCourse.name+" in Term "+thisTerm+"=+=+=+---->"+totalCourse+'-------->'+thisStudent.name);
+
+										return marksCallback(err);
+									})
+								}],(err)=>{
+								//console.log("-----------------------"+thisCourse.name+"---------------------")
+									return coursesCallback(err);
+								})
+							},(err)=>{
+								return testAndExamOfEveryCourse(err);
+							})
+						}],(err)=>{
+							if(err) return log_err(err,false,req,res);
+
+						//console.log("------------------------Term "+thisTerm+"--------------------")
+							return termsCallback(err)
+							
+						})
+					},(err)=>{
+						return coursesOfEveryTerm(err)
+					})
+				}],(err)=>{
+				//console.log('========================'+thisStudent.name+'============================')
+					return studentsCallback(err)
+				})
+			},(err)=>{
+				return treatEachStudent(err)
+			})
+		}],(err)=>{
+			if (err) return log_err(err, false, req, res);
+			var term1data = termOne;
+			var term2data = termTwo;
+			var term3data = termThree;
+			var term1_sum = [], term2_sum = [], term3_sum = [];
+			term1data.forEach(function(marksObject) {
+				var existing = term1_sum.filter(function(i) {
+				return i.urn === marksObject.urn 
+			 })[0];
+				if (!existing)
+					term1_sum.push(marksObject);
+				else{
+					existing.test_mark += marksObject.test_mark;
+					existing.exam_mark += marksObject.exam_mark;
+					existing.total_mark += marksObject.total_mark;
+					existing.total_quota += marksObject.total_quota;
+				}
+			});
+			term2data.forEach(function(marksObject) {
+				var existing = term2_sum.filter(function(i) {
+				return i.urn === marksObject.urn 
+			 })[0];
+				if (!existing)
+					term2_sum.push(marksObject);
+				else{
+					existing.test_mark += marksObject.test_mark;
+					existing.exam_mark += marksObject.exam_mark;
+					existing.total_mark += marksObject.total_mark;
+					existing.total_quota += marksObject.total_quota;
+				}
+			});
+			term3data.forEach(function(marksObject) {
+				var existing = term3_sum.filter(function(i) {
+				return i.urn === marksObject.urn 
+			 })[0];
+				if (!existing)
+					term3_sum.push(marksObject);
+				else{
+					existing.test_mark += marksObject.test_mark;
+					existing.exam_mark += marksObject.exam_mark;
+					existing.total_mark += marksObject.total_mark;
+					existing.total_quota += marksObject.total_quota;
+				}
+			});
+			classDetails.push({name:classe_name, a_year:currentAcademicYear})
+			reportData.push({term1:term1_sum,term2:term2_sum, term3:term3_sum, class_info:classDetails, courses:listOfCourses});
+			//reportData.push({term1:termOne, term2:termTwo, term3:termThree})
+			//console.log('-------------------------(__________)+++++++++++++++++++++++++++++++++++++');
+			//console.log('Report:------->'+JSON.stringify(reportData))
+			return res.json(reportData);
+		})
+	}
 }

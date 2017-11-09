@@ -49,7 +49,7 @@ exports.getClasses_JSON = (req,res,next)=>{
   // else if(String(req.body.school_id)==String(req.user.school_id))
   //   return res.status(400).send("This is not your school")
   Classe.find({school_id:req.params.school_id},{__v:0})
-  .sort({name:1})
+  .sort({name:-1})
   .exec((err,classes)=>{
     if(err) return log_err(err,false,req,res);
     var listClasses=[];
@@ -68,6 +68,19 @@ exports.getClasses_JSON = (req,res,next)=>{
       if(err) return log_err(err,false,req,res);
       return res.json(listClasses);  
     })
+  })
+}
+exports.getClasses_JSON_For_Report = (req,res,next)=>{
+  req.assert('school_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  // else if(String(req.body.school_id)==String(req.user.school_id))
+  //   return res.status(400).send("This is not your school")
+  Classe.find({school_id:req.params.school_id},{__v:0})
+  .sort({name:1})
+  .exec((err,classes)=>{
+    if(err) return log_err(err,false,req,res);
+    return res.json(classes);
   })
 }
 

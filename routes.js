@@ -318,6 +318,7 @@ module.exports = function(app) {
 				/*CLASSES THINGS */
 	app.post('/class.add',isAtLeastAdmin, classeController.postNewClass);
 	app .get('/classe.list/:school_id',isAuthenticated, classeController.getClasses_JSON);
+	app .get('/classe.list.for.report/:school_id',isAuthenticated, classeController.getClasses_JSON_For_Report);
 	app .get('/classe.list.confirm/:school_id',isAuthenticated, classeController.getClasses_JSONConfirm);
 	
 	app.post('/classe.delete',isAtLeastAdmin, classeController.removeClasse);
