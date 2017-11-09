@@ -9,6 +9,24 @@ block append css_code
       left: 50%;
       transform: translateX(-50%) translateY(-50%);
     }
+    .report-th{
+      font-weight: bold;
+      text-align:center;
+    }
+    .report-td{
+      font-weight: bold; 
+      background: #e3e7ed; 
+      text-align:left;
+    }
+    .report-td-pct{
+      font-weight: bold;
+      background: #CCC
+    }
+    .report-td-name{
+      font-weight: bold; 
+      background: #e3e7ed; 
+      text-align:left;
+    }
 block append content 
   //- .main-panel
     include ../partials/header 
@@ -22,7 +40,9 @@ block append content
                 .card-header.card-header-icon(data-background-color="rose")
                   i.material-icons school
                 .card-content
-                  h3.card-title Complete the parameters to generate the report
+                  h4.card-title.text-center.text-info
+                    strong This report is designed to generate yearly marks.
+                  h4.card-title Complete the parameters to generate the report
                   .row
                     .col-md-5
                       .form-group.label-floating
@@ -70,73 +90,42 @@ block append content
                                     | Student names
 
                                   //Terms ______+___________+_______________
-                                  th(colspan='4', style='text-align:center;font-weight: bold;')
-                                    | Term I
-                                  th(colspan='4', style='text-align:center;font-weight: bold;')
-                                    | Term II
-                                  th(colspan='4', style='text-align:center;font-weight: bold;')
-                                    | Term III
-                                  th(style='text-align:center;font-weight: bold;',rowspan="3",colspan="2")
-                                    | Grand Total
+                                  th.report-th(colspan='4'): strong Term I
+                                  th.report-th(colspan='4'): strong Term II
+                                  th.report-th(colspan='4'): strong Term III
+                                  th.report-th(rowspan="3",colspan="2"): strong Grand Total
 
                                 //Assessment test and exam____+_______________+__
                                 tr(align='center')
-                                  th(style='text-align:center;font-weight: bold;')
-                                    | Test
-                                  th(style='text-align:center;font-weight: bold;')
-                                    | Ex
-                                  th(style='text-align:center;font-weight: bold;')
-                                    | Tot
-                                  th(style='text-align:center;font-weight: bold;')
-                                    | %
-                                  th(style='text-align:center;font-weight: bold;')
-                                    | Test
-                                  th(style='text-align:center;font-weight: bold;')
-                                    | Ex
-                                  th(style='text-align:center;font-weight: bold;')
-                                    | Tot
-                                  th(style='text-align:center;font-weight: bold;')
-                                    | %
-                                  th(style='text-align:center;font-weight: bold;')
-                                    | Test
-                                  th(style='text-align:center;font-weight: bold;')
-                                    | Ex
-                                  th(style='text-align:center;font-weight: bold;')
-                                    | Tot   
-                                  th(style='text-align:center;font-weight: bold;')
-                                    | %
+                                  th.report-th: strong Test
+                                  th.report-th: strong Ex
+                                  th.report-th: strong Tot
+                                  th.report-th: strong %
+                                  th.report-th: strong Test
+                                  th.report-th: strong Ex
+                                  th.report-th: strong Tot
+                                  th.report-th: strong %
+                                  th.report-th: strong Test
+                                  th.report-th: strong Ex
+                                  th.report-th: strong Tot   
+                                  th.report-th: strong %
                               tbody(align='right')
                                 tr(pagination-id='allsmarks', dir-paginate="mark in studentsMark|orderBy:name|filter:search|itemsPerPage:n_pages")
-                                  td(style='font-weight: bold; background: #e3e7ed; text-align:left;')
-                                    label.btn-simple.btn-link(ng-click="getOneStudentReport(mark.urn)") {{mark.name|uppercase}}
-                                  td
-                                    | {{(mark.test_t1_mark).toFixed(1)}}
-                                  td
-                                    | {{(mark.exam_t1_mark).toFixed(1)}}
-                                  td
-                                    | {{(mark.total_t1_mark).toFixed(1)}}
-                                  td(style='font-weight: bold; background: #CCC')
-                                    | {{(mark.total_t1_pct).toFixed(1)}}%
-                                  td
-                                    | {{(mark.test_t2_mark).toFixed(1)}}
-                                  td
-                                    | {{(mark.exam_t2_mark).toFixed(1)}}
-                                  td
-                                    | {{(mark.total_t2_mark).toFixed(1)}}
-                                  td(style='font-weight: bold; background: #CCC')
-                                    | {{(mark.total_t2_pct).toFixed(1)}}%
-                                  td
-                                    | {{(mark.test_t3_mark).toFixed(1)}}
-                                  td
-                                    | {{(mark.exam_t3_mark).toFixed(1)}}
-                                  td
-                                    | {{(mark.total_t3_mark).toFixed(1)}}
-                                  td(style='font-weight: bold; background: #CCC')
-                                    | {{(mark.total_t3_pct).toFixed(1)}}%
-                                  td(style='font-weight: bold; background: #CCC',)
-                                    | {{(mark.annual).toFixed(1)}}
-                                  td(style='font-weight: bold; background: #CCC',)
-                                    | {{(mark.annual_pct).toFixed(1)}}%
+                                  td.report-td: label.btn-simple.btn-link(ng-click="getOneStudentReport(mark.urn)") {{mark.name|uppercase}}
+                                  td {{(mark.test_t1_mark).toFixed(1)}}
+                                  td {{(mark.exam_t1_mark).toFixed(1)}}
+                                  td {{(mark.total_t1_mark).toFixed(1)}}
+                                  td.report-td-pct {{(mark.total_t1_pct).toFixed(1)}}%
+                                  td {{(mark.test_t2_mark).toFixed(1)}}
+                                  td {{(mark.exam_t2_mark).toFixed(1)}}
+                                  td {{(mark.total_t2_mark).toFixed(1)}}
+                                  td.report-td-pct {{(mark.total_t2_pct).toFixed(1)}}%
+                                  td {{(mark.test_t3_mark).toFixed(1)}}
+                                  td {{(mark.exam_t3_mark).toFixed(1)}}
+                                  td {{(mark.total_t3_mark).toFixed(1)}}
+                                  td.report-td-pct {{(mark.total_t3_pct).toFixed(1)}}%
+                                  td.report-td-pct {{(mark.annual).toFixed(1)}}
+                                  td.report-td-pct {{(mark.annual_pct).toFixed(1)}}%
                             dir-pagination-controls(pagination-id='allsmarks', max-size='5', direction-links='true', boundary-links='true')
                           .col-md-12        
                             .col-md-6
@@ -222,112 +211,76 @@ block append content
                                           tr(print-remove)
                                             th(colspan='3', style='text-align:center;font-weight: bold;background: #CCC')
                                               | MAX POINTS
-                                            th(colspan='3', style='text-align:center;font-weight: bold;')
-                                              | FIRST TERM
-                                            th(colspan='3', style='text-align:center;font-weight: bold;')
-                                              | SECOND TERM
-                                            th(colspan='3', style='text-align:center;font-weight: bold;')
-                                              | THIRD TERM
-                                            th(colspan='3', style='text-align:center;font-weight: bold;')
-                                              | ANNUAL POINTS
+                                            th.report-th(colspan='3')
+                                              strong FIRST TERM
+                                            th.report-th(colspan='3')
+                                              strong SECOND TERM
+                                            th.report-th(colspan='3')
+                                              strong THIRD TERM
+                                            th.report-th(colspan='3')
+                                              strong ANNUAL POINTS
                                           tr(align='center')
-                                            th(style='text-align:center;font-weight: bold;background: #CCC')
-                                              | TEST
-                                            th(style='text-align:center;font-weight: bold;background: #CCC')
-                                              | EX
-                                            th(style='text-align:center;font-weight: bold;background: #CCC')
-                                              | TOT
-                                            th(style='text-align:center;font-weight: bold;')
-                                              | TEST
-                                            th(style='text-align:center;font-weight: bold;')
-                                              | EX
-                                            th(style='text-align:center;font-weight: bold;')
-                                              | TOT
-                                            th(style='text-align:center;font-weight: bold;')
-                                              | TEST
-                                            th(style='text-align:center;font-weight: bold;')
-                                              | EX
-                                            th(style='text-align:center;font-weight: bold;')
-                                              | TOT
-                                            th(style='text-align:center;font-weight: bold;')
-                                              | TEST
-                                            th(style='text-align:center;font-weight: bold;')
-                                              | EX
-                                            th(style='text-align:center;font-weight: bold;')
-                                              | TOT
-                                            th(style='text-align:center;font-weight: bold; background: #CCC')
-                                              | MAX
-                                            th(style='text-align:center;font-weight: bold;')
-                                              | TOTAL
-                                            th(style='text-align:center;font-weight: bold;')
-                                              | %
+                                            th.report-td-pct: strong TEST
+                                            th.report-td-pct: strong EX
+                                            th.report-td-pct: strong TOT
+                                            th.report-th: strong TEST
+                                            th.report-th: strong EX
+                                            th.report-th: strong TOT
+                                            th.report-th: strong TEST
+                                            th.report-th: strong EX
+                                            th.report-th: strong TOT
+                                            th.report-th: strong TEST
+                                            th.report-th: strong EX
+                                            th.report-th: strong TOT
+                                            th.report-th: strong MAX
+                                            th.report-th: strong TOTAL
+                                            th.report-th: strong %
                                         tbody
+                                          tr
+                                            td(style='font-weight: bold; background: #e3e7ed; text-align:left;') CONDUCT
+                                            td(colspan='3', style='text-align:center;font-weight: bold;background: #CCC') 40
+                                            td(colspan='3') 
+                                            td(colspan='3') 
+                                            td(colspan='3') 
+                                            td(colspan='3') 
                                           tr(ng-repeat="mark in studentMark|orderBy:'-course_quota'")
                                             td(style='font-weight: bold; background: #e3e7ed; text-align:left;')
                                               | {{mark.name|uppercase}}
-                                            td(style='font-weight: bold; background: #CCC')
-                                              | {{mark.test_quota}}
-                                            td(style='font-weight: bold; background: #CCC')
-                                              | {{mark.exam_quota}}
-                                            td(style='font-weight: bold; background: #CCC')
-                                              | {{mark.course_quota}}
-                                            td
-                                              | {{(mark.testTerm1).toFixed(1)}}
-                                            td
-                                              | {{(mark.examTerm1).toFixed(1)}}
-                                            td
-                                              | {{(mark.totalTerm1).toFixed(1)}}
-                                            td
-                                              | {{(mark.testTerm2).toFixed(1)}}
-                                            td
-                                              | {{(mark.examTerm2).toFixed(1)}}
-                                            td
-                                              | {{(mark.totalTerm2).toFixed(1)}}
-                                            td
-                                              | {{(mark.testTerm3).toFixed(1)}}
-                                            td
-                                              | {{(mark.examTerm3).toFixed(1)}}
-                                            td
-                                              | {{(mark.totalTerm3).toFixed(1)}}
-                                            td(style='font-weight: bold; background: #CCC')
+                                            td.report-td-pct {{mark.test_quota}}
+                                            td.report-td-pct {{mark.exam_quota}}
+                                            td.report-td-pct {{mark.course_quota}}
+                                            td {{(mark.testTerm1).toFixed(1)}}
+                                            td {{(mark.examTerm1).toFixed(1)}}
+                                            td {{(mark.totalTerm1).toFixed(1)}}
+                                            td {{(mark.testTerm2).toFixed(1)}}
+                                            td {{(mark.examTerm2).toFixed(1)}}
+                                            td {{(mark.totalTerm2).toFixed(1)}}
+                                            td {{(mark.testTerm3).toFixed(1)}}
+                                            td {{(mark.examTerm3).toFixed(1)}}
+                                            td {{(mark.totalTerm3).toFixed(1)}}
+                                            td.report-td-pct
                                               | {{mark.anualQuotaTotal}}
-                                            td
-                                              | {{(mark.anualMarkTotal).toFixed(1)}}
-                                            td
-                                              | {{(mark.anualMarkPct).toFixed(1)}}% 
+                                            td {{(mark.anualMarkTotal).toFixed(1)}}
+                                            td {{(mark.anualMarkPct).toFixed(1)}}% 
                                           
                                         tfoot(align='right')
                                           tr
                                             td(align='left', style='font-weight: bold; ')
                                               | Total
-                                            td(style='font-weight: bold; background: #CCC')
-                                              | {{qTest}}
-                                            td(style='font-weight: bold; background: #CCC')
-                                              | {{qExam}}
-                                            td(style='font-weight: bold; background: #CCC')
-                                              | {{qtotal}}
-                                            td
-                                              | {{testT1.toFixed(1)}}
-                                            td
-                                              | {{ExamT1.toFixed(1)}}
-                                            td
-                                              | {{totalT1.toFixed(1)}}
-                                            td
-                                              | {{testT2.toFixed(1)}}
-                                            td
-                                              | {{ExamT2.toFixed(1)}}
-                                            td
-                                              | {{totalT2.toFixed(1)}}
-                                            td
-                                              | {{testT3.toFixed(1)}}
-                                            td
-                                              | {{ExamT3.toFixed(1)}}
-                                            td
-                                              | {{totalT3.toFixed(1)}}
-                                            td(style='font-weight: bold; background: #CCC')
-                                              | {{yQuotaTotal}}
-                                            td
-                                              | {{mQuotaTotal.toFixed(1)}}
+                                            td.report-td-pct {{qTest}}
+                                            td.report-td-pct {{qExam}}
+                                            td.report-td-pct {{qtotal}}
+                                            td {{testT1.toFixed(1)}}
+                                            td {{ExamT1.toFixed(1)}}
+                                            td {{totalT1.toFixed(1)}}
+                                            td {{testT2.toFixed(1)}}
+                                            td {{ExamT2.toFixed(1)}}
+                                            td {{totalT2.toFixed(1)}}
+                                            td {{testT3.toFixed(1)}}
+                                            td {{ExamT3.toFixed(1)}}
+                                            td {{totalT3.toFixed(1)}}
+                                            td.report-td-pct {{yQuotaTotal}}
+                                            td {{mQuotaTotal.toFixed(1)}}
                                             td
                                               
                                           tr
@@ -348,35 +301,35 @@ block append content
                                               | Position
                                             td(colspan='3', style='font-weight: bold;')
                                             td(colspan='3', style='font-weight: bold;')
-                                              | /{{mark.length}}
+                                              | /{{studentsMark.length}}
                                             td(colspan='3', style='font-weight: bold;')
-                                              | /{{mark.length}}
+                                              | /{{studentsMark.length}}
                                             td(colspan='3', style='font-weight: bold;')
-                                              | /{{mark.length}}
+                                              | /{{studentsMark.length}}
                                             td(colspan='3', style='font-weight: bold;')
-                                              | /{{mark.length}}
+                                              | /{{studentsMark.length}}
                                           if school_name == 'maranyundo girls school'
                                             tr
                                               td(align='left', style='font-weight: bold;text-align:left;')
                                                 | Parish Priest Signature
-                                              td(colspan='6', style='font-weight: bold;')
-                                              td(colspan='3', style='font-weight: bold;')
-                                              td(colspan='3', style='font-weight: bold;')
-                                              td(colspan='3', style='font-weight: bold;')
+                                              td(colspan='6')
+                                              td(colspan='3')
+                                              td(colspan='3')
+                                              td(colspan='3')
                                           tr
                                             td(align='left', style='font-weight: bold;text-align:left;')
                                               | Teacher's Signature
-                                            td(colspan='6', style='font-weight: bold;')
-                                            td(colspan='3', style='font-weight: bold;')
-                                            td(colspan='3', style='font-weight: bold;')
-                                            td(colspan='3', style='font-weight: bold;')
+                                            td(colspan='6')
+                                            td(colspan='3')
+                                            td(colspan='3')
+                                            td(colspan='3')
                                           tr
                                             td(align='left', style='font-weight: bold;text-align:left;')
                                               | Parent's Signature
-                                            td(colspan='6', style='font-weight: bold;')
-                                            td(colspan='3', style='font-weight: bold;')
-                                            td(colspan='3', style='font-weight: bold;')
-                                            td(colspan='3', style='font-weight: bold;')
+                                            td(colspan='6')
+                                            td(colspan='3')
+                                            td(colspan='3')
+                                            td(colspan='3')
                                   tr
                                     td
                                       strong Pass
@@ -552,6 +505,9 @@ block append scripts
           }
         }).catch(function(err){
           Notifier.danger(err.data);
+          $scope.students_list = false;
+          $scope.choosen_year='';
+          $scope.selectClass='';
         })
       }
       $scope.getOneStudentReport = function(studentid){

@@ -647,7 +647,6 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 	req.assert('academic_year', 'Choose the academic year please').isInt();
 	const errors = req.validationErrors();
 	if (errors) return res.status(400).send(errors[0].msg);
-
 	var currentAcademicYear=req.body.academic_year;
 	var thisClass = req.body.class_id;
 	//*****************************************************************
@@ -666,7 +665,8 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 		totals = [],
 		studentMark=[],
 		allMarksPackage = [],
-		classDetails=[];
+		classDetails=[],
+		alterms=[];
 	//*****************************************************************
 		// All arrays variables
 	//*****************************************************************
@@ -677,6 +677,14 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 		//userDetails.push({classe:class_details});
 		classe_name=class_details.name;
 	});
+	//++++++++++++++++++Validate mark for errors
+	// Marks.find().distinct("currentTerm", {school_id:req.user.school_id},(err, allterms)=>{
+	// 	if(err) return log_err(err, false, req, res);
+	// 	alterms=allterms;
+	// 	console.log('term quantity:'+alterms.length)
+	// 	if(alterms.length==3) return res.status(400).send("All terms must have marks!");
+	// })
+	
 	async.series([(getAllStudentsInClass)=>{
 		User.find({class_id:thisClass,access_level:req.app.locals.access_level.STUDENT},{_id:1,name:1,class_id:1, URN:1},(error, student_list)=>{
 			if(error) return log_err(error, false, req, res);
