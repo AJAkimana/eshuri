@@ -10,6 +10,7 @@ Une classe est par exemple S2MCE pour le sHigh school ou 3 rd Year in Universiti
 // Create a new classe
 exports.postNewClass =(req,res,next)=>{
   req.assert('school_id', 'Invalid data').notEmpty().isMongoId();
+  req.assert('class_teacher', 'Invalid data').notEmpty().isMongoId();
   req.assert('level', 'A level must be a number').isInt();
   req.assert('name', 'A name is required').notEmpty();
   req.assert('currentTerm', 'Sorry, specifiy a term').isInt();
@@ -31,6 +32,7 @@ exports.postNewClass =(req,res,next)=>{
         level:req.body.level,
         name:req.body.name,
         academic_year:Number(new Date().getFullYear())-2000,
+        class_teacher:req.body.class_teacher,
         currentTerm:req.body.currentTerm,
       });      
       newClass.save((err)=>{
@@ -60,7 +62,7 @@ exports.getClasses_JSON = (req,res,next)=>{
 
         if(err) return cb(err);
         listClasses.push({_id:currentClass._id, name:currentClass.name,level:currentClass.level,currentTerm:currentClass.currentTerm,academic_year:currentClass.academic_year,
-          students:num});
+          students:num, class_teacher:currentClass.class_teacher});
         cb();
       })
 
@@ -175,7 +177,26 @@ exports.updateSettings =function(req,res,next){ // D
         return res.end();
       })
     })
-  })
-    
-    
+  }) 
+}
+exports.setClassTeacher =function(req,res,next){ // D
+  // console.log(' DATA is '+JSON.stringify(req.body));
+  req.assert('teacher_id', 'Invalid term').isMongoId();
+  req.assert('class_id', 'Invalid class').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+
+  School.findOne({_id:req.user.school_id},(err,school_exists)=>{
+    if(err) return log_err(err,false,req,res);
+    else if(!school_exists)  return res.status(400).send("School not recognized");
+    Classe.findOne({_id:req.body.class_id,school_id:req.user.school_id},(err,class_exists)=>{
+      if(err) return log_err(err,false,req,res);
+      else if(!class_exists) return res.status(400).send("Invalid data");
+      class_exists.class_teacher =req.body.teacher_id;
+      class_exists.save((err)=>{
+        if(err) return log_err(err,false,req,res);
+        return res.end();
+      })
+    })
+  }) 
 }

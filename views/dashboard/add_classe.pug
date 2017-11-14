@@ -7,7 +7,7 @@ block append content
 			.content
 				.container-fluid
 					.row
-						.col-md-8.center
+						.col-md-10.center
 							.card
 								.card-header.card-header-icon(data-background-color="rose")
 									i.material-icons class
@@ -21,26 +21,32 @@ block append content
 												h3 Use another option:
 												select.form-control(ng-model="currentSchool",ng-change="set_Option()")
 													option(value="{{school._id}}", ng-repeat="school in listSchools") {{$index + 1}}) {{school.name|uppercase}} 
+									
+									.col-md-12
+										a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.teachers/{{school_id}}") <strong> {{teachers}}</strong> Teachers
+											i.material-icons person
+										a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.admins/{{school_id}}") <strong> {{admins}}</strong> Administrators
+											i.material-icons supervisor_account
+										a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.accounts.validation") <strong> {{unConfirmed}}</strong> New accounts to confirm 
+											i.material-icons verified_user
+										a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.register.course/{{school_id}}") <strong> {{allCourses}}</strong> Courses 
+											i.material-icons class
 									.row
-										.col-md-12
-											a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.teachers/{{school_id}}") <strong> {{teachers}}</strong> Teachers
-												i.material-icons person
-											a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.admins/{{school_id}}") <strong> {{admins}}</strong> Administrators
-												i.material-icons supervisor_account
-											a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.accounts.validation") <strong> {{unConfirmed}}</strong> New accounts to confirm 
-												i.material-icons verified_user
-											a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.register.course/{{school_id}}") <strong> {{allCourses}}</strong> Courses 
-												i.material-icons class
-										.col-md-4
+										.col-md-3
 											.form-group.label-floating
 												label.control-label Enter a new class
 												input.form-control(type="text",autocomplete="off",ng-model="newClass.name")
-										.col-md-3
+										.col-md-2
 											.form-group.label-floating
 												label.control-label Actual {{term_name|toTermName}}:
 												select.form-control(required="true",ng-model="newClass.currentTerm")
 													option(value="{{$index + 1}}", ng-repeat="i in getTerms_Limit()") {{term_name|toTermName}} {{$index + 1}}
 										.col-md-3
+											.form-group.label-floating
+												label.control-label Class teacher
+												select.form-control(required="true",ng-model="newClass.class_teacher")
+													option(value="{{teacher._id}}", ng-repeat="teacher in allteachers") {{teacher.name|uppercase}}
+										.col-md-2
 											.form-group.label-floating
 												label.control-label Level of the class
 												input.form-control(type="number",autocomplete="off",ng-model="newClass.level")
@@ -67,6 +73,7 @@ block append content
 														th: a.btn-simple.btn.label.btn-rose(ng-click="a='students';b=!b") No of students
 														th: a.btn-simple.btn.label.btn-rose(
 														ng-click="a='currentTerm';b=!b") {{term_name|toTermName}}
+														th: a.btn-simple.btn.label.btn-rose Class teacher
 														th: a.btn-simple.btn.label.btn-rose(
 														ng-click="a='academic_year';b=!b") Academic year
 														th Actions
@@ -78,12 +85,37 @@ block append content
 															td {{classe.level }}
 															td: i <strong>{{classe.students}}</strong> students
 															td {{term_name|toTermName}} {{classe.currentTerm }}
+															td {{classe.class_teacher|toTeacher_name:allteachers}}
 															td {{classe.academic_year|yearToDate}}
 															td.td-actions.text-center
 																button.btn.btn-danger(type='button',ng-click="deleteClass(classe._id,classe.name)")
 																	i.material-icons close
+																button.btn.btn-info(type='button',ng-click="setClassTeacher(classe)",data-target='#set_class_teacher_Modal', data-toggle='modal')
+																	i.material-icons edit
+																	| Set class teacher
 												dir-pagination-controls.pull-right(pagination-id='allclasses', max-size='5', direction-links='true', boundary-links='true')
 											p.category.text-center(ng-show ="!classes.length") No class provided here
+									#set_class_teacher_Modal.modal.fade(role='dialog')
+										.modal-dialog
+											.modal-content
+												.modal-header
+													i.material-icons school
+													h5.card-title Set class teacher for {{class_name|uppercase}}
+												.modal-body
+													//.col-md-8
+														h4 Teacher list
+														div(ng-repeat ="t in currentTeachers")
+															h4: strong {{$index+1}}) {{t|toTeacher_name:teachers}}
+																.btn.btn-danger.btn-fab.btn-fab-mini(ng-click="dissociateTeacher(t)")
+																	i.material-icons close
+													.col-md-4
+														h4 Select teacher
+														.form-group.label-floating
+															select.form-control(ng-model="teacher_choosen",ng-change="setTeacher(this_class, teacher_choosen)")
+																option(disabled, selected) Pick a teacher
+																option(value="{{teacher._id}}",ng-repeat="teacher in allteachers") {{teacher.name}}
+												.modal-footer
+													button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
 	script.
@@ -98,6 +130,13 @@ block append scripts
 			return function(input){
 				input =Number(input)+2000;
 				return input = input+'/'+Number(Number(input)+1);
+			}
+		})
+		.filter('toTeacher_name', function(){
+			return function(input,list_teachers){
+				if(input==''||!input)	return 'Not defined';
+				for(var i =0;i < list_teachers.length;i++)
+					if(list_teachers[i]._id == input) return list_teachers[i].name
 			}
 		})
 		.controller('school_updateCtrl', function($scope,$http,$window){
@@ -116,6 +155,22 @@ block append scripts
 				.catch(function(erreur){
 					Notifier.danger(erreur.data);
 				}); 
+			}
+			$scope.setClassTeacher=function(selectedClass){
+				$scope.class_name=selectedClass.name.toUpperCase();
+				$scope.this_class=selectedClass._id;
+			}
+			$scope.setTeacher=function(classe, teacher){
+				$http.post('/set.class.teacher',{_csrf:$scope.anti_csrf,class_id:classe, teacher_id:teacher})
+					.then(function(response){
+						$scope.getListClasses();
+						$scope.teacher_choosen=null;
+						$('#set_class_teacher_Modal').modal('hide');
+						Notifier.success("Successfully set");
+					})
+					.catch(function(erreur){
+						Notifier.danger(erreur.data);
+					});
 			}
 			$scope.getListClasses = function(){
 				$http
@@ -209,6 +264,16 @@ block append scripts
 			$scope.getTerms_Limit = function(){
 			    return Array.apply(null, {length: $scope.term_quantity}).map(Number.call, Number)
 			}
+			$scope.loadTeachers = function(){
+				$http
+				.get("/school.teachers.list/"+$scope.school_id)
+				.then(function(response){
+					$scope.allteachers = response.data;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				});
+			}
 			$scope.pages=[3,5,10,15,20,25];
 			$scope.anti_csrf ="#{csrf_token}";
 			$scope.school_id ="#{school_id}";
@@ -217,6 +282,7 @@ block append scripts
 			$scope.term_name ="#{term_name}";
 			if($scope.department_id) $scope.loadSchoolList();
 			$scope.load_SchoolContent();
+			$scope.loadTeachers();
 			$scope.getListClasses();
 			
 		})
