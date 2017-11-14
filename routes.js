@@ -206,8 +206,6 @@ module.exports = function(app) {
 	app .get('/student.parents.list',isAuthenticated,isStudent,parentController.getListParents);
 	app .delete('/student.parent.remove/:parent_URN',isAuthenticated,isStudent,parentController.removeFromParents);
 	app .put('/student.action.on.parent',isAuthenticated,isStudent,parentController.modifyAccessOnParent);
-
-	
 	
 	app.post('/user.renew_password',isAuthenticated,userController.renewPassword);
 	app.post('/user.change_email',isAuthenticated,userController.changeEmail);

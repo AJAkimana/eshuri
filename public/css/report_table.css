@@ -1,0 +1,29 @@
+.print-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+.report-th{
+  font-weight: bold;
+  text-align:center;
+}
+.report-td{
+  font-weight: bold; 
+  background: #e3e7ed; 
+  text-align:left;
+}
+.report-td-pct{
+  font-weight: bold;
+  background: #CCC
+}
+.report-td-name{
+  font-weight: bold; 
+  background: #e3e7ed; 
+  text-align:left;
+}
+.set-height td {
+  position: relative;
+  overflow: hidden;
+  height: 2em;
+}

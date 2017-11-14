@@ -2,36 +2,7 @@ extends ../layout
 block append scripts
   script(src="../js/MIT/jquery.select-bootstrap.js",type="application/javascript")
 block append css_code
-  style.
-    .print-container {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translateX(-50%) translateY(-50%);
-    }
-    .report-th{
-      font-weight: bold;
-      text-align:center;
-    }
-    .report-td{
-      font-weight: bold; 
-      background: #e3e7ed; 
-      text-align:left;
-    }
-    .report-td-pct{
-      font-weight: bold;
-      background: #CCC
-    }
-    .report-td-name{
-      font-weight: bold; 
-      background: #e3e7ed; 
-      text-align:left;
-    }
-    .set-height td {
-      position: relative;
-      overflow: hidden;
-      height: 2em;
-    }
+  link(rel="stylesheet", type="text/css", href="../css/report_table.css")
 block append content 
   //- .main-panel
     include ../partials/header 
@@ -115,7 +86,7 @@ block append content
                                   th.report-th: strong Tot   
                                   th.report-th: strong %
                               tbody(align='right')
-                                tr(pagination-id='allsmarks', dir-paginate="mark in studentsMark|orderBy:name|filter:search|itemsPerPage:n_pages")
+                                tr(pagination-id='allsmarks', dir-paginate="mark in studentsMark|filter:search|itemsPerPage:n_pages")
                                   td.report-td: label.btn-simple.btn-link(ng-click="getOneStudentReport(mark.urn)") {{mark.name|uppercase}}
                                   td {{(mark.test_t1_mark).toFixed(1)}}
                                   td {{(mark.exam_t1_mark).toFixed(1)}}
@@ -487,6 +458,7 @@ block append scripts
                   var term3Pct = Number(dataTerm3[k].total_mark)*100/Number(dataTerm1[i].total_quota);
                   var annualPct = (term1Pct+term2Pct+term3Pct)/3;
                   var annual = Number(dataTerm1[i].total_mark)+Number(dataTerm2[j].total_mark)+Number(dataTerm3[k].total_mark);
+                  //var place1 = dataTerm1.indexOf(String(dataTerm1[i].urn));
                   $scope.studentsMark.push({
                   name:dataTerm1[i].name,
                   urn:dataTerm1[i].urn,

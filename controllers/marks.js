@@ -870,11 +870,17 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 				}
 			});
 			classDetails.push({name:classe_name, a_year:currentAcademicYear})
-			reportData.push({term1:term1_sum,term2:term2_sum, term3:term3_sum, class_info:classDetails, courses:listOfCourses});
+			var mark_t1_sort = term1_sum.sort(studentPlaces)
+			var mark_t2_sort = term2_sum.sort(studentPlaces)
+			var mark_t3_sort = term3_sum.sort(studentPlaces)
+			reportData.push({term1:mark_t1_sort,term2:mark_t2_sort, term3:mark_t3_sort, class_info:classDetails, courses:listOfCourses});
 			//reportData.push({term1:termOne, term2:termTwo, term3:termThree})
 			//console.log('-------------------------(__________)+++++++++++++++++++++++++++++++++++++');
-			//console.log('Report:------->'+JSON.stringify(reportData))
+			console.log('Report:------->'+JSON.stringify(reportData))
 			return res.json(reportData);
 		})
 	}
+}
+function studentPlaces(a, b) {
+	return b.total_mark - a.total_mark;
 }

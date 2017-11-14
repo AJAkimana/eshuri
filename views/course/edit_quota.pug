@@ -203,7 +203,7 @@ block append scripts
 							$scope.test_quota=null;
 							$scope.exam_quota=null;
 							$scope.course_weight=null;
-							Notifier.success("Quotas has been updated")
+							Notifier.success("Quotas has been updated."+$scope.test_quota_old)
 						})
 						.catch(function(erreur){
 							Notifier.danger(erreur.data)

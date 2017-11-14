@@ -282,9 +282,8 @@ exports.getPageEditQuota = (req,res,next)=>{
   if (errors)  return res.render("./lost",{msg:errors[0].msg})
   Course.findOne({_id:req.params.course_id},(err,course_exists)=>{
     if(err) return log_err(err,true,req,res);
-    else if(!course_exists) return res.render("./lost",{msg:"Sorry thsi course doesn't exists"})
-    else if(course_exists.teacher_list.indexOf(String(req.user._id)) ==-1 &&
-     (req.user.access_level >= req.app.locals.access_level.TEACHER))// the course not yours
+    else if(!course_exists) return res.render("./lost",{msg:"Sorry this course doesn't exists"});
+    else if(course_exists.teacher_list.indexOf(String(req.user._id)) ==-1)// the course not yours
         return res.render("./lost",{msg:"Sorry, this course doesn't belong to you"})
     return res.render('course/edit_quota',{
       title:course_exists.name.toUpperCase()+" editing ...",
@@ -308,23 +307,21 @@ exports.updateQuota =(req,res,next)=>{
     return res.status(400).send("Course weight must be the sum of test and exam");
    Course.findOne({_id:req.body.course_id},(err,course_exists)=>{
     if(err) return log_err(err,true,req,res);
-    else if(!course_exists) return res.render("./lost",{msg:"Sorry this course doesn't exists"})
-    else if(course_exists.teacher_list.indexOf(String(req.user._id)) ==-1)
-        return res.render("./lost",{msg:"Sorry this course doesn't belong to you"})
-    console.log(" ON a "+course_exists.teacher_list.indexOf(String(req.user._id)))
-      course_exists.test_quota=req.body.test_quota;
-      course_exists.exam_quota=req.body.exam_quota;
-      course_exists.weightOnReport=req.body.course_weight;
-      course_exists.save((err)=>{
-        if(err) return log_err(err,false,req,res);
-        var reponse = {
-          test_quota:course_exists.test_quota,
-          exam_quota:course_exists.exam_quota,
-          course_weight:course_exists.weightOnReport,
-        };
-        return res.json(reponse);  
-      })
+    else if(!course_exists) return res.render("./lost",{msg:"Sorry this course doesn't exists"});
+    else if(course_exists.teacher_list.indexOf(String(req.user._id)) ==-1) return res.render("./lost",{msg:"Sorry, this course doesn't belong to you"});
+    course_exists.test_quota=req.body.test_quota;
+    course_exists.exam_quota=req.body.exam_quota;
+    course_exists.weightOnReport=req.body.course_weight;
+    course_exists.save((err)=>{
+      if(err) return log_err(err,false,req,res);
+      var reponse = {
+        test_quota:course_exists.test_quota,
+        exam_quota:course_exists.exam_quota,
+        course_weight:course_exists.weightOnReport,
+      };
+      return res.json(reponse);  
     })
+  })
 }
 exports.getListStudentsCourse = (req,res,next)=>{
   req.assert('course_id', 'Invalid data').isMongoId();
