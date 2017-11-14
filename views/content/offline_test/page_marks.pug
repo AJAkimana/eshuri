@@ -31,7 +31,7 @@ block append content
 															td
 																form(ng-submit="setMarks(student._id,student.given_mark)")
 																	.input-group
-																		input.form-control(type="number",required="true",ng-model="student.given_mark",ng-init="student.given_mark? student.marks:0")
+																		input.form-control(type="text",required="true",ng-model="student.given_mark",ng-init="student.given_mark? student.marks:0")
 																		span.input-group-addon 
 																			strong /{{totalMarks}}
 																		span.input-group-addon
