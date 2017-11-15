@@ -683,7 +683,7 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 		if(err) return log_err(err, false, req, res);
 		alterms=allterms;
 		//console.log('term quantity:'+alterms.length)
-		if(alterms.length!=3) return res.status(400).send(classe_name.toUpperCase()+" does not have marks for all terms!");
+		if(alterms.length!=3) return res.status(400).send("This class does not have marks for all terms!");
 		allReportDatasMarks();
 	})
 	
