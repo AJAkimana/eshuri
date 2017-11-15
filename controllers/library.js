@@ -20,7 +20,7 @@ exports.postLibraryFile= (req,res,next)=>{
 		req.assert('level', 'Given level is Invalid').isInt();
 	const errors = req.validationErrors();
 	if (errors) return res.render("./lost",{msg:errors[0].msg})
-	Library.find({title:req.body.title,school_id:req.user.school_id},(err,bookExists)=>{
+	Library.findOne({title:req.body.title,school_id:req.user.school_id},(err,bookExists)=>{
 		if(err){
 			require("fs").unlink(req.file.path,(err)=>{
 			});
