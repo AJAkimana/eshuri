@@ -1,7 +1,7 @@
 /* Fir upload ing files */
 const multer = require('multer'); 
 const MB = 1024*1024;
-const pdfMaxSize =15*MB; // 2 MB
+const pdfMaxSize =16*MB; // 2 MB
 
 /**
  * Different Controllers (route handlers).
