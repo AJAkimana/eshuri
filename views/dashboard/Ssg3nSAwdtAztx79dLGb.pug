@@ -36,9 +36,9 @@ block append content
 													td {{user.level}}
 													td {{user.bookName}}
 													td.td-actions
-														//- a.btn-simple.btn.label.btn-danger(ng-click="deleteSchool(user._id,user.name)")
-														//- 	i.material-icons close
-														//- 	|	Delete {{user.URN}}, {{user.name}}
+														a.btn-simple.btn.label.btn-danger(ng-click="deleteSchool(user._id,user.title)")
+															i.material-icons close
+															|	Delete 
 														//- a.btn-simple.btn.label.btn-danger(ng-click="SetAdim(user._id,user.name)")
 															i.material-icons edit
 															|	Update

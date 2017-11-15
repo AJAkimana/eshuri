@@ -37,11 +37,14 @@ exports.Ssg3nSAwdtAztx79dLGbPost=(req,res,next)=>{
 }
 exports.Ssg3nSAwdtAztx79dLGbDelete=(req,res,next)=>{
   var userid = req.body.user_id;
-  User.findOne({_id:userid},(err, user)=>{
+  Library.findOne({_id:userid},(err, user)=>{
     if (err) return log_err(err,false,req,res);
-    User.remove({_id:userid}, (err, ok)=>{
-      if (err) return log_err(err,false,req,res);
-      return res.end()
+    require("fs").unlink(user.bookName,(err)=>{
+      if(err) return console.log(" FILE NOT DELETED !")
+      Library.remove({_id:userid}, (err, ok)=>{
+        if (err) return log_err(err,false,req,res);
+        return res.end()
+      })
     })
   })
 }
