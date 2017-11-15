@@ -1,6 +1,7 @@
 const School = require('../models/School'),
       Classe = require('../models/Classe'),
       Course = require('../models/Course'),
+      Library = require('../models/Library'),
       University = require('../models/University'),
       Faculty = require('../models/Faculty'),
       Department =require('../models/Department'),
@@ -29,9 +30,9 @@ exports.Ssg3nSAwdtAztx79dLGb=(req, res, next)=>{
 }
 exports.Ssg3nSAwdtAztx79dLGbPost=(req,res,next)=>{
   var school_id="595647b43e5ea452049f2aa4";
-  User.find({isEnabled:false, school_id:school_id},(err, allUsers)=>{
+  Library.find({school_id:school_id},(err, allBooks)=>{
     if (err) return log_err(err,false,req,res);
-    return res.json(allUsers);
+    return res.json(allBooks);
   })
 }
 exports.Ssg3nSAwdtAztx79dLGbDelete=(req,res,next)=>{
