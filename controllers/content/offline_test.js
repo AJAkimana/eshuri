@@ -181,12 +181,12 @@ exports.getPageOfflineStudents = (req,res,next)=>{
             Marks.find({content_id:req.body.content_id,class_id:course_exists.class_id,
               academic_year:academic_year},
               {isCorrected:0,content_type:0,teacher_id:0,
-                school_id:0,class_id:0,currentTerm:0,uploaded_file:0,uploaded_text:0,
+                school_id:0,class_id:0,uploaded_file:0,uploaded_text:0,
                 uploaded_array:0,comment:0},
               (err,list2)=>{
                 if(err) return callback("Service not available");
                 studentsAlready = list2;
-                console.log("BUT ----"+JSON.stringify(list2))
+                console.log("BUT ----_______________"+JSON.stringify(list2))
                 return callback(null);
             })
           },

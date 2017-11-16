@@ -553,7 +553,7 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 		//get term lists
 		Marks.find().distinct("currentTerm", {school_id:req.user.school_id},(err, terms)=>{
 			if (err) return getTermLists(err);
-			termLists = [1,2,3];
+			termLists = terms;
 			Terms.push({Terms:termLists})
 			//console.warn("Terms -=> "+JSON.stringify(termLists));
 			getTermLists(null);
@@ -734,9 +734,9 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 		if(err) return log_err(err, false, req, res);
 		alterms=allterms;
 		console.log('term quantity:'+alterms)
-		//if(alterms.length!=3) return res.status(400).send("This class does not have marks for all terms!");
-		//else
-		allReportDatasMarks();
+		if(alterms.length!=3) return res.status(400).send("This class does not have marks for all terms!");
+		else
+			allReportDatasMarks();
 	})
 	function allReportDatasMarks(){
 		async.series([(getAllStudentsInClass)=>{
@@ -751,7 +751,7 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 				async.series([(getTermLists)=>{
 					Marks.find().distinct("currentTerm", {school_id:req.user.school_id},(err, terms)=>{
 						if (err) return getTermLists(err);
-						termLists = [1,2,3];
+						termLists = terms;
 						//Terms.push({Terms:termLists})
 					//console.warn("Terms -=> "+JSON.stringify(termLists));
 						getTermLists(null);
@@ -861,7 +861,7 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 						}],(err)=>{
 							if(err) return log_err(err,false,req,res);
 
-							console.log("------------------------Term "+thisTerm+"--------------------")
+						//console.log("------------------------Term "+thisTerm+"--------------------")
 							return termsCallback(err)
 							
 						})
