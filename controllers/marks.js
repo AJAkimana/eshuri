@@ -8,22 +8,57 @@ const Content =require('../models/Content'),
 	  log_err=require('./manage/errorLogger');
 
 exports.getPageReport = function(req,res,next){
+	var accLvl = req.user.access_level;
+	var student=req.app.locals.access_level.STUDENT;
+	var admin=req.app.locals.access_level.ADMIN;
+	var adminteacher=req.app.locals.access_level.ADMIN_TEACHER;
 
-  School.findOne({_id:req.user.school_id},(err,school_exists)=>{
-	if(err)return log_err(err,false,req,res);
-	else if(!school_exists) return res.status(400).send("Invalid input");
-	if(req.user.access_level==req.app.locals.access_level.STUDENT){
-		return res.render('me/report2',{
-			title:"Report",
-			term_name:school_exists.term_name,
-			pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
-			csrf_token:res.locals.csrftoken, // always set this buddy
-		});
-	}
-	if(req.user.access_level==req.app.locals.access_level.ADMIN||req.user.access_level==req.app.locals.access_level.ADMIN_TEACHER){
-		//console.log(school_exists.po_box+"_________"+school_exists.phone_number)
-		return 	res.render('me/mark_report',{
+	//var thisUser='';
+
+	School.findOne({_id:req.user.school_id},(err,school_exists)=>{
+		if(err)return log_err(err,false,req,res);
+		else if(!school_exists) return res.status(400).send("Invalid input");
+		if(accLvl==student){
+			return res.render('me/report2',{
+				title:"Report",
+				term_name:school_exists.term_name,
+				pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
+				csrf_token:res.locals.csrftoken, // always set this buddy
+			});
+		}
+		if(accLvl>=admin||accLvl<=adminteacher){
+			//console.log(school_exists.po_box+"_________"+school_exists.phone_number)
+			return 	res.render('me/mark_report',{
+				title:"General marks",
+				school_id:req.user.school_id,
+				school_name:school_exists.name,
+				school_district:school_exists.district_name,
+				school_phone:school_exists.phone_number,
+				school_pob:school_exists.po_box,
+				pic_id:req.user._id,pic_name:req.user.name,access_lvl:req.user.access_level,
+				csrf_token:res.locals.csrftoken, // always set this buddy
+			});
+		}
+	})
+}
+exports.getPageChart = function(req, res, next){
+	return res.render('me/chart')
+}
+exports.getReportPageToTeacher=(req, res, next)=>{
+	var accLvl = req.user.access_level;
+	var teacher=req.app.locals.access_level.TEACHER;
+	var adminteacher=req.app.locals.access_level.ADMIN_TEACHER;
+	//var thisUser='';
+
+	School.findOne({_id:req.user.school_id},(err,school_exists)=>{
+		if(err)return log_err(err,false,req,res);
+		else if(!school_exists) return res.status(400).send("Invalid input");
+		Classe.findOne({school_id:school_exists._id,class_teacher:req.user._id},(err, thisClass)=>{
+			if(err) return log_err(err,false,req,res);
+			else if(!thisClass) return res.render("./lost",{msg:"Sorry, this class is not registered tou. Please contact admin!"});
+			return 	res.render('me/class_report',{
 			title:"General marks",
+			classe:thisClass._id,
 			school_id:req.user.school_id,
 			school_name:school_exists.name,
 			school_district:school_exists.district_name,
@@ -32,11 +67,9 @@ exports.getPageReport = function(req,res,next){
 			pic_id:req.user._id,pic_name:req.user.name,access_lvl:req.user.access_level,
 			csrf_token:res.locals.csrftoken, // always set this buddy
 		});
-	}
-  })
-}
-exports.getPageChart = function(req, res, next){
-	return res.render('me/chart')
+		})
+		
+	})
 }
 exports.getPageReportUniversity = function(req,res,next){
 	req.assert('student_id', 'Invalid input').isMongoId();
@@ -122,20 +155,27 @@ exports.getListTerms =function(req,res,next){
 	req.assert('academic_year', 'Choose the academic year').isInt();
 	const errors = req.validationErrors();
 	if (errors) return res.status(400).send(errors[0].msg);
-	if(req.session.student){
+	var accLvl=req.user.access_level;
+	var teacher=req.app.locals.access_level.TEACHER;
+	var adminteacher=req.app.locals.access_level.ADMIN_TEACHER;
+	var parent=req.app.locals.access_level.PARENT;
+	if(req.session.student)
 		Marks.find().distinct("currentTerm",{student_id:req.session.student._id,
 			academic_year:req.params.academic_year},(err,listTerms)=>{
 			if(err) return log_err(err,false,req,res);
 			return res.json(listTerms);
 		})
-
-	}else{
+	else if(accLvl==parent)
 		Marks.find().distinct("currentTerm",{student_id:req.user._id,
 			academic_year:req.params.academic_year},(err,listTerms)=>{
 			if(err) return log_err(err,false,req,res);
 			return res.json(listTerms);
 		})
-	}
+	else
+		Marks.find().distinct("currentTerm",{academic_year:req.params.academic_year},(err,listTerms)=>{
+			if(err) return log_err(err,false,req,res);
+			return res.json(listTerms);
+		})
 }
 exports.getClassListTerms =function(req,res,next){
 	req.assert('academic_year', 'Choose the academic year').isInt();
@@ -308,8 +348,15 @@ exports.getClassMarks =function(req,res,next){
 
 
 exports.getReport_JSON =(req,res,next)=>{
+	var accLvl=req.user.access_level;
+	var teacher=req.app.locals.access_level.TEACHER;
+	var adminteacher=req.app.locals.access_level.ADMIN_TEACHER;
+	var parent=req.app.locals.access_level.PARENT;
 	req.assert('currentTerm', 'Choose the term').isInt();
 	req.assert('academic_year', 'Choose the academic year please').isInt();
+	// if(accLvl==teacher||accLvl==adminteacher)
+	// 	req.assert('student_id', 'Invalid data').isEmpty();
+	console.log('Students: '+JSON.stringify(req.body.student))
 	const errors = req.validationErrors();
 	if (errors) return res.status(400).send(errors[0].msg);
 
@@ -319,9 +366,14 @@ exports.getReport_JSON =(req,res,next)=>{
 	var theUser
 	if(req.session.student){
 		theUser=req.session.student
-	}else{
+	}
+	else if(accLvl==teacher||accLvl==adminteacher){
+		theUser=req.body.student
+	}
+	else{
 		theUser=req.user
 	}
+	
 	/* GET IN FIRST PLACE THE CONTENT LIST for this course,academic year and this student and this class*/
 	var async = require("async");
 
@@ -671,7 +723,6 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 	//*****************************************************************
 		// All arrays variables
 	//*****************************************************************
-
 	var async = require('async');
 	Classe.findOne({_id:thisClass},{name:1,},(err, class_details)=>{
 		if(err) return log_err(err, false, req, res);
@@ -684,9 +735,9 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 		alterms=allterms;
 		//console.log('term quantity:'+alterms.length)
 		if(alterms.length!=3) return res.status(400).send("This class does not have marks for all terms!");
-		allReportDatasMarks();
+		else
+			allReportDatasMarks();
 	})
-	
 	function allReportDatasMarks(){
 		async.series([(getAllStudentsInClass)=>{
 			User.find({class_id:thisClass,access_level:req.app.locals.access_level.STUDENT},{_id:1,name:1,class_id:1, URN:1},(error, student_list)=>{

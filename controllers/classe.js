@@ -185,18 +185,56 @@ exports.setClassTeacher =function(req,res,next){ // D
   req.assert('class_id', 'Invalid class').isMongoId();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
-
+  var allClasses=[],selectedClasses=[];
+  var newClass='';
+  var async = require('async');
   School.findOne({_id:req.user.school_id},(err,school_exists)=>{
     if(err) return log_err(err,false,req,res);
     else if(!school_exists)  return res.status(400).send("School not recognized");
     Classe.findOne({_id:req.body.class_id,school_id:req.user.school_id},(err,class_exists)=>{
       if(err) return log_err(err,false,req,res);
       else if(!class_exists) return res.status(400).send("Invalid data");
+      //else if(class_exists.class_teacher) return res.status(400).send("Invalid data");
       class_exists.class_teacher =req.body.teacher_id;
       class_exists.save((err)=>{
         if(err) return log_err(err,false,req,res);
         return res.end();
       })
     })
+    // Classe.find({school_id:school_exists._id},(err, classes)=>{
+    //   if(err) return log_err(err,false,req,res);
+    //   allClasses=classes;
+      
+    //   async.series([(eachClassCallBack)=>{
+    //     async.each(allClasses,(thisClasse, classeCallback)=>{
+    //       if(req.body.teacher_id==thisClasse.class_teacher){
+    //         console.log(' DATA is '+(thisClasse.name));
+    //         classeCallback(null);
+    //       }
+    //       else{
+    //         selectedClasses.push({id:thisClasse._id,name:thisClasse.name,cteacher:thisClasse.class_teacher});
+    //         newClass=thisClasse._id
+    //         classeCallback(null);
+    //       }
+    //     },(err)=>{
+    //       return eachClassCallBack(err);
+    //     })
+    //   }],(err)=>{
+    //     //if (err) return eachClassCallBack(err)
+    //     if(selectedClasses.length==1){
+    //       Classe.findOne({_id:req.body.class_id,school_id:req.user.school_id},(err,class_exists)=>{
+    //         if(err) return log_err(err,false,req,res);
+    //         class_exists.class_teacher =req.body.teacher_id;
+    //         class_exists.save((err)=>{
+    //           if(err) return log_err(err,false,req,res);
+    //           return res.end();
+    //         })
+    //       })
+    //     }
+    //     else{
+    //       res.status(400).send('This teacher is CLASS TEACHER in '+selectedClasses.length)
+    //     }
+    //   })
+    // })
   }) 
 }

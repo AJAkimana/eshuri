@@ -1,0 +1,254 @@
+extends ../layout
+block append scripts
+  script(src="../js/MIT/jquery.select-bootstrap.js",type="application/javascript")
+block append content 
+  //- .main-panel
+    include ../partials/header 
+  .wrapper.wrapper-full-page.full-page-background(ng-controller="reportCtrl",style="background-image: url('../imgs/register.jpeg')")
+    .full-page.login-page
+      .content
+        .container-fluid
+          .row
+            .col-md-6.center
+              .card(ng-show="!show_report")
+                .card-header.card-header-icon(data-background-color="rose")
+                  i.material-icons school
+                .card-content
+                  h4.card-title Complete the parameters to generate the report
+                  .row
+                    .col-md-6
+                      .form-group.label-floating
+                        label.control-label Choose the academic year
+                        select.form-control(required="true",ng-model="choosen_year",ng-change="getListTerms()")
+                          option(value="", disabled selected)
+                          option(value="{{umwaka}}", ng-repeat="umwaka in academic_years") {{umwaka|toNormal}}
+                    .col-md-6
+                      .form-group.label-floating
+                        label.control-label Choose the {{term_name|toTermName}}
+                        select.form-control(required="true",ng-model="choosen_term")
+                          option(value="", disabled selected)
+                          option(value="{{term}}", ng-repeat="term in list_terms") {{term_name|toTermName}} {{term}}    
+            .col-md-10.center(ng-show="show_student")
+              .card
+                .card-header.card-header-icon(data-background-color="rose")
+                  i.material-icons person
+                .card-content
+                  h1.card-title List of students
+                  h3.category.text-center(ng-show ="!students.length") No student in this class
+                  .table-responsive(ng-show ="students.length")
+                    form.form-inline
+                      .form-group.pull-left
+                        strong Show
+                        select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
+                          option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
+                        strong entries
+                      .form-group.pull-right
+                        input.form-control(type='text', ng-model='search', placeholder='Search')
+                    table.table
+                      thead
+                        th.text-center #
+                        th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Name
+                        th: a.btn-simple.btn.label.btn-rose(ng-click="a='URN';b=!b") URN
+                        th Actions
+                      tbody
+                        tr(pagination-id="allstudents", dir-paginate="student in students|orderBy:a:b|filter:search|itemsPerPage:n_pages")
+                          td(width="1%" height="1%") {{$index + 1}}
+                          td {{student.name|uppercase}}
+                          td {{student.URN|uppercase}}
+                          td.td-actions
+                            a.btn-simple.btn.btn-primary(ng-click="getReport(student, choosen_year,choosen_term)") View report
+                    dir-pagination-controls.pull-right(pagination-id='allstudents', max-size='5', direction-links='true', boundary-links='true')
+            .col-md-10.center(ng-show="reports.length&&show_report")
+              .card
+                .card-header.card-header-icon(data-background-color="rose")
+                  i.material-icons report
+                .card-content
+                  button.btn-simple.btn-rose(ng-click="getBack()") Get back
+                  br
+                  br
+                  br
+                  .col-md-8.center
+                    .surround(style="width:100%;height:100px;")
+                      .col-md-6
+                        h6 General Report for <strong>{{user_academic_year}}</strong>
+                      .col-md-6
+                        h6.pull-right Name: <strong>{{user_name}}</strong> <strong>{{user_URN}}</strong>
+                      .col-md-12
+                        h3.text-center REPORT
+                    br
+                    br
+                  .col-md-12(ng-repeat="report in reports")
+                    .co-md-12
+                      h4.text-center Student perfomances during {{term_name|toTermName}} {{report.term_num}}
+                    .col-md-12
+                      .surround.surround-perfect
+                        table.table.table-condensed.table-striped.table-bordered
+                          thead
+                            tr
+                              th(rowspan='3') CODE
+                            tr
+                              th(colspan='3',style='text-align:center;font-weight: bold;').cell-report MAX POINTS
+                              th(colspan='3').cell-report {{term_name|toTermName}} {{report.term_num}}
+                            tr(align='center')
+                              th(style='text-align:center;font-weight: bold;') TEST
+                              th(style='text-align:center;font-weight: bold;') EXAM 
+                              th(style='text-align:center;font-weight: bold;') TOTAL 
+                              th TEST
+                              th EXAM 
+                              th TOTAL 
+                          tbody(ng-repeat="note in report.marks")
+                            tr
+                              td {{note.code|uppercase}}
+                              td(style='text-align:center;font-weight: bold;') {{note.test_quota}}
+                              td(style='text-align:center;font-weight: bold;') {{note.exam_quota}}
+                              td(style='text-align:center;font-weight: bold;') {{note.course_weight}}
+                              td {{(note.test).toFixed(1)}}
+                              td {{(note.exam).toFixed(1)}}
+                              td {{(note.total).toFixed(1)}}
+                          tfoot
+                            tr
+                              th(style='text-align:center;font-weight: bold;') Total
+                              th(style='text-align:center;font-weight: bold;') {{qtest}}
+                              th(style='text-align:center;font-weight: bold;') {{qexam}}
+                              th(style='text-align:center;font-weight: bold;') {{qtotal}}
+                              th(style='text-align:center;font-weight: bold;') {{tottest.toFixed(1)}}
+                              th(style='text-align:center;font-weight: bold;') {{totexam.toFixed(1)}}
+                              th(style='text-align:center;font-weight: bold;') {{tottotal.toFixed(1)}}
+                    .col-md-12
+                      .col-md-6
+                        .ct-chart.ct-octave(id="{{'term_'+$index}}")
+                      .col-md-6
+                        .card-title Code HINTS
+                        .col-md-12(ng-repeat="report in reports")
+                          .details.center(ng-repeat="note in report.marks")
+                            p <strong>{{note.code|uppercase}}</strong> = {{note.name|uppercase}} 
+                            //
+                               |Tests: {{note.test_quota}}, Exams: {{note.exam_quota}}
+                  h1
+                  a.btn-simple.btn.label.btn-rose.pull-right Generated by eShuri
+block append scripts
+  script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+  script(src="../js/chartist.min.js",type="application/javascript")
+  script.
+    var app =angular.module('eshuri_App', ['ngRoute', 'angularUtils.directives.dirPagination']);
+    app
+    .filter('toNormal', function() {
+      return function(input){
+        return Number(input)+Number(2000)
+      }
+    })
+    .filter('toTermName', function() {
+      return function(input){
+        return input=='S'?'Semester':'Term'
+      }
+    })
+    .filter('toPaid', function(){
+      return (input)=>{
+        return input ? "YES":"NO";
+      }     
+    })
+    .filter('toURL', function() {
+      return function(input){
+        return input?'Enabled':'Disabled'
+      }
+    })
+    .controller('reportCtrl', function($scope, $http,$window){
+    
+      $scope.getAcademicYearsList = function(){
+        $http
+        .get("/class.academic_years/#{classe}")
+        .then(function(response){
+          $scope.academic_years= response.data;
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data)
+        });
+      };
+      $scope.getListTerms = function(){
+        $http
+        .get("/student.get.terms/"+$scope.choosen_year)
+        .then(function(response){
+          $scope.list_terms= response.data;
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data)
+        }); 
+      }
+      $scope.getBack=function(){
+        $scope.show_report=false;
+        $scope.show_student=true;
+      }
+      $scope.getReport = function(student, year, term){
+        if(!year||!term) return;
+        $scope.show_student=false;
+        $scope.show_report=true;
+        $http
+        .post("/report.university/",{student:student,currentTerm:term,academic_year:year})
+        .then(function(response){
+          $scope.user_name=student.name;
+          $scope.reports= response.data;
+          //alert(" -->"+JSON.stringify($scope.reports))
+          var labels =[];
+          var series =[];
+          $scope.qtest=0,$scope.qexam=0,$scope.qtotal=0,$scope.tottest=0,$scope.totexam=0,$scope.tottotal=0;
+          for(var i=0;i<$scope.reports.length;i++){
+            labels[i]=[];
+            series[i]=[];
+            //console.log(" NOw i am on "+$scope.reports[i].marks.length)
+            for(var j=0; j<$scope.reports[i].marks.length;j++){
+              labels[i].push($scope.reports[i].marks[j].code.toUpperCase())
+              series[i].push($scope.reports[i].marks[j].total);
+              $scope.qtest+=$scope.reports[i].marks[j].test_quota;
+              $scope.qexam+=$scope.reports[i].marks[j].exam_quota;
+              $scope.qtotal+=$scope.reports[i].marks[j].course_weight;
+
+              $scope.tottest+=$scope.reports[i].marks[j].test;
+              $scope.totexam+=$scope.reports[i].marks[j].exam;
+              $scope.tottotal+=$scope.reports[i].marks[j].total;
+            }
+          }
+          console.log(" Test: "+$scope.qtest+" Exam: "+$scope.qexam+" Total: "+$scope.qtotal)
+          setTimeout(function(){
+            for(var x =0;x<labels.length;x++){
+              new Chartist.Bar('#term_0', {
+                labels: labels[x],
+                series: series[x]
+              }, {
+                axisY:{
+                  high:100,
+                  low:0,
+                },
+                distributeSeries: true
+              });
+            }
+          },100)
+
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data)
+        }); 
+      }
+      $scope.getstudentList = function(){
+        $http
+        .post("/school.students.list",{_csrf:$scope.csrf_token,class_id:'#{classe}'})
+        .then(function(response){
+          $scope.students=response.data;
+          //- console.log("______________Students:"+JSON.stringify($scope.students))
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data)
+        }); 
+      } 
+      $scope.getstudentList();
+      $scope.term_name="#{term_name}";
+      //$scope.user_name ="#{student_name}";
+      $scope.show_report=false;
+      $scope.show_student=true;
+      $scope.user_class= "S4MCE";
+      $scope.term_name ="#{term_name}";
+      $scope.user_academic_year="#{academic_year}";
+      $scope.user_URN ="#{student_URN}";
+      $scope.user_semester=4;
+
+      $scope.getAcademicYearsList();
+    })

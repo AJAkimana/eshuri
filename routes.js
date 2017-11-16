@@ -434,6 +434,7 @@ module.exports = function(app) {
 	app.post('/content.offline.undo_marks',isAtLeastTeacher,offlineController.undoMarksStudent);
 
 	app .get('/report',isAuthenticated, marksController.getPageReport);
+	app.get('/report.teacher', isAbsoluteTeacher, marksController.getReportPageToTeacher)
 	app .get('/chart',isAuthenticated, marksController.getPageChart);
 	app .get('/report/:student_id',isAuthenticated, marksController.getPageReportUniversity);
 	app.post('/report.university',isAuthenticated,marksController.getReport_JSON);

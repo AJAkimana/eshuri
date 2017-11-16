@@ -557,8 +557,7 @@ exports.getStudentsList = (req,res,next)=>{
   const errors = req.validationErrors();
   if(errors) return res.status(400).send(errors[0].msg);
   User.find({class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT},
-  {__v:0,password:0,gender:0,
-      class_id:0,school_id:0,isValidated:0,upload_time:0,updatedAt:0}).sort({name:1}).exec((err,students_list)=>{
+  {__v:0,password:0,gender:0,isValidated:0,upload_time:0,updatedAt:0}).sort({name:1}).exec((err,students_list)=>{
     if(err) return log_err(err,false,req,res);
     //console.log('STUD LIS'+req.body.class_id);
     return res.json(students_list);
