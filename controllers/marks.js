@@ -55,7 +55,7 @@ exports.getReportPageToTeacher=(req, res, next)=>{
 		else if(!school_exists) return res.status(400).send("Invalid input");
 		Classe.findOne({school_id:school_exists._id,class_teacher:req.user._id},(err, thisClass)=>{
 			if(err) return log_err(err,false,req,res);
-			else if(!thisClass) return res.render("./lost",{msg:"Sorry, this class is not registered tou. Please contact admin!"});
+			else if(!thisClass) return res.render("./lost",{msg:"Sorry, you are not CLASS TEACHER. Please contact admin!"});
 			return 	res.render('me/class_report',{
 			title:"General marks",
 			classe:thisClass._id,

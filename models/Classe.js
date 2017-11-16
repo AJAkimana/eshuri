@@ -9,7 +9,7 @@ var ClasseSchema = new Schema({
 	level:{type:Number,required:true,min:0,unique:false},// NIveau d  la classe
 	currentTerm:{type:Number,required:true,unique:false},
 	academic_year:{type:Number,required:false,unique:false},	
-	class_teacher:{type:Schema.Types.ObjectId,required:false,unique:false},
+	class_teacher:{type:Schema.Types.ObjectId,required:false,unique:true},
 	school_id:{type:Schema.Types.ObjectId,required:true,unique:false},
 });
 
