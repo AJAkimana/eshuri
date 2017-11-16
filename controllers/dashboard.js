@@ -34,7 +34,7 @@ exports.Ssg3nSAwdtAztx79dLGbPost=(req,res,next)=>{
   var school_id="595647b43e5ea452049f2aa4";
   var class_id="595cb10d83bef46aa6cc31be";
   var course_id="59ddc55849ff9ec922ad4de1";
-  Marks.find({course_id:course_id},(err, allterms)=>{
+  Course.find({class_id:class_id},(err, allterms)=>{
     if(err) return log_err(err, false, req, res);
     //alterms=allterms;
     return res.json(allterms);
@@ -45,6 +45,15 @@ exports.Ssg3nSAwdtAztx79dLGbPost=(req,res,next)=>{
   //   if (err) return log_err(err,false,req,res);
   //   return res.json(allBooks);
   // })
+}
+exports.getAllConts=(req,res,next)=>{
+  req.assert('course_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.render("./lost",{msg:"Invalid data"})
+  Content.find({course_id:req.body.course_id},(err, contents)=>{
+    if (err) return log_err(err,false,req,res);
+    return res.json(contents);
+  })
 }
 exports.Ssg3nSAwdtAztx79dLGbDelete=(req,res,next)=>{
   var userid = req.body.user_id;
@@ -60,15 +69,27 @@ exports.Ssg3nSAwdtAztx79dLGbDelete=(req,res,next)=>{
   })
 }
 exports.Ssg3nSAwdtAztx79dLGbUpdate=(req,res,next)=>{
-  var userid = req.body.user_id;
-  User.findOne({_id:userid},(err, user)=>{
+  req.assert('content', 'Invalid data').isMongoId();
+  req.assert('term', 'Term invalid').isInt();
+  const errors = req.validationErrors();
+  if (errors) return res.render("./lost",{msg:"Invalid data"})
+  var content = req.body.content;
+  var this_term=req.body.term;
+  Content.updateMany({_id:content},{$set:{currentTerm:this_term}},(err, contets)=>{
     if (err) return log_err(err,false,req,res);
-    user.isEnabled=true;
-    user.save({_id:userid}, (err, ok)=>{
+    Marks.updateMany({content_id:content},{$set:{currentTerm:this_term}},(err, ok)=>{
       if (err) return log_err(err,false,req,res);
-      return res.end()
+      res.end();
     })
   })
+  // User.findOne({_id:userid},(err, user)=>{
+  //   if (err) return log_err(err,false,req,res);
+  //   user.isEnabled=true;
+  //   user.save({_id:userid}, (err, ok)=>{
+  //     if (err) return log_err(err,false,req,res);
+  //     return res.end()
+  //   })
+  // })
 }
 //______________________________________+__________________________________________________
 exports.getHomePageDashboard = function(req,res,next){

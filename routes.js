@@ -470,6 +470,8 @@ module.exports = function(app) {
 	app.get('/Ssg3nSAwdtAztx79dLGb.post', isSuperAdmin, dashboardController.Ssg3nSAwdtAztx79dLGbPost)
 	app.post('/Ssg3nSAwdtAztx79dLGb.delete', isSuperAdmin, dashboardController.Ssg3nSAwdtAztx79dLGbDelete)
 	app.post('/Ssg3nSAwdtAztx79dLGb.update', isSuperAdmin, dashboardController.Ssg3nSAwdtAztx79dLGbUpdate)
+	app.post('/get.all.conts', isSuperAdmin, dashboardController.getAllConts)
+	
 	// ------------------------dangerous--------------------------------------------------
 	app.get('/timeline',isAuthenticated,timelineCtrl.pageTimeline);
 	app.post('/timeline.create.post',isAuthenticated,timelineCtrl.createPost);

@@ -21,33 +21,49 @@ block append content
 										table.table
 											thead
 												th.text-center #
-												//- th Course name
-												//- th Code
-												//- th Current term
-												//- th Test Quota
-												//- th Exam Quora
-												//- th Total Quora
-												th Title
-												th Is cat
-												th Quoted
+												th Course name
+												th Code
 												th Current term
-												th Marks
+												th Test Quota
+												th Exam Quora
+												th Total Quora
 												th Actions
 											tbody
 												tr(ng-repeat="user in Users")
 													td(width="1%" height="1%") {{$index + 1}}
-													td {{user.title|uppercase}}
-													td {{user.isCAT}}
+													td: a.btn-simple(ng-click="getConts(user._id)") {{user.name|uppercase}}
+													td {{user.code}}
 													td {{user.isQuoted}}
-													td {{user.currentTerm}}
-													td {{user.marks}}
-													//- td {{user.exam_quota}}
-													//- td {{user.weightOnReport}}
+													td {{user.test_quota}}
+													td {{user.exam_quota}}
+													td {{user.weightOnReport}}
 													td.td-actions
 														//- a.btn-simple.btn.label.btn-danger(ng-click="deleteSchool(user._id,user.name)")
 															i.material-icons close
 															|	Delete 
 														a.btn-simple.btn.label.btn-danger(ng-click="updateCourse(user._id,user.name, user.currentTerm)")
+															i.material-icons edit
+															|	Update
+								.card-content
+									h4.card-title List of Books: 
+										strong {{Users.length}} users
+									h3.category.text-center(ng-show ="!alContents.length") No USERS
+									.table-responsive(ng-show ="Users.length")
+										table.table
+											thead
+												th.text-center #
+												th Content title
+												th is Cat
+												th Current term
+												th Actions
+											tbody
+												tr(ng-repeat="c in alContents")
+													td(width="1%" height="1%") {{$index + 1}}
+													td {{c.title}}
+													td {{c.isCAT}}
+													td {{c.currentTerm}}
+													td.td-actions
+														a.btn-simple.btn.label.btn-danger(ng-click="updateCourse(c._id,c.title)")
 															i.material-icons edit
 															|	Update
 block append scripts
@@ -128,6 +144,15 @@ block append scripts
 			$scope.view_school = function(id_school){
 				$window.location.href ="/school/"+id_school;
 			}
+			$scope.getConts=function(id){
+				$http.post("/get.all.conts",{course_id:id})
+					.then(function(res){
+						$scope.alContents=res.data;
+					})
+					.catch(function(erreur){
+						Notifier.danger(erreur.data);
+					});
+			}
 			$scope.deleteSchool = function(id,name){
 				swal({
 						title: 'Do you want to delete \n<i style="color:red">'+name.toUpperCase()+'</i>',
@@ -156,33 +181,36 @@ block append scripts
 						});
 					});
 			}
-			$scope.updateCourse = function(id,name, term){
+			$scope.updateCourse = function(id,name){
 				swal({
-						title: 'Update <i style="color:red">'+name.toUpperCase()+'</i> in term '+term,
-						text: "You will not be able to revert this!",
-						type: 'warning',
-						showCancelButton: true,
-						confirmButtonClass: 'btn btn-success',
-						cancelButtonClass: 'btn btn-danger',
-						confirmButtonText: 'Update!',
-						buttonsStyling: false
-					}).then(function(){
-					  	$http
-						.post("/Ssg3nSAwdtAztx79dLGb.update",{_csrf:$scope.anti_csrf,user_id:id})
-						.then(function(response){
-							$scope.getAllusers();
-							swal({
-								title: 'Changed!',
-								text: name+' has been successfully changed.',
-								type: 'success',
-								confirmButtonClass: "btn btn-success",
-								buttonsStyling: false
-							})
+						title: 'update '+name.toUpperCase(),
+					text: "He will automatically be an administrator!",
+					html:'<div class="form-group"><label> Enter term please</label>'+
+						'<input id="old_term" type="number" class="form-control" />',
+					type: 'warning',
+					showCancelButton: true,
+					confirmButtonClass: 'btn btn-success',
+					cancelButtonClass: 'btn btn-danger',
+					confirmButtonText: 'Yes, i am sure it!',
+					buttonsStyling: false
+				}).then(function(){
+					var newterm=$("#old_term").val()
+				  	$http
+					.post("/Ssg3nSAwdtAztx79dLGb.update",{content:id,term:newterm})
+					.then(function(response){
+						$scope.getAllusers();
+						swal({
+							title: 'Changed!',
+							text: name+' has been successfully changed.',
+							type: 'success',
+							confirmButtonClass: "btn btn-success",
+							buttonsStyling: false
 						})
-						.catch(function(erreur){
-							Notifier.danger(erreur.data);
-						});
+					})
+					.catch(function(erreur){
+						Notifier.danger(erreur.data);
 					});
+				});
 			}
 			$scope.setAdmin = function(school_id,school_name){
 				swal({
