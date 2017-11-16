@@ -96,9 +96,9 @@ block append content
                               th TEST
                               th EXAM 
                               th TOTAL 
-                          tbody(ng-repeat="note in report.marks")
+                          tbody(ng-repeat="note in report.marks|orderBy:name")
                             tr
-                              td {{note.code|uppercase}}
+                              td(style='text-align:left;') {{note.name|uppercase}}
                               td(style='text-align:center;font-weight: bold;') {{note.test_quota}}
                               td(style='text-align:center;font-weight: bold;') {{note.exam_quota}}
                               td(style='text-align:center;font-weight: bold;') {{note.course_weight}}
