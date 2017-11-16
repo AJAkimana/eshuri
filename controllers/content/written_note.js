@@ -151,8 +151,8 @@ exports.setCAT = (req,res,next)=>{
   Content.findOne({_id:req.body.content_id},(err,content_exists)=>{
     if(err) return log_err(err,false,req,res);
     else if(!content_exists) return res.status(400).send("Invalid data");
-    else if(String(content_exists.owner_URN) !=String(req.user.URN))
-     return res.status(400).send("This is not your course ;)");
+    // else if(String(content_exists.owner_URN) !=String(req.user.URN))
+    //  return res.status(400).send("This is not your course ;)");
     content_exists.isCAT =!content_exists.isCAT;    
     // Update first the MARKS before CONTENT
     Marks.update({content_id:req.body.content_id},{$set:{isCAT:content_exists.isCAT}},{multi:true},
