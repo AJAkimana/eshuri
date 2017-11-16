@@ -512,8 +512,8 @@ block append scripts
                 if(dataTerm1[i].name == dataTerm2[j].name && dataTerm2[j].name == dataTerm3[k].name){
                   if(dataTerm1[i].name!='conduite'){
                     var anualQuota = Number(dataTerm1[i].course_q)+Number(dataTerm2[j].course_q)+Number(dataTerm3[k].course_q);
-                    var anualPct = (anualMark*100)/anualQuota
                     var anualMark = Number(dataTerm1[i].total)+Number(dataTerm2[j].total)+Number(dataTerm3[k].total);
+                    var anualPct = (anualMark*100)/anualQuota;
                     $scope.studentMark.push({
                       name:dataTerm1[i].name,
                       test_quota:dataTerm1[i].test_q,
