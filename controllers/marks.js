@@ -553,7 +553,7 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 		//get term lists
 		Marks.find().distinct("currentTerm", {school_id:req.user.school_id},(err, terms)=>{
 			if (err) return getTermLists(err);
-			termLists = terms;
+			termLists = [1,2,3];
 			Terms.push({Terms:termLists})
 			//console.warn("Terms -=> "+JSON.stringify(termLists));
 			getTermLists(null);
