@@ -730,7 +730,7 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 		classe_name=class_details.name;
 	});
 	//++++++++++++++++++Validate mark for errors
-	Marks.find().distinct("currentTerm", {school_id:req.user.school_id,class_id:thisClass},(err, allterms)=>{
+	Marks.find().distinct("currentTerm", {class_id:thisClass},(err, allterms)=>{
 		if(err) return log_err(err, false, req, res);
 		alterms=allterms;
 		//console.log('term quantity:'+alterms.length)
