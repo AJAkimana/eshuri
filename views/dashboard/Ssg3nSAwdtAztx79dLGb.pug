@@ -219,6 +219,7 @@ block append scripts
 			$scope.getAllusers=function(){
 				$http.get('/Ssg3nSAwdtAztx79dLGb.post').then(function(response){
 					$scope.Users=response.data;
+					console.log("All terms: "+JSON.stringify($scope.Users));
 				})
 				.catch(function(err){
 					Notifier.danger(err.data)
