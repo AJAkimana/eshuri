@@ -150,6 +150,7 @@ block append content
                                       table.table
                                         tr(ng-repeat="user in userInfo")
                                           td(width="40%")
+
                                             p: strong
                                               | Ministry of Education
                                               br
@@ -174,12 +175,14 @@ block append content
                                     td(colspan='2', style='text-align:left;')
                                       .col-md-12
                                         center
+                                          .avatar-big.center
+                                            img#profil_pic(src="/school.profile/"+school_id,)
                                           h3
                                             strong STUDENT'S PROGRESSIVE REPORT
                                           strong 2017 ANNUAL REPORT
                                   tr
                                     td(colspan='2', align='left',style="text-align:left;")
-                                      table.table.table-condensed.table-striped.table-bordered
+                                      table.table.table-condensed.table-bordered
                                         thead
                                           tr(print-remove)
                                             th(rowspan='3')
