@@ -1,6 +1,7 @@
 const School = require('../models/School'),
       Classe = require('../models/Classe'),
       Course = require('../models/Course'),
+      Content =require('../models/Content'),
       Library = require('../models/Library'),
       Marks =require('../models/MARKS'),
       University = require('../models/University'),
@@ -30,9 +31,10 @@ exports.Ssg3nSAwdtAztx79dLGb=(req, res, next)=>{
   })
 }
 exports.Ssg3nSAwdtAztx79dLGbPost=(req,res,next)=>{
-  var school_id="59f9f203166cd906eb19982f";
+  var school_id="595647b43e5ea452049f2aa4";
   var class_id="595cb10d83bef46aa6cc31be";
-  Marks.find().distinct("currentTerm", {class_id:class_id},(err, allterms)=>{
+  var course_id="59ddc55849ff9ec922ad4de1";
+  Marks.find({course_id:course_id},(err, allterms)=>{
     if(err) return log_err(err, false, req, res);
     //alterms=allterms;
     return res.json(allterms);

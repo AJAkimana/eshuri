@@ -215,10 +215,10 @@ block append content
                                           tr
                                             td(style='font-weight: bold; background: #e3e7ed; text-align:left;') CONDUCT
                                             td(colspan='3', style='text-align:center;font-weight: bold;background: #CCC') 40
-                                            td(colspan='3') 
-                                            td(colspan='3') 
-                                            td(colspan='3') 
-                                            td(colspan='3') 
+                                            td(colspan='3') {{conduite_t1}}
+                                            td(colspan='3') {{conduite_t2}}
+                                            td(colspan='3') {{conduite_t3}}
+                                            td(colspan='3') {{conduite_t}}
                                           tr(ng-repeat="mark in studentMark|orderBy:'-course_quota'")
                                             td(style='font-weight: bold; background: #e3e7ed; text-align:left;')
                                               | {{mark.name|uppercase}}
@@ -510,41 +510,49 @@ block append scripts
             for(var j=0; j<dataTerm2.length; j++){
               for(var k=0; k<dataTerm3.length; k++){
                 if(dataTerm1[i].name == dataTerm2[j].name && dataTerm2[j].name == dataTerm3[k].name){
-                  var anualQuota = Number(dataTerm1[i].course_q)+Number(dataTerm2[j].course_q)+Number(dataTerm3[k].course_q);
-                  var anualMark = Number(dataTerm1[i].total)+Number(dataTerm2[j].total)+Number(dataTerm3[k].total);
-                  var anualPct = (anualMark*100)/anualQuota
-                  $scope.studentMark.push({
-                    name:dataTerm1[i].name,
-                    test_quota:dataTerm1[i].test_q,
-                    exam_quota:dataTerm1[i].exam_q,
-                    course_quota:dataTerm1[i].course_q,
-                    testTerm1:dataTerm1[i].test,
-                    examTerm1:dataTerm1[i].exam,
-                    totalTerm1:dataTerm1[i].total,
-                    testTerm2:dataTerm2[j].test,
-                    examTerm2:dataTerm2[j].exam,
-                    totalTerm2:dataTerm2[j].total,
-                    testTerm3:dataTerm3[k].test,
-                    examTerm3:dataTerm3[k].exam,
-                    totalTerm3:dataTerm3[k].total,
-                    anualQuotaTotal:anualQuota,
-                    anualMarkTotal:anualMark,
-                    anualMarkPct:anualPct,
-                  });
-                  $scope.qTest+=dataTerm1[i].test_q;
-                  $scope.qExam+=dataTerm1[i].exam_q;
-                  $scope.qtotal+=dataTerm1[i].course_q;
-                  $scope.testT1+=dataTerm1[i].test;
-                  $scope.ExamT1+=dataTerm1[i].exam;
-                  $scope.totalT1+=dataTerm1[i].total;
-                  $scope.testT2+=dataTerm2[j].test;
-                  $scope.ExamT2+=dataTerm2[j].exam;
-                  $scope.totalT2+=dataTerm2[j].total;
-                  $scope.testT3+=dataTerm3[k].test;
-                  $scope.ExamT3+=dataTerm3[k].exam;
-                  $scope.totalT3+=dataTerm3[k].total;
-                  $scope.yQuotaTotal+=anualQuota;
-                  $scope.mQuotaTotal+=anualMark;
+                  if(dataTerm1[i].name!='conduite'){
+                    var anualQuota = Number(dataTerm1[i].course_q)+Number(dataTerm2[j].course_q)+Number(dataTerm3[k].course_q);
+                    var anualPct = (anualMark*100)/anualQuota
+                    var anualMark = Number(dataTerm1[i].total)+Number(dataTerm2[j].total)+Number(dataTerm3[k].total);
+                    $scope.studentMark.push({
+                      name:dataTerm1[i].name,
+                      test_quota:dataTerm1[i].test_q,
+                      exam_quota:dataTerm1[i].exam_q,
+                      course_quota:dataTerm1[i].course_q,
+                      testTerm1:dataTerm1[i].test,
+                      examTerm1:dataTerm1[i].exam,
+                      totalTerm1:dataTerm1[i].total,
+                      testTerm2:dataTerm2[j].test,
+                      examTerm2:dataTerm2[j].exam,
+                      totalTerm2:dataTerm2[j].total,
+                      testTerm3:dataTerm3[k].test,
+                      examTerm3:dataTerm3[k].exam,
+                      totalTerm3:dataTerm3[k].total,
+                      anualQuotaTotal:anualQuota,
+                      anualMarkTotal:anualMark,
+                      anualMarkPct:anualPct,
+                    });
+                    $scope.qTest+=dataTerm1[i].test_q;
+                    $scope.qExam+=dataTerm1[i].exam_q;
+                    $scope.qtotal+=dataTerm1[i].course_q;
+                    $scope.testT1+=dataTerm1[i].test;
+                    $scope.ExamT1+=dataTerm1[i].exam;
+                    $scope.totalT1+=dataTerm1[i].total;
+                    $scope.testT2+=dataTerm2[j].test;
+                    $scope.ExamT2+=dataTerm2[j].exam;
+                    $scope.totalT2+=dataTerm2[j].total;
+                    $scope.testT3+=dataTerm3[k].test;
+                    $scope.ExamT3+=dataTerm3[k].exam;
+                    $scope.totalT3+=dataTerm3[k].total;
+                    $scope.yQuotaTotal+=anualQuota;
+                    $scope.mQuotaTotal+=anualMark;
+                  }
+                  if(dataTerm1[i].name=='conduite'){
+                    $scope.conduite_t1=dataTerm1[i].exam
+                    $scope.conduite_t2=dataTerm2[j].exam
+                    $scope.conduite_t3=dataTerm3[k].exam
+                    $scope.conduite_t=Number(dataTerm1[i].total)+Number(dataTerm2[j].total)+Number(dataTerm3[k].total)
+                  }
                 }
               }
             }

@@ -21,25 +21,33 @@ block append content
 										table.table
 											thead
 												th.text-center #
-												th Book title
-												th Author
-												th Description
-												th Level
-												th Book path
+												//- th Course name
+												//- th Code
+												//- th Current term
+												//- th Test Quota
+												//- th Exam Quora
+												//- th Total Quora
+												th Title
+												th Is cat
+												th Quoted
+												th Current term
+												th Marks
 												th Actions
 											tbody
 												tr(ng-repeat="user in Users")
 													td(width="1%" height="1%") {{$index + 1}}
-													td {{user.title}}
-													td {{user.author}}
-													td {{user.description}}
-													td {{user.level}}
-													td {{user.bookName}}
+													td {{user.title|uppercase}}
+													td {{user.isCAT}}
+													td {{user.isQuoted}}
+													td {{user.currentTerm}}
+													td {{user.marks}}
+													//- td {{user.exam_quota}}
+													//- td {{user.weightOnReport}}
 													td.td-actions
-														a.btn-simple.btn.label.btn-danger(ng-click="deleteSchool(user._id,user.title)")
+														//- a.btn-simple.btn.label.btn-danger(ng-click="deleteSchool(user._id,user.name)")
 															i.material-icons close
 															|	Delete 
-														//- a.btn-simple.btn.label.btn-danger(ng-click="SetAdim(user._id,user.name)")
+														a.btn-simple.btn.label.btn-danger(ng-click="updateCourse(user._id,user.name, user.currentTerm)")
 															i.material-icons edit
 															|	Update
 block append scripts
@@ -148,9 +156,9 @@ block append scripts
 						});
 					});
 			}
-			$scope.SetAdim = function(id,name){
+			$scope.updateCourse = function(id,name, term){
 				swal({
-						title: 'Update <i style="color:red">'+name.toUpperCase()+'</i> to be enabled',
+						title: 'Update <i style="color:red">'+name.toUpperCase()+'</i> in term '+term,
 						text: "You will not be able to revert this!",
 						type: 'warning',
 						showCancelButton: true,
