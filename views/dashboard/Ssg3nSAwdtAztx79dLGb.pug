@@ -13,7 +13,7 @@ block append content
 							.card
 								.card-header.card-header-icon(data-background-color="rose")
 									i.material-icons school
-								.card-content
+								.card-content(ng-show="viewCourses")
 									h4.card-title List of Books: 
 										strong {{Users.length}} users
 									h3.category.text-center(ng-show ="!Users.length") No USERS
@@ -44,9 +44,11 @@ block append content
 														a.btn-simple.btn.label.btn-danger(ng-click="updateCourse(user._id,user.name, user.currentTerm)")
 															i.material-icons edit
 															|	Update
-								.card-content
+								.card-content(ng-show="viewConts")
 									h4.card-title List of Books: 
 										strong {{Users.length}} users
+
+									button.btn-simple(ng-click="suitch()") Back
 									h3.category.text-center(ng-show ="!alContents.length") No USERS
 									.table-responsive(ng-show ="Users.length")
 										table.table
@@ -145,6 +147,8 @@ block append scripts
 				$window.location.href ="/school/"+id_school;
 			}
 			$scope.getConts=function(id){
+				$scope.viewCourses=false;
+				$scope.viewConts=true;
 				$http.post("/get.all.conts",{course_id:id})
 					.then(function(res){
 						$scope.alContents=res.data;
@@ -152,6 +156,10 @@ block append scripts
 					.catch(function(erreur){
 						Notifier.danger(erreur.data);
 					});
+			}
+			$scope.suitch=function(){
+				$scope.viewCourses=true;
+				$scope.viewConts=false;
 			}
 			$scope.deleteSchool = function(id,name){
 				swal({
@@ -253,6 +261,8 @@ block append scripts
 				$scope.getSchoolList();
 			}
 			$scope.getAllusers=function(){
+				$scope.viewCourses=true;
+				$scope.viewConts=false;
 				$http.get('/Ssg3nSAwdtAztx79dLGb.post').then(function(response){
 					$scope.Users=response.data;
 					console.log("All terms: "+JSON.stringify($scope.Users));
