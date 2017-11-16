@@ -222,7 +222,7 @@ block append scripts
 					console.log("All terms: "+JSON.stringify($scope.Users));
 				})
 				.catch(function(err){
-					Notifier.danger(err.data)
+					Notifier.danger(JSON.stringify(err.data))
 				})
 			}
 			$scope.districts =[
