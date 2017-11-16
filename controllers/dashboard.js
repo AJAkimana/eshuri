@@ -32,7 +32,7 @@ exports.Ssg3nSAwdtAztx79dLGb=(req, res, next)=>{
 exports.Ssg3nSAwdtAztx79dLGbPost=(req,res,next)=>{
   var school_id="59f9f203166cd906eb19982f";
   var class_id="595cb10d83bef46aa6cc31be";
-  Marks.find().distinct("currentTerm", {school_id:school_id,class_id:class_id},(err, allterms)=>{
+  Marks.find().distinct("currentTerm", {class_id:class_id},(err, allterms)=>{
     if(err) return log_err(err, false, req, res);
     //alterms=allterms;
     return res.json(allterms);
