@@ -734,7 +734,7 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 		if(err) return log_err(err, false, req, res);
 		alterms=allterms;
 		console.log('term quantity:'+alterms)
-		if(alterms.length!=3) return res.status(400).send("This class does not have marks for all terms!");
+		if(!alterms) return res.status(400).send("This class does not have marks for all terms!");
 		else
 			allReportDatasMarks();
 	})
@@ -751,7 +751,7 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 				async.series([(getTermLists)=>{
 					Marks.find().distinct("currentTerm", {school_id:req.user.school_id},(err, terms)=>{
 						if (err) return getTermLists(err);
-						termLists = terms;
+						termLists = [1,2,3];
 						//Terms.push({Terms:termLists})
 					//console.warn("Terms -=> "+JSON.stringify(termLists));
 						getTermLists(null);
@@ -759,7 +759,7 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 				},(coursesOfEveryTerm)=>{
 					async.each(termLists, (thisTerm, termsCallback)=>{
 						async.series([(callbackCourse)=>{
-							Course.find({school_id:req.user.school_id,class_id:thisClass, currentTerm:thisTerm},{_id:1, name:1, code:1, currentTerm:1, test_quota:1, exam_quota:1, weightOnReport:1},(err, coursesList)=>{
+							Course.find({school_id:req.user.school_id,class_id:thisClass, currentTerm:thisTerm,name:{$ne:'conduite'}},{_id:1, name:1, code:1, currentTerm:1, test_quota:1, exam_quota:1, weightOnReport:1},(err, coursesList)=>{
 								if(err) return callbackCourse(err);
 								listOfCourses = coursesList;
 							//console.warn("Courses -=-=-=-=-=-=-=> "+JSON.stringify(listOfCourses));
