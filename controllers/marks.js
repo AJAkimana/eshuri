@@ -759,7 +759,7 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 				},(coursesOfEveryTerm)=>{
 					async.each(termLists, (thisTerm, termsCallback)=>{
 						async.series([(callbackCourse)=>{
-							Course.find({school_id:req.user.school_id,class_id:thisClass, currentTerm:thisTerm},{_id:1, name:1, code:1, currentTerm:1, test_quota:1, exam_quota:1, weightOnReport:1},(err, coursesList)=>{
+							Course.find({school_id:req.user.school_id,class_id:thisClass, currentTerm:thisTerm},{$not:{name:'conduite'}},{_id:1, name:1, code:1, currentTerm:1, test_quota:1, exam_quota:1, weightOnReport:1},(err, coursesList)=>{
 								if(err) return callbackCourse(err);
 								listOfCourses = coursesList;
 							//console.warn("Courses -=-=-=-=-=-=-=> "+JSON.stringify(listOfCourses));

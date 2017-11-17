@@ -450,7 +450,7 @@ block append scripts
           var dataTerm3 = response.data[0].term3;
           $scope.classInfo = response.data[0].class_info;
           $scope.courses = response.data[0].courses;
-
+          var place1=0
           var test=0
           for(var i=0; i<dataTerm1.length; i++){
             for(var j=0; j<dataTerm2.length; j++){
@@ -461,7 +461,9 @@ block append scripts
                   var term3Pct = Number(dataTerm3[k].total_mark)*100/Number(dataTerm1[i].total_quota);
                   var annualPct = (term1Pct+term2Pct+term3Pct)/3;
                   var annual = Number(dataTerm1[i].total_mark)+Number(dataTerm2[j].total_mark)+Number(dataTerm3[k].total_mark);
-                  //var place1 = dataTerm1.indexOf(String(dataTerm1[i].urn));
+                  if(dataTerm1.indexOf(String(dataTerm1[i].urn))!=-1){
+                    place1 = dataTerm1.indexOf(String(dataTerm1[i].urn));
+                  }
                   $scope.studentsMark.push({
                   name:dataTerm1[i].name,
                   urn:dataTerm1[i].urn,
@@ -480,6 +482,7 @@ block append scripts
                   annual_pct:annualPct,
                   annual:annual,
                   });
+                  console.log('All places:'+place1)
                 }
               }
             }
