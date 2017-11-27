@@ -66,9 +66,9 @@ block append content
                                     | Student names
 
                                   //Terms ______+___________+_______________
-                                  th.report-th(colspan='4'): strong Term I
-                                  th.report-th(colspan='4'): strong Term II
-                                  th.report-th(colspan='4'): strong Term III
+                                  th.report-th(colspan='5'): strong Term I
+                                  th.report-th(colspan='5'): strong Term II
+                                  th.report-th(colspan='5'): strong Term III
                                   th.report-th(rowspan="3",colspan="2"): strong Grand Total
 
                                 //Assessment test and exam____+_______________+__
@@ -77,14 +77,17 @@ block append content
                                   th.report-th: strong Ex
                                   th.report-th: strong Tot
                                   th.report-th: strong %
+                                  th.report-th: strong Plc
                                   th.report-th: strong Test
                                   th.report-th: strong Ex
                                   th.report-th: strong Tot
                                   th.report-th: strong %
+                                  th.report-th: strong Plc
                                   th.report-th: strong Test
                                   th.report-th: strong Ex
                                   th.report-th: strong Tot   
                                   th.report-th: strong %
+                                  th.report-th: strong Plc
                               tbody(align='right')
                                 tr(pagination-id='allsmarks', dir-paginate="mark in studentsMark|filter:search|itemsPerPage:n_pages")
                                   td.report-td: label.btn-simple.btn-link(ng-click="getOneStudentReport(mark.urn)") {{mark.name|uppercase}}
@@ -92,14 +95,17 @@ block append content
                                   td {{(mark.exam_t1_mark).toFixed(1)}}
                                   td {{(mark.total_t1_mark).toFixed(1)}}
                                   td.report-td-pct {{(mark.total_t1_pct).toFixed(1)}}%
+                                  td {{mark.place1 + 1}}
                                   td {{(mark.test_t2_mark).toFixed(1)}}
                                   td {{(mark.exam_t2_mark).toFixed(1)}}
                                   td {{(mark.total_t2_mark).toFixed(1)}}
                                   td.report-td-pct {{(mark.total_t2_pct).toFixed(1)}}%
+                                  td {{mark.place2 + 1}}
                                   td {{(mark.test_t3_mark).toFixed(1)}}
                                   td {{(mark.exam_t3_mark).toFixed(1)}}
                                   td {{(mark.total_t3_mark).toFixed(1)}}
                                   td.report-td-pct {{(mark.total_t3_pct).toFixed(1)}}%
+                                  td {{mark.place3 + 1}}
                                   td.report-td-pct {{(mark.annual).toFixed(1)}}
                                   td.report-td-pct {{(mark.annual_pct).toFixed(1)}}%
                             dir-pagination-controls(pagination-id='allsmarks', max-size='5', direction-links='true', boundary-links='true')
@@ -140,195 +146,192 @@ block append content
                         br
                         br
                         h2.card-title.text-center.text-info(ng-show="!studentMark.length") <strong>Loading, please wait...</strong>
-                        .col-md-12(ng-show="studentMark.length")
-                          .col-md-12#printReport
-                            .surround.surround-perfect
-                              .table-responsive.table-condensed
-                                table.table
-                                  tr
-                                    td(colspan='2')
-                                      table.table
-                                        tr(ng-repeat="user in userInfo")
-                                          td(width="40%")
-
-                                            p: strong
-                                              | Ministry of Education
-                                              br
-                                              | {{school_district|toDistrict}}
-                                              br
-                                              | {{school_name|uppercase}}
-                                              br
-                                              | TeL : {{school_phone||'________________'}}
-                                              br
-                                              | {{school_pob||'POBox.:_____________'|uppercase}}
-                                          td(width="40%")
-                                            | Names: <strong>{{user.uname|uppercase}}</strong>
-                                            br
-                                            | Class : <strong> {{user.classe|uppercase}}</strong> 
-                                            br
-                                            br
-                                            br
-                                            br
-                                          td(width="20%")
-                                            //- img(src="/pp.view/{{user.upic}}")
-                                  tr
-                                    td(colspan='2', style='text-align:left;')
-                                      .col-md-12
+                        #printReport(ng-show="studentMark.length")
+                          .table-responsive.table-condensed
+                            table.table.table-curved
+                              tr
+                                td(colspan='2')
+                                  table.table(ng-repeat="user in userInfo")
+                                    tr
+                                      td(colspan="3")
+                                        center
+                                          h4
+                                            strong STUDENT'S PROGRESSIVE REPORT
+                                    tr
+                                      td(width="20%")
+                                      td(width="60%")
+                                        p: strong
+                                          | Ministry of Education
+                                          br
+                                          | {{school_district|toDistrict}}
+                                          br
+                                          | {{school_name|uppercase}}
+                                          br
+                                          | TeL : {{school_phone||'________________'}}
+                                          br
+                                          | {{school_pob||'POBox.:_____________'|uppercase}}
+                                          br
+                                          br
+                                      td(width="20%")
                                         center
                                           .avatar-big.center
-                                            img#profil_pic(src="/school.profile/"+school_id,)
-                                          h3
-                                            strong STUDENT'S PROGRESSIVE REPORT
-                                          strong 2017 ANNUAL REPORT
-                                  tr
-                                    td(colspan='2', align='left',style="text-align:left;")
-                                      table.table.table-condensed.table-bordered
-                                        thead
-                                          tr(print-remove)
-                                            th(rowspan='3')
-                                              | Subject
-                                          tr(print-remove)
-                                            th(colspan='3', style='text-align:center;font-weight: bold;background: #CCC')
-                                              | MAX POINTS
-                                            th.report-th(colspan='3')
-                                              strong FIRST TERM
-                                            th.report-th(colspan='3')
-                                              strong SECOND TERM
-                                            th.report-th(colspan='3')
-                                              strong THIRD TERM
-                                            th.report-th(colspan='3')
-                                              strong ANNUAL POINTS
-                                          tr(align='center')
-                                            th.report-td-pct: strong TEST
-                                            th.report-td-pct: strong EX
-                                            th.report-td-pct: strong TOT
-                                            th.report-th: strong TEST
-                                            th.report-th: strong EX
-                                            th.report-th: strong TOT
-                                            th.report-th: strong TEST
-                                            th.report-th: strong EX
-                                            th.report-th: strong TOT
-                                            th.report-th: strong TEST
-                                            th.report-th: strong EX
-                                            th.report-th: strong TOT
-                                            th.report-th: strong MAX
-                                            th.report-th: strong TOTAL
-                                            th.report-th: strong %
-                                        tbody
-                                          tr
-                                            td(style='font-weight: bold; background: #e3e7ed; text-align:left;') CONDUCT
-                                            td(colspan='3', style='text-align:center;font-weight: bold;background: #CCC') 40
-                                            td(colspan='3') {{conduite_t1}}
-                                            td(colspan='3') {{conduite_t2}}
-                                            td(colspan='3') {{conduite_t3}}
-                                            td(colspan='3') {{conduite_t}}
-                                          tr(ng-repeat="mark in studentMark|orderBy:'-course_quota'")
-                                            td(style='font-weight: bold; background: #e3e7ed; text-align:left;')
-                                              | {{mark.name|uppercase}}
-                                            td.report-td-pct {{mark.test_quota}}
-                                            td.report-td-pct {{mark.exam_quota}}
-                                            td.report-td-pct {{mark.course_quota}}
-                                            td {{(mark.testTerm1).toFixed(1)}}
-                                            td {{(mark.examTerm1).toFixed(1)}}
-                                            td {{(mark.totalTerm1).toFixed(1)}}
-                                            td {{(mark.testTerm2).toFixed(1)}}
-                                            td {{(mark.examTerm2).toFixed(1)}}
-                                            td {{(mark.totalTerm2).toFixed(1)}}
-                                            td {{(mark.testTerm3).toFixed(1)}}
-                                            td {{(mark.examTerm3).toFixed(1)}}
-                                            td {{(mark.totalTerm3).toFixed(1)}}
-                                            td.report-td-pct
-                                              | {{mark.anualQuotaTotal}}
-                                            td {{(mark.anualMarkTotal).toFixed(1)}}
-                                            td {{(mark.anualMarkPct).toFixed(1)}}% 
+                                            img.img-rounded(src="/school.profile/"+school_id, width="20" height="20")
+                                        | URN: 
+                                        br
+                                        | Class: <strong> {{user.classe|uppercase}}</strong>
+                                    tr
+                                      td(colspan="3")
+                                        h5
+                                          center
+                                            | Names: 
+                                            strong {{user.uname|uppercase}}
+                                        //- img(src="/pp.view/{{user.upic}}")
+                              tr
+                                td(colspan='2', style='text-align:left;')
+                                  .col-md-12
+                                    center
+                                      strong Academic Year 2017
+                              tr
+                                td(colspan='2', align='left',style="text-align:left;")
+                                  table.table.table-condensed.table-bordered
+                                    thead
+                                      tr(print-remove)
+                                        th(rowspan='3')
+                                          | Subject
+                                      tr(print-remove)
+                                        th(colspan='3', style='text-align:center;font-weight: bold;background: #CCC')
+                                          | MAX POINTS
+                                        th.report-th(colspan='3')
+                                          strong FIRST TERM
+                                        th.report-th(colspan='3')
+                                          strong SECOND TERM
+                                        th.report-th(colspan='3')
+                                          strong THIRD TERM
+                                        th.report-th(colspan='3')
+                                          strong ANNUAL POINTS
+                                      tr(align='center')
+                                        th.report-td-pct: strong TEST
+                                        th.report-td-pct: strong EX
+                                        th.report-td-pct: strong TOT
+                                        th.report-th: strong TEST
+                                        th.report-th: strong EX
+                                        th.report-th: strong TOT
+                                        th.report-th: strong TEST
+                                        th.report-th: strong EX
+                                        th.report-th: strong TOT
+                                        th.report-th: strong TEST
+                                        th.report-th: strong EX
+                                        th.report-th: strong TOT
+                                        th.report-th: strong MAX
+                                        th.report-th: strong TOTAL
+                                        th.report-th: strong %
+                                    tbody
+                                      tr
+                                        td(style='font-weight: bold; background: #e3e7ed; text-align:left;') CONDUCT
+                                        td(colspan='3', style='text-align:center;font-weight: bold;background: #CCC') 40
+                                        td(colspan='3') {{conduite_t1}}
+                                        td(colspan='3') {{conduite_t2}}
+                                        td(colspan='3') {{conduite_t3}}
+                                        td(colspan='3') {{conduite_t}}
+                                      tr(ng-repeat="mark in studentMark|orderBy:'-course_quota'")
+                                        td(style='font-weight: bold; background: #e3e7ed; text-align:left;')
+                                          | {{mark.name|uppercase}}
+                                        td.report-td-pct {{mark.test_quota}}
+                                        td.report-td-pct {{mark.exam_quota}}
+                                        td.report-td-pct {{mark.course_quota}}
+                                        td {{(mark.testTerm1).toFixed(1)}}
+                                        td {{(mark.examTerm1).toFixed(1)}}
+                                        td {{(mark.totalTerm1).toFixed(1)}}
+                                        td {{(mark.testTerm2).toFixed(1)}}
+                                        td {{(mark.examTerm2).toFixed(1)}}
+                                        td {{(mark.totalTerm2).toFixed(1)}}
+                                        td {{(mark.testTerm3).toFixed(1)}}
+                                        td {{(mark.examTerm3).toFixed(1)}}
+                                        td {{(mark.totalTerm3).toFixed(1)}}
+                                        td.report-td-pct
+                                          | {{mark.anualQuotaTotal}}
+                                        td {{(mark.anualMarkTotal).toFixed(1)}}
+                                        td {{(mark.anualMarkPct).toFixed(1)}}% 
+                                      
+                                    tfoot(align='right')
+                                      tr
+                                        td(align='left', style='font-weight: bold; ')
+                                          | Total
+                                        td.report-td-pct {{qTest}}
+                                        td.report-td-pct {{qExam}}
+                                        td.report-td-pct {{qtotal}}
+                                        td {{testT1.toFixed(1)}}
+                                        td {{ExamT1.toFixed(1)}}
+                                        td {{totalT1.toFixed(1)}}
+                                        td {{testT2.toFixed(1)}}
+                                        td {{ExamT2.toFixed(1)}}
+                                        td {{totalT2.toFixed(1)}}
+                                        td {{testT3.toFixed(1)}}
+                                        td {{ExamT3.toFixed(1)}}
+                                        td {{totalT3.toFixed(1)}}
+                                        td.report-td-pct {{yQuotaTotal}}
+                                        td {{mQuotaTotal.toFixed(1)}}
+                                        td
                                           
-                                        tfoot(align='right')
-                                          tr
-                                            td(align='left', style='font-weight: bold; ')
-                                              | Total
-                                            td.report-td-pct {{qTest}}
-                                            td.report-td-pct {{qExam}}
-                                            td.report-td-pct {{qtotal}}
-                                            td {{testT1.toFixed(1)}}
-                                            td {{ExamT1.toFixed(1)}}
-                                            td {{totalT1.toFixed(1)}}
-                                            td {{testT2.toFixed(1)}}
-                                            td {{ExamT2.toFixed(1)}}
-                                            td {{totalT2.toFixed(1)}}
-                                            td {{testT3.toFixed(1)}}
-                                            td {{ExamT3.toFixed(1)}}
-                                            td {{totalT3.toFixed(1)}}
-                                            td.report-td-pct {{yQuotaTotal}}
-                                            td {{mQuotaTotal.toFixed(1)}}
-                                            td
-                                              
-                                          tr
-                                            td(align='left', style='font-weight: bold;')
-                                              | %
-                                            td(colspan='3', style='font-weight: bold;')
-                                              | 
-                                            td(colspan='3', style='font-weight: bold;')
-                                              | {{totalT1Pct.toFixed(1)}}
-                                            td(colspan='3', style='font-weight: bold;')
-                                              | {{totalT2Pct.toFixed(1)}}
-                                            td(colspan='3', style='font-weight: bold;')
-                                              | {{totalT3Pct.toFixed(1)}}
-                                            td(colspan='3', style='font-weight: bold;')
-                                              | {{anualTotalT3Pct.toFixed(1)}}%
-                                          tr
-                                            td(align='left', style='font-weight: bold;text-align:left;')
-                                              | Position
-                                            td(colspan='3', style='font-weight: bold;')
-                                            td(colspan='3', style='font-weight: bold;')
-                                              | /{{studentsMark.length}}
-                                            td(colspan='3', style='font-weight: bold;')
-                                              | /{{studentsMark.length}}
-                                            td(colspan='3', style='font-weight: bold;')
-                                              | /{{studentsMark.length}}
-                                            td(colspan='3', style='font-weight: bold;')
-                                              | /{{studentsMark.length}}
-                                          if school_name == 'maranyundo girls school'
-                                            tr
-                                              td(align='left', style='font-weight: bold;text-align:left;')
-                                                | Parish Priest Signature
-                                              td(colspan='6')
-                                              td(colspan='3')
-                                              td(colspan='3')
-                                              td(colspan='3')
-                                          tr
-                                            td(align='left', style='font-weight: bold;text-align:left;')
-                                              | Teacher's Signature
-                                            td(colspan='6')
-                                            td(colspan='3')
-                                            td(colspan='3')
-                                            td(colspan='3')
-                                          tr
-                                            td(align='left', style='font-weight: bold;text-align:left;')
-                                              | Parent's Signature
-                                            td(colspan='6')
-                                            td(colspan='3')
-                                            td(colspan='3')
-                                            td(colspan='3')
-                                  tr
-                                    td
-                                      strong Pass
-                                      br
-                                      strong Repeat
-                                      br
-                                      strong Discontinued
-                                    td
-                                      | Done at 
-                                      strong {{school_district|toDistrict}}
-                                      br
-                                      br
-                                      | HeadMistress:
-                                      br
-                                      | (Signature and stamps)
-                              .pull.pull-right
-                                | MADE BY: 
-                                label(style="color:red")
-                                  | e-Shuri.rw
-                                br
+                                      tr
+                                        td(align='left', style='font-weight: bold;')
+                                          | %
+                                        td(colspan='3', style='font-weight: bold;')
+                                          | 
+                                        td(colspan='3', style='font-weight: bold;')
+                                          | {{totalT1Pct.toFixed(1)}}
+                                        td(colspan='3', style='font-weight: bold;')
+                                          | {{totalT2Pct.toFixed(1)}}
+                                        td(colspan='3', style='font-weight: bold;')
+                                          | {{totalT3Pct.toFixed(1)}}
+                                        td(colspan='3', style='font-weight: bold;')
+                                          | {{anualTotalT3Pct.toFixed(1)}}%
+                                      tr
+                                        td(align='left', style='font-weight: bold;text-align:left;')
+                                          | Position
+                                        td(colspan='3', style='font-weight: bold;')
+                                        td(colspan='3', style='font-weight: bold;')
+                                          | /{{studentsMark.length}}
+                                        td(colspan='3', style='font-weight: bold;')
+                                          | /{{studentsMark.length}}
+                                        td(colspan='3', style='font-weight: bold;')
+                                          | /{{studentsMark.length}}
+                                        td(colspan='3', style='font-weight: bold;')
+                                          | /{{studentsMark.length}}
+                                      tr
+                                        td(align='left', style='font-weight: bold;text-align:left;')
+                                          | Teacher's Signature
+                                        td(colspan='6')
+                                        td(colspan='3')
+                                        td(colspan='3')
+                                        td(colspan='3')
+                                      tr
+                                        td(align='left', style='font-weight: bold;text-align:left;')
+                                          | Parent's Signature
+                                        td(colspan='6')
+                                        td(colspan='3')
+                                        td(colspan='3')
+                                        td(colspan='3')
+                              tr
+                                td
+                                  strong Pass
+                                  br
+                                  strong Repeat
+                                  br
+                                  strong Discontinued
+                                td
+                                  | Done at 
+                                  strong {{school_district|toDistrict}}
+                                  br
+                                  br
+                                  | HeadMistress:
+                                  br
+                                  | (Signature and stamps)
+                          .pull.pull-right
+                            | MADE BY: 
+                            label(style="color:red")
+                              | e-Shuri.rw
+                            br
 block append scripts
   script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
   //script(src="../js/Controlers/markCtlr.js", type="text/javascript")
@@ -450,7 +453,7 @@ block append scripts
           var dataTerm3 = response.data[0].term3;
           $scope.classInfo = response.data[0].class_info;
           $scope.courses = response.data[0].courses;
-          var place1=0
+          var place1='',place2='',place3='';
           var test=0
           for(var i=0; i<dataTerm1.length; i++){
             for(var j=0; j<dataTerm2.length; j++){
@@ -464,20 +467,26 @@ block append scripts
                   if(dataTerm1.indexOf(String(dataTerm1[i].urn))!=-1){
                     place1 = dataTerm1.indexOf(String(dataTerm1[i].urn));
                   }
+                  place1 = fixPlaces(dataTerm1, 'total_mark', dataTerm1[i].total_mark);
+                  place2 = fixPlaces(dataTerm2, 'total_mark', dataTerm2[j].total_mark);
+                  place3 = fixPlaces(dataTerm3, 'total_mark', dataTerm3[k].total_mark);
                   $scope.studentsMark.push({
                   name:dataTerm1[i].name,
                   urn:dataTerm1[i].urn,
                   test_t1_mark:dataTerm1[i].test_mark,
                   exam_t1_mark:dataTerm1[i].exam_mark,
                   total_t1_mark:dataTerm1[i].total_mark,
+                  place1:place1,
                   total_t1_pct:term1Pct,
                   test_t2_mark:dataTerm2[j].test_mark,
                   exam_t2_mark:dataTerm2[j].exam_mark,
                   total_t2_mark:dataTerm2[j].total_mark,
+                  place2:place2,
                   total_t2_pct:term2Pct,
                   test_t3_mark:dataTerm3[k].test_mark,
                   exam_t3_mark:dataTerm3[k].exam_mark,
                   total_t3_mark:dataTerm3[k].total_mark,
+                  place3:place3,
                   total_t3_pct:term3Pct,
                   annual_pct:annualPct,
                   annual:annual,
@@ -586,4 +595,12 @@ block append scripts
       //- $scope.user_class= "S4MCE";
       $scope.students_report = false;
       $scope.getClassList();
+      function fixPlaces(array, attr, value){
+        for (var i=0;i<array.length;i++){
+          if(array[i][attr]===value){
+            return i
+          }
+        } 
+        return -1
+      }
     }])
