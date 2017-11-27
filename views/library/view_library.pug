@@ -16,7 +16,7 @@ block append content
 										center: strong.card-title 
 											u {{bookDetails.title|uppercase}}
 										center Author: 
-											strong {{bookDetails.author}}
+											strong {{bookDetails.author|uppercase}}
 										a.label.btn.btn-fill.btn-primary.pull-left(ng-click='viewBook=false' ) Back to Library
 									if access < 4
 										a.label.btn.btn-fill.btn-success.pull-right(ng-click='addFile=true' ng-hide='addFile || overView || viewBook || EditBookInfo') Add Book
@@ -127,9 +127,9 @@ block append content
 													.btn.btn-danger.btn-simple(type='button', rel='tooltip', data-placement='bottom', title='Delete', ng-click="deleteBook(book._id)")
 														i.material-icons close
 											h4.card-title
-											a(style="word-wrap: break-word",href="",ng-click="readBook(book)") {{book.title|uppercase}}
+											a(style="word-wrap: break-word",href="",ng-click="readBook(book)") {{book.title|uppercase|limitTo: 20 }} {{book.title.length < 20 ? '' : '...'}}
 											.price Author: 
-												strong(style="word-wrap: break-word") {{book.author|uppercase}}
+												strong(style="word-wrap: break-word") {{book.author|uppercase|limitTo: 20 }} {{book.author.length < 20 ? '' : '...'}}
 							.col-md-2(ng-show="!overView && !viewBook && !EditBookInfo")
 								.card
 									.card-header
