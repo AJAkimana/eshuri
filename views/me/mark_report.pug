@@ -92,7 +92,7 @@ block append content
                                   th.report-th: strong %
                                   th.report-th: strong Plc
                               tbody(align='right')
-                                tr(pagination-id='allsmarks', dir-paginate="mark in studentsMark|filter:search|itemsPerPage:n_pages")
+                                tr(pagination-id='allsmarks', dir-paginate="mark in studentsMark|filter:search|itemsPerPage:n_pages|orderBy:name")
                                   td.report-td: label.btn-simple.btn-link(ng-click="getOneStudentReport(mark)") {{mark.name|uppercase}}
                                   td {{(mark.test_t1_mark).toFixed(1)}}
                                   td {{(mark.exam_t1_mark).toFixed(1)}}
@@ -588,7 +588,7 @@ block append scripts
                     $scope.yQuotaTotal+=anualQuota;
                     $scope.mQuotaTotal+=anualMark;
                   }
-                  if(dataTerm1[i].name=='conduite'){
+                  if(dataTerm1[i].name=='CONDUITE'){
                     $scope.conduite_t1=dataTerm1[i].total
                     $scope.conduite_t2=dataTerm2[j].total
                     $scope.conduite_t3=dataTerm3[k].total
