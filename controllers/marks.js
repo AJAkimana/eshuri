@@ -516,6 +516,7 @@ exports.getReport_JSON =(req,res,next)=>{
 	})
 }
 exports.getFullReportOneStudent =(req,res,next)=>{
+	console.log(req.body.places)
 	req.assert('class_id', 'Invalid data').isMongoId();
 	req.assert('student_id', 'Invalid data').isMongoId();
 	req.assert('academic_year', 'Choose the academic year please').isInt();
@@ -535,7 +536,7 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 	var totalQuizzes=0, totalExams=0, totalQuotes=0;
 	var totalQuizzT1=0, totalQuizzT2=0, totalQuizzT3=0, totalExamT1=0, totalExamT2=0, totalExamT3=0, courseTerm1Marks=0, courseTerm2Marks=0, courseTerm3Marks=0;
 
-	var user_name='', classe_name='';
+	var user_name='', classe_name='', user_urn='';
 	var async = require("async");
 	var Terms = [];
 	var userDetails=[];
@@ -543,6 +544,7 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 		if(err) return log_err(err, false, req, res);
 		//userDetails.push({user:user_details});
 		user_name=user_details.name;
+		user_urn=user_details.URN;
 	});
 	Classe.findOne({_id:thisClass},{name:1,},(err, class_details)=>{
 		if(err) return log_err(err, false, req, res);
@@ -686,7 +688,7 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 	}],(err)=>{
 		if(err) return log_err(err,false,req,res);
 		//reportData.push({marks:termMarks})
-		userDetails.push({uname:user_name, classe:classe_name, upic:thisStudent});
+		userDetails.push({uname:user_name, classe:classe_name, upic:thisStudent, uurn:user_urn});
 		reportData.push({term1:termOne, term2:termTwo, term3:termThree, userInfo:userDetails})
 		//console.log("REPORTmarks =>>>>"+JSON.stringify(reportData.marks))
 		//console.log("REPORT total =>>>>"+JSON.stringify(reportData.total));
@@ -734,7 +736,7 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 		if(err) return log_err(err, false, req, res);
 		alterms=allterms;
 		console.log('term quantity:'+alterms)
-		if(!alterms) return res.status(400).send("This class does not have marks for all terms!");
+		if(alterms.length!=3) return res.status(400).send("This class does not have marks for all terms!");
 		else
 			allReportDatasMarks();
 	})
@@ -751,7 +753,7 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 				async.series([(getTermLists)=>{
 					Marks.find().distinct("currentTerm", {school_id:req.user.school_id},(err, terms)=>{
 						if (err) return getTermLists(err);
-						termLists = [1,2,3];
+						termLists = terms;
 						//Terms.push({Terms:termLists})
 					//console.warn("Terms -=> "+JSON.stringify(termLists));
 						getTermLists(null);
@@ -880,7 +882,8 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 			var term1data = termOne;
 			var term2data = termTwo;
 			var term3data = termThree;
-			var term1_sum = [], term2_sum = [], term3_sum = [];
+			var termTdata = allMarksPackage;
+			var term1_sum = [], term2_sum = [], term3_sum = [], termT_sum = [];
 			term1data.forEach(function(marksObject) {
 				var existing = term1_sum.filter(function(i) {
 				return i.urn === marksObject.urn 
@@ -920,11 +923,25 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 					existing.total_quota += marksObject.total_quota;
 				}
 			});
+			termTdata.forEach(function(marksObject) {
+				var existing = termT_sum.filter(function(i) {
+				return i.urn === marksObject.urn 
+			 })[0];
+				if (!existing)
+					termT_sum.push(marksObject);
+				else{
+					existing.test_mark += marksObject.test_mark;
+					existing.exam_mark += marksObject.exam_mark;
+					existing.total_mark += marksObject.total_mark;
+					existing.total_quota += marksObject.total_quota;
+				}
+			});
 			classDetails.push({name:classe_name, a_year:currentAcademicYear})
 			var mark_t1_sort = term1_sum.sort(studentPlaces)
 			var mark_t2_sort = term2_sum.sort(studentPlaces)
 			var mark_t3_sort = term3_sum.sort(studentPlaces)
-			reportData.push({term1:mark_t1_sort,term2:mark_t2_sort, term3:mark_t3_sort, class_info:classDetails, courses:listOfCourses});
+			var mark_tT_sort = termT_sum.sort(studentPlaces)
+			reportData.push({term1:mark_t1_sort,term2:mark_t2_sort, term3:mark_t3_sort, total:mark_tT_sort, class_info:classDetails, courses:listOfCourses});
 			//reportData.push({term1:termOne, term2:termTwo, term3:termThree})
 			//console.log('-------------------------(__________)+++++++++++++++++++++++++++++++++++++');
 			console.log('Report:------->'+JSON.stringify(reportData))

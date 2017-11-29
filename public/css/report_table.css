@@ -52,3 +52,9 @@ td.tb-container > div {
 td.tb-container {
     height: 10px;
 }
+@media print
+{
+body * { visibility: hidden; }
+#printableArea * { visibility: visible; }
+#printableArea { position: absolute; top: 40px; left: 30px; }
+}

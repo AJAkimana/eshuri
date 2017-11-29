@@ -69,7 +69,7 @@ block append content
                                   th.report-th(colspan='5'): strong Term I
                                   th.report-th(colspan='5'): strong Term II
                                   th.report-th(colspan='5'): strong Term III
-                                  th.report-th(rowspan="3",colspan="2"): strong Grand Total
+                                  th.report-th(colspan="3"): strong Grand Total
 
                                 //Assessment test and exam____+_______________+__
                                 tr(align='center')
@@ -88,26 +88,30 @@ block append content
                                   th.report-th: strong Tot   
                                   th.report-th: strong %
                                   th.report-th: strong Plc
+                                  th.report-th: strong Total
+                                  th.report-th: strong %
+                                  th.report-th: strong Plc
                               tbody(align='right')
                                 tr(pagination-id='allsmarks', dir-paginate="mark in studentsMark|filter:search|itemsPerPage:n_pages")
-                                  td.report-td: label.btn-simple.btn-link(ng-click="getOneStudentReport(mark.urn)") {{mark.name|uppercase}}
+                                  td.report-td: label.btn-simple.btn-link(ng-click="getOneStudentReport(mark)") {{mark.name|uppercase}}
                                   td {{(mark.test_t1_mark).toFixed(1)}}
                                   td {{(mark.exam_t1_mark).toFixed(1)}}
                                   td {{(mark.total_t1_mark).toFixed(1)}}
                                   td.report-td-pct {{(mark.total_t1_pct).toFixed(1)}}%
-                                  td {{mark.place1 + 1}}
+                                  td {{mark.place1}}
                                   td {{(mark.test_t2_mark).toFixed(1)}}
                                   td {{(mark.exam_t2_mark).toFixed(1)}}
                                   td {{(mark.total_t2_mark).toFixed(1)}}
                                   td.report-td-pct {{(mark.total_t2_pct).toFixed(1)}}%
-                                  td {{mark.place2 + 1}}
+                                  td {{mark.place2}}
                                   td {{(mark.test_t3_mark).toFixed(1)}}
                                   td {{(mark.exam_t3_mark).toFixed(1)}}
                                   td {{(mark.total_t3_mark).toFixed(1)}}
                                   td.report-td-pct {{(mark.total_t3_pct).toFixed(1)}}%
-                                  td {{mark.place3 + 1}}
+                                  td {{mark.place3}}
                                   td.report-td-pct {{(mark.annual).toFixed(1)}}
                                   td.report-td-pct {{(mark.annual_pct).toFixed(1)}}%
+                                  td.report-td-pct {{mark.year_place}}
                             dir-pagination-controls(pagination-id='allsmarks', max-size='5', direction-links='true', boundary-links='true')
                           .col-md-12        
                             .col-md-6
@@ -138,6 +142,7 @@ block append content
                 .card-content
                   button.btn.btn-label.pull-left(ng-click="showDivs()") Close
                   button.btn.btn-label.btn-primary.pull-right(ng-click="printDiv('printReport')") Print
+                  button.btn.btn-simple.pull-right(ng-click="printRepo('printableArea')") Print RO {{userInfo.uurn}}
                   .col-md-12
                     .box
                       .box-body
@@ -146,6 +151,8 @@ block append content
                         br
                         br
                         h2.card-title.text-center.text-info(ng-show="!studentMark.length") <strong>Loading, please wait...</strong>
+                        //- #printReport#printableArea(ng-show="studentMark.length")
+                        //- #printableArea(ng-show="studentMark.length")
                         #printReport(ng-show="studentMark.length")
                           .table-responsive.table-condensed
                             table.table.table-curved
@@ -154,11 +161,12 @@ block append content
                                   table.table(ng-repeat="user in userInfo")
                                     tr
                                       td(colspan="3")
-                                        center
-                                          h4
-                                            strong STUDENT'S PROGRESSIVE REPORT
+                                        center: strong STUDENT'S PROGRESSIVE REPORT
                                     tr
                                       td(width="20%")
+                                        center
+                                          .avatar-big.center
+                                            img(src="/pp.view/{{user.upic}}", width="20" height="20")
                                       td(width="60%")
                                         p: strong
                                           | Ministry of Education
@@ -175,16 +183,15 @@ block append content
                                       td(width="20%")
                                         center
                                           .avatar-big.center
-                                            img.img-rounded(src="/school.profile/"+school_id, width="20" height="20")
-                                        | URN: 
+                                            img(src="/school.profile/"+school_id, width="20" height="20")
+                                        | URN: <strong> {{user.uurn|uppercase}}</strong>
                                         br
                                         | Class: <strong> {{user.classe|uppercase}}</strong>
                                     tr
                                       td(colspan="3")
-                                        h5
-                                          center
-                                            | Names: 
-                                            strong {{user.uname|uppercase}}
+                                        center
+                                          | Names: 
+                                          strong {{user.uname|uppercase}}
                                         //- img(src="/pp.view/{{user.upic}}")
                               tr
                                 td(colspan='2', style='text-align:left;')
@@ -286,18 +293,18 @@ block append content
                                           | {{totalT3Pct.toFixed(1)}}
                                         td(colspan='3', style='font-weight: bold;')
                                           | {{anualTotalT3Pct.toFixed(1)}}%
-                                      tr
+                                      tr(ng-repeat="place in places")
                                         td(align='left', style='font-weight: bold;text-align:left;')
                                           | Position
                                         td(colspan='3', style='font-weight: bold;')
                                         td(colspan='3', style='font-weight: bold;')
-                                          | /{{studentsMark.length}}
+                                          | {{place.p1}}/{{studentsMark.length}}
                                         td(colspan='3', style='font-weight: bold;')
-                                          | /{{studentsMark.length}}
+                                          | {{place.p2}}/{{studentsMark.length}}
                                         td(colspan='3', style='font-weight: bold;')
-                                          | /{{studentsMark.length}}
+                                          | {{place.p3}}/{{studentsMark.length}}
                                         td(colspan='3', style='font-weight: bold;')
-                                          | /{{studentsMark.length}}
+                                          | {{place.y_place}}/{{studentsMark.length}}
                                       tr
                                         td(align='left', style='font-weight: bold;text-align:left;')
                                           | Teacher's Signature
@@ -388,6 +395,14 @@ block append scripts
       }
     })
     .controller('reportCtrl', ['$scope', '$http','$window',function($scope, $http,$window){
+      function fixPlaces(array, attr, value){
+        for (var i=0;i<array.length;i++){
+          if(array[i][attr]===value){
+            return i+1;
+          }
+        } 
+        return -1;
+      }
       $scope.studentMark = [];
       $scope.qTest=0,$scope.qExam=0,$scope.qtotal=0,$scope.testT1=0,$scope.ExamT1=0,$scope.totalT1=0,$scope.testT2=0,$scope.ExamT2=0,$scope.totalT2=0,$scope.testT3=0,$scope.ExamT3=0,$scope.totalT3=0,$scope.yQuotaTotal=0,$scope.mQuotaTotal=0;
       $scope.getAcademicYearsList = function(){
@@ -416,6 +431,13 @@ block append scripts
         writeDoc.write('<!doctype html><html>' + docHead + '<body onLoad="window.print()" class="col-md-8 center"' + printContents + '</body></html>');
         writeDoc.close();
         newWin.focus();
+      }
+      $scope.printRepo = function (divName) {
+        var printContents = document.getElementById(divName).innerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
       }
       $scope.getClassList = function(){
         $http
@@ -451,51 +473,54 @@ block append scripts
           var dataTerm1 = response.data[0].term1;
           var dataTerm2 = response.data[0].term2;
           var dataTerm3 = response.data[0].term3;
+          var dataTotal = response.data[0].total;
           $scope.classInfo = response.data[0].class_info;
           $scope.courses = response.data[0].courses;
           var place1='',place2='',place3='';
-          var test=0
+          var test=0;
           for(var i=0; i<dataTerm1.length; i++){
             for(var j=0; j<dataTerm2.length; j++){
               for(var k=0; k<dataTerm3.length; k++){
-                if(dataTerm1[i].urn == dataTerm2[j].urn && dataTerm2[j].urn == dataTerm3[k].urn){
-                  var term1Pct = Number(dataTerm1[i].total_mark)*100/Number(dataTerm1[i].total_quota);
-                  var term2Pct = Number(dataTerm2[j].total_mark)*100/Number(dataTerm1[i].total_quota);
-                  var term3Pct = Number(dataTerm3[k].total_mark)*100/Number(dataTerm1[i].total_quota);
-                  var annualPct = (term1Pct+term2Pct+term3Pct)/3;
-                  var annual = Number(dataTerm1[i].total_mark)+Number(dataTerm2[j].total_mark)+Number(dataTerm3[k].total_mark);
-                  if(dataTerm1.indexOf(String(dataTerm1[i].urn))!=-1){
-                    place1 = dataTerm1.indexOf(String(dataTerm1[i].urn));
+                for(var p=0; p<dataTotal.length; p++){
+                  if(dataTerm1[i].urn == dataTerm2[j].urn && dataTerm2[j].urn == dataTerm3[k].urn && dataTerm3[k].urn == dataTotal[p].urn){
+                    var term1Pct = Number(dataTerm1[i].total_mark)*100/Number(dataTerm1[i].total_quota);
+                    var term2Pct = Number(dataTerm2[j].total_mark)*100/Number(dataTerm1[i].total_quota);
+                    var term3Pct = Number(dataTerm3[k].total_mark)*100/Number(dataTerm1[i].total_quota);
+                    var annualPct = (term1Pct+term2Pct+term3Pct)/3;
+                    var annual = Number(dataTerm1[i].total_mark)+Number(dataTerm2[j].total_mark)+Number(dataTerm3[k].total_mark);
+
+                    place1 = fixPlaces(dataTerm1, 'total_mark', dataTerm1[i].total_mark);
+                    place2 = fixPlaces(dataTerm2, 'total_mark', dataTerm2[j].total_mark);
+                    place3 = fixPlaces(dataTerm3, 'total_mark', dataTerm3[k].total_mark);
+                    place_t = fixPlaces(dataTotal, 'total_mark', dataTotal[p].total_mark);
+                    $scope.studentsMark.push({
+                    name:dataTerm1[i].name,
+                    urn:dataTerm1[i].urn,
+                    test_t1_mark:dataTerm1[i].test_mark,
+                    exam_t1_mark:dataTerm1[i].exam_mark,
+                    total_t1_mark:dataTerm1[i].total_mark,
+                    place1:place1,
+                    total_t1_pct:term1Pct,
+                    test_t2_mark:dataTerm2[j].test_mark,
+                    exam_t2_mark:dataTerm2[j].exam_mark,
+                    total_t2_mark:dataTerm2[j].total_mark,
+                    place2:place2,
+                    total_t2_pct:term2Pct,
+                    test_t3_mark:dataTerm3[k].test_mark,
+                    exam_t3_mark:dataTerm3[k].exam_mark,
+                    total_t3_mark:dataTerm3[k].total_mark,
+                    place3:place3,
+                    total_t3_pct:term3Pct,
+                    annual_pct:annualPct,
+                    year_place:place_t,
+                    annual:annual,
+                    });
                   }
-                  place1 = fixPlaces(dataTerm1, 'total_mark', dataTerm1[i].total_mark);
-                  place2 = fixPlaces(dataTerm2, 'total_mark', dataTerm2[j].total_mark);
-                  place3 = fixPlaces(dataTerm3, 'total_mark', dataTerm3[k].total_mark);
-                  $scope.studentsMark.push({
-                  name:dataTerm1[i].name,
-                  urn:dataTerm1[i].urn,
-                  test_t1_mark:dataTerm1[i].test_mark,
-                  exam_t1_mark:dataTerm1[i].exam_mark,
-                  total_t1_mark:dataTerm1[i].total_mark,
-                  place1:place1,
-                  total_t1_pct:term1Pct,
-                  test_t2_mark:dataTerm2[j].test_mark,
-                  exam_t2_mark:dataTerm2[j].exam_mark,
-                  total_t2_mark:dataTerm2[j].total_mark,
-                  place2:place2,
-                  total_t2_pct:term2Pct,
-                  test_t3_mark:dataTerm3[k].test_mark,
-                  exam_t3_mark:dataTerm3[k].exam_mark,
-                  total_t3_mark:dataTerm3[k].total_mark,
-                  place3:place3,
-                  total_t3_pct:term3Pct,
-                  annual_pct:annualPct,
-                  annual:annual,
-                  });
-                  console.log('All places:'+place1)
                 }
               }
             }
           }
+                
         }).catch(function(err){
           Notifier.danger(err.data);
           $scope.students_list = false;
@@ -503,16 +528,17 @@ block append scripts
           $scope.selectClass='';
         })
       }
-      $scope.getOneStudentReport = function(studentid){
+      $scope.getOneStudentReport = function(student){
+        //- console.log('Student info:'+JSON.stringify(student))
         $scope.students_report = true;
         $scope.students_list = false;
-        $scope.studentMark = [];
+        $scope.studentMark = [], $scope.places = [];
         $scope.qTest=0,$scope.qExam=0,$scope.qtotal=0,$scope.testT1=0,$scope.ExamT1=0,$scope.totalT1=0,$scope.testT2=0,$scope.ExamT2=0,$scope.totalT2=0,$scope.testT3=0,$scope.ExamT3=0,$scope.totalT3=0,$scope.yQuotaTotal=0,$scope.mQuotaTotal=0;
         $http
         .post("/report.one",{
           academic_year:$scope.choosen_year,
           class_id:$scope.selectClass,
-          student_id:studentid,
+          student_id:student.urn,
           school_id:$scope.school_id})
         .then(function(response){
           //$scope.allRecords= response.data;
@@ -520,7 +546,7 @@ block append scripts
           var dataTerm2 = response.data[0].term2;
           var dataTerm3 = response.data[0].term3;
           $scope.userInfo = response.data[0].userInfo;
-
+          $scope.places.push({p1:student.place1,p2:student.place2,p3:student.place3,y_place:student.year_place});
           for(var i=0; i<dataTerm1.length; i++){
             for(var j=0; j<dataTerm2.length; j++){
               for(var k=0; k<dataTerm3.length; k++){
@@ -595,12 +621,4 @@ block append scripts
       //- $scope.user_class= "S4MCE";
       $scope.students_report = false;
       $scope.getClassList();
-      function fixPlaces(array, attr, value){
-        for (var i=0;i<array.length;i++){
-          if(array[i][attr]===value){
-            return i
-          }
-        } 
-        return -1
-      }
     }])
