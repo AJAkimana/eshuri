@@ -166,7 +166,7 @@ block append content
                                       td(width="20%")
                                         center
                                           .avatar-big.center
-                                            img(src="/pp.view/{{user.upic}}", width="20" height="20")
+                                            img(src="/school.profile/"+school_id)
                                       td(width="60%")
                                         p: strong
                                           | Ministry of Education
@@ -183,7 +183,7 @@ block append content
                                       td(width="20%")
                                         center
                                           .avatar-big.center
-                                            img(src="/school.profile/"+school_id, width="20" height="20")
+                                            img(src="/pp.view/{{user.upic}}")
                                         | URN: <strong> {{user.uurn|uppercase}}</strong>
                                         br
                                         | Class: <strong> {{user.classe|uppercase}}</strong>
