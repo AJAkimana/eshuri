@@ -158,16 +158,22 @@ block append content
                             table.table.table-curved
                               tr
                                 td(colspan='2')
-                                  table.table(ng-repeat="user in userInfo")
+                                  table.table.table-curved(ng-repeat="user in userInfo")
                                     tr
-                                      td(colspan="3")
+                                      td(rowspan="3")
+                                        img(src="/school.profile/"+school_id, alt="Image")
+                                      td()
                                         center: strong STUDENT'S PROGRESSIVE REPORT
+                                      td(rowspan="3")
+                                        .center
+                                          .avatar-big
+                                            img(src="/pp.view/{{user.upic}}")
+                                          | URN: <strong> {{user.uurn|uppercase}}</strong>
+                                          br
+                                          | Class: <strong> {{user.classe|uppercase}}</strong>
+                  
                                     tr
-                                      td(width="20%")
-                                        center
-                                          .avatar-big.center
-                                            img(src="/school.profile/"+school_id)
-                                      td(width="60%")
+                                      td()
                                         p: strong
                                           | Ministry of Education
                                           br
@@ -178,17 +184,8 @@ block append content
                                           | TeL : {{school_phone||'________________'}}
                                           br
                                           | {{school_pob||'POBox.:_____________'|uppercase}}
-                                          br
-                                          br
-                                      td(width="20%")
-                                        center
-                                          .avatar-big.center
-                                            img(src="/pp.view/{{user.upic}}")
-                                        | URN: <strong> {{user.uurn|uppercase}}</strong>
-                                        br
-                                        | Class: <strong> {{user.classe|uppercase}}</strong>
                                     tr
-                                      td(colspan="3")
+                                      td()
                                         center
                                           | Names: 
                                           strong {{user.uname|uppercase}}
