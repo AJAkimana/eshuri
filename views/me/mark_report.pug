@@ -54,7 +54,7 @@ block append content
                               button.btn.btn-label.btn-primary.pull-right(ng-click="printDiv('student-report')") Print
                             form.form-inline
                               .form-group.pull-left
-                                  select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
+                                  select.form-control(ng-init="n_pages=studentsMark.length", ng-model="n_pages",)
                                       option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
                                   strong pages
                               .form-group.pull-right
