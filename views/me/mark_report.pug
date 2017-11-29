@@ -448,11 +448,11 @@ block append scripts
           Notifier.danger(err.data);
         })
       }
-      console.log('My requested data: '+$scope.school_phone+" and "+$scope.school_pob);
       $scope.getAllStudentsReport = function(){
         $scope.students_list = true;
         $scope.students_report = false;
         $scope.studentsMark = [];
+        $scope.pages=[3];
         $http
         .post('/report.all', {academic_year:$scope.choosen_year,class_id:$scope.selectClass})
         .then(function(response){
@@ -506,7 +506,11 @@ block append scripts
               }
             }
           }
-                
+          for(var i=1;i<=$scope.studentsMark.length;i++){
+            if(i%7==0) $scope.pages.push(i);
+            else if(i==$scope.studentsMark.length) $scope.pages.push(i);
+          }    
+          console.log('All st:'+$scope.studentsMark.length)
         }).catch(function(err){
           Notifier.danger(err.data);
           $scope.students_list = false;
@@ -595,10 +599,8 @@ block append scripts
         }); 
       }
       $scope.printDiv = function (div) {
-        if ($scope.n_pages){
-          $scope.n_pages = 100;
-          console.log('All pages: '+$scope.n_pages)
-        }
+        //- $scope.n_pages = 100;
+        //- console.log('All pages: '+$scope.n_pages)
         var docHead = document.head.outerHTML;
         var printContents = document.getElementById(div).outerHTML;
         var winAttr = "location=yes, statusbar=no, menubar=no, titlebar=no, toolbar=no,dependent=no, width=865, height=600, resizable=yes, screenX=200, screenY=200, personalbar=no, scrollbars=yes";
@@ -612,7 +614,7 @@ block append scripts
       }
       $scope.districts =[
       "Eastern-Bugesera","Eastern-Gatsibo","Eastern-Kayonza","Eastern-Kirehe","Eastern-Ngoma","Eastern-Nyagatare","Eastern-Rwamagana","Kigali-Gasabo","Kigali-Kicukiro","Kigali-Nyarugenge","Northen-Burera","Northen-Gakenke","Northen-Gicumbi","Northen-Musanze","Northen-Rulindo","Northen-Nyabihu","Southern-Gisagara","Southern-Huye","Southern-Kamonyi","Southern-Muhanga","Southern-Nyamagabe","Southern-Nyanza","Southern-Nyaruguru","Southern-Ruhango","Western-Karongi","Western-Ngororero","Western-Nyabihu","Western-Nyamasheke","Western-Rubavu","Western-Rusizi","Western-Rutsiro",];
-      $scope.pages=[3,5,10,15,20,25];
+      //$scope.pages=[3,5,10,15,20,25,30,35,40];
       $scope.school_id="#{school_id}";
       $scope.school_name="#{school_name}";
       $scope.school_district="#{school_district}";
