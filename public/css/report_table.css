@@ -52,6 +52,9 @@ td.tb-container > div {
 td.tb-container {
     height: 10px;
 }
+.table-border-right{
+  border-right: 1px solid #cdd0d4; 
+}
 /*@media print
 {
 body * { visibility: hidden; }
