@@ -2,7 +2,7 @@ module.exports = {
 	'googleAuth':{
 		'clientID':process.env.GOOGLE_CLIENT_ID,
 		'clientSecret':process.env.GOOGLE_CLIENT_SECRET,
-		'callbackURL':'http://localhost:6700/google-callback'
+		'callbackURL':process.env.appLink+'/google-callback'
 	},
 	'facebookAuth':{
 		'clientID':process.env.FB_ID,
