@@ -22,7 +22,7 @@ exports.pageTimeline = (req,res,next)=>{
       lastSeen:now,
       userName:req.user.name,
       pic_id:req.user._id,
-      pic_name:req.user.name.replace('\'',"\\'").replace('\'',"\\'"),
+      pic_name:req.user.name.replace('\'',"\\'"),
       access_lvl:req.user.access_level,
       school_id:req.user.school_id,
       maxPost:req.app.locals.MAXPOSTLENGTH,
