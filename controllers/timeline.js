@@ -83,7 +83,7 @@ exports.getAdminPosts = (req, res, next)=>{
   var school = req.user.school_id;
   Publication.find({school_id:school, category:2}).sort({time:-1}).exec(function(err, postList){
     if (err) console.log("Something went wrong");
-    console.log(accLvl+" and "+school+" Working fine I guess: "+postList);
+    // console.log(accLvl+" and "+school+" Working fine I guess: "+postList);
     return res.json(postList);
   })
 }

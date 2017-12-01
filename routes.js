@@ -31,11 +31,13 @@ const parentController =require('./controllers/parent');
 const universityController =require('./controllers/university');
 const facultyController =require('./controllers/faculty');
 const departmentCtrl =require('./controllers/department');
-const libraryCtrl = require('./controllers/library')
+const libraryCtrl = require('./controllers/library');
+const passport = require('passport');
 
 module.exports = function(app) {
 	// ---DONT LET THIS MIDDLEWARE ACTIVATED in PROD it will leak req.body
 	app.use((req,res,next) =>{
+		// console.log('___________C_O_O_K_I_E_S___'+req.user)
 		if(process.env.devStatus=='DEV'){
 			if(req.user) console.log(JSON.stringify(req.user.name)+" "+ req.method+" @ "+JSON.stringify(req.path)+' -- '+JSON.stringify(req.body))
 			else console.log("Not connected "+ req.method+" @ "+JSON.stringify(req.path)+' -- '+JSON.stringify(req.body))
@@ -189,6 +191,12 @@ module.exports = function(app) {
 	//User
 	app .get('/user.signin',userController.getPageSignIn);
 	app.post('/user.signin',userController.postSignIn);
+	app.get('/user.facebook.auth', passport.authenticate('facebook', { 
+		scope : ['public_profile', 'email'] }));
+	app.get('/user.google.auth', passport.authenticate('google', { 
+		scope : ['profile', 'email'] }));
+	app.get('/google-callback', userController.googleCallback);
+	app.get('/fb-callback',userController.fbCallback);
 	// app.post('/offline.user.signin',userController.postOfflineSignIn);
 	app .get('/user.signup', userController.getPageSignUp);
 	app.post('/user.signup', userController.postSignUp);

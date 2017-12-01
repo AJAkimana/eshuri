@@ -19,8 +19,75 @@ exports.getPageSignIn = (req, res) => {
     csrf_token:res.locals.csrftoken
   });
 };
-
+exports.googleAuth = (req, res, next)=>{
+  passport.authenticate('google', {
+    scope:['profile', 'email']
+  });
+}
+exports.googleCallback = (req, res, next)=>{
+  passport.authenticate('google',{
+    successRedirect:'/',
+    failureRedirect:'/user.signin'
+  }, (err, user, info)=>{
+    if(err || !user) return res.status(400).send(info.msg);
+    req.logIn(user, (err,newUser) => {
+      if (err) return next(err);
+      var hours = 3600000;
+      var weeks = 7 * 24 * hours;    
+      // Cookie expires after 1 week and 10 hours > REgister mornig expires night
+      // first 9h du mat then expires the night
+      console.log(' New USer   '+JSON.stringify(user))
+      req.session.cookie.maxAge = 1 * weeks + 10*hours;
+      var link =req.user.access_level==1 ? "/dashboard":"/home";
+      if(req.user.access_level ==req.app.locals.access_level.HOD){
+        School.find({department_id:req.user.department_id},(err,schools_managed)=>{
+          if(err) return log_err(err,false,req,res);
+          else if(!schools_managed) return res.status(400).send("Sorry, you do not have a school yet !");
+          else if(!Array.isArray(schools_managed) || schools_managed.length==0)
+            return res.status(400).send("Sorry, you do not have a school yet !");
+          req.session.currentOption=schools_managed[0]._id;
+          req.session.save();  
+          return res.redirect(link);         
+        })
+      }
+      else return res.redirect(link);     
+    });
+    console.log(' New USer '+JSON.stringify(req.session))
+  })(req, res, next);
+}
+exports.fbCallback = (req, res, next)=>{
+  passport.authenticate('facebook',{
+    successRedirect:'/',
+    failureRedirect:'/user.signin'
+  }, (err, user, info)=>{
+    if(err || !user) return res.status(400).send(info.msg);
+    req.logIn(user, (err,newUser) => {
+      if (err) return next(err);
+      var hours = 3600000;
+      var weeks = 7 * 24 * hours;    
+      // Cookie expires after 1 week and 10 hours > REgister mornig expires night
+      // first 9h du mat then expires the night
+      console.log(' New USer   '+JSON.stringify(user))
+      req.session.cookie.maxAge = 1 * weeks + 10*hours;
+      var link =req.user.access_level==1 ? "/dashboard":"/home";
+      if(req.user.access_level ==req.app.locals.access_level.HOD){
+        School.find({department_id:req.user.department_id},(err,schools_managed)=>{
+          if(err) return log_err(err,false,req,res);
+          else if(!schools_managed) return res.status(400).send("Sorry, you do not have a school yet !");
+          else if(!Array.isArray(schools_managed) || schools_managed.length==0)
+            return res.status(400).send("Sorry, you do not have a school yet !");
+          req.session.currentOption=schools_managed[0]._id;
+          req.session.save();  
+          return res.redirect(link);         
+        })
+      }
+      else return res.redirect(link);     
+    });
+    console.log(' New USer '+JSON.stringify(req.session))
+  })(req, res, next);
+}
 exports.postSignIn = (req, res, next) => {
+  console.log('______________'+res.locals.csrftoken);
   req.assert('email', 'Email is not valid').isEmail();
   req.assert('password', 'Password cannot be blank').notEmpty();
   const errors = req.validationErrors();
@@ -34,7 +101,7 @@ exports.postSignIn = (req, res, next) => {
       var weeks = 7 * 24 * hours;    
       // Cookie expires after 1 week and 10 hours > REgister mornig expires night
       // first 9h du mat then expires the night
-      // console.log(' New USer'+JSON.stringify(newUser))
+      console.log(' New USer '+JSON.stringify(newUser))
       req.session.cookie.maxAge = 1 * weeks + 10*hours;
       var link =req.user.access_level==1 ? "/dashboard":"/home";
       if(req.user.access_level ==req.app.locals.access_level.HOD){
@@ -50,6 +117,7 @@ exports.postSignIn = (req, res, next) => {
       }
       else return res.send(link);     
     });
+    console.log(' New USer '+JSON.stringify(req.session))
   })(req, res, next);
 };
 exports.postOfflineSignIn = (req, res, next) => {

@@ -165,10 +165,9 @@ block append content
                                         img(src="/school.profile/"+school_id alt="Image")
                                       td()
                                         center: strong STUDENT'S PROGRESSIVE REPORT
-                                      td(rowspan="3")
+                                      td(rowspan="3", width="20%")
                                         .center
-                                          .avatar-big
-                                            img(src="/pp.view/{{user.upic}}")
+                                          img.img-rounded(src="/pp.view/{{user.upic}}")
                                           | URN: <strong> {{user.uurn|uppercase}}</strong>
                                           br
                                           | Class: <strong> {{user.classe|uppercase}}</strong>
