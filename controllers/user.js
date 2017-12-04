@@ -36,7 +36,7 @@ exports.googleCallback = (req, res, next)=>{
       var weeks = 7 * 24 * hours;    
       // Cookie expires after 1 week and 10 hours > REgister mornig expires night
       // first 9h du mat then expires the night
-      console.log(' New USer   '+JSON.stringify(user))
+      // console.log(' New USer   '+JSON.stringify(user))
       req.session.cookie.maxAge = 1 * weeks + 10*hours;
       var link =req.user.access_level==1 ? "/dashboard":"/home";
       if(req.user.access_level ==req.app.locals.access_level.HOD){
@@ -318,23 +318,29 @@ exports.changeEmail = (req,res)=>{
         else if(!isMatch){// If the pass is not correct 
           return res.status(400).send("Old email or password given is incorrect !");
         }
-        new Notification({
-          user_id:req.user._id,
-          user_name:req.user.name,
-          content: "Your email has been changed",
-          school_id:req.user.school_id,
-          isAuto:false,            
-        }).save((err)=>{
-          if(err) console.log(" You have to log "+err)
-        })
-        // Now we must change the new pass
-        userExists.email = req.body.email;
-        userExists.password = req.body.password;
-        userExists.save((err)=>{
-          if(err) return res.status(500).send("Sorry! Service not available")
-          req.session.destroy();
-          req.logout();
-          return res.end();
+        User.find({email:req.body.email},(err, found)=>{
+          if(err) return log_err(err,false,req,res);
+          else if(found) return res.status(500).send("Sorry! Email exists")
+          else{
+            new Notification({
+              user_id:req.user._id,
+              user_name:req.user.name,
+              content: "Your email has been changed",
+              school_id:req.user.school_id,
+              isAuto:false,            
+            }).save((err)=>{
+              if(err) console.log(" You have to log "+err)
+            })
+            // Now we must change the new pass
+            userExists.email = req.body.email;
+            userExists.password = req.body.password;
+            userExists.save((err)=>{
+              if(err) return res.status(500).send("Sorry! Service not available")
+              req.session.destroy();
+              req.logout();
+              return res.end();
+            });
+          }
         })
       });
      }

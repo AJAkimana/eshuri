@@ -35,9 +35,9 @@ SchoolSchema.pre('save', function (next) {
  * in the same classe.. 
  */
 SchoolSchema.statics.checkSchoolExists = function (school, cb) {
-  this.findOne({'name':school.name},(err,school_exists)=>{
-    	cb(err,school_exists);
-  })
+	this.findOne({'name':school.name},(err,school_exists)=>{
+	    cb(err,school_exists);
+	})
 };
 
 const SchoolDB = mongoose.model('Schools', SchoolSchema);

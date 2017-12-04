@@ -122,7 +122,7 @@ passport.use(new FbStrategy({
   process.nextTick(()=>{
     User.findOne({email:profile.emails[0].value},(err, user)=>{
       if(err) return done(err, false, { msg: 'Service not available.' });
-      else if(!user) return done(null, false, { msg: 'This email is not registered' });
+      else if(!user) return done(null, false, { msg: 'This email is not registered on eShuri platform' });
       else if(!user.isEnabled) return done(null, false, { msg: 'Please wait for your account validation' });
       else if (user)return done(null, user);
       return done(null, false, { msg: 'Service not available.'});
