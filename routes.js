@@ -33,6 +33,13 @@ const facultyController =require('./controllers/faculty');
 const departmentCtrl =require('./controllers/department');
 const libraryCtrl = require('./controllers/library');
 const passport = require('passport');
+const multPart = require('connect-multiparty');
+
+//Profiling registration services
+
+// Service controllers
+const profileController = require('./controllers/profile');
+const applicationsController = require('./controllers/applications')
 
 module.exports = function(app) {
 	// ---DONT LET THIS MIDDLEWARE ACTIVATED in PROD it will leak req.body
@@ -115,9 +122,18 @@ module.exports = function(app) {
 	var isParent =function(req,res,next){
 		if(req.isAuthenticated() && req.user.access_level == req.app.locals.access_level.PARENT) 
 			return next();
-		return res.status(400).send("This operation is only for parents"+req.user.access_level);     	
+		return res.status(400).send("This operation is only for parents");     	
 	}
-
+	var isGuest =(req, res, next)=>{
+		if(req.isAuthenticated() && req.user.access_level == req.app.locals.access_level.GUEST);
+			return next();
+		return res.status(400).send("This operation is only for guest")
+	}
+	var isGuestOrStudent=(req, res, next)=>{
+		if(req.isAuthenticated()&&(req.user.access_level == req.app.locals.access_level.GUEST||req.user.access_level == req.app.locals.access_level.STUDENT))
+			return next();
+		return res.status(400).send("This operation is only for guest or student")
+	}
 	/* This function is dangerous*/
 	// var createSA =(req,res,next)=>{
 	// 	req.body.name="Ngendakuriyo Lionel ";req.body.email="ngendlio@gmail.com";
@@ -233,6 +249,8 @@ module.exports = function(app) {
 				/* SCHOOLS Things*/
 	app .get('/school',isAuthenticated, schoolController.getPageSchool);
 	app .get('/school.list', schoolController.getSchool_JSON);
+	app.get('/eshuri/schools/alljson.json', schoolController.getSchool_JSON);
+	app.get('/school.list/:name', schoolController.getSchool_BySearch);
 	app .get('/school.list.dashboard',isAtLeastAdmin,schoolController.getSchool_DashboardJSON);
 	
 	app .get('/school.department.list',isAtLeastAdmin, schoolController.getDepartments_JSON);
@@ -246,7 +264,7 @@ module.exports = function(app) {
 	
 	app.post('/school.add',isSuperAdmin, schoolController.postNewSchool);
 	app.get('/school.setting/:school_id',isSuperAdmin, schoolController.getSettingSchoolPage);
-	app .get('/school.profile/:school_id',isAuthenticated, schoolController.getSchoolProfile);
+	app .get('/school.profile/:school_id', schoolController.getSchoolProfile);
 	app .post('/school.update.profile',isSuperAdmin, schoolController.changeSchoolProfile);
 	app .post('/add.school.info',isSuperAdmin, schoolController.addSchoolInfo);
 	app .get('/school/:id_school',isAuthenticated, schoolController.homepageSchool);
@@ -481,6 +499,35 @@ module.exports = function(app) {
 	app.post('/get.all.conts', isSuperAdmin, dashboardController.getAllConts)
 	
 	// ------------------------dangerous--------------------------------------------------
+	/*---------------------------------------------------------------------------
+					Profiling
+	----------------------------------------------------------------------------*/
+		// Profile Routes
+	app.get('/profile', isAtLeastAdmin, schoolController.displayProfile);
+	app.post('/profile.create', isAtLeastAdmin, schoolController.createSchoolProfile);
+	app.get('/profile/:profile_id', profileController.singleSchoolProfile);
+	app.get('/fees', isAtLeastAdmin, profileController.feesProfile);
+
+	/*---------------------------------------------------------------------------
+					Profiling
+	----------------------------------------------------------------------------*/
+	/*---------------------------------------------------------------------------
+					Application for admission
+	----------------------------------------------------------------------------*/
+	var multPartMiddleWare = multPart();
+	app.get('/admission', isGuest, applicationsController.getApplicationPage);
+	app.get('/application.new', isGuestOrStudent, applicationsController.displayApplicationForm);
+	app.post('/submit.new.application', isGuestOrStudent, applicationsController.newAppSubmission);
+	app.get('/application', isAuthenticated, applicationsController.viewApplicationPage);
+	app.get('/view.application', isAuthenticated, applicationsController.viewApplication)
+	app.get('/application.get.one/:app_id', isAuthenticated, applicationsController.getOneApplication)
+	app.post('/application.change.status', isAtLeastAdmin, applicationsController.changeApplicationStatus)
+	app.post('/attach.file', multPartMiddleWare, applicationsController.postAttachedFiles);
+	/*---------------------------------------------------------------------------
+					Application for admission
+	----------------------------------------------------------------------------*/
+
+
 	app.get('/timeline',isAuthenticated,timelineCtrl.pageTimeline);
 	app.post('/timeline.create.post',isAuthenticated,timelineCtrl.createPost);
 	app.post('/timeline.post.comment',isAuthenticated,timelineCtrl.addComment);

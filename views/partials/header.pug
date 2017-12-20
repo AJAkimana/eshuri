@@ -42,13 +42,41 @@ nav.navbar.navbar-absolute.navbar-fixed-top(role='navigation', style="position:f
 					li: a.btn-simple.btn.btn-warning(href="/dashboard")
 						//i.material-icons dashboard
 						strong Dashboard
-				if access == 4||access==2.1||access==2
-					li: a(href="/report")
-						//i.material-icons local_activity
-						strong Student report
-				if access==2.1||access==3
-					li: a.btn-simple.btn.btn-success(href="/report.teacher")
-						strong Class report
+				li.dropdown
+					a.btn-simple.btn.btn-info.dropdown-toggle(data-toggle="dropdown")
+						strong Reports
+					ul.dropdown-menu
+						if access == 4||access==2.1||access==2
+							li: a(href="/report") School reports
+						li.divider
+						if access==2.1||access==3
+							li: a(href="/report.teacher") Class report
+				if access==4||access==4.1
+					li.dropdown
+						a.btn-simple.btn.btn-info.dropdown-toggle(data-toggle="dropdown")
+							strong Applications
+						ul.dropdown-menu
+							li
+								a(href="/application.new")
+									i.icon.ion-ios-plus
+									span New
+							li.divider
+							li
+								a(href="/application")
+									i.icon.ion-ios-list
+									span View
+				if access<=2.1&&access!=1
+					li.dropdown
+						a.btn-simple.btn.btn-info.dropdown-toggle(data-toggle="dropdown")
+							strong School admin
+						ul.dropdown-menu
+							li
+								a(href="/profile")
+									span Profile
+							li.divider
+							li
+								a(href="/application")
+									span Applications
 				li: a(href="http://gocoderz.com/wp-content/uploads/articulate_uploads/Lesson_1:_Drivetrain/story_html5.html" target="_blank")
 						//i.material-icons code
 						strong Robotics Programming

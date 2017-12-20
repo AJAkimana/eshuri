@@ -1,0 +1,198 @@
+.reg_cont{
+	background-color: #fff;
+    padding: 0 3em;
+    padding-top: .5em;
+}
+.reg_cont h2.reg_tab_title, h2.reg_tab_title{
+    text-align: center;
+    color: rgb(17, 23, 27);
+    width: 50%;
+    margin: 0 25%;
+    border-bottom: 1px solid rgba(17, 23, 27, 0.18)
+}
+h2.app_tab_title{
+text-align: center;
+    color: rgb(17, 23, 27);
+    width: 70%;
+    margin: 0px 10%;
+    border-bottom: 1px solid rgba(17, 23, 27, 0.03)
+    }
+.reg_cont .form-group label{
+	color: rgb(45, 60, 80);
+    font-size: 120%;
+    font-family: sans-serif;
+}
+.reg_cont .form-group .radio-group {
+    margin-top: 1em;
+}
+.uib-daypicker{
+    background-color: #fafafa;
+}
+.uib-daypicker tr .btn{
+    background-color: #ffffff;
+    color: #f34f65;
+}
+.uib-daypicker tr .text-info{
+    color: #fff;
+}
+.uib-daypicker tr button{
+    border-radius: unset;
+}
+.reg_cont .form-group input[type=file]{
+    opacity: unset;
+    position: unset;
+}
+.app_cont h4.title{
+    color: #fff;
+    font-size: -webkit-xxx-large;
+}
+.app_cont p.category{
+    font-size: large !important;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.85) !important;    
+}
+.app_cont .text-primary{
+    color: #f34f65;
+}
+.app_cont th{
+    font-weight: 600 !important;
+}
+.app_cont td{
+    font-size: large;
+}
+
+.selectSchool .ui-select-container{
+    width: 50%;
+}
+.selectSchool .ui-select-bootstrap .ui-select-toggle > .caret{
+    color: #2d3c50;
+}
+.selectSchool .btn.btn-default, .selectSchool .btn,
+.selectSchool .btn:hover, .selectSchool .btn:focus,
+.selectSchool .btn:active,
+.selectSchool .btn.active, .selectSchool .btn:active:focus, 
+.selectSchool .btn:active:hover, .selectSchool .btn.active:focus,
+.selectSchool .btn.active:hover, .selectSchool .open > .btn.dropdown-toggle,
+.selectSchool .open > .btn.dropdown-toggle:focus{
+    background-color: unset;
+    color: unset;
+}
+.selectSchool .btn-default-focus {
+  color: unset;
+  background-color: unset;
+  border-color: unset;
+  text-decoration: none;
+  outline: unset;
+  outline-offset: unset;
+  box-shadow: unset;
+}
+.selectSchool .btn{
+    text-transform: unset;
+}
+.selectSchool .btn:active, .selectSchool .btn:hover,
+.selectSchool .btn.btn-default:active, .selectSchool .btn.btn-default:hover{
+    box-shadow: unset;
+}
+.selectSchool .btn:hover{
+    /* border-bottom: 1px solid #00bcd4; */
+}
+.selectSchool .dropdown-menu{
+    border-radius: unset;
+}
+.reviewModel .card {
+    display: unset;
+    position: unset;
+    width: 45%;
+    background: rgba(245, 245, 220, 0.93);
+    font-weight: 400;
+    padding: 1em;
+    margin: .5em;
+    border-radius: unset;
+}
+.modal-footer{
+    border-top: unset !important;
+}
+.registerButton{
+    color: #fff !important;
+    font-size: initial;
+    background: #f34f65 !important;
+    padding: 5px 20px;
+    box-shadow: unset !important;
+}
+.registerButton a{
+    color: #fff;
+}
+.registerButton:hover{
+    background: rgba(243, 79, 101, 0.9) !important;
+}
+.regisCont .card .card-title {
+    font-size: x-large;
+    font-weight: 400;
+}
+.regisCont .wizard-card .nav-pills > li > a{
+    color: #fff !important;
+    font-size: medium;
+}
+.regisCont .card{
+    font-size: large;
+    font-family: sans-serif;
+}
+p.card-text span {
+    text-transform: capitalize;
+    padding: .3em;
+}
+@media (max-width: 991px){
+    .sidebar::before, .off-canvas-sidebar::before {
+        background-color: unset;
+    }
+}
+
+.confirmWaive .form-group{
+    margin: unset; 
+}
+.size-32 {
+    font-size: 32px;
+}
+.sidebar .logo{
+    background: #fafafa;
+}
+.sidebar .logo:after{
+    content: unset;
+}
+.contProfile .nav-pills:not(.nav-pills-icons) > li > a{
+    color:#fff !important;
+    font-size: inherit;
+}
+.wizard-navs-ii input{
+    text-transform: capitalize;
+}
+.wizard-navs-ii .panel-heading{
+    padding: unset;
+    padding-left: 1em;
+}
+.wizard-navs-ii .note-btn.btn.btn-default.btn-sm{
+    background-color: #2d3c50;
+}
+.wizard-navs-ii .tags{
+    box-shadow: unset;
+    border: unset;
+}
+tags-input .tags .tag-item{
+    border: none;
+    margin: 7px;
+    padding: 0 10px;
+    background: #e91e63;
+    color: #fff;
+    font-size: medium;
+}
+tags-input .tags .tag-item .remove-button{
+    color: #fff;
+}
+.form-group.label-floating.is-focused{
+    border: none;
+    box-shadow: none;
+    background-image: unset;
+}
+.content.reg_touch ul.ui-select-choices{
+    text-transform: capitalize;
+}

@@ -20,6 +20,7 @@ exports.getWelcomePage =(req,res,next)=>{
     case req.app.locals.access_level.TEACHER:
     case req.app.locals.access_level.STUDENT: link="/timeline";break;
     case req.app.locals.access_level.PARENT: link="/parent";break;
+    case req.app.locals.access_level.GUEST: link="/application";break;
     default: break;
   }
   if(link!="") return res.redirect(link);

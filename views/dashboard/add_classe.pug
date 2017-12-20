@@ -1,5 +1,5 @@
-extends ../layout
-block append content 
+extends ../layout 
+block append content
 	//- .main-panel
 		include ../partials/header 
 	.wrapper.wrapper-full-page.full-page-background(ng-controller="school_updateCtrl",style="background-image: url('../imgs/register.jpeg')")
@@ -112,7 +112,7 @@ block append content
 														h4 Select teacher
 														.form-group.label-floating
 															select.form-control(ng-model="teacher_choosen",ng-change="setTeacher(this_class, teacher_choosen)")
-																option(disabled, selected) Pick a teacher
+																option(disabled) Pick a teacher
 																option(value="{{teacher._id}}",ng-repeat="teacher in allteachers") {{teacher.name}}
 												.modal-footer
 													button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel

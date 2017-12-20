@@ -25,7 +25,7 @@ block append content
 										h4 Add a new teacher
 										.form-group.label-floating
 											select.form-control(ng-model="teacher_choosen",ng-change="affectTeacher(course_concerned,teacher_choosen)")
-												option(disabled, selected) Pick a teacher
+												option(disabled) Pick a teacher
 												option(value="{{teacher._id}}",ng-repeat="teacher in teachers") {{teacher.name}}
 						.col-md-3.center
 							.card(ng-show="change_academic")
@@ -163,7 +163,7 @@ block append content
 														h4 Add a new teacher
 														.form-group.label-floating
 															select.form-control(ng-model="teacher_choosen",ng-change="affectTeacher(course_concerned,teacher_choosen)")
-																option(disabled, selected) Pick a teacher
+																option(disabled) Pick a teacher
 																option(value="{{teacher._id}}",ng-repeat="teacher in teachers") {{teacher.name}}
 												.modal-footer
 													button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel

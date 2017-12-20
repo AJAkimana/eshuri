@@ -30,7 +30,11 @@ passport.use('local.signin', new LocalStrategy(
     else if (!user) return done(null, false, { msg: 'Invalid email or password.' });
     user.comparePassword(password,email, (err, isMatch) => {
       // if(!user.isValidated) return done(null, false, { msg: 'Please validate your account first. No email received ?\n Resend validation code' });
-      if(!user.isEnabled) return done(null, false, { msg: 'Please wait for your account validation' });
+      var guest = access_level=req.app.locals.access_level.GUEST;
+      if(!user.isEnabled){
+        if(user.access_level==guest) return done(null, false, { msg: 'Visit your email to confirm your acount' });
+        else return done(null, false, { msg: 'Please wait for your account validation' });
+      }
       else if (isMatch)return done(null, user);
       return done(null, false, { msg: 'Invalid email or password'});
     });
@@ -63,16 +67,18 @@ passport.use('local.signup', new LocalStrategy(
         // register as teachers
         var type =Number(req.body.type)+2;
         if(type <=2) return done(null, false, { msg: 'You are not authorized to do this..'});
-        else if(type > 5) return done(null, false, { msg: 'You are not authorized to do this' });
+        else if(type > 7) return done(null, false, { msg: 'You are not authorized to do this' });
 
         var access_level=100; 
         var isEnabled=false;
+        var class_id=req.body.class_id;
         // PEople that are permitted to register by themselves
         switch(type){
           case 3: access_level=req.app.locals.access_level.TEACHER;break;
           case 4: access_level=req.app.locals.access_level.STUDENT;break;
             // if it is a parent he is Enabled by default 
           case 5: access_level=req.app.locals.access_level.PARENT;isEnabled=true;break;
+          case 6: access_level=req.app.locals.access_level.GUEST;break;
           default:break;
         }  
         if(access_level==100)
@@ -88,7 +94,7 @@ passport.use('local.signup', new LocalStrategy(
           access_level:access_level,
           gender:req.body.gender,
           isEnabled:isEnabled,
-          class_id:req.body.class_id
+          class_id:class_id
         });
 
         newUser.save(function(err){

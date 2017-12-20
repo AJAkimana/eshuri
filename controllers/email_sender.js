@@ -48,7 +48,6 @@ exports.sendEmailValidation = function(infos){
         text: "<html>Please validate your account by clicking <strong><a href=\""+link+"\"> link</a></strong></html>",
         html: "<html>Please validate your account by clicking <strong><a href=\""+link+"\"> link</a></strong></html>"
       };
-
       client.sendMail(email, function(err, info){
           if (err ){
             new FailedMail({
@@ -62,6 +61,42 @@ exports.sendEmailValidation = function(infos){
           resolve(null);  
       });
    })
+}
+exports.sendApplicationEmailStatus=(infos)=>{
+  var status = '';
+  switch(infos.status){
+    case 'P': status='Your registration on '+infos.school_name.toUpperCase()+' is pended';break;
+    case 'A': status='You are <b>ADMITTED</b> on '+infos.school_name.toUpperCase()+'. Visit https://eshuri.rw/ to continue registration';break;
+    case 'F': status='Something is missing in your application on '+infos.school_name.toUpperCase()+': <hr><b>'+infos.comment+'</b><hr>';break;
+    case 'R': status='Your registration on '+infos.school_name.toUpperCase()+' is <b>Rejected</b>';break;
+    default: break;
+  }
+  let promise = new Promise((resolve, reject)=>{
+    var email ={
+      from: process.env.APP_EMAIL,
+      to: infos.email,
+      subject: 'eShuri application status',
+      html:'<html> Hello <b>'+infos.username+'</b><br>'+status+
+      '<hr>'+
+      '<h3>eShuri platform</h3>'+
+      '<p>eShuri digital contents can be used to motivate students, improve conceptual understanding and retention of key topics'+ 
+          ' eShuri carries innovative features that will help high-schools and universities in their daily activities by offering </p>'+
+      '</html>',
+    };
+    client.sendMail(email, (err, info)=>{
+      if(err){
+        new FailedMail({
+          content: email.html,
+          error:err,
+        }).save((err)=>{
+          if(err) reject(err);
+          resolve(null);
+        })
+      }
+      resolve(null);
+    })
+  });
+  return promise;
 }
 /*
  This function is used to resend failed messages stored in the message DB

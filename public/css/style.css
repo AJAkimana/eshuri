@@ -889,5 +889,11 @@ ul.social-buttons {
       background-color: #fed136; }
 
 .text-primary {
-  color: #fed136 !important; }
+  color: #fed136 !important; 
+}
+.scroll {
+    height: 100vh;
+    overflow: scroll;
+    overflow-x: hidden;
+}
 

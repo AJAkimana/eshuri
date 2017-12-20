@@ -181,8 +181,8 @@ exports.updateSettings =function(req,res,next){ // D
 }
 exports.setClassTeacher =function(req,res,next){ // D
   // console.log(' DATA is '+JSON.stringify(req.body));
-  req.assert('teacher_id', 'Invalid term').isMongoId();
-  req.assert('class_id', 'Invalid class').isMongoId();
+  req.assert('teacher_id', 'Invalid data').isMongoId();
+  req.assert('class_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
   var allClasses=[],selectedClasses=[],nsClasses=[];

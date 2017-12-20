@@ -59,27 +59,31 @@ block append content
 														input.form-control(ng-model="nvUser.name",required="true",name="n"  type="text",autocomplete="off")
 									.tab-pane#account
 										h4.info-text  You are registering as ..
-										.row
-											.col-md-10.center
-												.col-md-3
+										.row.center
+											.col-md-.center
+												.col-md-2
 													.choice(data-toggle="wizard-radio")
 														i.icon.material-icons(ng-click="setType(1)") supervisor_account
 														h6 Administration
-												.col-md-3
+												.col-md-2
 													.choice(data-toggle="wizard-radio")
 														i.icon.material-icons(ng-click="setType(1)") supervisor_account
 														h6 Teacher
-												.col-md-3
+												.col-md-2
 													.choice(data-toggle="wizard-radio")
 														i.icon.material-icons(ng-click="setType(2)") person
 														h6 Student
-												.col-md-3
+												.col-md-2
 													.choice(data-toggle="wizard-radio")
 														i.icon.material-icons(ng-click="setType(3)") verified_user
 														h6 Parent
+												.col-md-2
+													.choice(data-toggle="wizard-radio")
+														i.icon.material-icons(ng-click="setType(4)") verified_user
+														h6 Guest
 									.tab-pane#institution
-										h4.info-text  Select the institution to which you belong to
-										.row
+										h4.info-text(ng-show="nvUser.type!=4")  Select the institution to which you belong to
+										.row(ng-show="nvUser.type!=4")
 											.col-md-10.center
 												.col-md-4
 													.choice(data-toggle="wizard-radio")
@@ -93,8 +97,12 @@ block append content
 													.choice(data-toggle="wizard-radio")
 														i.icon.material-icons(ng-click="setSchool(3)") school   
 														h6 Primary school
+										h4.info-text(ng-show="nvUser.type==4") School details
+										.row(ng-show="nvUser.type==4")
+											.col-md-10.center
+												h3 Continue
 									.tab-pane#informations
-										.row
+										.row(ng-show="nvUser.type!=4")
 											h4.info-text  Now, select your school
 											.col-md-12
 												.col-md-5.center(ng-show="nvUser.institution==1")
@@ -133,6 +141,11 @@ block append content
 														select.form-control(ng-model="nvUser.class_id",required="true")
 															option(disabled="", selected="")
 															option(value="{{eshuri._id}}",ng-repeat="eshuri in list_classes") {{eshuri.name|uppercase}}
+										.row(ng-show="nvUser.type==4")
+											h4.info-text  School information
+											.col-md-12
+												.col-md-5.center
+													h3 Continue
 									.tab-pane#genderness
 										.row
 											h3.info-text Select your gender
@@ -166,9 +179,20 @@ block append scripts
 	script(src="../js/MIT/init_wizard.js", type="text/javascript")
 	script(src="../js/MIT/jquery.validate.min.js", type="text/javascript")
 	script.
-		var app =angular.module('eshuri_App', ['ngRoute']);
+		var app =angular.module('eshuri_App', ['ngRoute', 'ngStorage']);
 
-		app.controller('SignupCtrl', function($scope, $http, $window){
+		app.filter('toInstitution', function() {
+			  return function(input){
+			    if(isNaN(input)) return input;
+			    switch(input){
+			      case '1': input ="Department";break;case '2': input ="High school";break;case '3': input ="Primary";break;
+			      case '4': input ="Infant school";break;
+			      default: input="Invalid intitution";break;
+			    }
+			    return input;
+			  }
+			})
+			.controller('SignupCtrl', function($scope, $http, $window, $localStorage){
 			$scope.signUp = function(){
 				$scope.nvUser_csrf =$scope.anti_csrf;
 				$http
@@ -257,6 +281,17 @@ block append scripts
 				else 
 					$scope.getListSchools();
 			}
+			$scope.checkSchool = function(){
+				if (typeof(Storage) !== "undefined") {
+					$scope.infos = $localStorage.selected_school;
+					console.log("====="+JSON.stringify($scope.infos));
+					//- alert("Chosen:"+JSON.stringify($localStorage.selected_school));
+				} else {
+				    Notifier.danger("Sorry you are using the old browser");
+				}
+				//- alert("Chosen:"+JSON.stringify($localStorage.selected_school));
+			}
+			$scope.checkSchool();
 			$scope.setGender =(number)=>{
 				$scope.nvUser.gender= number;
 			}

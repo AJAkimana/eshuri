@@ -1,0 +1,31 @@
+extends ../layout
+block append content 
+	//- .main-panel
+		include ../partials/header 
+	.wrapper.wrapper-full-page.fullff-page-background(style="")
+		.full-page.register-page(filter-color="white")
+			.content.reg_touch
+				.container.no-padding()
+					.col-md-10.col-md-offset-2.center.no-padding(style="margin-left: 0")
+						.col-md-12.app_cont
+							.row
+								h2 #{school.name}
+								.sch_cover.col-sm-12
+									img(src="#{school.cover_photo}")
+							.row
+								h3 Description
+								p #{school.name}
+								br
+							.sch_desc #{school.description}
+							.sch_fees #{school.average_school_fees}
+							.sch_req #{school.student_requirements}
+							.sch_stories #{school.stories}
+							.sch_combinations #{school.combinations}
+							.sch_curr #{school.curriculum}
+
+block append scripts
+	script(src="../js/select/select.js", type="text/javascript")
+
+	script(src="../js/_app.js", type="text/javascript")
+	script(src="../js/ViewApplication.js", type="text/javascript")
+	

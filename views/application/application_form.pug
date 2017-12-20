@@ -1,0 +1,418 @@
+extends ../layout
+block append content 
+  .wrapper.wrapper-full-page.full-page-background(ng-controller="formCtrl",style="background-image: url('../imgs/register.jpeg')")
+    .full-page.register-page(filter-color="white")
+      .content
+        .col-md-8.col-sm-8.col-lg-8.col-md-offset-2.col-sm-offset-2.col-lg-offset-2
+          // Wizard container
+          .wizard-container
+            .card.wizard-card(data-color="green")#wizardProfile
+              form.form-validation(method="",role='form', novalidate='')
+                // You can switch " data-color="purple" "  with one of the next bright colors: "green", "orange", "red", "blue"
+                .wizard-header
+                h2.info-text {{school.name|uppercase}}
+                .wizard-navigation
+                  ul
+                    li: a(href="#conf_files", data-toggle="tab") Attachments
+                    li: a(href="#basic_info", data-toggle="tab") About
+                    li: a(href="#guardian", data-toggle="tab") Guardian
+                    li: a(href="#prog_finance", data-toggle="tab") Prog & Finence
+                    li: a(href="#confirm", data-toggle="tab") Confirm
+                    
+                .tab-content
+                  .tab-pane#conf_files
+                    .row
+                      h3.info-text User Documents
+                      .col-md-10.center
+                        .col-md-6
+                          h4 ttach your Identification Document, ID or Passport
+                          input(type='file', ngf-select='', ng-model='id_file')
+                          hr
+                          h4 Attach a latest certificate/Diploma
+                          input(type='file', ngf-select='', ng-model='diploma_file')
+                          hr
+                          h4 Attach a Transcript
+                          input(type='file', ngf-select='', ng-model='transcript_file')
+                          button.btn-primary(ng-click='saveFiles()') Save
+                        .col-md-6
+                          div(ng-show='progressVisible')
+                            .percent {{progress}}%
+                            .progress-bar
+                              .uploaded(ng-style="{'width': progress+'%'}")
+                  .tab-pane#basic_info
+                    .row
+                      h2.info-text  Personal Information
+                      .col-md-4.col-sm-4.col-lg-4.col-md-offset-1
+                        .picture-container
+                          .picture
+                            img.picture-src(src="../../imgs/avatar.png", title="")#wizardPicturePreview
+                        h4.info-text Maritus status
+                        .radio
+                          label
+                            input(name='maritus', type='radio', ng-model='regForm.maritus', value='S')
+                            | Single
+                        .radio
+                          label
+                            input(name='maritus', type='radio', ng-model='regForm.maritus', value='M')
+                            | Maried
+                        .radio
+                          label
+                            input(name='maritus', type='radio', ng-model='regForm.maritus', value='W')
+                            | Widow(er)
+                        .radio
+                          label
+                            input(name='maritus', type='radio', ng-model='regForm.maritus', value='D')
+                            | Divorced
+                      .col-md-6.col-sm-6.col-lg-6
+                        .form-group.label-floating
+                          label Title (required)
+                          h4 {{regForm.gender|toTitle}}
+                          
+                        .form-group.label-floating
+                          label.control-label Names (required)
+                          //- input.form-control(type="email", name="e",required="true",ng-model="nvUser.email",autocomplete="off")
+                          input.form-control(type='text', name='names', ng-maxlength='250', ng-model='regForm.names', required='', ng-class="{'input-error': formValidation && regForm.names.$error.required}")
+                          span(ng-show='regForm.names.$error.maxlength') Max character length reached.
+                        .form-group.label-floating
+                          label.control-label Email (required)
+                          //- input.form-control(type="email", name="e",required="true",ng-model="nvUser.email",autocomplete="off")
+                          input.form-control(type='email', name='email', ng-maxlength='100', ng-model='regForm.email', ng-class="{'input-error': formValidation && regForm.email.$error.required}", ng-model-options="{ updateOn: 'blur' }", required='')
+                          span(ng-show='regForm.email.$error.email')
+                            | Incorrect email format.
+                          span(ng-show='regForm.email.$error.maxlength')
+                            | Max character length reached.
+                        .form-group.label-floating
+                          label.control-label Phone number (required)
+                          //- input.form-control(type="email", name="e",required="true",ng-model="nvUser.email",autocomplete="off")
+                          input.form-control(type='text', name='phone', ng-maxlength='12', ng-model='regForm.phone', required='', ng-class="{'input-error': formValidation && regForm.phone.$error.required}")
+                          span(ng-show='regForm.phone.$error.maxlength') Invalid phone number.
+                  .tab-pane#guardian
+                    .row
+                      h2.info-text  Guardian/Parents information
+                      .col-md-6.col-sm-6.col-lg-6
+                        .form-group.label-floating
+                          label.control-label First guardian Names
+                          //- input.form-control(type="email", name="e",required="true",ng-model="nvUser.email",autocomplete="off")
+                          input.form-control(type='text', name='guardian1_names', ng-maxlength='250', ng-model='regForm.guardian1_names', required='', ng-class="{'input-error': formValidation && regForm.guardian1_names.$error.required}")
+                        .form-group.label-floating
+                          label.control-label Phone number
+                          //- input.form-control(type="email", name="e",required="true",ng-model="nvUser.email",autocomplete="off")
+                          input.form-control(type='text', name='guardian1_phone', ng-maxlength='250', ng-model='regForm.guardian1_phone', required='',)
+                        .form-group.label-floating
+                          label.control-label Email
+                          //- input.form-control(type="email", name="e",required="true",ng-model="nvUser.email",autocomplete="off")
+                          input.form-control(type='text', name='guardian1_email', ng-maxlength='250', ng-model='regForm.guardian1_email', required='',)
+                      .col-md-6.col-sm-6.col-lg-6
+                        .form-group.label-floating
+                          label.control-label Second guardian Names
+                          //- input.form-control(type="email", name="e",required="true",ng-model="nvUser.email",autocomplete="off")
+                          input.form-control(type='text', name='guardian2_names', ng-maxlength='250', ng-model='regForm.guardian2_names')
+                        .form-group.label-floating
+                          label.control-label Phone number
+                          //- input.form-control(type="email", name="e",required="true",ng-model="nvUser.email",autocomplete="off")
+                          input.form-control(type='text', name='guardian2_phone', ng-maxlength='250', ng-model='regForm.guardian2_phone')
+                        .form-group.label-floating
+                          label.control-label Email
+                          //- input.form-control(type="email", name="e",required="true",ng-model="nvUser.email",autocomplete="off")
+                          input.form-control(type='text', name='guardian2_email', ng-maxlength='250', ng-model='regForm.guardian2_email')
+                      .row
+                        h2.info-text  Residance
+                        .col-md-4.col-sm-4.col-lg-4
+                          .form-group.label-floating
+                            label.control-label Province
+                            //- input.form-control(type="email", name="e",required="true",ng-model="nvUser.email",autocomplete="off")
+                            select.form-control(type='text', name='province', ng-maxlength='250', ng-model='regForm.province', required='', ng-change="getDistricts(regForm.province)")
+                              option(value="{{p.Province_ID}}", ng-repeat="p in provinces") {{p.Province_NAME}}
+                        .col-md-4.col-sm-4.col-lg-4
+                          .form-group.label-floating
+                            label.control-label District
+                            select.form-control(type='text', name='district', ng-maxlength='250', ng-model='regForm.district', required='', ng-change="getSectors(regForm.district)")
+                              option(value="{{d.District_ID}}", ng-repeat="d in districts") {{d.District_NAME}}
+                        .col-md-4.col-sm-4.col-lg-4
+                          .form-group.label-floating
+                            label.control-label Sector
+                            select.form-control(type='text', name='sector', ng-maxlength='250', ng-model='regForm.sector', required='', )
+                              option(value="{{s.Sector_ID}}", ng-repeat="s in sectors") {{s.Sector_NAME}}
+                      
+                  .tab-pane#prog_finance
+                    h2.info-text  Programs and Finances
+                    .row
+                      .col-md-6.col-sm-6.col-lg-6
+                        h4.info-text Choose program
+                        .radio
+                          label
+                            input(type='radio', name='program',ng-model='regForm.program', value='day')
+                            | Day
+                        .radio
+                          label
+                            input(type='radio', name='program',ng-model='regForm.program', value='evening')
+                            | Evening
+                        .radio
+                          label
+                            input(type='radio', name='program', ng-model='regForm.program', value='weekend')
+                            | Weekend
+                        h4.info-text Year of studies
+                        .radio(ng-repeat="y in years")
+                          label
+                            input(type='radio', name='year_o_s', ng-model='regForm.year_o_s', value='{{y}}')
+                            | Year {{y}}
+                        h4.info-text Program to attend
+                        .radio(ng-repeat="f in faculties")
+                          label
+                            input(type='radio', name='faculties', ng-model='regForm.faculties', value='{{f}}')
+                            | {{f|to_Capital}}
+                      .col-md-6.col-sm-6.col-lg-6
+                        .form-group.label-floating
+                          label.control-label Previous school*
+                          input.form-control(type='text', name='prev_school', ng-maxlength='250', ng-model='regForm.prev_school', required='',)
+                        .form-group.label-floating
+                          label.control-label Previous Option of Study*
+                          input.form-control(type='text', name='prev_option', ng-maxlength='250', ng-model='regForm.prev_option', required='',)
+                        .form-group.label-floating
+                          label.control-label Your grade*
+                          input.form-control(type='text', name='grade', ng-model='regForm.grade', required='true',)
+                        h4.info-text Finencial Category
+                        .radio
+                          label
+                            input(type='radio', name='finance',ng-model='regForm.finance', value='self')
+                            | Self sponsership
+                        .radio
+                          label
+                            input(type='radio', name='finance',ng-model='regForm.finance', value='farg')
+                            | FARG sponsership
+                        .radio
+                          label
+                            input(type='radio', name='finance', ng-model='regForm.finance', value='other')
+                            | Other
+                        .form-group.label-floating(ng-show="regForm.finance==other")
+                          input.form-control(type='text', name='finance', ng-model='regForm.finance', required='true', placeholder="Specify")
+
+                  .tab-pane#confirm
+                    h2
+                      b Confirm
+                      br
+                    h3 Personal Information
+                    div
+                      b
+                        | Title: &nbsp{{regForm.gender|toTitle}} &nbsp{{regForm.names}}
+                    div
+                      b Gender: &nbsp{{regForm.gender|toGender}}
+                    div
+                      b Email: &nbsp{{regForm.email}}
+                    div
+                      b Phone: &nbsp{{regForm.phone}}
+                    //- div
+                      b Date of Birth: &nbsp{{vm.model.dob}}
+                    div
+                      b Marital Status: &nbsp{{regForm.maritus}}
+                    h3 Guardian and Residence
+                    div
+                      b First Guardian: &nbsp{{regForm.guardian1_names}}
+                    div
+                      b Second Guardian: &nbsp{{regForm.guardian2_names}}
+                    div
+                      b
+                        | Residence: &nbsp{{regForm.province|toProvince:provinces}}, {{regForm.district|toDistrict:districts}}, {{regForm.sector|toSector:sectors}}
+                    h3 Programs and Finances
+                    div
+                      b Choosen program: &nbsp{{regForm.program}}
+                    div
+                      b Enrolling in Year: &nbsp{{regForm.year_o_s}}
+                    div
+                      b Programs to attend: &nbsp{{regForm.programs}}
+                    div
+                      b Previous Attended School: &nbsp{{regForm.prev_school}}
+                    div
+                      b Average Grade: &nbsp{{regForm.grade}}
+                    div
+                      b Financial Category: &nbsp{{regForm.finance}} 
+                  
+                .wizard-footer
+                  .pull-right
+                    input.btn.btn-next.btn-fill.btn-rose.btn-wd(type="button", value="Next")
+                    input.btn.btn-finish.btn-fill.btn-rose.btn-wd(type="button", ng-click="submitRegistration()" value="Finish")
+                  .pull-left
+                    input.btn.btn-previous.btn-fill.btn-default.btn-wd(type="button", value="Previous")
+                  .clearfix
+block append scripts
+  script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+  script(src="../js/MIT/jquery.bootstrap-wizard.js", type="text/javascript")
+  script(src="../js/MIT/init_wizard.js", type="text/javascript")
+  script(src="../js/MIT/jquery.validate.min.js", type="text/javascript")
+  script(src="../homejs/ng-file-upload.min.js")
+  script(src="../homejs/ng-file-upload-shim.min.js")
+  //- script(src="../js/homejs/appFormCtlr.js", type="text/javascript")
+  script.
+    var app =angular.module('eshuri_App', ['ngRoute', 'ngStorage', 'ngFileUpload']);
+    app.filter('toTitle', function() {
+        return function(input){
+          if(isNaN(input)) return input;
+          switch(input){
+            case '1': input ="Mr";break;case '2': input ="Mrs";
+            default: input="Ms";break;
+          }
+          return input;
+        }
+      })
+      .filter('toGender', function() {
+        return function(input){
+          if(isNaN(input)) return input;
+          switch(input){
+            case '1': input ="Male";break;case '2': input ="Femele";
+            default: input="Unknown";break;
+          }
+          return input;
+        }
+      })
+      .filter('toProvince', function() {
+        return function(input, list_provinces){
+          if(input==''||!input) return 'Not defined';
+          for(var i =0;i < list_provinces.length;i++){
+            if(list_provinces[i].Province_ID == input) return list_provinces[i].Province_NAME
+          }
+        }
+      })
+      .filter('toDistrict', function() {
+        return function(input, list_districts){
+          if(input==''||!input) return 'Not defined';
+          for(var i =0;i < list_districts.length;i++){
+            if(list_districts[i].District_ID == input) return list_districts[i].District_NAME
+          }
+        }
+      })
+      .filter('toSector', function() {
+        return function(input, list_sectors){
+          if(input==''||!input) return 'Not defined';
+          for(var i =0;i < list_sectors.length;i++){
+            if(list_sectors[i].Sector_ID == input) return list_sectors[i].Sector_NAME
+          }
+        }
+      })
+      .filter('to_Capital', function() {
+        return function(input){
+          return input.charAt(0).toUpperCase() + input.slice(1);
+        }
+      })
+      .controller('formCtrl', function($scope, $http, $window, $localStorage, Upload){
+        $scope.regForm = {};
+        
+        $scope.provinces = [];
+        var allData = [];
+        $scope.getProvinces = function(){
+          $http.get('../locals.json')
+          .then(function(response){
+            allData = response.data;
+            $scope.provinces = allData.provinces;
+          })
+        }
+        $scope.getDistricts = function(province){
+          $scope.districts = [];
+          var allDists = [];
+          allDists = allData.districts
+          for(var i=0;i<allDists.length;i++){
+            if(allDists[i].Province_ID==province){
+              $scope.districts.push(allDists[i])
+            }
+          }
+        }
+        $scope.getSectors = function(district){
+          $scope.sectors = [];
+          var allSectors = allData.sectors;
+          for(var i=0;i<allSectors.length;i++){
+            if(allSectors[i].District_ID==district){
+              $scope.sectors.push(allSectors[i])
+            }
+          }
+        }
+        $scope.submitRegistration = function(){
+          $scope.regForm.school_id = $scope.school._id;
+          $http
+          .post('/submit.new.application', $scope.regForm)
+          .then(function(response){
+            Notifier.success('Working')
+          })
+          .catch(function(error){
+            Notifier.danger(error.data)
+          })
+        }
+        $scope.getProvinces();
+        $scope.years=[];
+        $scope.faculties=[];
+        $scope.loadSchool = function(){
+          if (typeof(Storage) !== "undefined") {
+            if($localStorage.selected_school){
+              var school = $localStorage.selected_school;
+              $scope.school = school;
+              if(school.combinations){
+                var stringCombination = school.combinations.split(',');
+                for(var c=0; c<stringCombination.length;c++){
+                  $scope.faculties.push(stringCombination[c]);
+                }
+              }
+              if(school.years){
+                for(var i=1;i<=school.years;i++){
+                  $scope.years.push(i)
+                }
+              }
+              console.log('Programs:'+$scope.faculties+' Years: '+$scope.years+'-----------'+JSON.stringify(school))
+            }
+          }
+        }
+        $scope.saveThis = function() {
+          var nationalId = $scope.id_file
+          var diploma = $scope.diploma_file;
+          var transcript = $scope.transcript_file;
+          if (!nationalId) return Notifier.danger('File is missing');
+          $scope.progressVisible = true
+          Upload.upload({
+              url: '/attach.file',
+              file: nationalId,
+            })
+          .progress(function(evt) {
+            var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+            console.log('progress: ' + progressPercentage + '% ' + evt.config.file.name);
+            $scope.progress=progressPercentage;
+          })
+          .success(function(data, status, headers, config) {
+            console.log('file ' + config.file.name + 'uploaded. Response: ' + data);
+          })
+          .error(function(data, status, headers, config) {
+            console.log('error status: ' + status);
+          })
+        };
+        $scope.files = [];
+        $scope.saveFiles = function() {
+          var nationalId = $scope.id_file
+          var diploma = $scope.diploma_file;
+          var transcript = $scope.transcript_file;
+          if(nationalId&&diploma&&transcript){
+            $scope.files.push(nationalId,diploma,transcript);
+            $scope.upload($scope.files);
+          }
+          else return Notifier.danger('File is missing');
+        };
+
+        // upload on file select or drop
+        $scope.upload = function (files) {
+            Upload.upload({
+                url: '/attach.file',
+                file: files
+            }).then(function (resp) {
+                console.log('Success ' + resp.config.file.name + 'uploaded. Response: ' + resp);
+            }, function (resp) {
+                console.log('Error status: ' + resp.message);
+            }, function (evt) {
+                var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                console.log('progress: ' + progressPercentage + '% ' + evt.config.file.name);
+            });
+        };
+        $scope.titles=[1,2];
+        $scope.regForm.names="#{user.name}";
+        $scope.regForm.email="#{user.email}";
+        $scope.regForm.gender="#{user.gender}";
+        $scope.regForm.phone="#{user.phone_number}";
+        $scope.loadSchool();
+        $().ready(function() {
+          wizard.initMaterialWizard();
+        });
+      })

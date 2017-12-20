@@ -193,7 +193,7 @@ exports.deleteBook = (req,res)=>{
 		if(err1) return log_err(err1,false,req,res);
 		else if(!theBook) return res.status().send("The book does exist")
 		require("fs").unlink(theBook.bookName,(err)=>{
-		    if(err) return console.log(" FILE NOT DELETED !")
+		    if(err) return console.log(" FILE NOT DELETED !"+err)
 		    require("fs").unlink(process.env.LIBRARY_PICTURE+"/"+theBook.image,(err)=>{
 		    	Library.remove({_id:req.params.bookId,school_id:req.user.school_id},(err2,Bookdeleted)=>{
 					if(err2) return log_err(err2,false,req,res);

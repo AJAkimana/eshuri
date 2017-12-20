@@ -101,7 +101,7 @@ exports.postSignIn = (req, res, next) => {
       var weeks = 7 * 24 * hours;    
       // Cookie expires after 1 week and 10 hours > REgister mornig expires night
       // first 9h du mat then expires the night
-      console.log(' New USer '+JSON.stringify(newUser))
+      console.log(' New USer '+JSON.stringify(user))
       req.session.cookie.maxAge = 1 * weeks + 10*hours;
       var link =req.user.access_level==1 ? "/dashboard":"/home";
       if(req.user.access_level ==req.app.locals.access_level.HOD){
@@ -117,7 +117,7 @@ exports.postSignIn = (req, res, next) => {
       }
       else return res.send(link);     
     });
-    console.log(' New USer '+JSON.stringify(req.session))
+    console.log(' New logIn------ '+JSON.stringify(req.logIn))
   })(req, res, next);
 };
 exports.postOfflineSignIn = (req, res, next) => {
@@ -192,53 +192,86 @@ exports.postSignUp = (req, res, next) => {
   req.assert('password2', 'Passwords don\'t match').equals(req.body.password);
   req.assert('phone_number', 'Please a phone number is required').notEmpty();
   // req.assert('school_id', 'The school is invalid').isMongoId();
-  req.assert('type', 'Choose what you are registering as (teacher ?, student?)').isIn([1,2,3]);
-  req.assert('institution', 'Choose the type of the institution').isIn([1,2,3]);
+  req.assert('type', 'Choose what you are registering as (teacher ?, student?, parent? or guest)').isIn([1,2,3,4]);
+  if (req.body.type!=4){
+    req.assert('institution', 'Choose the type of the institution').isIn([1,2,3]);
+  }
   req.assert('gender', 'Give us your gender').isIn([1,2]); 
   
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
   // let s check if the school exists or not
-  var etablissement_id=req.body.institution == 1? String(req.body.option_id):String(req.body.school_id);
-
-  School.findOne({_id:etablissement_id},(err,schoolExists)=>{
-    if(err) return log_err(err,false,req,res);
-    else if(!schoolExists) return res.status(400).send(' Invalid data');
-      // Generate an XCode
-    // will generate a Unique registration number
+  var accountType = req.body.type;
+  // If account is being created by a gust
+  if(accountType==4){
     User.count((err,number)=>{
       if(err) return log_err(err,false,req,res);
       req.body.URN =Util.generate_URN(number);
 
       passport.authenticate('local.signup', (err, user, info)=>{
-        if(err) return log_err(err,false,req,res);
+        if(err){
+          console.log("_______________"+err)
+          return log_err(err,false,req,res);
+        }
         else if(!user) return res.status(400).send(info.msg);
         var token = Util.uid(req.app.locals.tokenLength);
-        var newToken = new Token({
-          value:req.body.email+token,
-        })
+        var newToken = new Token({value:req.body.email+token});
         newToken.save((err)=>{
           if(err) return log_err(err,false,req,res);
-          // Now i will send the mail
-          var email_sender = require("./email_sender"); // the email file controller
-          var infos ={
-            email: req.body.email, // but other day its req.body.email
-            token: token,
-           };
-           // send the mail
-          email_sender
-          .sendEmailValidation(infos)
-          .then((info)=>{
+          var emailSender = require("./email_sender");
+          var infos={email:req.body.email,token:token};
+          emailSender.sendEmailValidation(infos).then((info)=>{
             console.log(" MAIL OK SENT !!!")
+          }).catch((err)=>{
+            console.log(" MAIL Not SENT !!!")
+          });
+          res.end();
+        })
+      })(req,res, next);
+    })
+  }
+  else{
+    var etablissement_id=req.body.institution == 1? String(req.body.option_id):String(req.body.school_id);
+  
+    School.findOne({_id:etablissement_id},(err,schoolExists)=>{
+      if(err) return log_err(err,false,req,res);
+      else if(!schoolExists) return res.status(400).send(' Invalid data');
+        // Generate an XCode
+      // will generate a Unique registration number
+      User.count((err,number)=>{
+        if(err) return log_err(err,false,req,res);
+        req.body.URN =Util.generate_URN(number);
+  
+        passport.authenticate('local.signup', (err, user, info)=>{
+          if(err) return log_err(err,false,req,res);
+          else if(!user) return res.status(400).send(info.msg);
+          var token = Util.uid(req.app.locals.tokenLength);
+          var newToken = new Token({
+            value:req.body.email+token,
           })
-          .catch((error)=>{
-            console.log(" MAIL NOT SENT !!!");
-          })
-        return res.end();
-      })
-      })(req, res, next);
-    })  
-  })
+          newToken.save((err)=>{
+            if(err) return log_err(err,false,req,res);
+            // Now i will send the mail
+            var email_sender = require("./email_sender"); // the email file controller
+            var infos ={
+              email: req.body.email, // but other day its req.body.email
+              token: token,
+             };
+             // send the mail
+            email_sender
+            .sendEmailValidation(infos)
+            .then((info)=>{
+              console.log(" MAIL OK SENT !!!")
+            })
+            .catch((error)=>{
+              console.log(" MAIL NOT SENT !!!");
+            })
+          return res.end();
+        })
+        })(req, res, next);
+      })  
+    })
+  }
 };
 exports.logout = (req, res) => {
   req.session.destroy()
@@ -457,8 +490,12 @@ exports.getValidateYourAccount = (req,res,next)=>{
         redirect_link:"/user.signin"
     }) 
     else {
-      User.findOneAndUpdate({email:req.query.m},{$set:{isValidated:true}},(err,userExists)=>{
-         if(err) return log_err(err,true,req,res);
+      User.findOne({email:req.query.m},(err,userExists)=>{
+        if(err) return log_err(err,true,req,res);
+        else if(!userExists) return log_err(err,true,req,res);
+        userExists.isValidated = true;
+        if(userExists.access_level===req.app.locals.access_level.GUEST) userExists.isEnabled=true;
+        userExists.save((err)=>{
           return res.render("./lost",{
             msg:"Congratulations, your account has been validated",
             redirect_link:"/user.signin",
@@ -476,9 +513,10 @@ exports.getValidateYourAccount = (req,res,next)=>{
           token_exists.remove((err)=>{
             if(err) console.log("Service not available")
           })
+        })
+          
       })          
     }
-
   })
 }
 

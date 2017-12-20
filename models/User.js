@@ -23,7 +23,35 @@ var UserSchema = new Schema({
 
   department_id:{type: Schema.Types.ObjectId,required:false,unique:false},
   // faculty_id:{type: Schema.Types.ObjectId,required:false,unique:false},
-  
+  // For application to admission
+  marital_status: {type:String,required:false,unique:false},
+
+    // Address Information    
+  address:{
+    province: {type:String,required:false,unique:false},
+    district: {type:String,required:false,unique:false},
+    sector: {type:String,required:false,unique:false},
+  },
+  // Guardian Information
+  guardian:{
+    name:{type:String,required:false,unique:false},
+    phone:{type:String,required:false,unique:false},
+    email:{type:String,required:false,unique:false},
+  },
+  // Programs Information
+  past_info:{
+    prev_school: {type:String,required:false,unique:false},
+    prev_combination: {type:String, require:false,unique:false},
+    grade: {type:Number,required:false, min:0,unique:false},
+  },
+  finance_category: {type:String,required:false,unique:false},
+  // Documents Information
+  documents: {
+    id_card:{type:String,required:false,unique:false},
+    latest_doc:{type:String,required:false,unique:false},
+    transcipts:{type:String,required:false,unique:false}
+  },
+
   access_level:{type:Number,default:4, enum:[1,2,3,4],unique:false},
   // When you are not yet confirmed or someone has diasbled you
   isEnabled:{type:Boolean,required:false, default:false, unique:false},

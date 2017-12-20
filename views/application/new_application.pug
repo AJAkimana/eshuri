@@ -1,0 +1,167 @@
+extends ../layout 
+block append content
+	//- .main-panel
+		include ../partials/header 
+	.wrapper.wrapper-full-page.fullff-page-background(style="")
+		.full-page.register-page(filter-color="white")
+			.content.reg_touch
+				.container.no-padding(ng-controller="singleSchool as ss", )
+					.col-md-10.col-md-offset-2.center.no-padding(style="margin-left: 0")
+						//- Registration Wizard Container
+						.col-sm-10.center.reg_cont(ng-controller="MainController as vm")
+							//- p #{school}
+							- if (messages.startingApplicationAt)
+									.message.info(style="margin-top:1em; text-transform: capitalize;")
+										.alert.alert-info(role="alert", style="padding: 11px 15px;")
+											span(style='font-size: medium;font-weight: 600')= messages.startingApplicationAt
+							form(name="vm.form", method="POST", action="/process_uploads" enctype="multipart/form-data")
+								wizard(on-finish="vm.finishWizard()")
+									wz-step(title="Step 1",canexit="vm.exitValidation(vm.forms.step1)")
+										h2.reg_tab_title Personal Information
+										formly-form(model="vm.model", fields="vm.fields.step1", form="vm.forms.step1")
+											div(style="text-align:right")
+												button.btn.btn-primary.submit-button(type="submit", ng-disabled="vm.forms.step1.$invalid", wz-next) Next
+									wz-step(title="Step 2", canexit="vm.exitValidation(vm.forms.step2)")
+										h2.reg_tab_title Guardian and Residence
+										formly-form(model="vm.model", fields="vm.fields.step2", form="vm.forms.step2")
+											div(style="text-align:right")
+												button.btn.btn-primary.submit-button(type="submit", ng-disabled="vm.forms.step2.$invalid", wz-next) Next
+									wz-step(title="Step 3", canexit="vm.exitValidation(vm.forms.step3)")
+										h2.reg_tab_title Programs and Finances
+										formly-form(model="vm.model", fields="vm.fields.step3", form="vm.forms.step3")
+											div(style="text-align:right")
+												button.btn.btn-primary.submit-button(type="submit", ng-disabled="vm.forms.step3.$invalid", wz-next) Next
+									
+									wz-step(title="Confirm")
+										h2
+											b Confirm
+											br
+										h3 Personal Information
+										div
+											b Title: &nbsp{{vm.model.title}} &nbsp{{vm.model.firstname}} &nbsp{{vm.model.lastname}}
+										div
+											b Gender: &nbsp{{vm.model.gender}}
+										div
+											b Email: &nbsp{{vm.model.email}}
+										div
+											b Phone: &nbsp{{vm.model.phone}}
+										div
+											b Date of Birth: &nbsp{{vm.model.dob}}
+										div
+											b Marital Status: &nbsp{{vm.model.marital_status}}
+										h3 Guardian and Residence
+										div
+											b First Guardian: &nbsp{{vm.model.guardian1}}
+										div
+											b Second Guardian: &nbsp{{vm.model.guardian2}}
+										div
+											b Residence: &nbsp{{vm.model.province}}, {{vm.model.district}}, {{vm.model.sector}}
+										h3 Programs and Finances
+										div
+											b Choosen program: &nbsp{{vm.model.program}}
+										div
+											b Enrolling in Year: &nbsp{{vm.model.year_o_s}}
+										div
+											b Programs to attend: &nbsp{{vm.model.programs}}
+										div
+											b Previous Attended School: &nbsp{{vm.model.previous_school}}
+										div
+											b Average Grade: &nbsp{{vm.model.grade}}
+										div
+											b Financial Category: &nbsp{{vm.model.finance}}		
+
+										div(style="text-align:right")
+											button.btn.btn-primary.submit-button(type="submit", wz-finish, wz-next) Confirm and Save Information
+
+									wz-step(title="File Uploads", canexit="vm.exitValidation(vm.forms.step4)")
+										h2.reg_tab_title Attachments
+										input(type="hidden", name="reg_id", value="{{ resmsg }}")
+										input(type="hidden", name="school_id", value="#{school._id}")
+										input(type="hidden", name="school_name", value="#{school.name}")
+										formly-form(model="vm.model", fields="vm.fields.step4", form="vm.forms.step4", options="vm.options")
+											div(style="text-align:right")
+												button.btn.btn-primary.submit-button(type="submit", ng-disabled="vm.forms.step4.$invalid") Submit Application
+
+
+block append scripts
+	//- For sexy alerts
+	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+	script(src="../js/forms/api-check.js", type="text/javascript")
+	//- For easy angular forms and validations 
+	script(src="../js/forms/formly.js", type="text/javascript")
+	script(src="../js/forms/angular-formly-templates-bootstrap.js", type="text/javascript")
+	script(src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.3/ui-bootstrap-tpls.js", type="text/javascript")
+	script(src="../js/ng-file-upload.min.js", type="text/javascript")
+	script(src="../js/ng-file-upload-shim.min.js", type="text/javascript")
+
+	//- Put custom templates here
+	script(type="text/ng-template", id="datepicker.html")
+		p.input-group
+			input(type="text",
+			id="{{::id}}",
+			name="{{::id}}",
+			ng-model="model[options.key]",
+			class="form-control",
+			ng-click="datepicker.open($event)",
+			uib-datepicker-popup="{{to.datepickerOptions.format}}",
+			is-open="datepicker.opened",
+			datepicker-options="to.datepickerOptions")
+			span.input-group-btn
+				button.btn.btn-default(type="button", ng-click="datepicker.open($event)", ng-disabled="to.disabled")
+					i.glyphicon.glyphicon-calendar
+	script(type="text/ng-template", id="loading.html")
+		div(ng-if="to.loading.$$state.status === 0", style="line-height:34px") Loading...
+		div(ng-if="to.loading.$$state.status !== 0")
+			formly-transclude
+	script(src="https://cdn.jsdelivr.net/npm/angular-wizard@latest/dist/angular-wizard.min.js", type="text/javascript")
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute', 'summernote', 'formly', 'formlyBootstrap', 'mgo-angular-wizard', 'ui.bootstrap', 'ngFileUpload']);
+		app.run(function(formlyConfig) {
+			var attributes = ['date-disabled','custom-class','show-weeks','starting-day','init-date','min-mode','max-mode','format-day','format-month','format-year','format-day-header','format-day-title','format-month-title','year-range','shortcut-propagation','datepicker-popup','show-button-bar','current-text','clear-text','close-text','close-on-date-selection','datepicker-append-to-body'];
+			var bindings = ['datepicker-mode','min-date','max-date'];
+			var ngModelAttrs = {};
+			angular.forEach(attributes, function(attr) {
+				ngModelAttrs[camelize(attr)] = {attribute: attr};
+			});
+			angular.forEach(bindings, function(binding) {
+				ngModelAttrs[camelize(binding)] = {bound: binding};
+			});
+			//- console.log(ngModelAttrs);
+			formlyConfig.setType({
+				name: 'datepicker',
+				templateUrl:  'datepicker.html',
+				wrapper: ['bootstrapLabel', 'bootstrapHasError'],
+				defaultOptions: {ngModelAttrs: ngModelAttrs, templateOptions: {datepickerOptions: {format: 'MM.dd.yyyy',initDate: new Date()}}},
+				controller: ['$scope', function ($scope) {
+					$scope.datepicker = {};
+					$scope.datepicker.opened = false;
+						$scope.datepicker.open = function ($event) {
+						$scope.datepicker.opened = !$scope.datepicker.opened;
+					};
+				}]
+			});
+			function camelize(string) {
+				string = string.replace(/[\-_\s]+(.)?/g, function(match, chr) {
+					return chr ? chr.toUpperCase() : '';
+				});
+				// Ensure 1st char is always lowercase
+				return string.replace(/^([A-Z])/, function(match, chr) {
+					return chr ? chr.toLowerCase() : '';
+				});
+			}
+		});
+		app.controller('singleSchool', function($scope, $http, $window) {
+			console.log("controller Single School loaded")
+			//- TODO get the whole school object
+			
+		});
+		//- Make a flash message fade out
+		var message = $( '.message' );
+		if ( message.length ) {
+			setTimeout( function() {
+			message.fadeOut( 'slow' );
+			}, 4000 );
+		}
+	script(src="../js/data_.js", type="text/javascript")
+	script(src="../js/MainController.js", type="text/javascript")
+	

@@ -1,7 +1,6 @@
 /* HERE WE WILL ST SOME COMSTANTS VARIABLES*/
 module.exports = function(app) {
 	/* TYpes of contents*/
-	app.locals.per_pages=[3,5,10,15,20,25];
 	app.locals.type={
 		W_Note:1,
 		PDF_Note:2,
@@ -19,6 +18,7 @@ module.exports = function(app) {
 		ADMIN_TEACHER:2.1,
 		TEACHER:3,
 		STUDENT:4,
+		GUEST:4.1,
 		PARENT:5,
 	};
 	app.locals.MAXPOSTLENGTH=140;

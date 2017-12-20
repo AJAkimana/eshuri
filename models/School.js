@@ -25,6 +25,25 @@ var SchoolSchema = new Schema({
 	partnership:{type:Number,required:true, enum:[1,2,3],unique:false},//1. Private 2. Public 3. Public-Private
 	institution:{type:Number,required:true, enum:[1,2,3,4],unique:false},//1. Option 2. High school 3. Primary 4.Infant school
 	// isInternational:{type:Boolean,required:false,default:false, unique:false}, // If the school is located in other countries
+	additional_information: {type: String,required:false,unique:false},
+	average_school_fees: {type: Number,required:false,unique:false},
+	curriculum: {type:Number,required:false, enum:[1,2,3],unique:false},//1.REB, 2. WDA, 3.ANGL
+	student_requirements: {type: String,required:false,unique:false},//
+	contact: {
+		address: {type: String,required:false,unique:false},
+		website: {type: String,required:false,unique:false},
+		telephone:{type: String,required:false,unique:false},
+		postal_code: {type: String,required:false,unique:false}
+	},
+	stories: {
+		success_stories: {type: String,required:false,unique:false},
+		icons:{type: String,required:false,unique:false}
+	},//success stories
+	gallery: {type:[Schema.Types.Mixed],required:false,unique:false,default:[]},//photos: link & description
+	other_programs: { type:String,required:false,unique:false},//like basket, rugby
+	combinations: {type:String,required:false,unique:false},//meg, pcm,...
+	years: {type:Number,required:false,unique:false},
+	fees: {type:Array, required:false,unique:false}
 });
 
 SchoolSchema.pre('save', function (next) {

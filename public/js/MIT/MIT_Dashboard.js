@@ -37,7 +37,7 @@
 
      if (isWindows && !$('body').hasClass('sidebar-mini')){
         // if we are on windows OS we activate the perfectScrollbar function
-        $('.sidebar .sidebar-wrapper, .main-panel').perfectScrollbar();
+        // $('.sidebar .sidebar-wrapper, .main-panel').perfectScrollbar();
 
         $('html').addClass('perfect-scrollbar-on');
     } else {

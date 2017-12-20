@@ -13,11 +13,12 @@ const Redis_Store = require('connect-redis')(session);
 const path = require('path');
 const mongoose = require('mongoose');
 const passport = require('passport');
+const flash = require('express-flash');
 //const sass = require('node-sass-middleware');
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
- dotenv.load({ path: '.eShuri.env.PROD'});
+ dotenv.load({ path: '.eShuri.env.DEV'});
 /**
  * API keys and Passport configuration.
  */
@@ -31,7 +32,9 @@ const app = express();
 /**
  * Connect to MongoDB.
  */
-mongoose.connect(process.env.MONGODB_URI);
+mongoose.connect(process.env.MONGODB_URI,{
+  useMongoClient: true,
+});
 mongoose.Promise = global.Promise;
 mongoose.connection.on('error', () => {
   console.error('MongoDB Connection Error. Please make sure that MongoDB is running.');
@@ -73,7 +76,7 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-// app.use(flash());
+app.use(flash());
 
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 2*hours }));
 console.log(__dirname);

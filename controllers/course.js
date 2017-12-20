@@ -192,7 +192,7 @@ exports.getSchoolCourse_JSON = function(req,res,next){ // R
   .exec(function(err, school_courses){
 
     if(err) return log_err(err,false,req,res);
-    console.log('School courses: ______________'+school_courses);
+    // console.log('School courses: ______________'+school_courses);
     return res.json(school_courses);
   })
 }

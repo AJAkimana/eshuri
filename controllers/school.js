@@ -84,6 +84,58 @@ exports.getSchoolProfile = (req,res,next)=>{
     });   
   })
 }
+exports.displayProfile = function(req, res, next) {
+  School.findOne({_id:req.user.school_id},(err,school)=>{
+    if(err) return log_err(err,true,req,res);
+    else if(!school) return res.render("./lost",{msg:"Invalid data"})
+    return res.render('profile/create_profile', {
+      title: 'Create Profile',
+      access_lvl: req.user.access_level,
+      email: req.user.email,
+      school_id: req.user.school_id,
+      school: school,
+      pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
+      csrf_token:res.locals.csrftoken,
+    });
+  })
+}
+exports.createSchoolProfile = function(req, res, next) {
+  req.assert('school_fees', 'Amount must a number and not empty').notEmpty().isFloat();
+  req.assert('school_years', 'Years of studies must be 1 to 6').isIn([1,2,3,4,5,6]);// Must be a number
+  req.assert('school_desc','A small description is required').notEmpty();
+  req.assert('school_curr', 'Select curriculum').notEmpty();
+
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+
+  School.findOne({_id: req.user.school_id}, (err, schoolExists) => {
+    if(err) return log_err(err,true,req,res);
+    else if(!schoolExists) return res.render("./lost",{msg:"Invalid data"})
+    // var a=req.body.school_addr;
+    schoolExists.average_school_fees = req.body.school_fees;
+    schoolExists.years = req.body.school_years;
+    schoolExists.combinations = req.body.school_faculties;
+    schoolExists.description = req.body.school_desc;
+    schoolExists.curriculum = req.body.school_curr;
+    schoolExists.additional_information = req.body.school_info;
+    schoolExists.stories.success_stories = req.body.school_stor;
+    schoolExists.stories.icons = req.body.school_peop;
+    schoolExists.other_programs = req.body.school_prog;
+    schoolExists.contact.website = req.body.school_site
+    schoolExists.contact.address = req.body.school_addr;
+    schoolExists.contact.postal_code = req.body.school_code;
+    schoolExists.student_requirements = req.body.school_requ;
+    
+    // schoolExists.$push({success_stories:req.body.school_stor, icons:req.body.school_peop})
+    schoolExists.save((err)=>{
+      if(err){
+        console.log('My errors: '+JSON.stringify(err));
+        return log_err(err,true,req,res);
+      }
+      return res.end();
+    })
+  });
+}
 exports.changeSchoolProfile = (req,res,next)=>{
   const multer = require('multer'); 
   const MB = 1024*1024;
@@ -97,7 +149,7 @@ exports.changeSchoolProfile = (req,res,next)=>{
       cb(null, process.env.SCHOOL_PIC_PATH)
     },
     filename: function (req, file, cb) {
-    cb(null, img_name+img_extension);
+      cb(null, img_name+img_extension);
     }
   });
   var upload = multer({ 
@@ -208,6 +260,13 @@ exports.getSchool_JSON = function(req,res,next){ // R
   .exec(function(err, schools){
     if(err) return log_err(err,false,req,res);
     //console.log(" sending back "+JSON.stringify(schools))
+    return res.json(schools);
+  })
+}
+exports.getSchool_BySearch = (req, res, next)=>{
+  School.find({name:/req.params.name/},{__v:0}).exec((err, schools)=>{
+    if(err) return log_err(err,false,req,res);
+    console.log(" sending back "+JSON.stringify(schools))
     return res.json(schools);
   })
 }
