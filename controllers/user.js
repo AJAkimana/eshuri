@@ -510,7 +510,6 @@ exports.getValidateYourAccount = (req,res,next)=>{
         if(err) return log_err(err,true,req,res);
         else if(!userExists) return log_err(err,true,req,res);
         userExists.isValidated = true;
-        userExists.isEnabled = true;
         if(userExists.access_level===req.app.locals.access_level.GUEST) userExists.isEnabled=true;
         userExists.save((err)=>{
           return res.render("./lost",{
