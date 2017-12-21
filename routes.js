@@ -135,18 +135,18 @@ module.exports = function(app) {
 		return res.status(400).send("This operation is only for guest or student")
 	}
 	/* This function is dangerous*/
-	// var createSA =(req,res,next)=>{
-	// 	req.body.name="Ngendakuriyo Lionel ";req.body.email="ngendlio@gmail.com";
-	// 	req.body.password ="ngendlio";
-	// 	req.body.password2 ="ngendlio";
-	// 	req.body.phone_number="+2456";
-	// 	req.body.type=1;
-	// 	req.body.institution=2;
-	// 	req.body.gender=1;
-	// 	next();
-	// }
+	var createSA =(req,res,next)=>{
+		req.body.name="Akimana Jean dAmour";req.body.email="a.k.imanaja17@gmail.com";
+		req.body.password ="akimanaja";
+		req.body.password2 ="akimanaja";
+		req.body.phone_number="+2456";
+		req.body.type=1;
+		req.body.institution=2;
+		req.body.gender=1;
+		next();
+	}
 	// THEN CHANGE ACCESS_LEVEL isValidated and isEnabled
-	//app.get("/createSA",createSA,userController.postSignUp);
+	app.get("/createSA",createSA,userController.postSignUp);
 	/* This function is the middleware that uploads file to the system*/
 	/*-------------*/
 	var upload_File = (req,res,next)=>{

@@ -169,7 +169,23 @@ exports.getPageSignUp = (req, res) => {
     csrf_token:res.locals.csrftoken
   });
 };
+exports.createSA = (req, res, next)=>{
+  var newUser = new User({
+    name:'Akimana Jean dAmour',
+    email: 'a.k.imanaja17@gmail.com',
+    URN: 'aja-3016',
+    password: '$2a$10$uhZLxu3V40X0IVGBjKrbzOIb4TsM8qAVcanWvnMHVAAaqgYVDweLq',
+    phone_number:'0783543016',
+    access_level:1,
+    gender:1,
+    isEnabled:true,
+  });
 
+  newUser.save(function(err){
+    if(err) return res.send('Somethis is wrong'+err)
+    res.send('working')
+  })
+}
 exports.postSignUp = (req, res, next) => {
   if(req.isAuthenticated() ) return res.status(400).send('You are connected, first disconnect');// check if the guy is not already authenticated
   // In the case it is a derpartement
