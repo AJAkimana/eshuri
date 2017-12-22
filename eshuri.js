@@ -18,7 +18,7 @@ const flash = require('express-flash');
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
- dotenv.load({ path: '.eShuri.env.PROD'});
+ dotenv.load({ path: '.eShuri.env.DEV'});
 /**
  * API keys and Passport configuration.
  */

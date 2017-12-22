@@ -110,11 +110,15 @@ angular.module('eshuri_App', ['ngRoute', 'ngStorage'])
             buttonsStyling: false
           }).then(function(){
             $localStorage.selected_school=school;
-            Notifier.success('You school is: '+$localStorage.selected_school.name);
+            setTimeout(function(){$window.location.href="/application.new"},3000)
+            $localStorage.selected_school.application_url='/application.new';
+            // Notifier.success('You school is: '+$localStorage.selected_school.name);
           })
         }
         else{
-          Notifier.success('You school is: '+$localStorage.selected_school.name);
+          setTimeout(function(){$window.location.href="/application.new"},3000)
+          $localStorage.selected_school.application_url='/application.new';
+          // Notifier.success('You school is: '+$localStorage.selected_school.name);
         }
       }else{
         $localStorage.selected_school = school;

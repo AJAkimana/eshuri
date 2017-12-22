@@ -11,14 +11,14 @@ html(lang='en' ng-app="eshuri_App")
     - var access = access_lvl
     link(rel='shortcut icon', href='/favicon.png')
 
-    link(rel='stylesheet', href='css/fontcss/font-awesome.min.css')
-    link(rel='stylesheet', href='css/bootstrap.min.css')
-    link(rel='stylesheet', href='css/style.css')
+    link(rel='stylesheet', href='../css/fontcss/font-awesome.min.css')
+    link(rel='stylesheet', href='../css/bootstrap.min.css')
+    link(rel='stylesheet', href='../css/style.css')
     // Font css
-    link(rel='stylesheet', href='css/fontcss/fontsicon.css')
-    link(rel='stylesheet', href='css/fontcss/robotocss.css')
-    link(rel='stylesheet', href='css/material-kit.css')
-    link(rel='stylesheet', href='css/monStyle.css')
+    link(rel='stylesheet', href='../css/fontcss/fontsicon.css')
+    link(rel='stylesheet', href='../css/fontcss/robotocss.css')
+    link(rel='stylesheet', href='../css/material-kit.css')
+    link(rel='stylesheet', href='../css/monStyle.css')
   body(style="background-color: rgba(1, 1, 1, 0.03)")
     //
       ==========================
@@ -196,7 +196,7 @@ html(lang='en' ng-app="eshuri_App")
               //-     a(href='') {{entry.name}} - {{entry.contact.address}}
         .row
           .col-sm-4
-            .explore_sidebar(style="background:  #2ba6cb;")
+            .explore_sidebar()
               div
                 span What is your budget per year:
                 form.navbar-form.center
@@ -269,16 +269,16 @@ html(lang='en' ng-app="eshuri_App")
           .col-sm-8
             h2(ng-show="!schools") School content not found!!!
             .col-sm-12.scroll(ng-show="schools")
-              .row.school_info.card(ng-repeat="school in schools")
+              .row.school_info(ng-repeat="school in schools")
                 .row.center
-                  .col-sm-12
-                    span.profile_name {{school.name|to_Capital}}
+                  .col-sm-12._info.center
+                    .text-center.profile_name {{school.name|to_Capital}}
                   .col-sm-4._profile
                     img(src="/school.profile/{{school._id}}" alt="Image")
                   .col-sm-8._info
                     .row
                       .col-sm-7
-                        span.profile_contact {{school.contact.address}}
+                        span.profile_contact {{school.contact.address|uppercase}}
                         span(ng-show="!school.contact.address") Email the school for directions: {{school.school_mail}}
                         br
                         //- Add school rate and reviews -- span rate | reviews
@@ -311,6 +311,9 @@ html(lang='en' ng-app="eshuri_App")
                           span.material-input
                             a.btn.btn-primary.btn-round(ng-click='enrollToSchool(school)') Enroll
                             .ripple-container
+                    .col-md-offset-2
+                      h3 Description
+                      h4.text-center.description {{school.description|to_Capital}}
     //
       ==========================
       Footer
