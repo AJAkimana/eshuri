@@ -41,7 +41,7 @@ var SchoolSchema = new Schema({
 	},//success stories
 	gallery: {type:[Schema.Types.Mixed],required:false,unique:false,default:[]},//photos: link & description
 	other_programs: { type:String,required:false,unique:false},//like basket, rugby
-	combinations: {type:String,required:false,unique:false},//meg, pcm,...
+	// combinations: {type:String,required:false,unique:false},//meg, pcm,...
 	years: {type:Number,required:false,unique:false},
 	fees: {type:Array, required:false,unique:false}
 });

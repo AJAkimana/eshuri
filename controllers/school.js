@@ -1,6 +1,7 @@
 const School =require('../models/School'),
       User =require('../models/User'),
       SchoolCourse = require('../models/SchoolCourse'),
+      SchoolProgram = require('../models/SchoolProgram'),
       Unit =require('../models/Unit'),
       Course =require('../models/Course'),
       Department =require('../models/Department'),
@@ -34,6 +35,71 @@ exports.homepageSchool = function(req,res,next){
       })
   })
 };
+exports.postSchoolProgram = function(req, res, next){
+  req.assert('abbreviation', 'The abbreviation is required');
+  req.assert('name', 'The name is required').notEmpty();
+  req.assert('school_id', 'Invalid data').isMongoId();
+  // req.assert('year', 'year is required').notEmpty();
+  // req.assert('attendance_limit', 'attendance_limit is required').notEmpty();
+
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  //check if you are a school admin 
+  else if(req.user.access_level > req.app.locals.access_level.ADMIN_TEACHER)
+    return res.status(400).send("Sorry you are not authorized");
+  //Check if the code is not already used
+  School.findOne({_id:req.body.school_id},(err,school_exists)=>{
+    if(err) return log_err(err,false,req,res);
+    else if(!school_exists)  return res.status(400).send("This school doesn't exists ");
+
+    SchoolProgram.checkProgramExists(req.body,(err,school_program_exists)=>{
+      if (err) return log_err(err,false,req,res);
+      else if(school_program_exists) return res.status(400).send("This program is registered");
+      let nouveauProgram = new SchoolProgram({
+        name:req.body.name,
+        school_id:req.body.school_id,
+        abbreviation:req.body.abbreviation
+      });
+      nouveauProgram.save(function(err){
+        if (err) return log_err(err,false,req,res);
+        return res.end();
+      });
+    }); 
+  });   
+}
+exports.deleteSchoolProgram = (req, res, next)=>{
+  req.assert('program_id', 'Invalid data').isMongoId();
+
+  const errors = req.validationErrors();
+  if (errors)  return res.status(400).send(errors[0].msg);
+
+  SchoolProgram.findOne({_id:req.body.program_id},function(err, program_exists){
+    if(err) return log_err(err,false,req,res);
+    else if(!program_exists) return res.status(400).send("Invalid data");
+    else if(String(req.user.school_id)!= String(program_exists.school_id))
+      return res.status(400).send("Not authorized to do this"); //Check if you deleting the program of your school
+
+    program_exists.remove((err)=>{
+      if(err)  return log_err(err,false,req,res);
+      res.end();
+    });
+  })
+}
+exports.getSchoolProgram_JSON = function(req,res,next){ // R
+  req.assert('school_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors)  return res.status(400).send(errors[0].msg);
+  SchoolProgram
+  .find({school_id:req.params.school_id},
+    {__v:0,school_id:0,})
+  // .limit(100)
+  .sort({name:1})
+  .exec(function(err, school_programs){
+
+    if(err) return log_err(err,false,req,res);
+    return res.json(school_programs);
+  })
+}
 exports.getSettingSchoolPage = function(req,res,next){ 
   req.assert('school_id', 'Invalid Data').isMongoId();
   const errors = req.validationErrors();
@@ -559,11 +625,17 @@ exports.getSchoolData = (req,res,next)=>{
             response.school_courses =num_school_courses;
             cb6(null);
           })
+        },
+        (cb7)=>{
+          SchoolProgram.count({school_id:req.params.school_id},(err,num_school_programs)=>{
+            if(err) return cb7(err);
+            response.school_programs =num_school_programs;
+            cb7(null);
+          })
         }
         ],(err)=>{
           if(err) return log_err(err,false,req,res);
           return res.json(response);
-          //console.log("Teacher admins: "+response.teacher_admins)
         })
   })
 }

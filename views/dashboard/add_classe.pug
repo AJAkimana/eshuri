@@ -29,7 +29,9 @@ block append content
 											i.material-icons supervisor_account
 										a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.accounts.validation") <strong> {{unConfirmed}}</strong> New accounts to confirm 
 											i.material-icons verified_user
-										a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.register.course/{{school_id}}") <strong> {{allCourses}}</strong> Courses 
+										a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.register.course/{{school_id}}") <strong> {{courses}}</strong> Courses 
+											i.material-icons class
+										a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.register.course/{{school_id}}") <strong> {{programs}}</strong> Programs 
 											i.material-icons class
 									.row
 										.col-md-3
@@ -225,8 +227,9 @@ block append scripts
 					$scope.teachers =response.data.teachers;
 					$scope.admins =response.data.admins;
 					$scope.unConfirmed =response.data.unConfirmed;
-					$scope.allCourses =response.data.school_courses;
-					console.log('coureses: '+$scope.allCourses)
+					$scope.courses =response.data.school_courses;
+					$scope.programs =response.data.school_programs;
+					console.log('School program: '+$scope.programs)
 				})
 				.catch(function(erreur){
 					Notifier.danger(erreur.data);
