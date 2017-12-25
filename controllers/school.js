@@ -100,6 +100,32 @@ exports.getSchoolProgram_JSON = function(req,res,next){ // R
     return res.json(school_programs);
   })
 }
+exports.getSchoolCourseAndProgram_JSON = (req,res,next)=>{
+  req.assert('school_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if(errors) return res.status(400).send(errors[0].msg);
+  var reponse={};
+  var async = require('async');
+  async.parallel([
+    (callback)=>{
+      SchoolProgram.find({school_id:req.params.school_id},{__v:0,school_id:0,}).sort({name:1}).exec((err, school_programs)=>{
+        if(err) callback(err);
+        reponse.programs =school_programs;
+        callback(null);
+      })
+    },
+    (callback)=>{
+      SchoolCourse.find({school_id:req.params.school_id},{__v:0,school_id:0,}).sort({name:1}).exec((err, school_courses)=>{
+        if(err) callback(err);
+        reponse.courses =school_courses;
+        callback(null);
+      })
+    },
+    ],(err)=>{
+      if(err) return log_err(err,false,req,res);
+      return res.json(reponse);
+    })
+}
 exports.getSettingSchoolPage = function(req,res,next){ 
   req.assert('school_id', 'Invalid Data').isMongoId();
   const errors = req.validationErrors();
