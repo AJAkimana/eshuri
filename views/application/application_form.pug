@@ -182,9 +182,9 @@ block append content
                             | FARG sponsership
                         .radio
                           label
-                            input(type='radio', name='finance', ng-model='regForm.finance', value='other')
+                            input(type='radio', name='finance', ng-model='regForm.finance', value='', ng-change="showOther()")
                             | Other
-                        .form-group.label-floating(ng-show="regForm.finance==other")
+                        .form-group.label-floating(ng-show="show_other")
                           input.form-control(type='text', name='finance', ng-model='regForm.finance', required='true', placeholder="Specify")
 
                   .tab-pane#confirm
@@ -406,12 +406,16 @@ block append scripts
                 console.log('progress: ' + progressPercentage + '% ' + evt.config.file.name);
             });
         };
+        $scope.showOther = function(){
+          $scope.show_other = true;
+        }
         $scope.titles=[1,2];
         $scope.regForm.names="#{user.name}";
         $scope.regForm.email="#{user.email}";
         $scope.regForm.gender="#{user.gender}";
         $scope.regForm.phone="#{user.phone_number}";
         $scope.loadSchool();
+        $scope.show_other = false
         $().ready(function() {
           wizard.initMaterialWizard();
         });
