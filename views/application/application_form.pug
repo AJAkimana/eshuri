@@ -1,10 +1,25 @@
 extends ../layout
 block append content 
   .wrapper.wrapper-full-page.full-page-background(ng-controller="formCtrl",style="background-image: url('../imgs/register.jpeg')")
-    .full-page.register-page(filter-color="white")
+    .full-page.login-page(filter-color="white")
       .content
-        .col-md-8.col-sm-8.col-lg-8.col-md-offset-2.col-sm-offset-2.col-lg-offset-2
-          // Wizard container
+        .container-fluid(ng-show="select_school")
+          .row
+            .col-md-3
+              p.category Schools category
+            .col-md-9
+              .card
+                .col-md-4(ng-repeat="school in schools")
+                  .card.card-stats
+                    .card-header.card-header-icon(data-background-color="rose")
+                      //- i.material-icons school
+                      h3.card-title {{school.name|uppercase}}
+                    .card-content
+                      p.category {{school.category}}
+                    .card-footer
+                      .stats
+                        | {{school.description}}
+        .col-md-8.col-sm-8.col-lg-8.col-md-offset-2.col-sm-offset-2.col-lg-offset-2(ng-show="registration_form")
           .wizard-container
             .card.wizard-card(data-color="green")#wizardProfile
               form.form-validation(method="",role='form', novalidate='')
@@ -14,9 +29,9 @@ block append content
                 .wizard-navigation
                   ul
                     //- li: a(href="#conf_files", data-toggle="tab") Attachments
+                    li: a(href="#prog_finance", data-toggle="tab") Prog / Finence
                     li: a(href="#basic_info", data-toggle="tab") About
                     li: a(href="#guardian", data-toggle="tab") Guardian
-                    li: a(href="#prog_finance", data-toggle="tab") Prog & Finence
                     li: a(href="#confirm", data-toggle="tab") Confirm
                     
                 .tab-content
@@ -135,9 +150,9 @@ block append content
                               option(value="{{s.Sector_ID}}", ng-repeat="s in sectors") {{s.Sector_NAME}}
                       
                   .tab-pane#prog_finance
-                    h2.info-text  Programs and Finances
+                    h2.info-text(ng-show="school.institution==1")  Programs and Finances
                     .row
-                      .col-md-6.col-sm-6.col-lg-6
+                      .col-md-6.col-sm-6.col-lg-6(ng-show="school.institution==1")
                         h4.info-text Choose program
                         .radio
                           label
@@ -161,6 +176,21 @@ block append content
                           label
                             input(type='radio', name='faculties', ng-model='regForm.faculties', value='{{f}}')
                             | {{f|to_Capital}}
+                      .col-md-6.col-sm-6.col-lg-6(ng-show="school.institution==2")
+                        h4.info-text Choose option and class
+                        .radio(ng-repeat="p in programs")
+                          label
+                            input(type='radio', name='faculties', ng-model='regForm.faculties', value='{{p.abbreviation}}', ng-change="showLevel(regForm.faculties, p.name)")
+                            | {{p.name|uppercase}}
+                        .radio(ng-repeat="y in [1,2,3]", ng-show="show_seniors")
+                          label
+                            input(type='radio', name='year_o_s', ng-model='regForm.year_o_s', value='{{y}}')
+                            | S {{y}}
+                        .radio(ng-repeat="y in [4,5,6]", ng-show="show_advLevel")
+                          label
+                            input(type='radio', name='year_o_s', ng-model='regForm.year_o_s', value='{{y}}')
+                            | S {{y}}
+                        h6.info-text(ng-show="show_seniors || show_advLevel") {{combunation|uppercase}} (S{{regForm.year_o_s}})
                       .col-md-6.col-sm-6.col-lg-6
                         .form-group.label-floating
                           label.control-label Previous school*
@@ -174,15 +204,15 @@ block append content
                         h4.info-text Finencial Category
                         .radio
                           label
-                            input(type='radio', name='finance',ng-model='regForm.finance', value='self')
+                            input(type='radio', name='finance',ng-model='regForm.finance', value='self', ng-change="showOther(regForm.finance)")
                             | Self sponsership
                         .radio
                           label
-                            input(type='radio', name='finance',ng-model='regForm.finance', value='farg')
+                            input(type='radio', name='finance',ng-model='regForm.finance', value='farg', ng-change="showOther(regForm.finance)")
                             | FARG sponsership
                         .radio
                           label
-                            input(type='radio', name='finance', ng-model='regForm.finance', value='', ng-change="showOther()")
+                            input(type='radio', name='finance', ng-model='regForm.finance', value='', ng-change="showOther(regForm.finance)")
                             | Other
                         .form-group.label-floating(ng-show="show_other")
                           input.form-control(type='text', name='finance', ng-model='regForm.finance', required='true', placeholder="Specify")
@@ -243,7 +273,7 @@ block append scripts
   script(src="../homejs/ng-file-upload-shim.min.js")
   //- script(src="../js/homejs/appFormCtlr.js", type="text/javascript")
   script.
-    var app =angular.module('eshuri_App', ['ngRoute', 'ngStorage', 'ngFileUpload']);
+    var app =angular.module('eshuri_App', ['ngRoute', 'ngStorage', 'ngFileUpload', 'angularUtils.directives.dirPagination']);
     app.filter('toTitle', function() {
         return function(input){
           if(isNaN(input)) return input;
@@ -341,6 +371,8 @@ block append scripts
         $scope.loadSchool = function(){
           if (typeof(Storage) !== "undefined") {
             if($localStorage.selected_school){
+              $scope.registration_form = true;
+              $scope.select_school = false;
               var school = $localStorage.selected_school;
               $scope.school = school;
               if(school.combinations){
@@ -354,7 +386,22 @@ block append scripts
                   $scope.years.push(i)
                 }
               }
-              console.log('Programs:'+$scope.faculties+' Years: '+$scope.years+'-----------'+JSON.stringify(school))
+              console.log('Programs:'+$scope.faculties+' Years: '+$scope.years+'-----------'+JSON.stringify(school));
+              if(school.institution==2) {
+                $http
+                .get("/school.courseAndProgram.list/"+school._id)
+                .then(function(response){
+                  $scope.courses = response.data.courses;
+                  $scope.programs = response.data.programs;
+                })
+                .catch(function(erreur){
+                  Notifier.danger(erreur.data);
+                });
+              }
+            }
+            else{
+              $scope.registration_form = false;
+              $scope.select_school = true;
             }
           }
         }
@@ -406,16 +453,43 @@ block append scripts
                 console.log('progress: ' + progressPercentage + '% ' + evt.config.file.name);
             });
         };
-        $scope.showOther = function(){
-          $scope.show_other = true;
+        $scope.showOther = function(value){
+        if(!value) $scope.show_other = true;
+        else $scope.show_other = false;
         }
+        $scope.showLevel = function(value, combunation_name){
+          console.log('My faculties: '+ value)
+          $scope.combunation = combunation_name;
+          if(value=='ol'){
+            $scope.show_seniors = true;
+            $scope.show_advLevel = false;
+          } 
+          else {
+            $scope.show_seniors = false;
+            $scope.show_advLevel = true;
+          }
+        }
+        $scope.loadSchools = function(){
+          $http
+          .get("/eshuri/schools/alljson.json")
+          .then(function(response){
+            $scope.schools =response.data;
+            // console.log('It is working: '+JSON.stringify($scope.schools));
+          })
+          .catch(function(erreur){
+            Notifier.danger(erreur.data);
+          });
+        }
+        $scope.loadSchools();
         $scope.titles=[1,2];
         $scope.regForm.names="#{user.name}";
         $scope.regForm.email="#{user.email}";
         $scope.regForm.gender="#{user.gender}";
         $scope.regForm.phone="#{user.phone_number}";
         $scope.loadSchool();
-        $scope.show_other = false
+        $scope.show_other = false;
+        $scope.show_seniors = false;
+        $scope.show_advLevel = false;
         $().ready(function() {
           wizard.initMaterialWizard();
         });

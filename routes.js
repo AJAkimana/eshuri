@@ -360,7 +360,7 @@ module.exports = function(app) {
 	app.post('/course.update.quota',isAtLeastTeacher, coursesController.updateQuota);
 
 	app.post('/school.add.new_program', isAtLeastAdmin, schoolController.postSchoolProgram);
-	app.get('/school.courseAndProgram.list/:school_id',isAtLeastAdmin, schoolController.getSchoolCourseAndProgram_JSON);
+	app.get('/school.courseAndProgram.list/:school_id',isAuthenticated, schoolController.getSchoolCourseAndProgram_JSON);
 	app.post('/school.delete.program', isAtLeastAdmin, schoolController.deleteSchoolProgram)
 	app.post('/school.add.program',isAtLeastAdmin, coursesController.postSchoolCourse);
 	app.post('/delete.school.course',isAtLeastAdmin, coursesController.deleteSchoolCourse);

@@ -14,25 +14,17 @@ html(lang="en" ng-app="eshuri_App")
         link(rel="shortcut icon", href="/favicon.png")
         // Some css Stuff
         block css_code            
-            //- link(rel="stylesheet", type="text/css", href="../css/bootstrap.min.css")
-            link(rel="stylesheet", type="text/css", href="http://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
+            link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+            //- link(rel="stylesheet", type="text/css", href="http://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
             link(rel="stylesheet", type="text/css", href="../css/ionicons.min.css")
             link(rel="stylesheet", type="text/css", href="../css/monStyle.css?v=1.2.0")
             link(rel="stylesheet", type="text/css", href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons")
             link(rel="stylesheet", type="text/css", href="../js/summernote/font-awesome.min.css")
             link(rel="stylesheet", type="text/css", href="../js/summernote/summernote.css")
-
-            //- link(rel="stylesheet", type="text/css",href="//rawgit.com/angular/bower-material/master/angular-material.min.css")
-            //- link(rel="stylesheet",type="text/css",href="https://cdn.jsdelivr.net/npm/angular-wizard@latest/dist/angular-wizard.min.css")
-            //- link(rel="stylesheet", type="text/css", href="../css/tokenfield-typeahead.css")
-
             link(rel="stylesheet", type="text/css", href="../js/select/select.css")
             link(rel="stylesheet", type="text/css", href="../mycss/select2-3.4.5.css")
             link(rel="stylesheet", type="text/css", href="../mycss/selectize.default-0.8.5.css")
-
-            //- link(rel="stylesheet", type="text/css", href="../css/ng-tags-input.min.css")
             link(rel="stylesheet", type="text/css", href="../css/css_css.css")
-            //- Report css
             link(rel="stylesheet", type="text/css", href="../css/report_table.css")
     body.ng-cloak
         block content
@@ -40,8 +32,10 @@ html(lang="en" ng-app="eshuri_App")
         // Best at the end of the body
         block scripts
             //Execute scripts after the page loading
-            script(src="../js/homejs/jquery-3.2.1.min.js", type="text/javascript")
-            script(src="../js/homejs/bootstrap-3.3.7.min.js", type="text/javascript")
+            script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js')
+            //- script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js', integrity='sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ', crossorigin='anonymous')
+            script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+            //- script(src="../js/homejs/bootstrap-3.3.7.min.js", type="text/javascript")
             script(src="../js/MIT/jquery.tagsinput.js", type="text/javascript")
             script(src="../js/MIT/bootstrap-notify.js",type="application/javascript")
             script(src="../js/summernote/summernote.js", type="text/javascript")

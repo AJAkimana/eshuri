@@ -13,20 +13,22 @@ block append content
 									h4.title Applications
 									h4.pull-right {{applications.length}}
 									p.category View your application status here
-								.card-content.table-responsive
-									table.table
-										thead.text-primary
-											tr
-												th School Name
-												th Year
-												th Program
-												th Status
-										tbody
-											tr(ng-repeat="application in applications")
-												td {{application.school_name|uppercase}}
-												td {{application.year_o_s}}
-												td {{application.faculty|uppercase}}({{application.program}})
-												td.text-primary {{application.status|to_Status}}
+								.card-content
+									.table-responsive(ng-show ="applications.length")
+										table.table
+											thead.text-primary
+												tr
+													th School Name
+													th Year
+													th Program
+													th Status
+											tbody
+												tr(ng-repeat="application in applications")
+													td {{application.school_name|uppercase}}
+													td {{application.year_o_s}}
+													td {{application.faculty|uppercase}}({{application.program}})
+													td.text-primary {{application.status|to_Status}}
+									h4.category.text-center(ng-show ="!applications.length") You haven't applied yet
 												
 block append scripts
 	script(src="../js/select/select.js", type="text/javascript")

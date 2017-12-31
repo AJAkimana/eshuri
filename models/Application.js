@@ -8,7 +8,7 @@ var applicationSchema = new mongoose.Schema({
 	user_id: {type: Schema.Types.ObjectId,required:true,unique:false},
 	comment: {type:String,required:false,unique:false},
 	year_o_s:{type:Number,required:false,unique:false},
-	program: {type:String,required:true,unique:false},
+	program: {type:String,required:false,unique:false},
 	faculty: {type:String,required:true,unique:false},
 	status: {type:String,required:true, enum:['A','P','F','R'],unique:false}, //Admited, Pending, Fill missing, Rejected
 })

@@ -171,7 +171,7 @@ exports.newAppSubmission = (req, res, next)=>{
   req.assert('year_o_s', 'Select Year of study').notEmpty();
   req.assert('district', 'Select your district').notEmpty();
   req.assert('sector', 'Select your sector').notEmpty();
-  req.assert('program', 'Choose the program').notEmpty();
+  if(req.body.program) req.assert('program', 'Choose the program').notEmpty();
   req.assert('faculties', 'Choose program to attend').notEmpty();
   req.assert('prev_school', 'Please enter your previous school').notEmpty();
   req.assert('prev_option', 'Please enter your previous option/combination').notEmpty();
