@@ -515,7 +515,9 @@ module.exports = function(app) {
 	/*---------------------------------------------------------------------------
 					Application for admission
 	----------------------------------------------------------------------------*/
-	var multPartMiddleWare = multPart();
+	var multPartMiddleWare = multPart({
+		uploadDir:process.env.DIPLOMA_PATH
+	});
 	app.get('/admission', isGuest, applicationsController.getApplicationPage);
 	app.get('/application.new', isGuestOrStudent, applicationsController.displayApplicationForm);
 	app.post('/submit.new.application', isGuestOrStudent, applicationsController.newAppSubmission);
@@ -523,7 +525,7 @@ module.exports = function(app) {
 	app.get('/view.application', isAuthenticated, applicationsController.viewApplication)
 	app.get('/application.get.one/:app_id', isAuthenticated, applicationsController.getOneApplication)
 	app.post('/application.change.status', isAtLeastAdmin, applicationsController.changeApplicationStatus)
-	app.post('/attach.file', multPartMiddleWare, applicationsController.postAttachedFiles);
+	app.post('/attach.file', applicationsController.postAttachedFiles);
 	/*---------------------------------------------------------------------------
 					Application for admission
 	----------------------------------------------------------------------------*/
@@ -542,9 +544,9 @@ module.exports = function(app) {
 	app.post('/library.do.upload',isAtLeastTeacher,upload_File,libraryCtrl.postLibraryFile)
 	app.get('/library.get.pdf/:bookId',isAuthenticated,libraryCtrl.getPdfFile)
 	app.get('/library.level.list',isAuthenticated,libraryCtrl.getLevelList)
-	app.delete('/delete.Book/:bookId',isAuthenticated,isAtLeastTeacher,libraryCtrl.deleteBook)
-	app.put('/update.book.details',isAuthenticated,isAtLeastTeacher,libraryCtrl.updateBookInfo)
-	app.post('/update.book.photo',isAuthenticated,isAtLeastTeacher,libraryCtrl.updatePhoto)
+	app.delete('/delete.Book/:bookId',isAtLeastTeacher,libraryCtrl.deleteBook)
+	app.put('/update.book.details',isAtLeastTeacher,libraryCtrl.updateBookInfo)
+	app.post('/update.book.photo',isAtLeastTeacher,libraryCtrl.updatePhoto)
 	app.get('/library.get.photo/:bookId',isAuthenticated,libraryCtrl.getPhoto)
 
 	// app .get('/report3',isAuthenticated,marksController.getReport_JSON);

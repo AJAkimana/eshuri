@@ -1,4 +1,3 @@
-const multer = require('multer');
 const User = require('../models/User'),
       School = require('../models/School'),
       Application = require('../models/Application'),
@@ -123,32 +122,33 @@ exports.newApplication = (req, res, next) => {
   });
 };
 exports.postAttachedFiles = (req, res, next)=>{
-  console.log('___________files___'+JSON.stringify(req.files.file));
+  var multer = require('multer');
+  // console.log('___________files___'+JSON.stringify(req.files.file));
   var file_storage = process.env.DIPLOMA_PATH;
   var storage = multer.diskStorage({
-      destination: function (req, file, cb) {
-        console.log('Saving '+file_storage+"<br/>  with path ="+req.path)
-        console.log('---'+file_storage)
-      cb(null, file_storage)
-      },
-      filename: function (req, file, cb) {
-      cb(null, Date.now()+"."+file.originalname.split('.').pop());
-      }
-    });
-    var upload = multer({ 
-      storage:storage,
-      // limits:{fileSize:pdfMaxSize},
-      fileFilter: (req, file, cb)=>{
-        console.log(" File before saving"+JSON.stringify(file));
-        if(file.mimetype !=="application/pdf") return cb("Sorry, only pdf format is accepted")
-        return cb(null, true);
-      },
-    })
-    .fields([{name:'file[0]',maxCount:1}, {name:'file[1]',maxCount:1}, {name:'file[2]',maxCount:1}]); // the name of the file to be uploaded
-    upload(req,res,(uploadErr)=>{
-      if(uploadErr) return res.render("./lost",{msg:uploadErr});
-      // return next();
-    })
+    destination: function (req, file, cb) {
+      console.log('Saving '+file_storage+"<br/>  with path ="+req.path)
+      console.log('---'+file_storage)
+    cb(null, file_storage)
+    },
+    filename: function (req, file, cb) {
+    cb(null, Date.now()+"."+file.originalname.split('.').pop());
+    }
+  });
+  var upload = multer({ 
+    storage:storage,
+    // limits:{fileSize:pdfMaxSize},
+    fileFilter: (req, file, cb)=>{
+      console.log(" File before saving"+JSON.stringify(file));
+      if(file.mimetype !=="application/pdf") return cb("Sorry, only pdf format is accepted")
+      return cb(null, true);
+    },
+  })
+  .any();
+  upload(req,res,(uploadErr)=>{
+    if(uploadErr) return res.render("./lost",{msg:uploadErr});
+    // return next();
+  })
   // var fs = require('fs');
   // var file = req.files.file;
   // fs.writeFile(process.env.DIPLOMA_PATH, file, function (err) {

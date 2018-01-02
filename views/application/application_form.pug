@@ -6,19 +6,28 @@ block append content
         .container-fluid(ng-show="select_school")
           .row
             .col-md-3
-              p.category Schools category
+              .card
+                .card-header
+                  .col-md-12.text-center
+                      h3.card-title <strong>Schools category</strong>
+                .card-content
+                  .col-md-12.text-center
+                    .btn.btn-success.btn-simple(ng-click="changeCategory('')") All
+                    .levels(ng-repeat="category in categoryList")
+                      .btn.btn-success.btn-simple(ng-click="changeCategory(category)") {{category}}
             .col-md-9
               .card
                 .col-md-4(ng-repeat="school in schools")
                   .card.card-stats
-                    .card-header.card-header-icon(data-background-color="rose")
-                      //- i.material-icons school
-                      h3.card-title {{school.name|uppercase}}
+                    .card-header
+                      h4.card-title {{school.name|uppercase|limitTo: 17 }} {{school.name.length <= 17 ? '' : '...'}}
                     .card-content
                       p.category {{school.category}}
                     .card-footer
                       .stats
                         | {{school.description}}
+                      br
+                      .btn.btn-success.pull-right(ng-click="makeApplication(school)") Apply
         .col-md-8.col-sm-8.col-lg-8.col-md-offset-2.col-sm-offset-2.col-lg-offset-2(ng-show="registration_form")
           .wizard-container
             .card.wizard-card(data-color="green")#wizardProfile
@@ -28,19 +37,19 @@ block append content
                 h2.info-text {{school.name|uppercase}}
                 .wizard-navigation
                   ul
-                    //- li: a(href="#conf_files", data-toggle="tab") Attachments
-                    li: a(href="#prog_finance", data-toggle="tab") Prog / Finence
+                    li: a(href="#conf_files", data-toggle="tab") Attachments
                     li: a(href="#basic_info", data-toggle="tab") About
                     li: a(href="#guardian", data-toggle="tab") Guardian
+                    li: a(href="#prog_finance", data-toggle="tab") Prog/Finence
                     li: a(href="#confirm", data-toggle="tab") Confirm
                     
                 .tab-content
-                  //- .tab-pane#conf_files
-                    .row
+                  .tab-pane#conf_files
+                    .row 
                       h3.info-text User Documents
                       .col-md-10.center
                         .col-md-6
-                          h4 ttach your Identification Document, ID or Passport
+                          h4 Attach your Identification Document, ID or Passport
                           input(type='file', ngf-select='', ng-model='id_file')
                           hr
                           h4 Attach a latest certificate/Diploma
@@ -294,6 +303,16 @@ block append scripts
           return input;
         }
       })
+      .filter('toCategory', function() {
+        return function(input){
+          if(isNaN(input)) return input;
+          switch(input){
+            case 1: input ="University";break;case 2: input ="High school/Secondary";case 3: input ="Primary";case 4: input ="Infant/Nursary";
+            default: input="Unknown";break;
+          }
+          return input;
+        }
+      })
       .filter('toProvince', function() {
         return function(input, list_provinces){
           if(input==''||!input) return 'Not defined';
@@ -359,7 +378,11 @@ block append scripts
           $http
           .post('/submit.new.application', $scope.regForm)
           .then(function(response){
-            Notifier.success('Working')
+            Notifier.success('Your application\'s submitted to '+$scope.school.name.toUpperCase());
+            setTimeout(function(){
+              $window.location.href="/application";
+              $localStorage.$reset();
+            },3000)
           })
           .catch(function(error){
             Notifier.danger(error.data)
@@ -428,12 +451,14 @@ block append scripts
           })
         };
         $scope.files = [];
+        $scope.categoryList=[];
         $scope.saveFiles = function() {
           var nationalId = $scope.id_file
           var diploma = $scope.diploma_file;
           var transcript = $scope.transcript_file;
           if(nationalId&&diploma&&transcript){
             $scope.files.push(nationalId,diploma,transcript);
+            console.log('Files length: '+$scope.files.length)
             $scope.upload($scope.files);
           }
           else return Notifier.danger('File is missing');
@@ -441,17 +466,20 @@ block append scripts
 
         // upload on file select or drop
         $scope.upload = function (files) {
-            Upload.upload({
+          if(files && files.length)
+            for(var i=0; i<files.length;i++){
+              Upload.upload({
                 url: '/attach.file',
-                file: files
-            }).then(function (resp) {
-                console.log('Success ' + resp.config.file.name + 'uploaded. Response: ' + resp);
-            }, function (resp) {
-                console.log('Error status: ' + resp.message);
-            }, function (evt) {
+                file: files[i]
+              }).then(function (resp) {
+                  console.log('Success ' + resp.config.file.name + 'uploaded. Response: ' + resp);
+              }, function (resp) {
+                  console.log('Error status: ' + resp.message);
+              }, function (evt) {
                 var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
                 console.log('progress: ' + progressPercentage + '% ' + evt.config.file.name);
-            });
+              });
+            } 
         };
         $scope.showOther = function(value){
         if(!value) $scope.show_other = true;
@@ -474,11 +502,23 @@ block append scripts
           .get("/eshuri/schools/alljson.json")
           .then(function(response){
             $scope.schools =response.data;
-            // console.log('It is working: '+JSON.stringify($scope.schools));
+            var unique = {};
+            for( var i in $scope.schools ){
+              if( typeof(unique[$scope.schools[i].institution]) == "undefined"){
+                $scope.categoryList.push($scope.schools[i].institution);
+              }
+              unique[$scope.schools[i].institution] = 0;
+            }
           })
           .catch(function(erreur){
-            Notifier.danger(erreur.data);
+            Notifier.danger('erreur.data');
           });
+        }
+        $scope.makeApplication = function(school){
+          $localStorage.selected_school=school;
+          $scope.loadSchool();
+          $scope.registration_form = true;
+          $scope.select_school = false;
         }
         $scope.loadSchools();
         $scope.titles=[1,2];
