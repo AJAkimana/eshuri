@@ -453,11 +453,10 @@ block append scripts
         $scope.files = [];
         $scope.categoryList=[];
         $scope.saveFiles = function() {
-          var nationalId = $scope.id_file
-          var diploma = $scope.diploma_file;
+          var nationalId = $scope.id_file;
           var transcript = $scope.transcript_file;
-          if(nationalId&&diploma&&transcript){
-            $scope.files.push(nationalId,diploma,transcript);
+          if(nationalId&&transcript){
+            $scope.files.push(nationalId,transcript);
             console.log('Files length: '+$scope.files.length)
             $scope.upload($scope.files);
           }

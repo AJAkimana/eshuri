@@ -1,5 +1,5 @@
 node_modules/
-./.eShuri.env.PROD
-./.eShuri.env.DEV
-./.eShuri.env.TEST
-./eshuri.js
+.eShuri.env.PROD
+.eShuri.env.DEV
+.eShuri.env.TEST
+eshuri.js
