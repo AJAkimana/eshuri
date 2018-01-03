@@ -6,11 +6,11 @@ block append content
 				.container.no-padding()
 					.col-md-10.col-md-offset-2.center
 						.col-md-12.app_cont
-							.card
+							.card(ng-show="show_applications")
 								.card-header(data-background-color="blue")
 									h4.title Review Applications
 								.card-content.table-responsive
-									table.table
+									table.table(ng-show="applications.length")
 										thead.text-primary
 											tr
 												th #
@@ -30,75 +30,77 @@ block append content
 												td {{app.combination|uppercase}}({{app.grade}})
 												td {{app.faculty|uppercase}}({{app.program|lowercase}})
 												td: select(ng-model='app.status', ng-options='st.id as st.name for st in register.statuses', ng-change="changeStatus(app._id, app.user_name, app.status)")
-												td: a.btn-simple.btn(ng-click="viewApplicant(app._id)") Review
-	#view_one_applicant.modal.fade(role='dialog')
-		.modal-dialog
-			.modal-content
-				.modal-header
-					h5.card-title Application
-				.modal-body
-					.row(ng-repeat="applicant in applicants")
-						.col-md-6
-							.card-body
-								h4.card-title Guardian and Residence
-								p.card-text
-									label Names: 
-									span {{applicant.user.name}}
-									br
-									label Gender: 
-									span {{applicant.user.gender}}
-									br
-									label Email: 
-									span {{applicant.user.email}}
-									br
-									label Phone: 
-									span {{applicant.user.phone}}
-									br
-									label DOB: 
-									span {{applicant.user.birth_day}}
-									br
-									label Marital Status: 
-									span {{applicant.user.marital_status}}
-							.card-footer
-								small.text-muted Personal Information
-							.card-body
-								h4.card-title Guardian and Residence
-								p.card-text
-									label Name:
-									span {{applicant.user.guardian.name}}
-									br
-									label Phone number:
-									span {{applicant.user.guardian.phone}}
-									br
-									label Email:
-									span {{applicant.user.guardian.email}}
-							.card-footer
-								small.text-muted Guardian and Residence
-						.col-md-6
-							.card-body
-								h4.card-title Programs and Finances
-								p.card-text
-									label Program Shift:
-									span {{applicant.faculty}}
-									br
-									label Year of Study:
-									span {{applicant.year_o_s}}
-									br
-									label Previous School:
-									span {{applicant.user.past_info.prev_school}}
-									br
-									label Previous Option:
-									span {{applicant.user.past_info.prev_combination}}
-									br
-									label Grade: 
-									span {{applicant.user.past_info.grade}}
-									br
-									label Finance:
-									span {{applicant.user.finance_category}}
-							.card-footer
-								small.text-muted Programs and Finances
-				.modal-footer
-					button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
+												td: a.btn-simple.btn(ng-click="viewApplicant(app._id, app.user_name)") Review
+									p.category.text-center(ng-show ="!applications.length") No applications here
+							.card(ng-show="one_applicant")
+								.card-header(data-background-color="blue")
+									h4.title {{applicant_name}}
+										button.btn.btn-primary.pull-right(ng-click="back()") Go back
+								.card-content
+									.row(ng-repeat="applicant in applicants")
+										.col-md-6
+											.card-body
+												h4.card-title Guardian and Residence{{applicants.length}}
+												p.card-text
+													label Names: 
+													span {{applicant.user.name}}
+													br
+													label Gender: 
+													span {{applicant.user.gender}}
+													br
+													label Email: 
+													span {{applicant.user.email}}
+													br
+													label Phone: 
+													span {{applicant.user.phone}}
+													br
+													label DOB: 
+													span {{applicant.user.birth_day}}
+													br
+													label Marital Status: 
+													span {{applicant.user.marital_status}}
+											.card-footer
+												small.text-muted Personal Information
+											.card-body
+												h4.card-title Guardian and Residence
+												p.card-text
+													label Name:
+													span {{applicant.user.guardian.name}}
+													br
+													label Phone number:
+													span {{applicant.user.guardian.phone}}
+													br
+													label Email:
+													span {{applicant.user.guardian.email}}
+											.card-footer
+												small.text-muted Guardian and Residence
+										.col-md-6
+											.card-body
+												h4.card-title Programs and Finances
+												p.card-text
+													label Program Shift:
+													span {{applicant.faculty}}
+													br
+													label Year of Study:
+													span {{applicant.year_o_s}}
+													br
+													label Previous School:
+													span {{applicant.user.past_info.prev_school}}
+													br
+													label Previous Option:
+													span {{applicant.user.past_info.prev_combination}}
+													br
+													label Grade: 
+													span {{applicant.user.past_info.grade}}
+													br
+													label Finance:
+													span {{applicant.user.finance_category}}
+											.card-footer
+												small.text-muted Programs and Finances
+										.col-md-6
+											.card-body
+												h4.card-title Applicant status
+												select(ng-model='applicant.status', ng-options='st.id as st.name for st in register.statuses', ng-change="changeStatus(applicant._id, applicant.user.name, applicant.status)")
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
 	//- script(src="../js/_app.js", type="text/javascript")
@@ -134,6 +136,8 @@ block append scripts
 				$http
 				.get('/view.application')
 				.then(function(response){
+					$scope.one_applicant=false;
+					$scope.show_applications=true;
 					var appData = response.data
 					$scope.applications = response.data;
 					//- console.log('Applications: '+JSON.stringify(appData))
@@ -187,12 +191,19 @@ block append scripts
 					})
 				}
 			}
-			$scope.viewApplicant = function(appid){
+			$scope.back=function(){
+				$scope.one_applicant=false;
+				$scope.show_applications=true;
+			}
+			$scope.viewApplicant = function(appid, appName){
 				$scope.applicants = [];
 				$http.get('/application.get.one/'+appid).then(function(response){
-					$scope.applicants = response.data;
-					$("#view_one_applicant").modal($scope.applicants);
-					console.log('This applicants:'+JSON.stringify(response.data))
+					$scope.applicants.push(response.data);
+					$scope.applicant_name=appName
+					$scope.one_applicant=true;
+					$scope.show_applications=false;
+					//- $("#view_one_applicant").modal();
+					//- console.log('This applicants:'+JSON.stringify($scope.applicants))
 				}).catch(function(error){
 					Notifier.danger(error.data)
 				})

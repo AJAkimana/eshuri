@@ -26,7 +26,7 @@ block append content
 												tr(ng-repeat="application in applications")
 													td {{application.school_name|uppercase}}
 													td {{application.year_o_s}}
-													td {{application.faculty|uppercase}}({{application.program}})
+													td {{application.faculty|uppercase}}
 													td.text-primary {{application.status|to_Status}}
 									h4.category.text-center(ng-show ="!applications.length") You haven't applied yet
 												

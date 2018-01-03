@@ -48,8 +48,7 @@ var UserSchema = new Schema({
   // Documents Information
   documents: {
     id_card:{type:String,required:false,unique:false},
-    latest_doc:{type:String,required:false,unique:false},
-    transcipts:{type:String,required:false,unique:false}
+    transcipt:{type:String,required:false,unique:false}
   },
 
   access_level:{type:Number,default:4, enum:[1,2,3,4],unique:false},

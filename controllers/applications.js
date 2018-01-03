@@ -4,18 +4,9 @@ const User = require('../models/User'),
       log_err = require('./manage/errorLogger'),
       emailSender = require('./email_sender'),
       Token =require('../models/Token'),
-      Util=require('../utils.js');
-
-exports.getApplicationPage = (req, res, next) => {
-  var now = Date.now();
-  req.flash('applicationKindConfirm', 'You are applying as a new user. For existing users click here');
-  return res.render('application/new_application', {
-    title: "New application",
-    last_change: now,
-    pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
-    csrf_token: res.locals.csrftoken
-  });
-};
+      Util=require('../utils.js'),
+      fileMaxSize = 5*1024*1024,
+      multer = require('multer');
 exports.displayApplicationForm = (req, res, next)=>{
   return res.render('application/application_form', {
     title: "New application",
@@ -24,61 +15,6 @@ exports.displayApplicationForm = (req, res, next)=>{
     csrf_token: res.locals.csrftoken
   });
 }
-
-exports.displayApplication = (req, res, next) => {
-  var now = Date.now();
-  console.log(req.user)
-  Application.find({
-    applicant_id: req.user._id,
-  }, (err, application_exists) => {
-    if (err) {
-      console.log("===========Error===========");
-      console.log(err);
-      return log_err(err, false, req, res);
-    } else {
-      console.log("===========Exists===========");
-      console.log(application_exists);
-
-      var numberOfApplications = application_exists.length
-
-      console.log(application_exists)
-      return res.render('applications/view_application', {
-        title: "eShuri Applications",
-        last_change: now,
-        user: req.user,
-        applications: application_exists,
-        access_lvl: req.user.access_level,
-        access: req.user.access_level,
-        csrf_token: res.locals.csrftoken
-          //school: school
-      })
-    }
-  });
-};
-
-exports.newUserApplication = (req, res, next) => {
-  var now = Date.now();
-  console.log(req.body);
-  School.findOne({
-    _id: req.body.selected_school_id
-  }, (err, selectedSchool) => {
-    if (err)
-      return log_err(err, false, req, res);
-    else if (!selectedSchool)
-      return res.status(400).json("Invalid input");
-    req.flash('startingApplicationAt', 'You are starting a new application at ' + selectedSchool.name);
-    return res.render('applications/new_application', {
-      title: "eShuri New Application",
-      last_change: now,
-      user: req.user,
-      access_lvl: req.user.access_level,
-      school_id: req.user.school_id,
-      school: selectedSchool,
-      access: req.user.access_level,
-      csrf_token: res.locals.csrftoken
-    });
-  });
-};
 
 exports.createApplication = (req, res, next) => {
   var now = Date.now();
@@ -92,69 +28,95 @@ exports.createApplication = (req, res, next) => {
     csrf_token: res.locals.csrftoken
   })
 };
-
-exports.newApplication = (req, res, next) => {
-  /*TODO: Check whether next can be applied for following process*/
-  Application.findOne({
-    applicant_id: req.user._id,
-    school_id: req.user.school_id,
-    year: req.body.year,
-  }, (err, application_exists) => {
-    if (err) {
-      console.log(err)
-      return log_err(err, false, req, res);
-    } else if (application_exists) {
-      return res.status(400).json({
-        status: 'exist',
-        message: "This application is already sent, are you sure you want to send another one"
-      });
-    }
-    req.body.applicant_id = req.user._id
-    req.body.user_school_id = req.user.school_id
-    req.body.status = "pending"
-    let newApplication = new Application(req.body);
-    let saveApplication = newApplication.save(function(err) {
-      if (err)
-        return res.status(500).send(err['message'].split(":").pop());
-      console.log('Application saved')
+exports.postIDFile = (req, res, next)=>{
+  req.assert('app_id', 'Invalid data,...').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  // console.log('Whole params:'+JSON.stringify(req.params))
+  var img_extension,
+    filePath=process.env.ID_PATH;
+  Application.find({user_id:req.user._id, _id:req.params.app_id},(err, app_exist)=>{
+    if(err) return log_err(err, false, req, res);
+    else if(!app_exist) return res.status(400).send('No application found');
+    var fileName=req.user._id+'_id';
+    var storage = multer.diskStorage({
+      destination: function (req, file, cb) {
+        img_extension="."+file.originalname.split('.').pop();
+        cb(null, filePath)
+      },
+      filename: function (req, file, cb) {
+      cb(null, fileName+img_extension);
+      }
     });
-    return res.status(200).send(newApplication)
-  });
-};
-exports.postAttachedFiles = (req, res, next)=>{
-  var multer = require('multer');
-  // console.log('___________files___'+JSON.stringify(req.files.file));
-  var file_storage = process.env.DIPLOMA_PATH;
-  var storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      console.log('Saving '+file_storage+"<br/>  with path ="+req.path)
-      console.log('---'+file_storage)
-    cb(null, file_storage)
-    },
-    filename: function (req, file, cb) {
-    cb(null, Date.now()+"."+file.originalname.split('.').pop());
-    }
-  });
-  var upload = multer({ 
-    storage:storage,
-    // limits:{fileSize:pdfMaxSize},
-    fileFilter: (req, file, cb)=>{
-      console.log(" File before saving"+JSON.stringify(file));
-      if(file.mimetype !=="application/pdf") return cb("Sorry, only pdf format is accepted")
-      return cb(null, true);
-    },
+    var upload = multer({ 
+      storage:storage,
+      limits:{fileSize:fileMaxSize},
+      fileFilter: (req, file, cb)=>{
+        console.log(" File before saving"+JSON.stringify(file))
+        if(file.mimetype !=="application/pdf") return cb("Sorry, only PDF are accepted")
+        return cb(null, true);
+      },
+    })
+    .any();
+    upload(req, res,(uploadErr)=>{
+      if(uploadErr) return res.render("./lost",{msg:uploadErr});
+      console.log('File---'+req.files);
+      User.findOne({_id:req.user._id},(err, user_details)=>{
+        if(err) return log_err(err, false, req, res);
+        else if(!user_details) return res.status(400).send('Unknown user');
+        user_details.documents.id_card=fileName+img_extension;
+        user_details.save((err)=>{
+          if(err)return log_err(err, false, req, res);
+          return res.end();
+        })
+      })
+    })
   })
-  .any();
-  upload(req,res,(uploadErr)=>{
-    if(uploadErr) return res.render("./lost",{msg:uploadErr});
-    // return next();
+}
+exports.postTranscriptFile = (req, res, next)=>{
+  req.assert('app_id', 'Invalid data,...').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  // console.log('Whole params:'+JSON.stringify(req.params))
+  var img_extension,
+    filePath=process.env.TRANSCRIPT_PATH;
+  Application.find({user_id:req.user._id, _id:req.params.app_id},(err, app_exist)=>{
+    if(err) return log_err(err, false, req, res);
+    else if(!app_exist) return res.status(400).send('No application found');
+    var fileName=req.user._id+'_trans';
+    var storage = multer.diskStorage({
+      destination: function (req, file, cb) {
+        img_extension="."+file.originalname.split('.').pop();
+        cb(null, filePath)
+      },
+      filename: function (req, file, cb) {
+      cb(null, fileName+img_extension);
+      }
+    });
+    var upload = multer({ 
+      storage:storage,
+      limits:{fileSize:fileMaxSize},
+      fileFilter: (req, file, cb)=>{
+        console.log(" File before saving"+JSON.stringify(file))
+        if(file.mimetype !=="application/pdf") return cb("Sorry, only PDF are accepted")
+        return cb(null, true);
+      },
+    })
+    .any();
+    upload(req, res,(uploadErr)=>{
+      if(uploadErr) return res.render("./lost",{msg:uploadErr});
+      User.findOne({_id:req.user._id},(err, user_details)=>{
+        if(err) return log_err(err, false, req, res);
+        else if(!user_details) return res.status(400).send('Unknown user');
+        user_details.documents.transcipt=fileName+img_extension;
+        user_details.save((err, userInserted)=>{
+          if(err)return log_err(err, false, req, res);
+          // console.log('----'+JSON.stringify(userInserted))
+          return res.end();
+        })
+      })
+    })
   })
-  // var fs = require('fs');
-  // var file = req.files.file;
-  // fs.writeFile(process.env.DIPLOMA_PATH, file, function (err) {
-  //   if (err) return console.warn('Errors: '+err);
-  //   console.log("The file: " + file.name + " was saved to " + file.path);
-  // });
 }
 exports.newAppSubmission = (req, res, next)=>{
   req.assert('names', 'Please provide your full name').len(4,100).notEmpty();
@@ -202,10 +164,7 @@ exports.newAppSubmission = (req, res, next)=>{
       thisUser.past_info.grade = req.body.grade
       thisUser.finance_category = req.body.finance
       thisUser.save((err)=>{
-        if(err){
-          console.log("Errors user: " + JSON.stringify(err));
-          return log_err(err,false,req,res);
-        }
+        if(err) return log_err(err,false,req,res);
         let newApplication = new Application({
           school_id:req.body.school_id,
           user_id:req.user._id,
@@ -214,12 +173,10 @@ exports.newAppSubmission = (req, res, next)=>{
           program:req.body.program,
           faculty:req.body.faculties,
         });
-        newApplication.save((err)=>{
-          if(err){
-            console.log("Errors: " + JSON.stringify(err));
-            return log_err(err,false,req,res);
-          }
-          res.end();
+        newApplication.save((err, thisApplication)=>{
+          if(err) return log_err(err,false,req,res);
+          console.log('The inserted application:'+JSON.stringify(thisApplication))
+          return res.json(thisApplication._id);
         })
       })
     })
@@ -358,124 +315,12 @@ exports.getOneApplication = (req, res, next)=>{
   Application.findOne({_id:req.params.app_id}).lean().exec((err, applications)=>{
     if(err) return log_err(err,false,req,res);
     if(!applications) return res.status(400).send('Unknown application');
-    User.findOne({_id:applications.user_id},{},(err, user_details)=>{
+    User.findOne({_id:applications.user_id},{_id:0,password:0,URN:0,isValidated:0,isEnabled:0,course_retake:0,hasPaid:0,lastSeen:0,access_level:0,documents:0},(err, user_details)=>{
       if(err) return log_err(err,false,req,res);
       if(!user_details) return res.status(400).send('Unknown user');
       applications.user=user_details;
-      console.log('User details:'+JSON.stringify(applications))
+      // console.log('User details:'+JSON.stringify(applications))
       return res.json(applications)
     })
   })
 }
-exports.processUploads = (req, res, next) => {
-  console.log(req.body)
-    // File uploads
-  const multer = require('multer');
-  const MB = 1024 * 1024;
-  const imgMaxSize = 10 * MB;
-  var img_extension;
-  var storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-      console.log(file)
-      img_extension = "." + file.originalname.split('.').pop();
-      cb(null, process.env.APPLICATION_FILE)
-    },
-    filename: function(req, file, cb) {
-      var now = new Date().getTime();
-      cb(null, req.user._id + now + img_extension);
-    }
-  });
-  var upload = multer({
-      storage: storage,
-      limits: {
-        fileSize: imgMaxSize
-      },
-      fileFilter: (req, file, cb) => {
-        console.log(" File before saving" + JSON.stringify(file))
-        console.log(file)
-          /*if (!file.mimetype.startsWith("image/") || !file.mimetype.startsWith("application/"))
-            return cb("Sorry, only images and documents are allowed")*/
-        return cb(null, true);
-      },
-    })
-    .any()
-    // .single('formly_4_upload_reg_files_0');
-  upload(req, res, (uploadErr) => {
-    if (uploadErr) return res.render("./lost", {
-      msg: uploadErr
-    });
-    Application.findOne({
-      _id: req.body.reg_id
-    }, (err, applicationExists) => {
-      if (err) {
-        return log_err(err, true, req, res);
-      } else if (!applicationExists) {
-        return res.render("./lost", {
-          msg: "Invalid data"
-        })
-      }
-      filesToSave = [];
-      req.files.forEach(extractUploadedFiles);
-
-      function extractUploadedFiles(item, index) {
-        for (var key in item) {
-          if (item[key] == item["filename"]) {
-            filesToSave.push(item['filename']);
-          }
-        }
-      }
-      console.log("==================");
-      console.log(filesToSave)
-      console.log("==================");
-      applicationExists.school_name = req.body.school_name
-      applicationExists.school_id = req.body.school_id
-      applicationExists.file = filesToSave;
-      applicationExists.save((err) => {
-        if (err)
-          return res.status(500).send(err['message'].split(":").pop());
-        // return log_err(err, true, req, res);
-        // Send an email to the school admin
-        var infos = {
-          name: applicationExists.title + " " + applicationExists.firstname + " " + applicationExists.lastname,
-          school: req.body.school_name,
-          email: applicationExists.email
-        };
-        console.log(infos);
-        /*TODO: Email displaying email sent but not receiving email*/
-        /*TODO: Generate an application unique id*/
-        email_sender
-          .sendApplicationReceivedMail(infos)
-          .then((info) => {
-            console.log(" THE EMAIL IS SENT !!!")
-          })
-          .catch((error) => {
-            console.log(error);
-            console.log(" EMAIL NOT SENT, SORRY !!!" + err);
-          })
-        req.flash('reg_is_successful', 'Application submitted successfuly, the response should not take more than 24 hours');
-        return res.status(200).redirect("/applications");
-      });
-    });
-  });
-}
-
-// Schools Api
-exports.getSchools = (req, res, next) => {
-  School.find({}, (err, schools) => {
-    if (err) return log_err(err, false, req, res);
-    else if (!schools) return res.status(400).json("Invalid input");
-    console.log(schools);
-    return res.status(200).json(schools);
-  });
-};
-
-exports.existingApplication = (req, res, next) => {
-  req.body.applicant_id = req.user._id
-  req.body.school_id = req.user.school_id
-  let newApplication = new Application(req.body);
-  newApplication.save(function(err) {
-    if (err)
-      return res.status(500).send(err['message'].split(":").pop());
-    return res.end();
-  });
-};

@@ -515,17 +515,15 @@ module.exports = function(app) {
 	/*---------------------------------------------------------------------------
 					Application for admission
 	----------------------------------------------------------------------------*/
-	var multPartMiddleWare = multPart({
-		uploadDir:process.env.DIPLOMA_PATH
-	});
-	app.get('/admission', isGuest, applicationsController.getApplicationPage);
+	// app.get('/admission', isGuest, applicationsController.getApplicationPage);
 	app.get('/application.new', isGuestOrStudent, applicationsController.displayApplicationForm);
 	app.post('/submit.new.application', isGuestOrStudent, applicationsController.newAppSubmission);
 	app.get('/application', isAuthenticated, applicationsController.viewApplicationPage);
 	app.get('/view.application', isAuthenticated, applicationsController.viewApplication)
 	app.get('/application.get.one/:app_id', isAuthenticated, applicationsController.getOneApplication)
 	app.post('/application.change.status', isAtLeastAdmin, applicationsController.changeApplicationStatus)
-	app.post('/attach.file', applicationsController.postAttachedFiles);
+	app.post('/attach.fileid/:app_id', applicationsController.postIDFile);
+	app.post('/attach.file.transcript/:app_id', applicationsController.postTranscriptFile);
 	/*---------------------------------------------------------------------------
 					Application for admission
 	----------------------------------------------------------------------------*/

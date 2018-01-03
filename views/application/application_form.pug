@@ -3,6 +3,34 @@ block append content
   .wrapper.wrapper-full-page.full-page-background(ng-controller="formCtrl",style="background-image: url('../imgs/register.jpeg')")
     .full-page.login-page(filter-color="white")
       .content
+        .container-fluid(ng-show="upload_files")
+          .col-md-8.center
+            .col-md-12.text-center
+              h3.info-text User Documents
+            .col-md-12
+              .row
+                .col-md-6
+                  h4 Attach your Identification Document, ID or Passport
+                  input(type='file', ngf-select='', ngf-max-size="1MB", ng-model='id_file')
+                .col-md-6
+                  .progress
+                    .progress-bar(role='progressbar', aria-valuenow='{{id_progress}}', aria-valuemin='0', aria-valuemax='100', style="width:{{id_progress}}%") 
+                  | {{id_progress}}%   
+              hr
+              .row
+                .col-md-6
+                  h4 Attach a Transcript
+                  input(type='file', ngf-select='', ngf-max-size="1MB", ng-model='transcript_file')
+                .col-md-6
+                  .progress
+                    .progress-bar(role='progressbar', aria-valuenow='{{trans_progress}}', aria-valuemin='0', aria-valuemax='100', style="width:{{trans_progress}}%") 
+                  | {{trans_progress}}%  
+              button.btn-primary(ng-click='saveFiles()') Save
+              
+                //- div(ng-show='progressVisible')
+                  .percent {{progress}}%
+                  .progress-bar(ng-show="upload_files")
+                    .uploaded(ng-style="{'width': progress+'%'}")
         .container-fluid(ng-show="select_school")
           .row
             .col-md-3
@@ -35,34 +63,15 @@ block append content
                 // You can switch " data-color="purple" "  with one of the next bright colors: "green", "orange", "red", "blue"
                 .wizard-header
                 h2.info-text {{school.name|uppercase}}
+                  .btn.btn-info.pull-right(ng-click="changeSchool()") Change school
                 .wizard-navigation
                   ul
-                    li: a(href="#conf_files", data-toggle="tab") Attachments
                     li: a(href="#basic_info", data-toggle="tab") About
                     li: a(href="#guardian", data-toggle="tab") Guardian
                     li: a(href="#prog_finance", data-toggle="tab") Prog/Finence
                     li: a(href="#confirm", data-toggle="tab") Confirm
                     
                 .tab-content
-                  .tab-pane#conf_files
-                    .row 
-                      h3.info-text User Documents
-                      .col-md-10.center
-                        .col-md-6
-                          h4 Attach your Identification Document, ID or Passport
-                          input(type='file', ngf-select='', ng-model='id_file')
-                          hr
-                          h4 Attach a latest certificate/Diploma
-                          input(type='file', ngf-select='', ng-model='diploma_file')
-                          hr
-                          h4 Attach a Transcript
-                          input(type='file', ngf-select='', ng-model='transcript_file')
-                          button.btn-primary(ng-click='saveFiles()') Save
-                        .col-md-6
-                          div(ng-show='progressVisible')
-                            .percent {{progress}}%
-                            .progress-bar
-                              .uploaded(ng-style="{'width': progress+'%'}")
                   .tab-pane#basic_info
                     .row
                       h2.info-text  Personal Information
@@ -269,7 +278,7 @@ block append content
                 .wizard-footer
                   .pull-right
                     input.btn.btn-next.btn-fill.btn-rose.btn-wd(type="button", value="Next")
-                    input.btn.btn-finish.btn-fill.btn-rose.btn-wd(type="button", ng-click="submitRegistration()" value="Finish")
+                    input.btn.btn-finish.btn-fill.btn-rose.btn-wd(type="button", ng-click="submitRegistration()" value="Confirm and continue")
                   .pull-left
                     input.btn.btn-previous.btn-fill.btn-default.btn-wd(type="button", value="Previous")
                   .clearfix
@@ -379,10 +388,12 @@ block append scripts
           .post('/submit.new.application', $scope.regForm)
           .then(function(response){
             Notifier.success('Your application\'s submitted to '+$scope.school.name.toUpperCase());
-            setTimeout(function(){
-              $window.location.href="/application";
-              $localStorage.$reset();
-            },3000)
+            $scope.app_id=response.data;
+            $scope.regForm=null;
+            $scope.select_school=false;
+            $scope.registration_form=false;
+            $localStorage.$reset();
+            $scope.upload_files=true;
           })
           .catch(function(error){
             Notifier.danger(error.data)
@@ -394,8 +405,9 @@ block append scripts
         $scope.loadSchool = function(){
           if (typeof(Storage) !== "undefined") {
             if($localStorage.selected_school){
-              $scope.registration_form = true;
+              $scope.upload_files=false;
               $scope.select_school = false;
+              $scope.registration_form = true;
               var school = $localStorage.selected_school;
               $scope.school = school;
               if(school.combinations){
@@ -424,62 +436,58 @@ block append scripts
             }
             else{
               $scope.registration_form = false;
+              $scope.upload_files=false;
               $scope.select_school = true;
             }
           }
         }
-        $scope.saveThis = function() {
+        $scope.saveFiles = function() {
           var nationalId = $scope.id_file
-          var diploma = $scope.diploma_file;
+          //- var diploma = $scope.diploma_file;
           var transcript = $scope.transcript_file;
-          if (!nationalId) return Notifier.danger('File is missing');
-          $scope.progressVisible = true
+          if (!nationalId&&transcript) return Notifier.danger('File is missing');
+          else if(!$scope.app_id) return Notifier.danger('No application found');
+          $scope.progressVisible = true;
+          $scope.uploadID(nationalId);        
+        };
+        $scope.uploadID = function(file){
           Upload.upload({
-              url: '/attach.file',
-              file: nationalId,
-            })
+            url: '/attach.fileid/'+$scope.app_id,
+            file:file,
+          })
           .progress(function(evt) {
             var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
             console.log('progress: ' + progressPercentage + '% ' + evt.config.file.name);
-            $scope.progress=progressPercentage;
+            $scope.id_progress=progressPercentage;
           })
           .success(function(data, status, headers, config) {
             console.log('file ' + config.file.name + 'uploaded. Response: ' + data);
+            $scope.uploadTranscript($scope.transcript_file);  
+          })
+          .error(function(data, status, headers, config) {
+            console.log('error status: ' + status);
+            Notifier.danger(data);
+          })
+        }
+        $scope.uploadTranscript = function(file){
+          Upload.upload({
+            url: '/attach.file.transcript/'+$scope.app_id,
+            file:file,
+          })
+          .progress(function(evt) {
+            var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+            console.log('progress: ' + progressPercentage + '% ' + evt.config.file.name);
+            $scope.trans_progress=progressPercentage;
+          })
+          .success(function(data, status, headers, config) {
+            console.log('file ' + config.file.name + 'uploaded. Response: ' + data);
+            $window.location.href='/application';
           })
           .error(function(data, status, headers, config) {
             console.log('error status: ' + status);
           })
-        };
-        $scope.files = [];
+        }
         $scope.categoryList=[];
-        $scope.saveFiles = function() {
-          var nationalId = $scope.id_file;
-          var transcript = $scope.transcript_file;
-          if(nationalId&&transcript){
-            $scope.files.push(nationalId,transcript);
-            console.log('Files length: '+$scope.files.length)
-            $scope.upload($scope.files);
-          }
-          else return Notifier.danger('File is missing');
-        };
-
-        // upload on file select or drop
-        $scope.upload = function (files) {
-          if(files && files.length)
-            for(var i=0; i<files.length;i++){
-              Upload.upload({
-                url: '/attach.file',
-                file: files[i]
-              }).then(function (resp) {
-                  console.log('Success ' + resp.config.file.name + 'uploaded. Response: ' + resp);
-              }, function (resp) {
-                  console.log('Error status: ' + resp.message);
-              }, function (evt) {
-                var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-                console.log('progress: ' + progressPercentage + '% ' + evt.config.file.name);
-              });
-            } 
-        };
         $scope.showOther = function(value){
         if(!value) $scope.show_other = true;
         else $scope.show_other = false;
@@ -516,8 +524,12 @@ block append scripts
         $scope.makeApplication = function(school){
           $localStorage.selected_school=school;
           $scope.loadSchool();
-          $scope.registration_form = true;
-          $scope.select_school = false;
+        }
+        $scope.changeSchool = function(){
+          $scope.registration_form = false;
+          $scope.upload_files=false;
+          $scope.select_school = true;
+          $localStorage.$reset();
         }
         $scope.loadSchools();
         $scope.titles=[1,2];
