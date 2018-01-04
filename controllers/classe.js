@@ -9,11 +9,15 @@ Une classe est par exemple S2MCE pour le sHigh school ou 3 rd Year in Universiti
 
 // Create a new classe
 exports.postNewClass =(req,res,next)=>{
+  var classLevel=req.body.level;
   req.assert('school_id', 'Invalid data').notEmpty().isMongoId();
   req.assert('class_teacher', 'Invalid data').notEmpty().isMongoId();
   req.assert('level', 'A level must be a number').isInt();
   req.assert('name', 'A name is required').notEmpty();
   req.assert('currentTerm', 'Sorry, specifiy a term').isInt();
+  if(classLevel<=3) 
+    req.assert('sub_level', 'Select sub level eg.:A,B...').isIn(['a','b','c','d']).notEmpty();
+  else req.assert('option', 'Select option').notEmpty();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
   // Test if shool exixts
@@ -27,6 +31,9 @@ exports.postNewClass =(req,res,next)=>{
       if(err) return log_err(err,false,req,res);
       else if(classe_exists) return res.status(400).send("This class is already registered");
       //Now we will create the class
+      req.body.option=req.body.option===null?'':req.body.option;
+      req.body.sub_level=req.body.sub_level?req.body.sub_level:'';
+      console.log('Body: '+JSON.stringify(req.body));
       var newClass = new Classe({
         school_id:req.body.school_id,
         level:req.body.level,
@@ -34,9 +41,11 @@ exports.postNewClass =(req,res,next)=>{
         academic_year:Number(new Date().getFullYear())-2000,
         class_teacher:req.body.class_teacher,
         currentTerm:req.body.currentTerm,
+        option:req.body.option,
+        sub_level:req.body.sub_level,
       });      
       newClass.save((err)=>{
-        if(err) return log_err(err,false,req,res);
+        if(err) return console.log(JSON.stringify(err));
         return res.end();
       })
     })    

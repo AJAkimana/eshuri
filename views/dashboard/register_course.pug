@@ -127,7 +127,7 @@ block append scripts
 				.then(function(response){
 					Notifier.success(angular.uppercase($scope.newCourse.name)+" has been added to the school courses");
 					$scope.newCourse =null;
-					$scope.getListCourses();
+					$scope.getListCoursesAndPrograms();
 				})
 				.catch(function(erreur){
 					Notifier.danger(erreur.data);
@@ -168,9 +168,9 @@ block append scripts
 					buttonsStyling: false
 				}).then(function(){
 				  	$http
-					.post("/delete.school.course", {course_id:id})
+					.post("/school.delete.course", {course_id:id})
 					.then(function(response){
-						$scope.getListCourses();
+						$scope.getListCoursesAndPrograms();
 						Notifier.success(angular.uppercase(name)+" has been deleted");
 					})
 					.catch(function(erreur){

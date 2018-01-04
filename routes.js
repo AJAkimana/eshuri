@@ -362,8 +362,8 @@ module.exports = function(app) {
 	app.post('/school.add.new_program', isAtLeastAdmin, schoolController.postSchoolProgram);
 	app.get('/school.courseAndProgram.list/:school_id',isAuthenticated, schoolController.getSchoolCourseAndProgram_JSON);
 	app.post('/school.delete.program', isAtLeastAdmin, schoolController.deleteSchoolProgram)
-	app.post('/school.add.program',isAtLeastAdmin, coursesController.postSchoolCourse);
-	app.post('/delete.school.course',isAtLeastAdmin, coursesController.deleteSchoolCourse);
+	app.post('/school.add.course',isAtLeastAdmin, schoolController.postSchoolCourse);
+	app.post('/school.delete.course',isAtLeastAdmin, schoolController.deleteSchoolCourse);
 				/* UNIT THINGS*/
 	app.post('/unit.add',isAtLeastTeacher, unitsController.postNewUnit);
 	/*

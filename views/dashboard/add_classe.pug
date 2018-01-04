@@ -34,27 +34,40 @@ block append content
 										a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.register.course/{{school_id}}") <strong> {{programs}}</strong> Programs 
 											i.material-icons class
 									.row
-										.col-md-3
+										.col-md-2
 											.form-group.label-floating
-												label.control-label Enter a new class
-												input.form-control(type="text",autocomplete="off",ng-model="newClass.name")
+												label.control-label Level of the class
+												select.form-control(type="number",autocomplete="off",ng-model="newClass.level",ng-change="showOption(newClass.level)")
+													option(value="{{l}}", ng-repeat="l in levels") {{l}} 
+										.col-md-2
+											.form-group.label-floating
+												label.control-label Select option
+												select.form-control(type="text",autocomplete="off",ng-model="newClass.option")
+													option(value="{{o.abbreviation}}", ng-repeat="o in options") {{o.abbreviation|uppercase}}
+										.col-md-2
+											.form-group.label-floating
+												label.control-label Sub class eg:A,B
+												select.form-control(type="text",autocomplete="off",ng-model="newClass.sub_level")
+													option(value="{{sl}}", ng-repeat="sl in slevels") {{sl|uppercase}}
 										.col-md-2
 											.form-group.label-floating
 												label.control-label Actual {{term_name|toTermName}}:
-												select.form-control(required="true",ng-model="newClass.currentTerm")
+												select.form-control(required="true",ng-model="newClass.currentTerm",ng-change="showClassName()")
 													option(value="{{$index + 1}}", ng-repeat="i in getTerms_Limit()") {{term_name|toTermName}} {{$index + 1}}
 										.col-md-3
 											.form-group.label-floating
 												label.control-label Class teacher
 												select.form-control(required="true",ng-model="newClass.class_teacher")
 													option(value="{{teacher._id}}", ng-repeat="teacher in allteachers") {{teacher.name|uppercase}}
-										.col-md-2
-											.form-group.label-floating
-												label.control-label Level of the class
-												input.form-control(type="number",autocomplete="off",ng-model="newClass.level")
+										
 										.col.-md-2
 											button.btn.btn-fill.btn-rose(ng-click="addClasse()") Add
+									.col-md-12.text-center
+										h3(ng-show="show_class_name")
+											|Class name: 
+											strong S{{newClass.name|uppercase}}
 										hr
+									.row
 										.col-md-12
 											h3.text-center List of classes at <strong>{{school_name|uppercase}}</strong> 
 											p.category Click to class name to view courses
@@ -142,16 +155,31 @@ block append scripts
 			}
 		})
 		.controller('school_updateCtrl', function($scope,$http,$window){
+			$scope.levels=[1,2,3,4,5,6];
+			$scope.slevels=['','a','b','c','d']
+			$scope.showOption = function(level){
+				if(level<=3) $scope.options=[];
+				else $scope.getListCoursesAndPrograms()
+			}
+			$scope.showClassName = function(){
+				var classoption='',sublevel=' ';
+				if($scope.newClass.option) classoption=$scope.newClass.option;
+				if($scope.newClass.sub_level) sublevel=$scope.newClass.sub_level;
+				else sublevel=''
+				$scope.newClass.name=$scope.newClass.level+' '+classoption+sublevel;
+				$scope.show_class_name=true;
+			}
 			$scope.addClasse = function(){
-				if(!$scope.newClass) 
-					return Notifier.danger('You can\'t save class that has no name');
+				$scope.showClassName();
+				if(!$scope.newClass) return Notifier.danger('You can\'t save class that has no name');
 				$scope.newClass._csrf =$scope.anti_csrf;
 				$scope.newClass.school_id =$scope.school_id;
 				$http
 				.post("/class.add",$scope.newClass)
 				.then(function(response){
-					Notifier.success($scope.newClass.name+" has been added to the school");
+					Notifier.success('S'+$scope.newClass.name+" has been added to the school");
 					$scope.newClass =null;
+					$scope.show_class_name=false;
 					$scope.getListClasses();
 				})
 				.catch(function(erreur){
@@ -246,6 +274,17 @@ block append scripts
 					Notifier.danger(erreur.data);
 				}); 
 			}
+			$scope.getListCoursesAndPrograms = function(){
+				$http
+				.get("/school.courseAndProgram.list/#{school_id}")
+				.then(function(response){
+					//- $scope.courses = response.data.courses;
+					$scope.options = response.data.programs;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				});
+			}
 			$scope.set_Option =function(){
 				if(!$scope.department_id) return;
 				$http
@@ -277,6 +316,8 @@ block append scripts
 					Notifier.danger(erreur.data);
 				});
 			}
+			$scope.show_class_name=false;
+			$scope.getListCoursesAndPrograms();
 			$scope.pages=[3,5,10,15,20,25];
 			$scope.anti_csrf ="#{csrf_token}";
 			$scope.school_id ="#{school_id}";

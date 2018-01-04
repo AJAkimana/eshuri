@@ -35,6 +35,55 @@ exports.homepageSchool = function(req,res,next){
       })
   })
 };
+exports.postSchoolCourse = function(req, res, next){
+  req.assert('name', 'The name is required').notEmpty();
+  req.assert('school_id', 'Invalid data').isMongoId();
+  // req.assert('year', 'year is required').notEmpty();
+  // req.assert('attendance_limit', 'attendance_limit is required').notEmpty();
+
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  //check if you are a school admin 
+  else if(req.user.access_level > req.app.locals.access_level.ADMIN_TEACHER)
+    return res.status(400).send("Sorry you are not authorized");
+  //Check if the code is not already used
+  School.findOne({_id:req.body.school_id},(err,school_exists)=>{
+    if(err) return log_err(err,false,req,res);
+    else if(!school_exists)  return res.status(400).send("This school doesn't exists ");
+
+    SchoolCourse.checkCourseExists(req.body,(err,school_course_exists)=>{
+      if (err) return log_err(err,false,req,res);
+      else if(school_course_exists) return res.status(400).send("This course is registered");
+      let nouveauCourse = new SchoolCourse({
+        name:req.body.name,
+        school_id:req.body.school_id,
+      });
+      nouveauCourse.save(function(err){
+        if (err) return log_err(err,false,req,res);
+        return res.end();
+      });
+    }); 
+  });   
+}
+
+exports.deleteSchoolCourse = (req, res, next)=>{
+  req.assert('course_id', 'Invalid data').isMongoId();
+
+  const errors = req.validationErrors();
+  if (errors)  return res.status(400).send(errors[0].msg);
+
+  SchoolCourse.findOne({_id:req.body.course_id},function(err, course_exists){
+    if(err) return log_err(err,false,req,res);
+    else if(!course_exists) return res.status(400).send("Invalid data");
+    else if(String(req.user.school_id)!= String(course_exists.school_id))
+      return res.status(400).send("Not authorized to do this");
+
+    course_exists.remove((err)=>{
+      if(err)  return log_err(err,false,req,res);
+      res.end();
+    });
+  })
+}
 exports.postSchoolProgram = function(req, res, next){
   req.assert('abbreviation', 'The abbreviation is required');
   req.assert('name', 'The name is required').notEmpty();

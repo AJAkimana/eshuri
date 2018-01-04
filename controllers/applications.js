@@ -16,18 +16,6 @@ exports.displayApplicationForm = (req, res, next)=>{
   });
 }
 
-exports.createApplication = (req, res, next) => {
-  var now = Date.now();
-  return res.render('applications/new_application', {
-    title: "eShuri New Application",
-    last_change: now,
-    user: req.user,
-    access_lvl: req.user.access_level,
-    school_id: req.user.school_id,
-    access: req.user.access_level,
-    csrf_token: res.locals.csrftoken
-  })
-};
 exports.postIDFile = (req, res, next)=>{
   req.assert('app_id', 'Invalid data,...').isMongoId();
   const errors = req.validationErrors();
