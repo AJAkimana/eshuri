@@ -35,7 +35,7 @@ akimanaja17@gmail.com
   The quickest way to setup eShuri is as shown below:
 
 ```
-git clone git@gitlab.com:AJAkimana/eshuri.git
+git clone https://gitlab.com/datasystemsrw/eshuri-new.git
 cd eshuri
 ```
 
