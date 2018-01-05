@@ -132,7 +132,8 @@ module.exports = function(app) {
 	var isGuestOrStudent=(req, res, next)=>{
 		if(req.isAuthenticated()&&(req.user.access_level == req.app.locals.access_level.GUEST||req.user.access_level == req.app.locals.access_level.STUDENT))
 			return next();
-		return res.status(400).send("This operation is only for guest or student")
+		return res.render("./lost",{msg:'This operation is only for guest or student'});
+		// return res.status(400).send("This operation is only for guest or student")
 	}
 	/* This function is dangerous*/
 	var createSA =(req,res,next)=>{
