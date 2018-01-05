@@ -518,7 +518,7 @@ module.exports = function(app) {
 					Application for admission
 	----------------------------------------------------------------------------*/
 	// app.get('/admission', isGuest, applicationsController.getApplicationPage);
-	app.get('/application.new', isGuestOrStudent, applicationsController.displayApplicationForm);
+	app.get('/application.new', isAuthenticated, isGuestOrStudent, applicationsController.displayApplicationForm);
 	app.post('/submit.new.application', isGuestOrStudent, applicationsController.newAppSubmission);
 	app.get('/application', isAuthenticated, applicationsController.viewApplicationPage);
 	app.get('/view.application', isAuthenticated, applicationsController.viewApplication)
