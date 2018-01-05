@@ -2,7 +2,8 @@ const Classe =require('../models/Classe'),
       Course =require("../models/Course"),
       User =require("../models/User"),
       School = require('../models/School'),
-      log_err=require('./manage/errorLogger'); 
+      log_err=require('./manage/errorLogger'),
+      SchoolProgram=require('../models/SchoolProgram'); 
 /*
 Une classe est par exemple S2MCE pour le sHigh school ou 3 rd Year in Universitites
 */
@@ -68,10 +69,10 @@ exports.getClasses_JSON = (req,res,next)=>{
     async.each(classes,(currentClass,cb)=>{
       // For each class, i count the number of students
       User.count({class_id:currentClass._id},(err,num)=>{
-
         if(err) return cb(err);
+        // currentClass.level=currentClass.level?currentClass.level
         listClasses.push({_id:currentClass._id, name:currentClass.name,level:currentClass.level,currentTerm:currentClass.currentTerm,academic_year:currentClass.academic_year,
-          students:num, class_teacher:currentClass.class_teacher});
+          students:num, class_teacher:currentClass.class_teacher,option:currentClass.option,sub_level:currentClass.sub_level});
         cb();
       })
 
@@ -122,7 +123,42 @@ exports.getClasses_JSONConfirm = (req,res,next)=>{
     })
   })
 }
-
+// Modifier un class
+exports.editClasse = (req, res, next)=>{
+  var classLevel=req.body.level;
+  req.assert('classe_id', 'Invalid data').isMongoId().notEmpty();
+  req.assert('name', 'A name is required').notEmpty();
+  if(classLevel<=3) 
+    req.assert('sub_level', 'Specifiy sub level eg.:A,B...').isIn(['a','b','c','d']).notEmpty();
+  else req.assert('option', 'Specifiy option').notEmpty();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  //Chech if class name if exit in that school
+  req.body.name=req.body.name.trim().toLowerCase();
+  req.body.option=req.body.option?req.body.option.trim().toLowerCase():'';
+  req.body.sub_level=req.body.sub_level?req.body.sub_level.trim().toLowerCase():'';
+  SchoolProgram.findOne({school_id:req.user.school_id,abbreviation:req.body.option},(err, name_exist)=>{
+    if(err) return log_err(err,false,req,res);
+    if(!name_exist) return res.status(400).send("Name not match any school program");
+    //Check if the new name will not conflict to the other name
+    Classe.find({school_id:req.user.school_id,name:req.body.name},(err, class_exist)=>{
+      if(err) return log_err(err,false,req,res);
+      if(class_exist) return res.status(400).send("There class with the same informations");
+      //Find that class and update it
+      Classe.findOne({school_id:req.user.school_id,_id:req.body.classe_id},(err, this_classe)=>{
+        if(err) return log_err(err,false,req,res);
+        if(!this_classe) return res.status(400).send("Unkown class");
+        this_classe.name=req.body.name;
+        this_classe.option=req.body.option;
+        this_classe.sub_level=req.body.sub_level;
+        this_classe.save((err, ok)=>{
+          if(err) return log_err(err,false,req,res);
+          return res.end();
+        })
+      })
+    })
+  })
+}
 // Supprimer un classe 
 exports.removeClasse = function(req,res,next){ // D
   req.assert('classe_id', 'Invalid data').isMongoId();

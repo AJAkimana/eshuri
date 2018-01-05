@@ -346,6 +346,7 @@ module.exports = function(app) {
 	app .get('/classe.list.for.report/:school_id',isAuthenticated, classeController.getClasses_JSON_For_Report);
 	app .get('/classe.list.confirm/:school_id',isAuthenticated, classeController.getClasses_JSONConfirm);
 	
+	app.post('/classe.edit',isAtLeastAdmin,classeController.editClasse)
 	app.post('/classe.delete',isAtLeastAdmin, classeController.removeClasse);
 	app.post('/class.update.settings',isAtLeastAdmin, classeController.updateSettings);
 	
