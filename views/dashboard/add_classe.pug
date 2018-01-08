@@ -103,34 +103,50 @@ block append content
 															td {{classe.class_teacher|toTeacher_name:allteachers}}
 															td {{classe.academic_year|yearToDate}}
 															td.td-actions.text-center
-																button.btn.btn-danger(type='button',ng-click="deleteClass(classe._id,classe.name)")
+																button.btn.btn-primary(ng-click="editClass(classe)",data-target='#edit_class_Modal', data-toggle='modal')
+																	i.material-icons edit
+																button.btn.btn-danger(ng-click="deleteClass(classe._id,classe.name)")
 																	i.material-icons close
-																button.btn.btn-info(type='button',ng-click="setClassTeacher(classe)",data-target='#set_class_teacher_Modal', data-toggle='modal')
+																button.btn.btn-info(ng-click="setClassTeacher(classe)",data-target='#set_class_teacher_Modal', data-toggle='modal')
 																	i.material-icons edit
 																	| Set class teacher
 												dir-pagination-controls.pull-right(pagination-id='allclasses', max-size='5', direction-links='true', boundary-links='true')
 											p.category.text-center(ng-show ="!classes.length") No class provided here
-									#set_class_teacher_Modal.modal.fade(role='dialog')
-										.modal-dialog
-											.modal-content
-												.modal-header
-													i.material-icons school
-													h5.card-title Set class teacher for {{class_name|uppercase}}
-												.modal-body
-													//.col-md-8
-														h4 Teacher list
-														div(ng-repeat ="t in currentTeachers")
-															h4: strong {{$index+1}}) {{t|toTeacher_name:teachers}}
-																.btn.btn-danger.btn-fab.btn-fab-mini(ng-click="dissociateTeacher(t)")
-																	i.material-icons close
-													.col-md-4
-														h4 Select teacher
-														.form-group.label-floating
-															select.form-control(ng-model="teacher_choosen",ng-change="setTeacher(this_class, teacher_choosen)")
-																option(disabled) Pick a teacher
-																option(value="{{teacher._id}}",ng-repeat="teacher in allteachers") {{teacher.name}}
-												.modal-footer
-													button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
+			#set_class_teacher_Modal.modal.fade(role='dialog')
+				.modal-dialog
+					.modal-content
+						.modal-header
+							i.material-icons school
+							h4.card-title 
+								| Set class teacher for 
+								strong {{class_name|uppercase}}
+						.modal-body
+							.col-md-4
+								h4 Select teacher
+								.form-group.label-floating
+									select.form-control(ng-model="teacher_choosen",ng-change="setTeacher(this_class, teacher_choosen)")
+										option(disabled) Pick a teacher
+										option(value="{{teacher._id}}",ng-repeat="teacher in allteachers") {{teacher.name}}
+						.modal-footer
+							button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
+			#edit_class_Modal.modal.fade(role='dialog')
+				.modal-dialog
+					.modal-content
+						.modal-header
+							h4.card-title 
+								| Edit class:
+								strong {{name|uppercase}}
+
+						.modal-body
+							input.form-control(type="number",ng-model="level",placeholder="Level of the class",ng-change="showOption(level)")
+								//- option(value="{{l}}", ng-repeat="l in levels") {{l}} 
+							input.form-control(type="text",ng-model="option",placeholder="Option if exits")
+								//- option(value="{{o.abbreviation}}", ng-repeat="o in options") {{o.abbreviation|uppercase}}
+							input.form-control(type="text",ng-model="sub_level",placeholder="Sub class eg:A,B")
+								//- option(value="{{sl}}", ng-repeat="sl in slevels") {{sl|uppercase}}
+						.modal-footer
+							button.btn.btn-sm.btn-primary(ng-click="updateClass()") Confirm
+							button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
 	script.
@@ -164,7 +180,7 @@ block append scripts
 			$scope.showClassName = function(){
 				var classoption='',sublevel=' ';
 				if($scope.newClass.option) classoption=$scope.newClass.option;
-				if($scope.newClass.sub_level) sublevel=$scope.newClass.sub_level;
+				if($scope.newClass.sub_level) sublevel=sublevel+$scope.newClass.sub_level;
 				else sublevel=''
 				$scope.newClass.name=$scope.newClass.level+' '+classoption+sublevel;
 				$scope.show_class_name=true;
@@ -185,6 +201,37 @@ block append scripts
 				.catch(function(erreur){
 					Notifier.danger(erreur.data);
 				}); 
+			}
+			$scope.editClass = function(classe){
+				//- console.log(JSON.stringify(classe))
+				$scope.name=classe.name;
+				$scope.level=classe.level;
+				$scope.option=classe.option;
+				$scope.sub_level=classe.sub_level;
+				$scope.currentTerm=classe.currentTerm;
+				$scope.classe_id=classe._id;
+			}
+			$scope.thisClasse={};
+			$scope.updateClass = function(){
+				var classoption='',sublevel=' ';
+				if($scope.option) classoption=$scope.option;
+				if($scope.sub_level) sublevel=sublevel+$scope.sub_level;
+				else sublevel=''
+				$scope.name=$scope.level+' '+classoption+sublevel;
+				$scope.thisClasse.level=$scope.level;
+				$scope.thisClasse.option=$scope.option;
+				$scope.thisClasse.sub_level=$scope.sub_level;
+				$scope.thisClasse.classe_id=$scope.classe_id;
+				$scope.thisClasse.name=$scope.name
+				$http.post('/classe.edit', $scope.thisClasse)
+					.then(function(response){
+						Notifier.success('S'+$scope.thisClasse.name+" has been modified");
+						$scope.thisClasse =null;
+						$scope.getListClasses();
+					})
+					.catch(function(error){
+						Notifier.danger(error.data);
+					})
 			}
 			$scope.setClassTeacher=function(selectedClass){
 				$scope.class_name=selectedClass.name.toUpperCase();

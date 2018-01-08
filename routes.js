@@ -132,7 +132,8 @@ module.exports = function(app) {
 	var isGuestOrStudent=(req, res, next)=>{
 		if(req.isAuthenticated()&&(req.user.access_level == req.app.locals.access_level.GUEST||req.user.access_level == req.app.locals.access_level.STUDENT))
 			return next();
-		return res.status(400).send("This operation is only for guest or student")
+		return res.render("./lost",{msg:'This operation is only for guest or student'});
+		// return res.status(400).send("This operation is only for guest or student")
 	}
 	/* This function is dangerous*/
 	var createSA =(req,res,next)=>{
@@ -346,6 +347,7 @@ module.exports = function(app) {
 	app .get('/classe.list.for.report/:school_id',isAuthenticated, classeController.getClasses_JSON_For_Report);
 	app .get('/classe.list.confirm/:school_id',isAuthenticated, classeController.getClasses_JSONConfirm);
 	
+	app.post('/classe.edit',isAtLeastAdmin,classeController.editClasse)
 	app.post('/classe.delete',isAtLeastAdmin, classeController.removeClasse);
 	app.post('/class.update.settings',isAtLeastAdmin, classeController.updateSettings);
 	
@@ -516,7 +518,7 @@ module.exports = function(app) {
 					Application for admission
 	----------------------------------------------------------------------------*/
 	// app.get('/admission', isGuest, applicationsController.getApplicationPage);
-	app.get('/application.new', isGuestOrStudent, applicationsController.displayApplicationForm);
+	app.get('/application.new', isAuthenticated, isGuestOrStudent, applicationsController.displayApplicationForm);
 	app.post('/submit.new.application', isGuestOrStudent, applicationsController.newAppSubmission);
 	app.get('/application', isAuthenticated, applicationsController.viewApplicationPage);
 	app.get('/view.application', isAuthenticated, applicationsController.viewApplication)
