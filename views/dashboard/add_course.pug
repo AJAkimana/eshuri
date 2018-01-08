@@ -38,7 +38,8 @@ block append content
 											span.input-group-addon.icon.ion-ios-settings
 											.form-group.label-floating
 												label.control-label New Academic year (e.g 2017)
-												input.form-control(type="text",autocomplete="off",ng-model="nv.academic_year")
+												select.form-control(type="text",autocomplete="off",ng-model="nv.academic_year")
+													option(value="{{year}}", ng-repeat="year in getYears()") {{year}}
 										.input-group
 											span.input-group-addon.icon.ion-ios-settings
 											.form-group.label-floating
@@ -52,7 +53,7 @@ block append content
 								.card-header(data-background-color="rose")
 									i.material-icons school
 									h5.card-title {{institution|toNiceName}}: <strong>{{school_name|uppercase}}</strong>
-									h6.pull-right.card-title {{classe_name|uppercase}}
+									h6.pull-right.card-title {{classe_name|uppercase|toClasseName:term_name}}
 									h1
 								.card-content
 									.formu
@@ -109,7 +110,7 @@ block append content
 											i.material-icons person_outline
 
 									.col-md-12
-										h3.text-center List of courses in <b>{{classe_name|uppercase}}</b> at {{school_name|uppercase}}
+										h3.text-center List of courses in <b>{{classe_name|uppercase|toClasseName:term_name}}</b> at {{school_name|uppercase}}
 										.table-responsive(ng-show="courses.length")
 											form.form-inline
 												.form-group.pull-left
@@ -177,6 +178,11 @@ block append scripts
 				return input=='S'?'Semester':'Term'
 			}
 		})
+		.filter('toClasseName', function() {
+			return function(input, term){
+				return term=='S'?'Y'+input:'S'+input
+			}
+		})
 		.filter('yearToDate', function() {
 			return function(input){
 				input =Number(input)+2000;
@@ -225,6 +231,7 @@ block append scripts
 				var first_letter = function(x){ if (x) { return x[0]; } else { return ''; }};
 				return words.split(' ').map(first_letter).join('');
 			}
+
 			$scope.setCourseCode = function(){
 				var schoolAbbr = getAbbreviation(schoolName);
 				var coursename = $scope.newCourse.name?$scope.newCourse.name:'';
@@ -245,9 +252,9 @@ block append scripts
 			}
 			$scope.getListSchoolCourses = function(){
 				$http
-				.get("/school.course.list/"+$scope.school_id)
+				.get("/school.courseAndProgram.list/"+$scope.school_id)
 				.then(function(response){
-					$scope.schoolCourses = response.data;
+					$scope.schoolCourses = response.data.courses;
 				})
 				.catch(function(erreur){
 					Notifier.danger(erreur.data);
@@ -444,6 +451,10 @@ block append scripts
 				//$scope.teacher_add=!$scope.teacher_add;
 			}
 			$scope.updateClass = function(){
+				var date = new Date,
+					year = date.getFullYear();
+				if($scope.nv.academic_year<year) return Notifier.danger('Academic year cannot go below '+year);
+				if($scope.nv.academic_year>Number(year+1)) return Notifier.danger('Academic year cannot go over '+Number(year+1));
 				$http
 				.post("/class.update.settings",{
 						_csrf:$scope.anti_csrf,
@@ -458,6 +469,15 @@ block append scripts
 				.catch(function(erreur){
 					Notifier.danger(erreur.data);
 				});
+			}
+			$scope.getYears = function(){
+				var date = new Date,
+					years = [],
+					year = date.getFullYear();
+				for (var i = year; i < year + 2; i++) {
+					years.push(i);   
+				}
+				return years;
 			}
 			$scope.pages=[3,5,10,15,20,25];
 			$scope.school_name ="#{school_name}";

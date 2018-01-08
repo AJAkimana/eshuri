@@ -96,7 +96,7 @@ block append content
 														tr(pagination-id="allclasses", dir-paginate="classe in classes |orderBy:a:b|filter:search|itemsPerPage:n_pages")
 															td(width="1%" height="1%") {{$index + 1}}
 															td: a(href="/dashboard.course/{{classe._id}}")
-																strong {{classe.name | uppercase}}
+																strong {{classe.name | uppercase|toClasseName:term_name}}
 															td {{classe.level }}
 															td: i <strong>{{classe.students}}</strong> students
 															td {{term_name|toTermName}} {{classe.currentTerm }}
@@ -138,12 +138,9 @@ block append content
 								strong {{name|uppercase}}
 
 						.modal-body
-							input.form-control(type="number",ng-model="level",placeholder="Level of the class",ng-change="showOption(level)")
-								//- option(value="{{l}}", ng-repeat="l in levels") {{l}} 
+							input.form-control(type="number",ng-model="level",placeholder="Level of the class")
 							input.form-control(type="text",ng-model="option",placeholder="Option if exits")
-								//- option(value="{{o.abbreviation}}", ng-repeat="o in options") {{o.abbreviation|uppercase}}
 							input.form-control(type="text",ng-model="sub_level",placeholder="Sub class eg:A,B")
-								//- option(value="{{sl}}", ng-repeat="sl in slevels") {{sl|uppercase}}
 						.modal-footer
 							button.btn.btn-sm.btn-primary(ng-click="updateClass()") Confirm
 							button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
@@ -157,6 +154,11 @@ block append scripts
 				return input=='S'?'Semester':'Term'
 			}
 		})
+		.filter('toClasseName', function() {
+			return function(input, term){
+				return term=='S'?'Y'+input:'S'+input
+			}
+		})
 		.filter('yearToDate', function() {
 			return function(input){
 				input =Number(input)+2000;
@@ -166,8 +168,9 @@ block append scripts
 		.filter('toTeacher_name', function(){
 			return function(input,list_teachers){
 				if(input==''||!input)	return 'Not defined';
-				for(var i =0;i < list_teachers.length;i++)
+				for(var i =0;i < list_teachers.length;i++){
 					if(list_teachers[i]._id == input) return list_teachers[i].name
+				}
 			}
 		})
 		.controller('school_updateCtrl', function($scope,$http,$window){
@@ -223,10 +226,12 @@ block append scripts
 				$scope.thisClasse.sub_level=$scope.sub_level;
 				$scope.thisClasse.classe_id=$scope.classe_id;
 				$scope.thisClasse.name=$scope.name
-				$http.post('/classe.edit', $scope.thisClasse)
+				$http
+					.post('/classe.edit', $scope.thisClasse)
 					.then(function(response){
 						Notifier.success('S'+$scope.thisClasse.name+" has been modified");
 						$scope.thisClasse =null;
+						$('#edit_class_Modal').modal('hide');
 						$scope.getListClasses();
 					})
 					.catch(function(error){

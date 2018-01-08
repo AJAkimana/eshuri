@@ -145,6 +145,7 @@ exports.getPageConfirmAccounts = function(req,res,next){
     return res.render('dashboard/confirm_accounts',{
       title:'Accounts confirmations',
       school_name:school_exists.name,
+      term_name:school_exists.term_name,
       school_id:school_exists._id,
       level_student:req.app.locals.access_level.STUDENT,
       level_teacher:req.app.locals.access_level.TEACHER,

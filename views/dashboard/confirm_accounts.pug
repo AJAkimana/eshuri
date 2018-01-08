@@ -57,7 +57,7 @@ block append content
 											.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentClass(class._id,class.title)")
 												a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
 													h4.panel-title
-														| {{$index+1}}.  {{class.name|uppercase}} <strong>({{class.students}} new)</strong>
+														| {{$index+1}}.  {{class.name|uppercase|toClasseName:term_name}} <strong>({{class.students}} new)</strong>
 														i.material-icons keyboard_arrow_down
 
 											.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
@@ -95,7 +95,12 @@ block append scripts
 			return function(input){
 				return !input? 'Choose/Edit class':'Ok';
 			}
-		})		
+		})	
+		.filter('toClasseName', function() {
+			return function(input, term){
+				return term=='S'?'Y'+input:'S'+input
+			}
+		})	
 		.controller('confirmAccountCtrl', function($scope,$http){
 			$scope.getListAccounts = function(limit){
 				$http
@@ -168,6 +173,7 @@ block append scripts
 			$scope.teachers =[];
 			$scope.students=[];
 			$scope.show_chooseClass=false;
+			$scope.term_name="#{term_name}";
 			$scope.school_name ="#{school_name}";
 			$scope.school_id ="#{school_id}";
 			$scope.anti_csrf ="#{csrf_token}";

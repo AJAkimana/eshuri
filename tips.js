@@ -56,3 +56,30 @@ swal({
   }).save((err)=>{
     if(err) console.log(" You have to log "+err)
   })
+  //-----------------------------------------------------------
+  //Angular filtering
+  	.filter('toTermName', function() {
+		return function(input){
+			return input=='S'?'Semester':'Term'
+		}
+	})
+	.filter('toClasseName', function() {
+		return function(input, term){
+			return term=='S'?'Y'+input:'S'+input
+		}
+	})
+	.filter('yearToDate', function() {
+		return function(input){
+			input =Number(input)+2000;
+			return input = input+'/'+Number(Number(input)+1);
+		}
+	})
+	.filter('toTeacher_name', function(){
+		return function(input,list_teachers){
+			if(input==''||!input)	return 'Not defined';
+			for(var i =0;i < list_teachers.length;i++){
+				if(list_teachers[i]._id == input) return list_teachers[i].name
+			}
+		}
+	})
+	//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

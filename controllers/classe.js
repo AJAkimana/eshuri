@@ -134,15 +134,16 @@ exports.editClasse = (req, res, next)=>{
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
   //Chech if class name if exit in that school
-  req.body.name=req.body.name.trim().toLowerCase();
+  // req.body.name=req.body.name.toLowerCase();
   req.body.option=req.body.option?req.body.option.trim().toLowerCase():'';
   req.body.sub_level=req.body.sub_level?req.body.sub_level.trim().toLowerCase():'';
   SchoolProgram.findOne({school_id:req.user.school_id,abbreviation:req.body.option},(err, name_exist)=>{
     if(err) return log_err(err,false,req,res);
-    if(!name_exist) return res.status(400).send("Name not match any school program");
+    if(!name_exist&&(classLevel>3)) return res.status(400).send("Name not match any school program");
     //Check if the new name will not conflict to the other name
-    Classe.find({school_id:req.user.school_id,name:req.body.name},(err, class_exist)=>{
+    Classe.findOne({school_id:req.user.school_id,name:req.body.name.trim().toLowerCase()},(err, class_exist)=>{
       if(err) return log_err(err,false,req,res);
+      console.log('class exist: '+JSON.stringify(class_exist))
       if(class_exist) return res.status(400).send("There class with the same informations");
       //Find that class and update it
       Classe.findOne({school_id:req.user.school_id,_id:req.body.classe_id},(err, this_classe)=>{

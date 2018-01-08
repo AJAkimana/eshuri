@@ -61,14 +61,12 @@ block append content
 									| Programs
 								.card-content
 									.row
-										.col-md-2.col-md-2.col-md-2
-											.form-group.label-floating
-												label.control-label Abbreviation
-												input.form-control(type="text",autocomplete="off",ng-model="newProgram.abbreviation")
 										.col-md-4.col-md-4.col-md-4
 											.form-group.label-floating
 												label.control-label Enter program name
-												input.form-control(type="text",autocomplete="off",ng-model="newProgram.name")
+												input.form-control(type="text",autocomplete="off",ng-model="newProgram.name",ng-change="setAbbreviation(newProgram.name)")
+										.col-md-2.col-md-2.col-md-2
+											input.form-control(type="text",ng-model="newProgram.abbreviation", placeholder="Abbrevition")
 										.col-md-2.col-md-2.col-md-2
 											button.btn.btn-fill.btn-rose(ng-click="addProgram()") Add
 									hr
@@ -117,6 +115,9 @@ block append scripts
 			}
 		})
 		.controller('course_registerCtrl', function($scope,$http,$window){
+			$scope.setAbbreviation = function(name){
+				$scope.newProgram.abbreviation = name.split(' ').map(function(item){return item[0]}).join('').toUpperCase();
+			}
 			$scope.addCourse = function(){
 				if(!$scope.newCourse)
 					return Notifier.danger('You can\'t save course that has no name');

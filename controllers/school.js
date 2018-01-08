@@ -30,6 +30,7 @@ exports.homepageSchool = function(req,res,next){
         title:school.name,
         school_id: school._id,
         school_name: school.name,
+        term_name: school.term_name,
         pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
         csrf_token:res.locals.csrftoken, // always set this buddy
       })
