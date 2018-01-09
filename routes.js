@@ -271,7 +271,8 @@ module.exports = function(app) {
 	app .get('/school/:id_school',isAuthenticated, schoolController.homepageSchool);
 	app.post('/school.delete',isSuperAdmin, schoolController.removeSchool);
 	app.get('/school.content.list/:school_id',isAuthenticated, schoolController.getSchoolData);
-
+	// Get user classes from past to now.
+	app.get('/school.get.userClasses/:school_id', isAuthenticated, schoolController.getUserClasses);
 	/*
 	You send POST @ "/school.content.courses" -- {"_csrf":"","class_id":"58c970b9708c4a9f40dfbb85","currentTerm":1}
 	You will get a list of course_name, course_id, and teacher_id

@@ -8,7 +8,8 @@ const School =require('../models/School'),
       Content=require('../models/Content'),
       Marks =require('../models/MARKS'),
       Classe =require('../models/Classe'),
-      log_err=require('./manage/errorLogger');
+      log_err=require('./manage/errorLogger'),
+      async = require('async');;
 /*
 Collection of schools that are registered
 */
@@ -641,6 +642,51 @@ exports.editStudent = (req, res, next)=>{
       })
     })
   })
+}
+exports.getUserClasses = (req, res, next)=>{
+  req.assert('school_id', 'Invalid Data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  var listClasses=[],classes=[];
+  var response={};
+  
+  Marks.find().distinct("class_id", {school_id:req.user.school_id,student_id:req.user._id},(err, markClasses)=>{
+    if (err) return log_err(err,false,req,res);
+    classes.push({class_id:markClasses})
+    // console.log('-----------------'+JSON.stringify(classes))
+    // classes.push(markClasses)
+    Classe.findOne({school_id:req.user.schoo_id,'$or':[{_id:req.user.class_id},{class_teacher:req.user._id}]},(err, user_class)=>{
+      if (err) return log_err(err,false,req,res);
+      if(!user_class) return res.status(400).send("Classe of yours");
+      if(classes.indexOf(user_class._id)!==-1) classes.push({class_id:user_class._id});
+      console.warn("Classes -----=> "+JSON.stringify(classes));
+      // Get classe name of each classes
+      async.eachSeries(classes, (thisClass, callBack)=>{
+        Classe.findOne({_id:thisClass.class_id},(err, class_details)=>{
+          if (err) return callBack(err);
+          thisClass.name=class_details.name;
+          console.log('This class'+thisClass)
+          callBack();
+        })
+      },(err)=>{
+        if(err) return log_err(err,false,req,res);
+        // console.warn("Classes -----=> "+JSON.stringify(classes));
+        // 
+        async.eachSeries(classes, (thisClass, callBack)=>{
+          Course.count({class_id:thisClass.class_id},(err, number)=>{
+            if (err) return callBack(err);
+            thisClass.number=number;
+            // console.log('This class'+thisClass)
+            callBack();
+          })
+        },(err)=>{
+          if(err) return log_err(err,false,req,res);
+          console.warn("Classes -----=> "+JSON.stringify(classes));
+          return res.json(classes)
+        })
+      })
+    })
+  });
 }
 exports.getSchoolData = (req,res,next)=>{
   //Get the term_name and term_quantity
