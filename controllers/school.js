@@ -650,29 +650,34 @@ exports.getUserClasses = (req, res, next)=>{
   var listClasses=[],classes=[];
   var response={};
   response.classes=[];
-  Marks.find().distinct("class_id", {school_id:req.user.school_id, $or:[{student_id:req.user._id},{teacher_id:req.user._id}]},(err, markClasses)=>{
+  Marks.find().distinct("class_id", {school_id:req.user.school_id, student_id:req.user._id},(err, markClasses)=>{
     if (err) return log_err(err,false,req,res);
     console.log('From mark classes: '+JSON.stringify(markClasses))
-    if(markClasses) response.classes=markClasses;
+    response.classes=markClasses;
 
     Classe.findOne({school_id:req.user.school_id, $or:[{_id:req.user.class_id},{class_teacher:req.user._id}]},(err, user_class)=>{
       if (err) return log_err(err,false,req,res);
       console.log('From classes: '+JSON.stringify(user_class))
       // Check if the found was not in the array then push it
-      if((response.classes.indexOf(user_class._id)!==-1)) response.classes.push(user_class._id);
-      Course.find({school_id:req.user.school_id, teacher_list:req.user._id},{_id:1,teacher_list:1,class_id:1},(err, class_courses)=>{
+      if((response.classes.indexOf(user_class._id)==-1)) response.classes.push(user_class._id);
+      Course.find().distinct("class_id",{school_id:req.user.school_id, teacher_list:req.user._id},(err, class_courses)=>{
         if (err) return log_err(err,false,req,res);
-        console.log('From courses: '+JSON.stringify(class_courses))
-        
+        console.log(JSON.stringify('-------'+class_courses))
         // Check every class in the courses
         async.eachSeries(class_courses, (thisList, listCallback)=>{
-          console.log('This class is being processed____: '+JSON.stringify(thisList)+'_____END')
-          if((thisList.teacher_list.indexOf(req.user._id)!==-1)&&((response.classes.indexOf(thisList.class_id)!==-1))){
-            response.classes.push(thisList.class_id);
+          if(response.classes.indexOf(thisList)==-1){
+            response.classes.push(thisList)
+            // response.classes.push(thisList.class_id);
+            console.log(thisList+' COMPARED WITH '+JSON.stringify(response.classes))
+            listCallback();
           }
-          listCallback();
+          else{
+            console.log('The class '+thisList+' is in ARRAY');
+            listCallback();
+          }
         },(err)=>{
           if(err) return log_err(err,false,req,res);
+          console.log(' All list '+JSON.stringify(response))
           if(response.classes.length===0) return res.status(400).send("No classes of yours found contact your administrator");
           //Append to every id class info
           async.eachSeries(response.classes, (thisClass, callBack)=>{
