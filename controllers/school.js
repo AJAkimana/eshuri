@@ -660,29 +660,43 @@ exports.getUserClasses = (req, res, next)=>{
       console.log('From classes: '+JSON.stringify(user_class))
       // Check if the found was not in the array then push it
       if((response.classes.indexOf(user_class._id)!==-1)) response.classes.push(user_class._id);
-      
-      if(response.classes.length===0) return res.status(400).send("No classes of yours found contact your administrator");
-      //Append to every id class info
-      async.eachSeries(response.classes, (thisClass, callBack)=>{
-        Classe.findOne({_id:thisClass},(err, class_details)=>{
-          if (err) return callBack(err);
-          classes.push({class_id:thisClass,name:class_details.name})
-          callBack();
-        })
-      },(err)=>{
-        if(err) return log_err(err,false,req,res);
-        // append every class number of courses
-        async.eachSeries(classes, (thisClass, callBack)=>{
-          Course.count({class_id:thisClass.class_id},(err, number)=>{
-            if (err) return callBack(err);
-            thisClass.number=number;
-            callBack();
-          })
+      Course.find({school_id:req.user.school_id, teacher_list:req.user._id},{_id:1,teacher_list:1,class_id:1},(err, class_courses)=>{
+        if (err) return log_err(err,false,req,res);
+        console.log('From courses: '+JSON.stringify(class_courses))
+        
+        // Check every class in the courses
+        async.eachSeries(class_courses, (thisList, listCallback)=>{
+          console.log('This class is being processed____: '+JSON.stringify(thisList)+'_____END')
+          if((thisList.teacher_list.indexOf(req.user._id)!==-1)&&((response.classes.indexOf(thisList.class_id)!==-1))){
+            response.classes.push(thisList.class_id);
+          }
+          listCallback();
         },(err)=>{
           if(err) return log_err(err,false,req,res);
-          console.warn("Classes -----=> "+JSON.stringify(classes));
-          // if everything are in place return data to front
-          return res.json(classes)
+          if(response.classes.length===0) return res.status(400).send("No classes of yours found contact your administrator");
+          //Append to every id class info
+          async.eachSeries(response.classes, (thisClass, callBack)=>{
+            Classe.findOne({_id:thisClass},(err, class_details)=>{
+              if (err) return callBack(err);
+              classes.push({class_id:thisClass,name:class_details.name})
+              callBack();
+            })
+          },(err)=>{
+            if(err) return log_err(err,false,req,res);
+            // append every class number of courses
+            async.eachSeries(classes, (thisClass, callBack)=>{
+              Course.count({class_id:thisClass.class_id},(err, number)=>{
+                if (err) return callBack(err);
+                thisClass.number=number;
+                callBack();
+              })
+            },(err)=>{
+              if(err) return log_err(err,false,req,res);
+              console.warn("Classes -----=> "+JSON.stringify(classes));
+              // if everything are in place return data to front
+              return res.json(classes)
+            })
+          })
         })
       })
     })
