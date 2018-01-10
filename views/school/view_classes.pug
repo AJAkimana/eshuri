@@ -132,7 +132,7 @@ block append scripts
       		$scope.classes = response.data;
       	})
       	.catch(function(error){
-      		Notifier.danger(erreur.data)
+      		Notifier.danger(error.data)
       	})
       }
       $scope.currentTerm =-1;

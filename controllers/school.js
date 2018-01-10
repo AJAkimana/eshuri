@@ -649,39 +649,39 @@ exports.getUserClasses = (req, res, next)=>{
   if (errors) return res.status(400).send(errors[0].msg);
   var listClasses=[],classes=[];
   var response={};
-  
-  Marks.find().distinct("class_id", {school_id:req.user.school_id,student_id:req.user._id},(err, markClasses)=>{
+  response.classes=[];
+  Marks.find().distinct("class_id", {school_id:req.user.school_id, $or:[{student_id:req.user._id},{teacher_id:req.user._id}]},(err, markClasses)=>{
     if (err) return log_err(err,false,req,res);
-    classes.push({class_id:markClasses})
-    // console.log('-----------------'+JSON.stringify(classes))
-    // classes.push(markClasses)
-    Classe.findOne({school_id:req.user.schoo_id,'$or':[{_id:req.user.class_id},{class_teacher:req.user._id}]},(err, user_class)=>{
+    console.log('From mark classes: '+JSON.stringify(markClasses))
+    if(markClasses) response.classes=markClasses;
+
+    Classe.findOne({school_id:req.user.school_id, $or:[{_id:req.user.class_id},{class_teacher:req.user._id}]},(err, user_class)=>{
       if (err) return log_err(err,false,req,res);
-      if(!user_class) return res.status(400).send("Classe of yours");
-      if(classes.indexOf(user_class._id)!==-1) classes.push({class_id:user_class._id});
-      console.warn("Classes -----=> "+JSON.stringify(classes));
-      // Get classe name of each classes
-      async.eachSeries(classes, (thisClass, callBack)=>{
-        Classe.findOne({_id:thisClass.class_id},(err, class_details)=>{
+      console.log('From classes: '+JSON.stringify(user_class))
+      // Check if the found was not in the array then push it
+      if((response.classes.indexOf(user_class._id)!==-1)) response.classes.push(user_class._id);
+      
+      if(response.classes.length===0) return res.status(400).send("No classes of yours found contact your administrator");
+      //Append to every id class info
+      async.eachSeries(response.classes, (thisClass, callBack)=>{
+        Classe.findOne({_id:thisClass},(err, class_details)=>{
           if (err) return callBack(err);
-          thisClass.name=class_details.name;
-          console.log('This class'+thisClass)
+          classes.push({class_id:thisClass,name:class_details.name})
           callBack();
         })
       },(err)=>{
         if(err) return log_err(err,false,req,res);
-        // console.warn("Classes -----=> "+JSON.stringify(classes));
-        // 
+        // append every class number of courses
         async.eachSeries(classes, (thisClass, callBack)=>{
           Course.count({class_id:thisClass.class_id},(err, number)=>{
             if (err) return callBack(err);
             thisClass.number=number;
-            // console.log('This class'+thisClass)
             callBack();
           })
         },(err)=>{
           if(err) return log_err(err,false,req,res);
           console.warn("Classes -----=> "+JSON.stringify(classes));
+          // if everything are in place return data to front
           return res.json(classes)
         })
       })

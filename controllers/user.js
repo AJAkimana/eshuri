@@ -101,7 +101,7 @@ exports.postSignIn = (req, res, next) => {
       var weeks = 7 * 24 * hours;    
       // Cookie expires after 1 week and 10 hours > REgister mornig expires night
       // first 9h du mat then expires the night
-      console.log(' New USer '+JSON.stringify(user))
+      // console.log(' New USer '+JSON.stringify(user))
       req.session.cookie.maxAge = 1 * weeks + 10*hours;
       var link =req.user.access_level==1 ? "/dashboard":"/home";
       if(req.user.access_level ==req.app.locals.access_level.HOD){
