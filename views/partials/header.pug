@@ -18,32 +18,32 @@ nav.navbar.navbar-absolute.navbar-fixed-top(role='navigation', style="position:f
 		.collapse.navbar-collapse.navbar-ex1-collapse
 			ul.nav.navbar-nav.pull-right
 				if access > 1 && access <=4
-					li: a.btn-simple.btn.btn-info(href="/timeline")
+					li: a.btn-simple.btn.btn-info(style='color:#f05167;',href="/timeline")
 						//i.material-icons web_asset
 						strong Eshuri Wall
-					li: a.btn-simple.btn.btn-success(href="/school")
+					li: a.btn-simple.btn.btn-success(style='color:#3d4958;',href="/school")
 						//i.material-icons school
 						strong My school
 				if access <= 4 && access != 1
-					li: a.btn-simple.btn.btn-success(href="/library")
+					li: a.btn-simple.btn.btn-success(style='color:#f05167;',href="/library")
 						//i.material-icons book
 						strong Library
 				if access ==4
-					li: a.btn-simple.btn.btn-success(href="/parents")
+					li: a.btn-simple.btn.btn-success(style='color:#3d4958;',href="/parents")
 						//i.material-icons school
 						strong My parents 
 				if access ==5
-					li: a.btn-simple.btn.btn-success(href="/parent")
+					li: a.btn-simple.btn.btn-success(style='color:#f05167;',href="/parent")
 						//i.material-icons school
 						strong My Students
 				//Only admins has dashboard
 				if access <= 2.1
-					li: a.btn-simple.btn.btn-warning(href="/dashboard")
+					li: a.btn-simple.btn.btn-warning(style='color:#3d4958;',href="/dashboard")
 						//i.material-icons dashboard
 						strong Dashboard
 				if access >=2 && access <=4
 					li.dropdown
-						a.btn-simple.btn.btn-info.dropdown-toggle(data-toggle="dropdown")
+						a.btn-simple.btn.btn-info.dropdown-toggle(style='color:#f05167;',data-toggle="dropdown")
 							strong Reports
 						ul.dropdown-menu
 							if access == 4||access==2.1||access==2
@@ -53,7 +53,7 @@ nav.navbar.navbar-absolute.navbar-fixed-top(role='navigation', style="position:f
 								li: a(href="/report.teacher") Class report
 				if access==4||access==4.1
 					li.dropdown
-						a.btn-simple.btn.btn-info.dropdown-toggle(data-toggle="dropdown")
+						a.btn-simple.btn.btn-info.dropdown-toggle(style='color:#3d4958;',data-toggle="dropdown")
 							strong Applications
 						ul.dropdown-menu
 							li
@@ -67,7 +67,7 @@ nav.navbar.navbar-absolute.navbar-fixed-top(role='navigation', style="position:f
 									span View
 				if access<=2.1&&access!=1
 					li.dropdown
-						a.btn-simple.btn.btn-info.dropdown-toggle(data-toggle="dropdown")
+						a.btn-simple.btn.btn-info.dropdown-toggle(style='color:#3d4958;',data-toggle="dropdown")
 							strong School admin
 						ul.dropdown-menu
 							li
@@ -75,17 +75,17 @@ nav.navbar.navbar-absolute.navbar-fixed-top(role='navigation', style="position:f
 									span Profile
 							li.divider
 							li
-								a(href="/application")
+								a(style='color:#3d4958;',href="/application")
 									span Applications
-				li: a(href="http://gocoderz.com/wp-content/uploads/articulate_uploads/Lesson_1:_Drivetrain/story_html5.html" target="_blank") 
+				li: a(style='color:#f05167;',href="http://gocoderz.com/wp-content/uploads/articulate_uploads/Lesson_1:_Drivetrain/story_html5.html" target="_blank") 
 					strong Robotics Programming
 				li.dropdown
 					if access
-						a.btn-simple.btn.btn-info.dropdown-toggle(data-toggle="dropdown")
+						a.btn-simple.btn.btn-info.dropdown-toggle(style='color:#3d4958;',data-toggle="dropdown")
 							//i.material-icons person
 							strong {{'#{pic_name}'|| 'Account'|uppercase}}
 					if !access
-						a.btn-simple.btn.btn-info.dropdown-toggle(data-toggle="dropdown")
+						a.btn-simple.btn.btn-info.dropdown-toggle(style='color:#3d4958;',data-toggle="dropdown")
 							i.material-icons person
 							strong New Account
 					ul.dropdown-menu

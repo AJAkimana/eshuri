@@ -93,9 +93,9 @@ block append content
                             ng-click="a='academic_year';b=!b") Academic year
                             th Actions
                           tbody
-                            tr(pagination-id="allclasses", dir-paginate="classe in classes |orderBy:a:b|filter:search|itemsPerPage:n_pages")
+                            tr(style='color:#3d4958;',pagination-id="allclasses", dir-paginate="classe in classes |orderBy:a:b|filter:search|itemsPerPage:n_pages")
                               td(width="1%" height="1%") {{$index + 1}}
-                              td: a(href="/dashboard.course/{{classe._id}}")
+                              td: a(style='color:#3d4958;',href="/dashboard.course/{{classe._id}}")
                                 strong {{classe.name | uppercase|toClasseName:term_name}}
                               td {{classe.level }}
                               td: i <strong>{{classe.students}}</strong> students
@@ -108,7 +108,7 @@ block append content
                                 button.btn.btn-danger(ng-click="deleteClass(classe._id,classe.name)")
                                   i.material-icons close
                                 button.btn.btn-info(ng-click="setClassTeacher(classe)",data-target='#set_class_teacher_Modal', data-toggle='modal')
-                                  i.material-icons edit
+                                  i.material-icons(style='color:#3d4958;') edit
                                   | Set class teacher
                         dir-pagination-controls.pull-right(pagination-id='allclasses', max-size='5', direction-links='true', boundary-links='true')
                       p.category.text-center(ng-show ="!classes.length") No class provided here
