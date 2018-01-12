@@ -88,7 +88,7 @@ block append content
                               th(rowspan='3') CODE
                             tr
                               th(colspan='3',style='text-align:center;font-weight: bold;').cell-report MAX POINTS
-                              th(colspan='3').cell-report {{term_name|toTermName}} {{report.term_num}}
+                              th(colspan='4').cell-report {{term_name|toTermName}} {{report.term_num}}
                             tr(align='center')
                               th(style='text-align:center;font-weight: bold;') TEST
                               th(style='text-align:center;font-weight: bold;') EXAM 
@@ -96,6 +96,7 @@ block append content
                               th TEST
                               th EXAM 
                               th TOTAL 
+                              th PERCENT
                           tbody(ng-repeat="note in report.marks|orderBy:name")
                             tr
                               td(style='text-align:left;') {{note.name|uppercase}}
@@ -105,6 +106,7 @@ block append content
                               td {{(note.test).toFixed(1)}}
                               td {{(note.exam).toFixed(1)}}
                               td {{(note.total).toFixed(1)}}
+                              td{{(note.percent).toFixed(1)}}
                           tfoot
                             tr
                               th(style='text-align:center;font-weight: bold;') Total
