@@ -18,11 +18,12 @@ block append content
                     br
                     h2.card-title.text-center.text-info(ng-show="!years") <strong>Loading ...</strong>
                   .card-content
-                    //- .panel.panel-primary
+                    .panel.panel-primary
                       h3.panel-header.text-center Your available classes
                       .panel-body
                         .col-xs-12.col-sm-6.col-md-4.col-lg-4(ng-repeat="classe in classes")
-                          h3 {{classe.name|uppercase|toClasseName}}
+                          h3
+                            a(href='/classe/{{classe.class_id}}') {{classe.name|uppercase|toClasseName}}
                           h4 {{classe.number}} courses
                       .panel-footer
                         h4.text-center Number of class {{classes.length}}

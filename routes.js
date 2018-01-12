@@ -351,6 +351,8 @@ module.exports = function(app) {
 	app.post('/classe.edit',isAtLeastAdmin,classeController.editClasse)
 	app.post('/classe.delete',isAtLeastAdmin, classeController.removeClasse);
 	app.post('/class.update.settings',isAtLeastAdmin, classeController.updateSettings);
+	app.get('/classe/:classe_id',isAuthenticated, classeController.getPageOneClasse);
+	app.get('/classe.get.courses/:classe_id/:t_quantity', isAuthenticated, classeController.getClassCourses);
 	
 				/*COURSES THINGS*/
 	app .get('/courses/:course_id',isAuthenticated, coursesController.getPageOneCourse);

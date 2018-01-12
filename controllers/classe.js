@@ -2,6 +2,7 @@ const Classe =require('../models/Classe'),
       Course =require("../models/Course"),
       User =require("../models/User"),
       School = require('../models/School'),
+      Content=require('../models/Content'),
       log_err=require('./manage/errorLogger'),
       SchoolProgram=require('../models/SchoolProgram'); 
 /*
@@ -79,6 +80,55 @@ exports.getClasses_JSON = (req,res,next)=>{
     },(err)=>{
       if(err) return log_err(err,false,req,res);
       return res.json(listClasses);  
+    })
+  })
+}
+exports.getPageOneClasse = (req,res,next)=>{
+  req.assert('classe_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if(errors) return res.render("./lost",{msg:"Invalid data"})
+  var class_name = '', first_letter='';
+  School.findOne({_id:req.user.school_id},(err,school_exists)=>{
+    if(err) return log_err(err,false,req,res);
+    else if(!school_exists)  return res.status(400).send("This school doesn't exists ");
+    Classe.findOne({_id:req.params.classe_id,school_id:req.user.school_id},(err,classe_exists)=>{
+      if(err) return log_err(err,false,req,res);
+      else if(!classe_exists)  return res.status(400).send("This class doesn't exists ");
+      first_letter=classe_exists.name.toLowerCase().charAt(0);
+      class_name = first_letter==='s'?classe_exists.name:'s'+classe_exists.name;
+      return res.render('school/view_class_term',{
+        title:class_name.toUpperCase(),
+        pic_id:req.user._id,
+        school_name:school_exists.name,
+        term_quantity:school_exists.term_quantity,
+        class_id:req.params.classe_id,
+        school_id:req.user.school_id,
+        pic_name:req.user.name.replace('\'',"\\'"),
+        access_lvl:req.user.access_level,
+        csrf_token:res.locals.csrftoken, // always set this buddy
+      })
+    })
+  })
+}
+exports.getClassCourses = (req, res, next)=>{
+  console.log(req.params.t_quantity)
+  req.assert('classe_id', 'Invalid data').isMongoId();
+  req.assert('t_quantity', 'Invalid data').isIn([2,3]);
+  const errors = req.validationErrors();
+  if(errors) return res.status(400).send("Invalid data")
+  var async = require('async');
+  Course.find({class_id:req.params.classe_id,school_id:req.user.school_id},{teacher_list:0,__v:0,attendance_limit:0}).lean().exec((err, courses)=>{
+    if(err) return log_err(err,false,req,res);
+    async.eachSeries(courses, (thisCourse, courseCallback)=>{
+      Content.count({course_id:thisCourse._id,school_id:req.user.school_id},(err, content_number)=>{
+        if(err) return courseCallback(err);
+        thisCourse.content_number=content_number;
+        courseCallback()
+      })
+    },(err)=>{
+      if(err) return log_err(err,false,req,res);
+      console.log('Courses: '+JSON.stringify(courses))
+      return res.json(courses);
     })
   })
 }
