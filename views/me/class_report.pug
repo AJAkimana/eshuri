@@ -103,10 +103,23 @@ block append content
                               td(style='text-align:center;font-weight: bold;') {{note.test_quota}}
                               td(style='text-align:center;font-weight: bold;') {{note.exam_quota}}
                               td(style='text-align:center;font-weight: bold;') {{note.course_weight}}
-                              td {{(note.test).toFixed(1)}}
-                              td {{(note.exam).toFixed(1)}}
-                              td {{(note.total).toFixed(1)}}
-                              td{{(note.percent).toFixed(1)}}
+                              td 
+                                span(ng-if="note.test<note.test_quota/2")
+                                  u(style="color:red;") {{(note.test).toFixed(1)}}
+                                span(ng-if="note.test>note.test_quota/2") {{(note.test).toFixed(1)}}
+                              td 
+                                span(ng-if="note.exam<note.exam_quota/2")
+                                  u(style="color:red;") {{(note.exam).toFixed(1)}}
+                                span(ng-if="note.exam>note.exam_quota/2") {{(note.exam).toFixed(1)}}
+                              td 
+                                span(ng-if="note.total<note.course_weight/2")
+                                  u(style="color:red;") {{(note.total).toFixed(1)}}
+                                span(ng-if="note.total>note.course_weight/2") {{(note.total.toFixed(1))}}
+                              td
+                                span(ng-if="note.percent<50")
+                                  u(style="color:red;") {{(note.percent).toFixed(1)}}
+                                span(ng-if="note.percent>=50") {{(note.percent).toFixed(1)}}
+
                           tfoot
                             tr
                               th(style='text-align:center;font-weight: bold;') Total
@@ -254,3 +267,4 @@ block append scripts
 
       $scope.getAcademicYearsList();
     })
+  
