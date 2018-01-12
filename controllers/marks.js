@@ -470,8 +470,8 @@ exports.getReport_JSON =(req,res,next)=>{
 						],(err)=>{
 							
 							// name: , test: , exam: , test_quota , exam_quota
-							var testWeight = currentCourse.test_quota;
-							var examWeight = currentCourse.exam_quota;
+							var testWeight = currentCourse.test_quota>0?currentCourse.test_quota:0;
+							var examWeight = currentCourse.exam_quota>0?currentCourse.exam_quota:0;
 							var courseWeight = !currentCourse.weightOnReport ? testWeight+examWeight : currentCourse.weightOnReport;
 
 							var noteCat=(studentCATMarks*testWeight)/totalCAT;
@@ -479,6 +479,7 @@ exports.getReport_JSON =(req,res,next)=>{
 							noteCat =noteCat>0?noteCat:0;
 							noteExam =noteExam>0?noteExam:0;
 							var totalCourse = noteCat + noteExam;
+							var percent = (totalCourse*100)/courseWeight;
 							//console.log("  CAT marks "+studentCATMarks+"/"+totalCAT);
 							//console.log("  Exam marks "+studentExamMarks+"/"+totalExam);
 							//console.log(" TOTAL "+currentCourse.name+" "+totalCourse);
@@ -488,6 +489,7 @@ exports.getReport_JSON =(req,res,next)=>{
 										 test:noteCat,
 										 exam:noteExam,
 										 total:totalCourse,
+										 percent:percent,
 										 test_quota:currentCourse.test_quota,
 										 exam_quota:currentCourse.exam_quota,
 										 course_weight:currentCourse.weightOnReport,
@@ -509,7 +511,7 @@ exports.getReport_JSON =(req,res,next)=>{
 		if(err) return log_err(err,false,req,res);
 		//console.log("REPORTmarks =>>>>"+JSON.stringify(reportData.marks))
 		//console.log("REPORT total =>>>>"+JSON.stringify(reportData.total));
-		//console.log("REPORT =>>>>"+JSON.stringify(reportData));
+		console.log("REPORT =>>>>"+JSON.stringify(reportData));
 		reportData[0].term_num =req.body.currentTerm;
 		//console.log()
 		return res.json(reportData)
