@@ -28,17 +28,17 @@ exports.getPageOneCourse = function(req,res,next){
         req.user.course_retake.indexOf(String(course_exists._id))==-1)
         return res.render("./lost",{msg:"You don't have the right to view this course"});
     }
-    else if(req.user.access_level == req.app.locals.access_level.TEACHER){
+    else if(req.user.access_level == req.app.locals.access_level.TEACHER || req.user.access_level == req.app.locals.access_level.ADMIN_TEACHER){
       temoin =true;
       if(course_exists.teacher_list.indexOf(String(req.user._id))==-1)
         return res.render("./lost",{msg:"This course doesn't belong to you"});
     }
     //si ce nest pas klk un ki a un droit d acces pas infrie a celui d un teacher et sur la meme ecole donc pas ACCPTER
-    else if((req.user.access_level <= req.app.locals.access_level.TEACHER)){
-      temoin =true;
-      if(String(req.user.school_id)!= String(course_exists.school_id))
-       return res.render("./lost",{msg:"You are not authorized"});
-    }
+    // else if((req.user.access_level == req.app.locals.access_level.ADMIN_TEACHER||req.user.access_level == req.app.locals.access_level.ADMIN)){
+    //   temoin =true;
+    //   if(String(req.user.school_id)!= String(course_exists.school_id))
+    //    return res.render("./lost",{msg:"You are not authorized"});
+    // }
     if(!temoin) // cad si il n est ni teacher ni student ni inferieur.. then just reject
      return res.render("./lost",{msg:"You are not authorized to view this content"}); 
     //Get the school Info
@@ -486,9 +486,6 @@ exports.getMyMarks = (req,res,next)=>{
           return res.json(reponses);
         })      
       })
-    })
-
-
-      
+    }) 
   })
 }

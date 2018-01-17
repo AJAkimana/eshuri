@@ -103,6 +103,7 @@ block append content
                               td(style='text-align:center;font-weight: bold;') {{note.test_quota}}
                               td(style='text-align:center;font-weight: bold;') {{note.exam_quota}}
                               td(style='text-align:center;font-weight: bold;') {{note.course_weight}}
+<<<<<<< HEAD
                               td 
                                 span(ng-if="note.test<note.test_quota/2")
                                   u(style="color:red;") {{(note.test).toFixed(1)}}
@@ -120,6 +121,11 @@ block append content
                                   u(style="color:red;") {{(note.percent).toFixed(1)}}
                                 span(ng-if="note.percent>=50") {{(note.percent).toFixed(1)}}
 
+=======
+                              td {{(note.test).toFixed(1)}}
+                              td {{(note.exam).toFixed(1)}}
+                              td {{(note.total).toFixed(1)}}
+>>>>>>> 09976f77df28dd5c3763d67ec1ea70b0ef3c7798
                           tfoot
                             tr
                               th(style='text-align:center;font-weight: bold;') Total

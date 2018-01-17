@@ -14,6 +14,14 @@ const School =require('../models/School'),
 Collection of schools that are registered
 */
 // return the initial page
+function checkArray(array, attr, value){
+  for (var i=0;i<array.length;i++){
+    if(array[i][attr]===value){
+      return true;
+    }
+    else return false
+  }
+}
 exports.getPageSchool = function(req,res,next){
   return res.redirect("/school/"+req.user.school_id);
 }
@@ -647,40 +655,30 @@ exports.getUserClasses = (req, res, next)=>{
   req.assert('school_id', 'Invalid Data').isMongoId();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
-  var listClasses=[],classes=[];
+  var listClasses=[],classes=[],coursesClasses=[];
   var response={};
   response.classes=[];
   Marks.find().distinct("class_id", {school_id:req.user.school_id, student_id:req.user._id},(err, markClasses)=>{
     if (err) return log_err(err,false,req,res);
-    // console.log('From mark classes: '+JSON.stringify(markClasses))
-    response.classes=markClasses;
-
+    listClasses=markClasses;
     Classe.findOne({school_id:req.user.school_id, $or:[{_id:req.user.class_id},{class_teacher:req.user._id}]},(err, user_class)=>{
       if (err) return log_err(err,false,req,res);
-      // console.log('From classes: '+JSON.stringify(user_class))
-      // Check if the found was not in the array then push it
-      if((response.classes.indexOf(user_class._id)==-1)) response.classes.push(user_class._id);
+      listClasses.push(user_class._id);
       Course.find().distinct("class_id",{school_id:req.user.school_id, teacher_list:req.user._id},(err, class_courses)=>{
         if (err) return log_err(err,false,req,res);
+        coursesClasses=class_courses;
         // console.log(JSON.stringify('-------'+class_courses))
         // Check every class in the courses
-        async.eachSeries(class_courses, (thisList, listCallback)=>{
-          if(response.classes.indexOf(thisList)==-1){
-            response.classes.push(thisList)
-            // response.classes.push(thisList.class_id);
-            // console.log(thisList+' COMPARED WITH '+JSON.stringify(response.classes))
-            listCallback();
-          }
-          else{
-            // console.log('The class '+thisList+' is in ARRAY');
-            listCallback();
-          }
+        async.each(coursesClasses, (thisList, listCallback)=>{
+          listClasses.push(thisList)
+          listCallback();
         },(err)=>{
           if(err) return log_err(err,false,req,res);
+          console.log('From all lists classes: '+JSON.stringify(listClasses))
           // console.log(' All list '+JSON.stringify(response))
-          if(response.classes.length===0) return res.status(400).send("No classes of yours found contact your administrator");
+          if(listClasses.length==0) return res.status(400).send("No classes of yours found contact your administrator");
           //Append to every id class info
-          async.eachSeries(response.classes, (thisClass, callBack)=>{
+          async.eachSeries(listClasses, (thisClass, callBack)=>{
             Classe.findOne({_id:thisClass},(err, class_details)=>{
               if (err) return callBack(err);
               classes.push({class_id:thisClass,name:class_details.name})
@@ -690,7 +688,7 @@ exports.getUserClasses = (req, res, next)=>{
             if(err) return log_err(err,false,req,res);
             // append every class number of courses
             async.eachSeries(classes, (thisClass, callBack)=>{
-              Course.count({class_id:thisClass.class_id},(err, number)=>{
+              Course.count({class_id:thisClass.class_id, teacher_list:req.user._id},(err, number)=>{
                 if (err) return callBack(err);
                 thisClass.number=number;
                 callBack();

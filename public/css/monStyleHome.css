@@ -3972,9 +3972,9 @@ be a descendant of the grid when it is being dragged.
   text-transform: uppercase;
 }
 .wizard-card .info-text {
-  text-align: center;
-  font-weight: 300;
-  margin: 10px 0 30px;
+  padding-left: 2em;
+  font-weight: bolder;
+   font-size: x-large;
 }
 .wizard-card .choice {
   text-align: center;
@@ -5471,7 +5471,7 @@ h2.title {
 .off-canvas-sidebar .logo-mini {
   display: none;
 }
-/*.sidebar .nav,
+.sidebar .nav,
 .off-canvas-sidebar .nav {
   margin-top: 15px;
 }
@@ -5545,12 +5545,12 @@ h2.title {
 .off-canvas-sidebar .nav i {
   font-size: 24px;
   float: left;
-  margin-right: 15px;
+  /*margin-right: 15px;
   line-height: 30px;
-  width: 30px;
+  width: 30px;*/
   text-align: center;
-  color: #a9afbb;
-}*/
+  color: #f34f65;
+}
 .sidebar:before, .sidebar:after,
 .off-canvas-sidebar:before,
 .off-canvas-sidebar:after {
@@ -5562,7 +5562,7 @@ h2.title {
   top: 0;
   left: 0;
   z-index: 0;
-  background: #000;
+  background: #fff;
 }
 .sidebar .sidebar-background,
 .off-canvas-sidebar .sidebar-background {
@@ -5592,6 +5592,7 @@ h2.title {
   position: relative;
   padding: 15px 15px;
   z-index: 4;
+  background: #dddddd;
 }
 .sidebar .logo:after,
 .off-canvas-sidebar .logo:after {
@@ -6024,7 +6025,7 @@ h2.title {
 .navbar .navbar-nav > li > a.btn.btn-default.dropdown-toggle, .open >
 .navbar .navbar-nav > li > a.btn.btn-default.dropdown-toggle:focus, .open >
 .navbar .navbar-nav > li > a.btn.btn-default.dropdown-toggle:hover {
-  background-color: #999999;
+  background-color: #f34f65;
   color: #FFFFFF;
 }
 .btn:focus, .btn:active, .btn:hover, .btn.btn-default:focus, .btn.btn-default:active, .btn.btn-default:hover,
@@ -6360,6 +6361,7 @@ h2.title {
   background-color: transparent;
   color: #ff9800;
   box-shadow: none;
+  border-bottom: 1px solid rgba(250, 249, 249, 0.83);
 }
 .btn.btn-warning.btn-simple:hover, .btn.btn-warning.btn-simple:focus, .btn.btn-warning.btn-simple:active,
 .navbar .navbar-nav > li > a.btn.btn-warning.btn-simple:hover,
@@ -8654,7 +8656,7 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
   z-index: 2;
 }
 .full-page:before {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgb(250, 250, 250);
 }
 .full-page[filter-color="purple"]:after, .full-page[filter-color="primary"]:after {
   background: rgba(225, 190, 231, 0.56);
@@ -11629,4 +11631,172 @@ footer .btn {
   .nav-center .nav-pills-icons {
     max-width: 211px;
   }
+}
+
+/*************************/
+/* Jean Abayo Style Here */
+/*************************/
+.card .wizard-navs ul{
+    background-color: #f0f0f0;
+}
+.card .wizard-navs ul li:hover{
+    border-bottom: 3px solid #e91e63;
+    border-bottom-style: inset;
+    transition: .01s;
+}
+
+.note-btn.btn.btn-default.btn-sm{
+  background-color: #000;
+}
+.wizard-navs-ii .panel .panel-heading{
+  background-color: rgba(235, 235, 235, 0.39);
+  border-bottom: 2px solid #f34f65;
+}
+.es_table tr>td {
+  vertical-align: middle;
+  border-top: 0 !important;
+}
+.explore_sidebar .form-group .form-control{
+  width: unset;
+}
+section.school_profile>.container>.row>.col-sm-4{
+  padding: 0;
+  background-color: rgb(38, 38, 38);
+  color: #fff;
+}
+.explore_sidebar>div{
+  padding: 15px;
+  border-bottom: 1px solid #e2e6e9;  
+}
+.explore_sidebar>span{
+  font-weight: 400;
+}
+.explore_sidebar button.btn{
+  text-align: center;
+  background-color: #00aeff;
+  padding: .5em 2em .5em 2em;
+  margin: 0 0 0 25%;
+}
+.explore_sidebar button.btn:hover{
+  background-color: #337ab7;
+  box-shadow: none;
+}
+.navbar-form{
+  margin: 0 !important;
+}
+.school_profile .info_container{  
+}
+.school_profile .info_container>.col-sm-12{
+  width: 90%;  
+}
+.school_info{
+  padding-bottom: 1em;
+  margin: auto; 
+}
+.school_info>.col-sm-12{
+  padding: 0;
+}
+.school_info ._profile{
+  padding: unset;
+  padding-right: 0;
+}
+.school_info ._profile img{
+  width: 100%;  
+}
+.school_info .row.center{
+  border: 1px solid #e2e6e9; 
+}
+.school_info ._info .profile_name{
+  color: #14acf2;
+  font-size: 200%;
+  text-transform: capitalize;
+  font-weight: 400;
+}
+._info .col-sm-7, ._info .col-sm-5{
+    margin-top: .5em;
+}
+._info .availables p{
+  display: inline;
+  background-color: grey
+}
+@media (min-width: 768px){
+  .bs-glyphicons {
+      margin-right: 0;
+      margin-left: 0;
+  }
+}
+.bs-glyphicons {
+    margin: 0 -10px 20px;
+    overflow: hidden;
+}
+.bs-glyphicons-list{
+  padding-left: 0;
+  list-style: none;
+}
+.bs-glyphicons li {
+    float: left;
+    width: 25%;
+    padding: .5em;
+    font-size: 10px;
+    line-height: 1.4;
+    text-align: center;
+    background-color: #f9f9f9;
+    border: 1px solid #fff;
+}
+@media (min-width: 768px){
+  .bs-glyphicons li {
+      font-size: 12px;
+  }
+}
+._info .col-sm-7{
+  padding-right: unset;
+}
+._info>.row>.col-sm-5{
+  color: #3c4858;
+  text-align: right;
+}
+._info>.row>.col-sm-5 .desc{
+  color: #00aeff;
+  font-size: 80%;
+}
+._info>.row>.col-sm-5 .cont{
+  color: #3c4858;
+  font-weight: 500;
+}
+/**Style for dashboard sidebar**/
+.dash_sidebar .sidebar-wrapper>ul{
+  background-color: rgba(0, 0, 0, .02)
+}
+.dash_sidebar .sidebar-wrapper>ul>li{
+  /*background-color: green;*/
+  width: 100%;
+  text-align: center;
+  border-bottom: 1px solid rgba(238, 238, 238, .9)
+}
+.dash_sidebar .sidebar-wrapper>ul>li span {
+    color: #2d3c50;
+    font-weight: 500;
+    font-family: verdana;    
+}
+.nav >li>a{
+  padding: 11px 35px;
+}
+.sidebar .nav li > a,
+.off-canvas-sidebar .nav li > a {
+  margin: 0;
+}
+.sidebar .nav li:first-child > a, .off-canvas-sidebar .nav li:first-child > a{
+  margin: unset;
+}
+.no-padding {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+}
+.full-page > .content, .full-page > .footer{
+  overflow-x: hidden;
+}
+.reg_touch .card{
+  border-radius: 0;
+  background-color: #fafafa;
+  margin: 0;
 }

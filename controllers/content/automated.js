@@ -38,7 +38,7 @@ exports.pageNewAutomated = (req,res,next)=>{
 exports.postNew_Automated = (req,res,next)=>{
   req.assert('unit_id', 'Invalid data1').isMongoId();
   req.assert('title', 'A title is required').notEmpty().len(1,30);
-  req.assert('deadline', 'You must select a deadline').isDate();
+  // req.assert('deadline', 'You must select a deadline').isDate();
   req.assert('Q', 'Invalid data2').isArray(); // not sure
   
   const errors = req.validationErrors();
@@ -157,7 +157,7 @@ exports.postUpdate_Automated = (req,res,next)=>{
   req.assert('unit_id', 'Invalid data').isMongoId();
   req.assert('content_id', 'Invalid data').isMongoId();
   req.assert('title', 'A title is required').notEmpty().len(1,30);
-  req.assert('deadline', 'You must select a deadline').isDate();
+  // req.assert('deadline', 'You must select a deadline').isDate();
   req.assert('Q', 'Invalid data').isArray(); // not sure
   
   const errors = req.validationErrors();

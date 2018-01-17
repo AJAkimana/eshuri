@@ -116,10 +116,17 @@ exports.getClassCourses = (req, res, next)=>{
   req.assert('t_quantity', 'Invalid data').isIn([2,3]);
   const errors = req.validationErrors();
   if(errors) return res.status(400).send("Invalid data")
+  var t_qty = req.params.t_quantity;
+  var allterms = [],response=[],term1=[],term2=[],term3=[], allcourses=[];
+  if(t_qty==3) allterms=[1,2,3];
+  else if (t_qty==2) allterms=[1,2];
+  else return res.status(400).send("Invalid term data")
   var async = require('async');
-  Course.find({class_id:req.params.classe_id,school_id:req.user.school_id},{teacher_list:0,__v:0,attendance_limit:0}).lean().exec((err, courses)=>{
+  
+  Course.find({class_id:req.params.classe_id,school_id:req.user.school_id,teacher_list:req.user._id},{teacher_list:0,__v:0,attendance_limit:0}).lean().exec((err, courses)=>{
     if(err) return log_err(err,false,req,res);
-    async.eachSeries(courses, (thisCourse, courseCallback)=>{
+    allcourses=courses;
+    async.eachSeries(allcourses, (thisCourse, courseCallback)=>{
       Content.count({course_id:thisCourse._id,school_id:req.user.school_id},(err, content_number)=>{
         if(err) return courseCallback(err);
         thisCourse.content_number=content_number;
@@ -127,8 +134,14 @@ exports.getClassCourses = (req, res, next)=>{
       })
     },(err)=>{
       if(err) return log_err(err,false,req,res);
-      console.log('Courses: '+JSON.stringify(courses))
-      return res.json(courses);
+      for(var i=0; i<allcourses.length; i++){
+        if(allcourses[i].currentTerm==1) term1.push(allcourses[i]);
+        if(allcourses[i].currentTerm==2) term2.push(allcourses[i]);
+        if(allcourses[i].currentTerm==3 && t_qty==3) term3.push(allcourses[i]);
+      }
+      response.push({t_name:'1',t_content:term1},{t_name:'2',t_content:term2},{t_name:'3',t_content:term3});
+      // console.log('Courses: '+JSON.stringify(response))
+      return res.json(response);
     })
   })
 }

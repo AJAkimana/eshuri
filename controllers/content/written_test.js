@@ -37,9 +37,10 @@ exports.pageNewWritten = (req,res,next)=>{
 }
 /* We receive a post of unit_id and Q and title deadline */
 exports.postNew_Written = (req,res,next)=>{
+  console.log('This date:'+ new Date(req.body.deadline))
   req.assert('unit_id', 'Invalid data').isMongoId();
   req.assert('title', 'A title is required').notEmpty().len(1,30);
-  req.assert('deadline', 'You must select a deadline').isDate();
+  // req.assert('deadline', 'You must select a deadline').isDate();
   req.assert('Q', 'Invalid data').isArray(); // not sure
   
   const errors = req.validationErrors();
@@ -144,7 +145,7 @@ exports.postUpdate_Written = (req,res,next)=>{
   req.assert('unit_id', 'Invalid data').isMongoId();
   req.assert('content_id', 'Invalid data').isMongoId();
   req.assert('title', 'A title is required').notEmpty().len(1,30);
-  req.assert('deadline', 'You must select a deadline').isDate();
+  // req.assert('deadline', 'You must select a deadline').isDate();
   req.assert('Q', 'Invalid data').isArray(); // not sure
   
   const errors = req.validationErrors();

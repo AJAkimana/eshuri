@@ -22,15 +22,15 @@ module.exports = function(app) {
   console.log("=>Remember to SCHEDULE for - Delete Old tokens")
   console.log("=>Remember to VERIFY the deletion en cascade")
   console.log("=>Remember to CHECK exports.getPageOneCourse  for course_id is valid in course controller")
-  console.log("=>Remember to CHECK object id input when /content.edit.note/:content_id , i could give id of a quizz still it will work")
+  console.log("______________________________________________")
   console.log(" IF STUDENT CHANGES SCHOOL ..??? what ?")
-  console.log("WARNING PAGE /pdf.view loads a lot of time per time")
-  console.log(" Check if to retake[] in USers");
+  console.log("=====>Paisible rescan book 'LE RESEAU DU FRANCAIS'");
   console.log(" you should remove academic year in the attirbutes of CONTENT. not necessary..")
+  console.log("=====>Remember to validate date not using isDate() cause it will not work on=>Test ->(new and edit)")
   console.log(" Add view page for 3 4 et 7 content type.. OPTIONAL")
   console.log("level: 5, ADD LEVEL in automated MARKS in postAnswers !!!");
   console.log(" return moment(time).fromNow(); itanga a warning attention depreaction vuba");
-  console.log(' You have to escape wheere there is {{\'#{unit_name}\' like this sinon un apostrophe creeera un pbm')
+  console.log('______________________________________________')
 }));
 	/* Get some information*/
 	io.use(function(socket, next) {
