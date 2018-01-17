@@ -18,7 +18,7 @@ block append content
 											h3.card-title.text-center Update <strong>{{'#{title}'|uppercase}}</strong> 
 											form(action="/content.update.note",method="POST",enctype="multipart/form-data")
 												.form-group.label-floating
-													button.btn.btn-success.btn-round Click to upload
+													.btn.btn-success.btn-round Click to upload
 														i.material-icons attach_file
 														input(type="file",required="true",name="pdf_note")
 														input(type="hidden",required="true",name="content_id",value="{{content_id}}")

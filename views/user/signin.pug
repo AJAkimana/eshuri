@@ -4,57 +4,56 @@ block content
 		.full-page.login-page(filter-color="black")
 			.content
 				.container
-					.row
-						.col-md-4.col-sm-6.col-md-offset-4.col-sm-offset-3
-							.card.card-login.card-hidden
-								
-								p.category.text-center
-									center
-										h3
-											strong Login Into Your Account
-										h4 
-											strong Don't have one? 
-											a(href="/user.signup")
-												|	SIGNUP
-								//- .card-header.text-center(data-background-color="rose")
-									h4.card-title Login
-										.social-line
-											a(href="#").btn.btn-just-icon.btn-simple
-												i.icon.ion-social-facebook-outline
-											a(href="#").btn.btn-just-icon.btn-simple
-												i.icon.ion-social-twitter-outline
-											a(href="#").btn.btn-just-icon.btn-simple
-												i.icon.ion-social-googleplus-outline
-								p.category.text-center Or Be Classical
-								.card-content
-									form(ng-submit="signin()")
-										.input-group
-											span.input-group-addon.icon.ion-ios-person
-											.form-group.label-floating
-												label.control-label Enter your email
-												input.form-control(type="email",autocomplete="off",ng-model="nvUser.email")
-										.input-group
-											span.input-group-addon.icon.ion-ios-locked-outline
-											.form-group.label-floating
-												label.control-label Password
-												input.form-control(type="password",autocomplete="off",ng-model="nvUser.password")
-										.text-center
-											button.btn.btn-rose.btn-wd.btn-md(type="submit") Let's go
-										p Login with 
-										a.btn.btn-rose(href="/user.google.auth")
+					.col-xs-12.col-sm-8.col-md-6.col-lg-6.center
+						.card.card-login.card-hidden
+							
+							//- p.category.text-center
+								center
+									h3
+										strong Login Into Your Account
+									h4 
+										strong Don't have one? 
+										a(href="/user.signup")
+											|	SIGNUP
+							.card-header.text-center(data-background-color="rose")
+								h4.card-title Login to your school using:
+									.social-line
+										//- a(href="#").btn.btn-just-icon.btn-simple
+											i.icon.ion-social-facebook-outline
+										//- a(href="#").btn.btn-just-icon.btn-simple
+											i.icon.ion-social-twitter-outline
+										a(href="/user.google.auth").btn.btn-just-icon.btn-simple
 											i.icon.ion-social-googleplus-outline Google
-										//- | or
-										//- a.btn.btn-rose(href="/user.facebook.auth")
-											i.i.icon.ion-social-facebook-outline Facebook
-								.footer.text-center
-									.forgot
-										button.btn.label.label-info(ng-click="forgotPassword()") Forgot your password?
-									.forgot
-										h4
-											strong
-												a(href="/user.signup") Create a new account ?
-									.forgot
-										button.btn.label.label-danger(ng-click="resendValidationCode()",ng-show="resend_show") Resend validation code ?
+							p.category.text-center Or Be Classical
+							.card-content
+								form(ng-submit="signin()")
+									.input-group
+										span.input-group-addon.icon.ion-ios-person
+										.form-group.label-floating
+											label.control-label Enter your email
+											input.form-control(type="email",autocomplete="off",ng-model="nvUser.email")
+									.input-group
+										span.input-group-addon.icon.ion-ios-locked-outline
+										.form-group.label-floating
+											label.control-label Password
+											input.form-control(type="password",autocomplete="off",ng-model="nvUser.password")
+									.text-center
+										button.btn.btn-rose.btn-wd.btn-md(type="submit") Let's go
+									p Login with 
+									a.btn.btn-rose(href="/user.google.auth")
+										i.icon.ion-social-googleplus-outline Google
+									//- | or
+									//- a.btn.btn-rose(href="/user.facebook.auth")
+										i.i.icon.ion-social-facebook-outline Facebook
+							.footer.text-center
+								.forgot
+									button.btn.label.label-info(ng-click="forgotPassword()") Forgot your password?
+								.forgot
+									h4
+										strong
+											a(href="/user.signup") Create a new account ?
+								.forgot
+									button.btn.label.label-danger(ng-click="resendValidationCode()",ng-show="resend_show") Resend validation code ?
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
 	script(src="../js/app/SigninCtrl.js", type="text/javascript")

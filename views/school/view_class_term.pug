@@ -8,23 +8,30 @@ block append content
         .container-fluid
           .row
             .col-xs-12.col-sm-12.col-md-12.col-lg-12
-              .col-xs-12.col-sm-8.col-md-6.col-lg-6
+              .col-xs-12.col-sm-8.col-md-8.col-lg-8
                 .card
                   .card-header
                     h3.card-title 
                       strong {{'#{title}'|uppercase}}
                   .card-content
                     .panel-group(role='tablist')#accordion
-                      .panel.panel-default(ng-repeat="term in [1,2,3]")
+                      .panel.panel-default(ng-repeat="term in termCourses")
                         .panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentTerm(term, $index)")
                           a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
-                            h4.panel-title
-                              | {{$index+1}}. {{term|toTermName}} {{$index+1}}
+                            h2.panel-title
+                              | {{$index+1}}. {{term.t_name|toTermName}} {{$index+1}}
+                              span.pull-right {{term.t_content.length}} courses
                               i.material-icons keyboard_arrow_down
                         .panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
                           .panel-body
-                            .col-md-12
-              .col-xs-12.col-sm-4.col-md-6.col-lg-6
+                            .col-xs-12.col-sm-12.col-md-12.col-lg-12
+                              .col-xs-12.col-sm-6.col-md-4.col-lg-4(ng-repeat="course in term.t_content")
+                                h3
+                                  a(href='/courses/{{course._id}}') {{course.name|uppercase}}
+                                h4
+                                  | Code: 
+                                  strong {{course.code|uppercase}}
+              .col-xs-12.col-sm-4.col-md-4.col-lg-4
                 .card
                   .card-header
                     h3.card-title.text-center <strong>Classes</strong>
@@ -66,19 +73,14 @@ block append scripts
           Notifier.danger(error.data)
         })
       }
-      $scope.getCourses = function(){
+      $scope.showCourse = function(cours){
+         $window.location.href="/courses/"+cours._id
+      }
+      $scope.getCourses = function(){ 
         $http.get('/classe.get.courses/'+$scope.class_id+'/'+$scope.term_quantity)
         .then(function(response){
-          var data = response.data;
-          var t_q = 0;
-          var term = [];
-          for(var i=0; i<data.length; i++){
-            if(term.indexOf(data[i].currentTerm)==-1){
-              term.push(data[i].currentTerm)
-              t_q++;
-            }
-          }
-          console.log(JSON.stringify(t_q))
+          $scope.termCourses = response.data;
+          //- console.log(JSON.stringify($scope.termCourses))
         })
         .catch(function(error){
           Notifier.danger(error.data)
