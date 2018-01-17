@@ -243,15 +243,43 @@ block append content
                                         td.report-td-pct {{mark.test_quota}}
                                         td.report-td-pct {{mark.exam_quota}}
                                         td.report-td-pct {{mark.course_quota}}
-                                        td {{(mark.testTerm1).toFixed(1)}}
-                                        td {{(mark.examTerm1).toFixed(1)}}
-                                        td(style="border-right: 3px solid #cdd0d4;") {{(mark.totalTerm1).toFixed(1)}}
-                                        td {{(mark.testTerm2).toFixed(1)}}
-                                        td {{(mark.examTerm2).toFixed(1)}}
-                                        td(style="border-right: 3px solid #cdd0d4;") {{(mark.totalTerm2).toFixed(1)}}
-                                        td {{(mark.testTerm3).toFixed(1)}}
-                                        td {{(mark.examTerm3).toFixed(1)}}
-                                        td(style="border-right: 3px solid #cdd0d4;") {{(mark.totalTerm3).toFixed(1)}}
+                                        td 
+                                          span(ng-if="mark.testTerm1<mark.test_quota/2")
+                                            u(style="color:red;") {{(mark.testTerm1).toFixed(1)}}
+                                          span(ng-if="mark.testTerm1>mark.test_quota/2") {{(mark.testTerm1).toFixed(1)}}
+
+                                        td 
+                                          span(ng-if="mark.examTerm1<mark.exam_quota/2")
+                                            u(style="color:red;") {{(mark.examTerm1).toFixed(1)}}
+                                          span(ng-if="mark.examTerm1>mark.exam_quota/2") {{(mark.examTerm1).toFixed(1)}}
+                                        td
+                                          span(ng-if="mark.totalTerm1<mark.course_quota/2")
+                                            u(style="color:red;") {{(mark.totalTerm1).toFixed(1)}}
+                                          span(ng-if="mark.totalTerm1>mark.course_quota/2") {{(mark.totalTerm1).toFixed(1)}}
+                                        td
+                                          span(ng-if="mark.testTerm2<mark.test_quota/2")
+                                            u(style="color:red;") {{(mark.testTerm2).toFixed(1)}}
+                                          span(ng-if="mark.testTerm2>mark.test_quota/2") {{(mark.testTerm2).toFixed(1)}}
+                                        td 
+                                          span(ng-if="mark.examTerm2<mark.exam_quota/2")
+                                            u(style="color:red;") {{(mark.examTerm2).toFixed(1)}}
+                                          span(ng-if="mark.examTerm2>mark.exam_quota/2") {{(mark.examTerm2).toFixed(1)}}
+                                        td
+                                          span(ng-if="mark.totalTerm2<mark.course_quota/2")
+                                            u(style="color:red;") {{(mark.totalTerm2).toFixed(1)}}
+                                          span(ng-if="mark.totalTerm2>mark.course_quota/2") {{(mark.totalTerm2).toFixed(1)}}
+                                        td 
+                                          span(ng-if="mark.testTerm3<mark.test_quota/2")
+                                            u(style="color:red;") {{(mark.testTerm3).toFixed(1)}}
+                                          span(ng-if="mark.testTerm3>mark.test_quota/2") {{(mark.testTerm3).toFixed(1)}}
+                                        td 
+                                          span(ng-if="mark.examTerm3<mark.exam_quota/2")
+                                            u(style="color:red;") {{(mark.examTerm3).toFixed(1)}}
+                                          span(ng-if="mark.examTerm3>mark.exam_quota/2") {{(mark.examTerm2).toFixed(1)}}
+                                        td
+                                          span(ng-if="mark.totalTerm3<mark.course_quota/2")
+                                            u(style="color:red;") {{(mark.totalTerm3).toFixed(1)}}
+                                          span(ng-if="mark.totalTerm3>mark.course_quota/2") {{(mark.totalTerm3).toFixed(1)}}
                                         td.report-td-pct
                                           | {{mark.anualQuotaTotal}}
                                         td {{(mark.anualMarkTotal).toFixed(1)}}
@@ -264,15 +292,42 @@ block append content
                                         td.report-td-pct {{qTest}}
                                         td.report-td-pct {{qExam}}
                                         td.report-td-pct {{qtotal}}
-                                        td(style="border-bottom: 2px solid #cdd0d4;") {{testT1.toFixed(1)}}
-                                        td(style="border-bottom: 2px solid #cdd0d4;") {{ExamT1.toFixed(1)}}
-                                        td(style="border-right: 3px solid #cdd0d4;border-bottom: 2px solid #cdd0d4;") {{totalT1.toFixed(1)}}
-                                        td(style="border-bottom: 2px solid #cdd0d4;") {{testT2.toFixed(1)}}
-                                        td(style="border-bottom: 2px solid #cdd0d4;") {{ExamT2.toFixed(1)}}
-                                        td(style="border-right: 3px solid #cdd0d4;border-bottom: 2px solid #cdd0d4;") {{totalT2.toFixed(1)}}
-                                        td(style="border-bottom: 2px solid #cdd0d4;") {{testT3.toFixed(1)}}
-                                        td(style="border-bottom: 2px solid #cdd0d4;") {{ExamT3.toFixed(1)}}
-                                        td(style="border-right: 3px solid #cdd0d4;border-bottom: 2px solid #cdd0d4;") {{totalT3.toFixed(1)}}
+                                        td
+                                          span(ng-if="testT1<qTest/2")
+                                            u(style="color:red;")  {{testT1.toFixed(1)}}
+                                          span(ng-if="testT1>qTest/2") {{testT1.toFixed(1)}}
+                                        td
+                                          span(ng-if="totalT1<qExam/2")
+                                            u(style="color:red;") {{totalT1.toFixed(1)}}
+                                          span(ng-if="totalT1>qExam/2") {{totalT1.toFixed(1)}}
+                                        td
+                                          span(ng-if="totalT1<qExam/2")
+                                            u(style="color:red;") {{totalT1.toFixed(1)}}
+                                          span(ng-if="totalT1>qExam/2") {{totalT1.toFixed(1)}} 
+                                        td
+                                          span(ng-if="testT2<qTest/2")
+                                            u(style="color:red;")  {{testT2.toFixed(1)}}
+                                          span(ng-if="testT2>qTest/2") {{testT2.toFixed(1)}}
+                                        td
+                                          span(ng-if="ExamT2<qExam/2")
+                                            u(style="color:red;") {{ExamT2.toFixed(1)}}
+                                          span(ng-if="ExamT2>qExam/2") {{ExamT2.toFixed(1)}}
+                                        td
+                                          span(ng-if="totalT2<qExam/2")
+                                            u(style="color:red;") {{totalT2.toFixed(1)}}
+                                          span(ng-if="totalT2>qExam/2") {{totalT2.toFixed(1)}} {{totalT2.toFixed(1)}}
+                                        td
+                                          span(ng-if="testT3<qTest/2")
+                                            u(style="color:red;")  {{testT3.toFixed(1)}}
+                                          span(ng-if="testT3>qTest/2") {{testT3.toFixed(1)}} 
+                                        td
+                                          span(ng-if="ExamT3<qExam/2")
+                                            u(style="color:red;") {{ExamT3.toFixed(1)}}
+                                          span(ng-if="ExamT3>qExam/2") {{ExamT3.toFixed(1)}}
+                                        td
+                                          span(ng-if="totalT3<qExam/2")
+                                            u(style="color:red;") {{totalT3.toFixed(1)}}
+                                          span(ng-if="totalT3>qExam/2") {{totalT3.toFixed(1)}} {{totalT3.toFixed(1)}}
                                         td.report-td-pct {{yQuotaTotal}}
                                         td {{mQuotaTotal.toFixed(1)}}
                                         td
