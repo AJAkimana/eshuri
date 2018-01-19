@@ -145,6 +145,22 @@ exports.getClassCourses = (req, res, next)=>{
     })
   })
 }
+exports.getNextClasses = (req, res, next)=>{
+  req.assert('class_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  Classe.findOne({_id:req.params.class_id,school_id:req.user.school_id},(err, class_exists)=>{
+    if(err) return log_err(err,false,req,res);
+    if(!class_exists) return res.status(400).send("Unkown class");
+    var next_class = Number(class_exists.level)+1;
+    var next_option = class_exists.option?class_exists.option:'';
+    Classe.find({level:next_class, school_id:req.user.school_id, option:next_option}, (err, nextClasses)=>{
+      if(err) return log_err(err,false,req,res);
+      console.log('LEVEL: '+next_class+' Classes:'+JSON.stringify(nextClasses))
+      return res.json(nextClasses);
+    })
+  })
+}
 exports.getClasses_JSON_For_Report = (req,res,next)=>{
   req.assert('school_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
@@ -191,6 +207,7 @@ exports.editClasse = (req, res, next)=>{
   var classLevel=req.body.level;
   req.assert('classe_id', 'Invalid data').isMongoId().notEmpty();
   req.assert('name', 'A name is required').notEmpty();
+  req.assert('level', 'Type valid level').notEmpty().isIn([1,2,3,4,5,6]);
   if(classLevel<=3) 
     req.assert('sub_level', 'Specifiy sub level eg.:A,B...').isIn(['a','b','c','d']).notEmpty();
   else req.assert('option', 'Specifiy option').notEmpty();
@@ -207,12 +224,13 @@ exports.editClasse = (req, res, next)=>{
     Classe.findOne({school_id:req.user.school_id,name:req.body.name.trim().toLowerCase()},(err, class_exist)=>{
       if(err) return log_err(err,false,req,res);
       console.log('class exist: '+JSON.stringify(class_exist))
-      if(class_exist) return res.status(400).send("There class with the same informations");
+      if(class_exist && class_exist._id!=req.body.classe_id) return res.status(400).send("There class with the same informations");
       //Find that class and update it
       Classe.findOne({school_id:req.user.school_id,_id:req.body.classe_id},(err, this_classe)=>{
         if(err) return log_err(err,false,req,res);
         if(!this_classe) return res.status(400).send("Unkown class");
         this_classe.name=req.body.name;
+        this_classe.level=req.body.level;
         this_classe.option=req.body.option;
         this_classe.sub_level=req.body.sub_level;
         this_classe.save((err, ok)=>{
@@ -300,52 +318,19 @@ exports.setClassTeacher =function(req,res,next){ // D
   School.findOne({_id:req.user.school_id},(err,school_exists)=>{
     if(err) return log_err(err,false,req,res);
     else if(!school_exists)  return res.status(400).send("School not recognized");
-    Classe.findOne({_id:req.body.class_id,school_id:school_exists._id},(err,class_exists)=>{
+    Classe.findOne({school_id:req.user.school_id, class_teacher:req.user._id},(err, isClassTeacher)=>{
       if(err) return log_err(err,false,req,res);
-      else if(!class_exists) return res.status(400).send("Invalid data");
-      //else if(class_exists.class_teacher) return res.status(400).send("Invalid data");
-      class_exists.class_teacher =req.body.teacher_id;
-      class_exists.save((err)=>{
+      if(isClassTeacher) return res.status(400).send("Sorry this teacher is class teacher in another class");
+      Classe.findOne({_id:req.body.class_id,school_id:school_exists._id},(err,class_exists)=>{
         if(err) return log_err(err,false,req,res);
-        return res.end();
+        else if(!class_exists) return res.status(400).send("Invalid data");
+        //else if(class_exists.class_teacher) return res.status(400).send("Invalid data");
+        class_exists.class_teacher =req.body.teacher_id;
+        class_exists.save((err)=>{
+          if(err) return log_err(err,false,req,res);
+          return res.end();
+        })
       })
     })
-    // Classe.find({school_id:school_exists._id},(err, classes)=>{
-    //   if(err) return log_err(err,false,req,res);
-    //   allClasses=classes;
-      
-    //   async.series([(eachClassCallBack)=>{
-    //     async.each(allClasses,(thisClasse, classeCallback)=>{
-    //       if(thisClasse.class_teacher==req.body.teacher_id){
-    //         console.log(' DATA is '+thisClasse.name);
-    //         selectedClasses.push(thisClasse.class_teacher)
-    //         return classeCallback(null);
-    //       }
-    //       else{
-    //         console.log(' DATA is _______'+thisClasse.name);
-    //         nsClasses.push(thisClasse.class_teacher);
-    //         return classeCallback(null);
-    //       }
-    //     },(err)=>{
-    //       return eachClassCallBack(err);
-    //     })
-    //   }],(err)=>{
-    //     //if (err) return eachClassCallBack(err)
-    //     if((selectedClasses.indexOf(req.body.teacher_id))==-1){
-    //       Classe.findOne({_id:req.body.class_id,school_id:req.user.school_id},(err,class_exists)=>{
-    //         if(err) return log_err(err,false,req,res);
-    //         class_exists.class_teacher =req.body.teacher_id;
-    //         class_exists.save((err)=>{
-    //           if(err) return log_err(err,false,req,res);
-    //           return res.end();
-    //         })
-    //       })
-    //     }
-    //     else{
-    //       console.log(req.body.teacher_id+' Selecet class is _______'+JSON.stringify(selectedClasses));
-    //       res.status(400).send('This teacher is CLASS TEACHER in other class')
-    //     }
-    //   })
-    // })
   }) 
 }

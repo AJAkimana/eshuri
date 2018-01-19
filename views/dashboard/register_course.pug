@@ -8,96 +8,99 @@ block append content
     .full-page.login-page
       .content
         .container
-          .col-sm-12.col-md-12.col-lg-12.center
-            h3.text-center List of all courses and programs at <strong>{{school_name|uppercase}}</strong> 
-          .row
-            .col-sm-5.col-md-5.col-lg-5
-              .card
-                .card-header.card-header-icon(data-background-color="rose")
-                  i.material-icons class
-                  | Courses
-                .card-content
-                  .row
-                    .col-md-4.col-md-4.col-md-4
-                      .form-group.label-floating
-                        label.control-label Enter a new course
-                        input.form-control(type="text",autocomplete="off",ng-model="newCourse.name")
-                    .col.-md-2.col.-md-2.col.-md-2
-                      button.btn.btn-fill.btn-rose(ng-click="addCourse()") Add
+          .card
+            .col-xs-12.col-sm-12.col-md-12.col-lg-12
+              h3.text-center 
+                |List of all courses and programs at 
+                strong {{school_name|uppercase}} 
+            .row
+              .col-xs-12.col-sm-12.col-md-6.col-lg-6
+                .card
+                  .card-header.card-header-icon(data-background-color="rose")
+                    i.material-icons class
+                    | Courses
+                  .card-content
+                    .row
+                      .col-md-4.col-md-4.col-md-4
+                        .form-group.label-floating
+                          label.control-label Enter a new course
+                          input.form-control(type="text",autocomplete="off",ng-model="newCourse.name")
+                      .col.-md-2.col.-md-2.col.-md-2
+                        button.btn.btn-fill.btn-rose(ng-click="addCourse()") Add
+                      hr
+                      .col-md-12.col-md-12.col-md-12
+                        .table-responsive(ng-show="courses.length")
+                          form.form-inline
+                            .form-group.pull-left
+                              label Show
+                              select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
+                                option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
+                              label /page
+                            .form-group.pull-right
+                              input.form-control(type='text', ng-model='search', placeholder='Search')
+                          table.table
+                            thead
+                              th.text-center #
+                              th: a.btn-simple.btn.label.btn-rose(ng-click="a='content_name';b=!b") Course name
+                              th: a.btn-simple.btn.label.btn-rose(
+                              ng-click="a='academic_year';b=!b") Academic year
+                              th: a.btn-simple.btn.label.btn-rose.text-right Delete
+                            tbody
+                              tr(pagination-id="allcourses", dir-paginate="course in courses |orderBy:a:b|filter:search|itemsPerPage:n_pages")
+                                td(width="1%" height="1%") {{$index + 1}}
+                                td: a(href="/dashboard.course/{{course._id}}")
+                                  strong {{course.name | uppercase}}
+                                td {{17|yearToDate}}
+                                td.td-actions.center
+                                  button.btn.btn-danger(type='button',ng-click="deleteCourse(course._id, course.name)")
+                                    i.material-icons close
+                                    | Delete
+                          dir-pagination-controls.pull-right(pagination-id='allcourses', max-size='5', direction-links='true', boundary-links='true')
+                        p.category.text-center(ng-show ="!courses.length") No course provided here
+              .col-xs-12.col-sm-12.col-md-6.col-lg-6
+                .card
+                  .card-header.card-header-icon(data-background-color="rose")
+                    i.material-icons class
+                    | Programs
+                  .card-content
+                    .row
+                      .col-md-4.col-md-4.col-md-4
+                        .form-group.label-floating
+                          label.control-label Enter program name
+                          input.form-control(type="text",autocomplete="off",ng-model="newProgram.name",ng-change="setAbbreviation(newProgram.name)")
+                      .col-md-2.col-md-2.col-md-2
+                        input.form-control(type="text",ng-model="newProgram.abbreviation", placeholder="Abbrevition")
+                      .col-md-2.col-md-2.col-md-2
+                        button.btn.btn-fill.btn-rose(ng-click="addProgram()") Add
                     hr
                     .col-md-12.col-md-12.col-md-12
-                      .table-responsive(ng-show="courses.length")
+                      .table-responsive(ng-show="programs.length")
                         form.form-inline
                           .form-group.pull-left
                             label Show
-                            select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
+                            select.form-control(ng-init="pro_n_pages=10", ng-model="pro_n_pages", value="10")
                               option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
                             label /page
                           .form-group.pull-right
-                            input.form-control(type='text', ng-model='search', placeholder='Search')
+                            input.form-control(type='text', ng-model='pro_search', placeholder='Search')
                         table.table
                           thead
                             th.text-center #
-                            th: a.btn-simple.btn.label.btn-rose(ng-click="a='content_name';b=!b") Course name
+                            th: a.btn-simple.btn.label.btn-rose(ng-click="a='content_name';b=!b") Abbrevition
                             th: a.btn-simple.btn.label.btn-rose(
-                            ng-click="a='academic_year';b=!b") Academic year
+                            ng-click="a='academic_year';b=!b") Program name
                             th: a.btn-simple.btn.label.btn-rose.text-right Delete
                           tbody
-                            tr(pagination-id="allcourses", dir-paginate="course in courses |orderBy:a:b|filter:search|itemsPerPage:n_pages")
+                            tr(pagination-id="allprograms", dir-paginate="program in programs |orderBy:a:b|filter:pro_search|itemsPerPage:pro_n_pages")
                               td(width="1%" height="1%") {{$index + 1}}
-                              td: a(href="/dashboard.course/{{course._id}}")
-                                strong {{course.name | uppercase}}
-                              td {{17|yearToDate}}
+                              td: strong {{program.abbreviation|uppercase}}
+                              td: strong {{program.name|uppercase}}
                               td.td-actions.center
-                                button.btn.btn-danger(type='button',ng-click="deleteCourse(course._id, course.name)")
+                                button.btn.btn-danger(type='button',ng-click="deleteProgram(program._id, program.name)")
                                   i.material-icons close
                                   | Delete
-                        dir-pagination-controls.pull-right(pagination-id='allcourses', max-size='5', direction-links='true', boundary-links='true')
-                      p.category.text-center(ng-show ="!courses.length") No course provided here
-            .col-sm-7.col-md-7.col-lg-7
-              .card
-                .card-header.card-header-icon(data-background-color="rose")
-                  i.material-icons class
-                  | Programs
-                .card-content
-                  .row
-                    .col-md-4.col-md-4.col-md-4
-                      .form-group.label-floating
-                        label.control-label Enter program name
-                        input.form-control(type="text",autocomplete="off",ng-model="newProgram.name",ng-change="setAbbreviation(newProgram.name)")
-                    .col-md-2.col-md-2.col-md-2
-                      input.form-control(type="text",ng-model="newProgram.abbreviation", placeholder="Abbrevition")
-                    .col-md-2.col-md-2.col-md-2
-                      button.btn.btn-fill.btn-rose(ng-click="addProgram()") Add
-                  hr
-                  .col-md-12.col-md-12.col-md-12
-                    .table-responsive(ng-show="programs.length")
-                      form.form-inline
-                        .form-group.pull-left
-                          label Show
-                          select.form-control(ng-init="pro_n_pages=10", ng-model="pro_n_pages", value="10")
-                            option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
-                          label /page
-                        .form-group.pull-right
-                          input.form-control(type='text', ng-model='pro_search', placeholder='Search')
-                      table.table
-                        thead
-                          th.text-center #
-                          th: a.btn-simple.btn.label.btn-rose(ng-click="a='content_name';b=!b") Abbrevition
-                          th: a.btn-simple.btn.label.btn-rose(
-                          ng-click="a='academic_year';b=!b") Program name
-                          th: a.btn-simple.btn.label.btn-rose.text-right Delete
-                        tbody
-                          tr(pagination-id="allprograms", dir-paginate="program in programs |orderBy:a:b|filter:pro_search|itemsPerPage:pro_n_pages")
-                            td(width="1%" height="1%") {{$index + 1}}
-                            td: strong {{program.abbreviation|uppercase}}
-                            td: strong {{program.name|uppercase}}
-                            td.td-actions.center
-                              button.btn.btn-danger(type='button',ng-click="deleteProgram(program._id, program.name)")
-                                i.material-icons close
-                                | Delete
-                      dir-pagination-controls.pull-right(pagination-id='allprograms', max-size='5', direction-links='true', boundary-links='true')
-                    p.category.text-center(ng-show ="!programs.length") No program provided here
+                        dir-pagination-controls.pull-right(pagination-id='allprograms', max-size='5', direction-links='true', boundary-links='true')
+                      p.category.text-center(ng-show ="!programs.length") No program provided here
 block append scripts
   script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
   script.

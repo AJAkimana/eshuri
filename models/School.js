@@ -18,8 +18,6 @@ var SchoolSchema = new Schema({
 
 	// Complementary informations
 	district_name:{type:String,required:true,maxlength:50,unique:false,lowercase:true,trim:true},
-	po_box:{type:String,required:false,maxlength:50,unique:false,lowercase:true,trim:true},
-	phone_number:{type:String,required:false,maxlength:20,unique:false,lowercase:true,trim:true},
 	genderness:{type:Number,required:true, enum:[1,2,3],unique:false}, //1. Mixted 2. Boys 3.Girls
 	category:{type:Number,required:true, enum:[1,2,3],unique:false},//1. All 2. Internals 3. Externals
 	partnership:{type:Number,required:true, enum:[1,2,3],unique:false},//1. Private 2. Public 3. Public-Private

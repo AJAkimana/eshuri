@@ -353,6 +353,7 @@ module.exports = function(app) {
 	app.post('/class.update.settings',isAtLeastAdmin, classeController.updateSettings);
 	app.get('/classe/:classe_id',isAuthenticated, classeController.getPageOneClasse);
 	app.get('/classe.get.courses/:classe_id/:t_quantity', isAuthenticated, classeController.getClassCourses);
+	app.get('/classe.get.nexts/:class_id', isAuthenticated,classeController.getNextClasses);
 	
 				/*COURSES THINGS*/
 	app .get('/courses/:course_id',isAuthenticated, coursesController.getPageOneCourse);

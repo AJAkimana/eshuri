@@ -230,7 +230,7 @@ block append scripts
           .post('/classe.edit', $scope.thisClasse)
           .then(function(response){
             Notifier.success('S'+$scope.thisClasse.name+" has been modified");
-            $scope.thisClasse =null;
+            //- $scope.thisClasse =null;
             $('#edit_class_Modal').modal('hide');
             $scope.getListClasses();
           })

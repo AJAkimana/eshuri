@@ -198,8 +198,8 @@ exports.getSettingSchoolPage = function(req,res,next){
         school_id: school._id,
         school_name: school.name,
         school_profile: school.cover_photo,
-        school_po_box: school.po_box,
-        school_phone: school.phone_number,
+        school_po_box: school.contact.postal_code,
+        school_phone: school.contact.telephone,
         pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
         csrf_token:res.locals.csrftoken, // always set this buddy
       })
@@ -346,8 +346,8 @@ exports.addSchoolInfo = (req, res, next)=>{
   School.findOne({_id:req.body.school_id},(err, schoolExists)=>{
     if(err) return log_err(err,true,req,res);
     else if(!schoolExists) return res.render("./lost",{msg:"Invalid data"})
-    schoolExists.phone_number=req.body.phone;
-    schoolExists.po_box=req.body.po_box;
+    schoolExists.contact.telephone=req.body.phone;
+    schoolExists.contact.postal_code=req.body.po_box;
     schoolExists.save((err)=>{
       if (err) log_err(err,true,req,res);
       return res.end();

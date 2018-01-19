@@ -27,14 +27,13 @@ exports.getPageReport = function(req,res,next){
 			});
 		}
 		if(accLvl>=admin||accLvl<=adminteacher){
-			//console.log(school_exists.po_box+"_________"+school_exists.phone_number)
 			return 	res.render('me/mark_report',{
 				title:"General marks",
 				school_id:req.user.school_id,
 				school_name:school_exists.name,
 				school_district:school_exists.district_name,
-				school_phone:school_exists.phone_number,
-				school_pob:school_exists.po_box,
+				school_phone:school_exists.contact.telephone,
+				school_pob:school_exists.contact.postal_code,
 				pic_id:req.user._id,pic_name:req.user.name,access_lvl:req.user.access_level,
 				csrf_token:res.locals.csrftoken, // always set this buddy
 			});
@@ -62,8 +61,8 @@ exports.getReportPageToTeacher=(req, res, next)=>{
 			school_id:req.user.school_id,
 			school_name:school_exists.name,
 			school_district:school_exists.district_name,
-			school_phone:school_exists.phone_number,
-			school_pob:school_exists.po_box,
+			school_phone:school_exists.contact.telephone,
+			school_pob:school_exists.contact.postal_code,
 			pic_id:req.user._id,pic_name:req.user.name,access_lvl:req.user.access_level,
 			csrf_token:res.locals.csrftoken, // always set this buddy
 		});
