@@ -98,20 +98,33 @@ block append content
                                     td {{(mark.test_t1_mark).toFixed(1)}}
                                     td {{(mark.exam_t1_mark).toFixed(1)}}
                                     td {{(mark.total_t1_mark).toFixed(1)}}
-                                    td.report-td-pct {{(mark.total_t1_pct).toFixed(1)}}%
+                                    td.report-td-pct
+                                      span(ng-if="mark.total_t1_pct<100/2")
+                                        u(style="color:red;") {{(mark.total_t1_pct).toFixed(1)}}%
+                                      span(ng-if="mark.total_t1_pct>100/2") {{(mark.total_t1_pct).toFixed(1)}}%
                                     td {{mark.place1}}
                                     td {{(mark.test_t2_mark).toFixed(1)}}
                                     td {{(mark.exam_t2_mark).toFixed(1)}}
                                     td {{(mark.total_t2_mark).toFixed(1)}}
-                                    td.report-td-pct {{(mark.total_t2_pct).toFixed(1)}}%
+                                    td.report-td-pct 
+                                      span(ng-if="mark.total_t2_pct<100/2")
+                                        u(style="color:red;") {{(mark.total_t2_pct).toFixed(1)}}%
+                                      span(ng-if="mark.total_t2_pct>100/2") {{(mark.total_t2_pct).toFixed(1)}}%
+
                                     td {{mark.place2}}
                                     td {{(mark.test_t3_mark).toFixed(1)}}
                                     td {{(mark.exam_t3_mark).toFixed(1)}}
                                     td {{(mark.total_t3_mark).toFixed(1)}}
-                                    td.report-td-pct {{(mark.total_t3_pct).toFixed(1)}}%
+                                    td.report-td-pct 
+                                      span(ng-if="mark.total_t3_pct<100/2")
+                                        u(style="color:red;") {{(mark.total_t3_pct).toFixed(1)}}%
+                                      span(ng-if="mark.total_t2_pct>100/2") {{(mark.total_t3_pct).toFixed(1)}}%
                                     td {{mark.place3}}
                                     td.report-td-pct {{(mark.annual).toFixed(1)}}
-                                    td.report-td-pct {{(mark.annual_pct).toFixed(1)}}%
+                                    td.report-td-pct 
+                                      span(ng-if="mark.annual_pct<100/2")
+                                        u(style="color:red;") {{(mark.annual_pct).toFixed(1)}}%
+                                      span(ng-if="mark.annual_pct>100/2") {{(mark.annual_pct).toFixed(1)}}%
                                     td.report-td-pct {{mark.year_place}}
                               dir-pagination-controls(pagination-id='allsmarks', max-size='5', direction-links='true', boundary-links='true')
                           .col-md-12        
@@ -243,19 +256,53 @@ block append content
                                         td.report-td-pct {{mark.test_quota}}
                                         td.report-td-pct {{mark.exam_quota}}
                                         td.report-td-pct {{mark.course_quota}}
-                                        td {{(mark.testTerm1).toFixed(1)}}
-                                        td {{(mark.examTerm1).toFixed(1)}}
-                                        td(style="border-right: 3px solid #cdd0d4;") {{(mark.totalTerm1).toFixed(1)}}
-                                        td {{(mark.testTerm2).toFixed(1)}}
-                                        td {{(mark.examTerm2).toFixed(1)}}
-                                        td(style="border-right: 3px solid #cdd0d4;") {{(mark.totalTerm2).toFixed(1)}}
-                                        td {{(mark.testTerm3).toFixed(1)}}
-                                        td {{(mark.examTerm3).toFixed(1)}}
-                                        td(style="border-right: 3px solid #cdd0d4;") {{(mark.totalTerm3).toFixed(1)}}
+                                        td 
+                                          span(ng-if="mark.testTerm1<mark.test_quota/2")
+                                            u(style="color:red;") {{(mark.testTerm1).toFixed(1)}}
+                                          span(ng-if="mark.testTerm1>mark.test_quota/2") {{(mark.testTerm1).toFixed(1)}}
+
+                                        td 
+                                          span(ng-if="mark.examTerm1<mark.exam_quota/2")
+                                            u(style="color:red;") {{(mark.examTerm1).toFixed(1)}}
+                                          span(ng-if="mark.examTerm1>mark.exam_quota/2") {{(mark.examTerm1).toFixed(1)}}
+                                        td
+                                          span(ng-if="mark.totalTerm1<mark.course_quota/2")
+                                            u(style="color:red;") {{(mark.totalTerm1).toFixed(1)}}
+                                          span(ng-if="mark.totalTerm1>mark.course_quota/2") {{(mark.totalTerm1).toFixed(1)}}
+                                        td
+                                          span(ng-if="mark.testTerm2<mark.test_quota/2")
+                                            u(style="color:red;") {{(mark.testTerm2).toFixed(1)}}
+                                          span(ng-if="mark.testTerm2>mark.test_quota/2") {{(mark.testTerm2).toFixed(1)}}
+                                        td 
+                                          span(ng-if="mark.examTerm2<mark.exam_quota/2")
+                                            u(style="color:red;") {{(mark.examTerm2).toFixed(1)}}
+                                          span(ng-if="mark.examTerm2>mark.exam_quota/2") {{(mark.examTerm2).toFixed(1)}}
+                                        td
+                                          span(ng-if="mark.totalTerm2<mark.course_quota/2")
+                                            u(style="color:red;") {{(mark.totalTerm2).toFixed(1)}}
+                                          span(ng-if="mark.totalTerm2>mark.course_quota/2") {{(mark.totalTerm2).toFixed(1)}}
+                                        td 
+                                          span(ng-if="mark.testTerm3<mark.test_quota/2")
+                                            u(style="color:red;") {{(mark.testTerm3).toFixed(1)}}
+                                          span(ng-if="mark.testTerm3>mark.test_quota/2") {{(mark.testTerm3).toFixed(1)}}
+                                        td 
+                                          span(ng-if="mark.examTerm3<mark.exam_quota/2")
+                                            u(style="color:red;") {{(mark.examTerm3).toFixed(1)}}
+                                          span(ng-if="mark.examTerm3>mark.exam_quota/2") {{(mark.examTerm2).toFixed(1)}}
+                                        td
+                                          span(ng-if="mark.totalTerm3<mark.course_quota/2")
+                                            u(style="color:red;") {{(mark.totalTerm3).toFixed(1)}}
+                                          span(ng-if="mark.totalTerm3>mark.course_quota/2") {{(mark.totalTerm3).toFixed(1)}}
                                         td.report-td-pct
                                           | {{mark.anualQuotaTotal}}
-                                        td {{(mark.anualMarkTotal).toFixed(1)}}
-                                        td {{(mark.anualMarkPct).toFixed(1)}}% 
+                                        td
+                                          span(ng-if="mark.anualMarkTotal*100/mark.anualQuotaTotal<100/2")
+                                            u(style="color:red;") {{(mark.anualMarkTotal).toFixed(1)}}
+                                          span(ng-if="mark.anualMarkTotal*100/mark.anualQuotaTotal>100/2") {{(mark.anualMarkTotal).toFixed(1)}} 
+                                        td 
+                                          span(ng-if="mark.anualMarkPct<100/2")
+                                            u(style="color:red;") {{(mark.anualMarkPct).toFixed(1)}}% 
+                                          span(ng-if="mark.anualMarkPct>100/2") {{(mark.anualMarkPct).toFixed(1)}}%
                                       
                                     tfoot(align='right')
                                       tr
@@ -264,17 +311,48 @@ block append content
                                         td.report-td-pct {{qTest}}
                                         td.report-td-pct {{qExam}}
                                         td.report-td-pct {{qtotal}}
-                                        td(style="border-bottom: 2px solid #cdd0d4;") {{testT1.toFixed(1)}}
-                                        td(style="border-bottom: 2px solid #cdd0d4;") {{ExamT1.toFixed(1)}}
-                                        td(style="border-right: 3px solid #cdd0d4;border-bottom: 2px solid #cdd0d4;") {{totalT1.toFixed(1)}}
-                                        td(style="border-bottom: 2px solid #cdd0d4;") {{testT2.toFixed(1)}}
-                                        td(style="border-bottom: 2px solid #cdd0d4;") {{ExamT2.toFixed(1)}}
-                                        td(style="border-right: 3px solid #cdd0d4;border-bottom: 2px solid #cdd0d4;") {{totalT2.toFixed(1)}}
-                                        td(style="border-bottom: 2px solid #cdd0d4;") {{testT3.toFixed(1)}}
-                                        td(style="border-bottom: 2px solid #cdd0d4;") {{ExamT3.toFixed(1)}}
-                                        td(style="border-right: 3px solid #cdd0d4;border-bottom: 2px solid #cdd0d4;") {{totalT3.toFixed(1)}}
+                                        td
+                                          span(ng-if="testT1<qTest/2")
+                                            u(style="color:red;")  {{testT1.toFixed(1)}}
+                                          span(ng-if="testT1>qTest/2") {{testT1.toFixed(1)}}
+                                        td
+                                          span(ng-if="totalT1<qExam/2")
+                                            u(style="color:red;") {{totalT1.toFixed(1)}}
+                                          span(ng-if="totalT1>qExam/2") {{totalT1.toFixed(1)}}
+                                        td
+                                          span(ng-if="totalT1<qExam/2")
+                                            u(style="color:red;") {{totalT1.toFixed(1)}}
+                                          span(ng-if="totalT1>qExam/2") {{totalT1.toFixed(1)}} 
+                                        td
+                                          span(ng-if="testT2<qTest/2")
+                                            u(style="color:red;")  {{testT2.toFixed(1)}}
+                                          span(ng-if="testT2>qTest/2") {{testT2.toFixed(1)}}
+                                        td
+                                          span(ng-if="ExamT2<qExam/2")
+                                            u(style="color:red;") {{ExamT2.toFixed(1)}}
+                                          span(ng-if="ExamT2>qExam/2") {{ExamT2.toFixed(1)}}
+                                        td
+                                          span(ng-if="totalT2<qExam/2")
+                                            u(style="color:red;") {{totalT2.toFixed(1)}}
+                                          span(ng-if="totalT2>qExam/2") {{totalT2.toFixed(1)}} {{totalT2.toFixed(1)}}
+                                        td
+                                          span(ng-if="testT3<qTest/2")
+                                            u(style="color:red;")  {{testT3.toFixed(1)}}
+                                          span(ng-if="testT3>qTest/2") {{testT3.toFixed(1)}} 
+                                        td
+                                          span(ng-if="ExamT3<qExam/2")
+                                            u(style="color:red;") {{ExamT3.toFixed(1)}}
+                                          span(ng-if="ExamT3>qExam/2") {{ExamT3.toFixed(1)}}
+                                        td
+                                          span(ng-if="totalT3<qExam/2")
+                                            u(style="color:red;") {{totalT3.toFixed(1)}}
+                                          span(ng-if="totalT3>qExam/2") {{totalT3.toFixed(1)}} 
                                         td.report-td-pct {{yQuotaTotal}}
-                                        td {{mQuotaTotal.toFixed(1)}}
+                                        td 
+                                          span(ng-if="mQuotaTotal*100/yQuotaTotal<100/2")
+                                            u(style="color:red;") {{mQuotaTotal.toFixed(1)}}
+                                          span(ng-if="mQuotaTotal*100/yQuotaTotal>100/2") {{mQuotaTotal.toFixed(1)}}
+
                                         td
                                           
                                       tr
@@ -283,13 +361,23 @@ block append content
                                         td(colspan='3', style='font-weight: bold;')
                                           | 
                                         td(colspan='3', style='font-weight: bold;')
-                                          | {{totalT1Pct.toFixed(1)}}
+                                          span(ng-if="totalT1Pct<100/2")
+                                            u(style="color:red;") {{totalT1Pct.toFixed(1)}}
+                                          span(ng-if="totalT1Pct>100/2") {{totalT1Pct.toFixed(1)}}
+
                                         td(colspan='3', style='font-weight: bold;')
-                                          | {{totalT2Pct.toFixed(1)}}
+                                          span(ng-if="totalT2Pct<100/2")
+                                            u(style="color:red;") {{totalT2Pct.toFixed(1)}}
+                                          span(ng-if="totalT2Pct>100/2") {{totalT2Pct.toFixed(1)}}
+                                          
                                         td(colspan='3', style='font-weight: bold;')
-                                          | {{totalT3Pct.toFixed(1)}}
+                                          span(ng-if="totalT3Pct<100/2")
+                                            u(style="color:red;")  {{totalT3Pct.toFixed(1)}}
+                                          span(ng-if="totalT3Pct>100/2") {{totalT3Pct.toFixed(1)}}
                                         td(colspan='3', style='font-weight: bold;')
-                                          | {{anualTotalT3Pct.toFixed(1)}}%
+                                          span(ng-if="anualTotalT3Pct<100/2")
+                                            u(style="color:red;") {{anualTotalT3Pct.toFixed(1)}}%
+                                          span(ng-if="anualTotalT3Pct>100/2") {{anualTotalT3Pct.toFixed(1)}}%
                                       tr(ng-repeat="place in places")
                                         td(align='left', style='font-weight: bold;text-align:left;')
                                           | Position

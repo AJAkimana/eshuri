@@ -479,6 +479,7 @@ exports.getReport_JSON =(req,res,next)=>{
 							noteExam =noteExam>0?noteExam:0;
 							var totalCourse = noteCat + noteExam;
 							var percent = (totalCourse*100)/courseWeight;
+							// if(percent<50) return percent.underline();
 							//console.log("  CAT marks "+studentCATMarks+"/"+totalCAT);
 							//console.log("  Exam marks "+studentExamMarks+"/"+totalExam);
 							//console.log(" TOTAL "+currentCourse.name+" "+totalCourse);
@@ -508,6 +509,7 @@ exports.getReport_JSON =(req,res,next)=>{
 		}
 	],(err)=>{
 		if(err) return log_err(err,false,req,res);
+
 		//console.log("REPORTmarks =>>>>"+JSON.stringify(reportData.marks))
 		//console.log("REPORT total =>>>>"+JSON.stringify(reportData.total));
 		console.log("REPORT =>>>>"+JSON.stringify(reportData));
