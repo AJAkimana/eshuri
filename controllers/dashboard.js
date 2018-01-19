@@ -244,6 +244,8 @@ exports.getPageStudents = function(req,res,next){
       return res.render('dashboard/view_student',{
         title:'Students',
         class_id:req.params.class_id,
+        classe_name:class_exists.name,
+        school_id:school_exists._id,
         term_name:school_exists.term_name,
         pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
         csrf_token:res.locals.csrftoken, // always set this buddy

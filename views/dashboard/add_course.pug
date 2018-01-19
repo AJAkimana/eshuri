@@ -8,25 +8,7 @@ block append content
     .full-page.login-page
       .content
         .container-fluid
-          .row
-            .col-md-7.center
-              .card(ng-show="teacher_add")
-                .card-header(data-background-color="rose")
-                  i.material-icons school
-                  h5.card-title Choose teacher for {{course_name|uppercase}}
-                .card-content
-                  .col-md-8
-                    h4 Teacher list
-                    div(ng-repeat ="t in currentTeachers")
-                      h4: strong {{$index+1}}) {{t|toTeacher_name:teachers}}
-                        .btn.btn-danger.btn-fab.btn-fab-mini(ng-click="dissociateTeacher(t)")
-                          i.material-icons close
-                  .col-md-4
-                    h4 Add a new teacher
-                    .form-group.label-floating
-                      select.form-control(ng-model="teacher_choosen",ng-change="affectTeacher(course_concerned,teacher_choosen)")
-                        option(disabled) Pick a teacher
-                        option(value="{{teacher._id}}",ng-repeat="teacher in teachers") {{teacher.name}}
+          .row              
             .col-md-3.center
               .card(ng-show="change_academic")
                 .card-header(data-background-color="rose")
@@ -96,7 +78,26 @@ block append content
                           .form-group
                             button.btn.btn-fill.btn-rose(ng-click="addNewCourse()") Add
                             button.btn.btn-fill.btn-danger.pull-right(ng-click="c_add =false") Cancel
-            .col-md-10.center
+            .col-xs-12.col-sm-12.col-md-4.col-lg-4
+              .card
+                .card-header.card-header-icon(data-background-color="rose")
+                  i.material-icons school
+                .card-content
+                  h2.card-title 
+                    | Classes
+                  h3.category.text-center(ng-show ="!classes.length") No classes
+                  .table-responsive(ng-show ="classes.length")
+                    form.form-inline
+                      .form-group.pull-right
+                        input.form-control(type='text', ng-model='classe_search', placeholder='Search')
+                    table.table
+                      thead
+                        th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Name
+                      tbody
+                        tr(pagination-id="allclasses", dir-paginate="classe in classes|orderBy:name|filter:classe_search|itemsPerPage:5")
+                          td: a(style='color:#3d4958;',href="/dashboard.course/{{classe._id}}") {{classe.name|uppercase|toClasseName:term_name}}
+                    dir-pagination-controls.pull-right(pagination-id='allclasses', max-size='5', direction-links='true', boundary-links='true')
+            .col-xs-12.col-sm-12.col-md-8.col-lg-8
               .card
                 .card-header.card-header-icon(data-background-color="rose")
                   i.material-icons school
@@ -470,6 +471,16 @@ block append scripts
           Notifier.danger(erreur.data);
         });
       }
+      $scope.getListClasses = function(){
+        $http
+        .get("/classe.list/"+$scope.school_id)
+        .then(function(response){
+          $scope.classes = response.data;
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data);
+        });
+      }
       $scope.getYears = function(){
         var date = new Date,
           years = [],
@@ -493,6 +504,7 @@ block append scripts
       $scope.newCourse ={}
       $scope.course_concerned;
       $scope.getListCourses();
+      $scope.getListClasses();
       $scope.getListSchoolCourses();
       $scope.teachers =[];
       $scope.loadTeachers();
