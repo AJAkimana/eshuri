@@ -244,7 +244,9 @@ exports.getPageStudents = function(req,res,next){
       return res.render('dashboard/view_student',{
         title:'Students',
         class_id:req.params.class_id,
+        level:class_exists.level,
         classe_name:class_exists.name,
+        academic_year:class_exists.academic_year,
         school_id:school_exists._id,
         term_name:school_exists.term_name,
         pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,

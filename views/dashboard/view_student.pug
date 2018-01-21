@@ -67,8 +67,9 @@ block append content
                             td {{student.email}}
                             td {{student.phone_number}}
                             td.td-actions.text-right
-                              select(ng-model="student.new_class",ng-change="changeClass(student)")
-                                option(value="classe._id", ng-repeat="classe in nextClasses") {{classe.name|uppercase|toClasseName:term_name}}
+                              select(ng-model="new_class",ng-change="changeClass(student, new_class)")
+                                option(value="{{classe._id}}" ng-repeat="classe in nextClasses") {{classe.name|uppercase|toClasseName:term_name}}
+                                option(value="fin") Finalist
                               button.btn.btn-danger(type='button',ng-click="deleteStudent(student._id,student.name)")
                                 i.material-icons close
                               button.btn.btn-warning(type='button',ng-click="editStudent(student._id,student.name)")
@@ -201,8 +202,17 @@ block append scripts
           Notifier.danger(error.data);
         })
       }
-      $scope.changeClass = function(user){
-
+      $scope.changeClass = function(user, classe){
+        $scope.person = {student_id:user._id, level:'#{level}', class_id:$scope.class_id,new_class:classe, academic_year:'#{academic_year}'};
+        $http
+        .post('/school.change.to.next',$scope.person)
+        .then(function(response){
+          $scope.getstudentList();
+          Notifier.success("Classe of "+user.name.toUpperCase()+" has successfully changed");
+        })
+        .catch(function(error){
+          Notifier.danger(error.data);
+        })
       }
       $scope.getListClasses = function(){
         $http
@@ -224,10 +234,12 @@ block append scripts
           Notifier.danger(erreur.data)
         }); 
       }
+      //- $scope.student = {};
       $scope.pages=[3,5,10,15,20,25];
       $scope.add_student=false;
       $scope.term_name = "#{term_name}";
-      $scope.classe_name = "#{classe_name}"
+      $scope.classe_name = "#{classe_name}";
+      $scope.level = "#{level}";
       $scope.class_id ="#{class_id}";
       $scope.school_id = "#{school_id}"
       $scope.anti_csrf = "#{csrf_token}";

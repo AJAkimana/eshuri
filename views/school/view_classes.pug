@@ -27,7 +27,7 @@ block append content
                           h4 {{classe.number}} courses
                       .panel-footer
                         h4.text-center Number of class {{classes.length}}
-                    .panel-group(role='tablist')#accordion
+                    //- .panel-group(role='tablist')#accordion
                       .panel.panel-default(ng-repeat="year in years")
                         .panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentYear(year._id)")
                           a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="true", aria-controls="{{'collapse_'+$index}}")

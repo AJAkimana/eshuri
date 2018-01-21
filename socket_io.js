@@ -30,6 +30,7 @@ module.exports = function(app) {
   console.log(" Add view page for 3 4 et 7 content type.. OPTIONAL")
   console.log("level: 5, ADD LEVEL in automated MARKS in postAnswers !!!");
   console.log(" return moment(time).fromNow(); itanga a warning attention depreaction vuba");
+  console.log("====> REMEMBER KWIMURA STUDENTS IS ONLY APPLIED FOR SECONDARY SCHOOL<=====")
   console.log('______________________________________________')
 }));
 	/* Get some information*/

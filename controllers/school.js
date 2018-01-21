@@ -657,20 +657,27 @@ exports.getUserClasses = (req, res, next)=>{
   if (errors) return res.status(400).send(errors[0].msg);
   var listClasses=[],classes=[],coursesClasses=[];
   var response={};
+  var access_lvl = req.user.access_level,
+      student = req.app.locals.access_level.STUDENT;
+  var parametters = {};
   response.classes=[];
   Marks.find().distinct("class_id", {school_id:req.user.school_id, student_id:req.user._id},(err, markClasses)=>{
     if (err) return log_err(err,false,req,res);
     listClasses=markClasses;
     Classe.findOne({school_id:req.user.school_id, $or:[{_id:req.user.class_id},{class_teacher:req.user._id}]},(err, user_class)=>{
       if (err) return log_err(err,false,req,res);
-      listClasses.push(user_class._id);
+      if(listClasses.indexOf(String(user_class._id))==-1){
+        listClasses.push(user_class._id);
+      }
       Course.find().distinct("class_id",{school_id:req.user.school_id, teacher_list:req.user._id},(err, class_courses)=>{
         if (err) return log_err(err,false,req,res);
         coursesClasses=class_courses;
         // console.log(JSON.stringify('-------'+class_courses))
         // Check every class in the courses
         async.each(coursesClasses, (thisList, listCallback)=>{
-          listClasses.push(thisList)
+          if(listClasses.indexOf(thisList)==-1){
+            listClasses.push(thisList)
+          }
           listCallback();
         },(err)=>{
           if(err) return log_err(err,false,req,res);
@@ -688,7 +695,9 @@ exports.getUserClasses = (req, res, next)=>{
             if(err) return log_err(err,false,req,res);
             // append every class number of courses
             async.eachSeries(classes, (thisClass, callBack)=>{
-              Course.count({class_id:thisClass.class_id, teacher_list:req.user._id},(err, number)=>{
+              if(access_lvl == student) parametters = {class_id:thisClass.class_id};
+              else parametters = {class_id:thisClass.class_id, teacher_list:req.user._id}
+              Course.count(parametters,(err, number)=>{
                 if (err) return callBack(err);
                 thisClass.number=number;
                 callBack();

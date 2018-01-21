@@ -454,7 +454,7 @@ block append scripts
       $scope.updateClass = function(){
         var date = new Date,
           year = date.getFullYear();
-        if($scope.nv.academic_year<year) return Notifier.danger('Academic year cannot go below '+year);
+        //- if($scope.nv.academic_year<year) return Notifier.danger('Academic year cannot go below '+year);
         if($scope.nv.academic_year>Number(year+1)) return Notifier.danger('Academic year cannot go over '+Number(year+1));
         $http
         .post("/class.update.settings",{
@@ -485,7 +485,7 @@ block append scripts
         var date = new Date,
           years = [],
           year = date.getFullYear();
-        for (var i = year; i < year + 2; i++) {
+        for (var i = year; i < year + 1; i++) {
           years.push(i);   
         }
         return years;
