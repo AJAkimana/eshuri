@@ -19,6 +19,7 @@ var UserSchema = new Schema({
   gender:{type:Number,default:4, enum:[1,2],unique:false},
   phone_number:{type:String,required:false,unique:false},
   class_id:{type: Schema.Types.ObjectId,required:false,unique:false},
+  prev_classes:{type:[Schema.Types.ObjectId],required:false,unique:false},
   school_id:{type: Schema.Types.ObjectId,required:false,unique:false},
 
   department_id:{type: Schema.Types.ObjectId,required:false,unique:false},

@@ -4,6 +4,7 @@ const User = require('../models/User'),
       log_err = require('./manage/errorLogger'),
       emailSender = require('./email_sender'),
       Token =require('../models/Token'),
+      Notification = require('../models/Notification'),
       Util=require('../utils.js'),
       fileMaxSize = 5*1024*1024,
       multer = require('multer');
@@ -204,8 +205,10 @@ exports.viewApplication = (req,res,next)=>{
   var accLvl = req.user.access_level;
   var student=req.app.locals.access_level.STUDENT,
       admin=req.app.locals.access_level.ADMIN,
+      sa_school=req.app.locals.access_level.SA_SCHOOL,
       adminteacher=req.app.locals.access_level.ADMIN_TEACHER,
       guest=req.app.locals.access_level.GUEST;
+  if(accLvl>=sa_school && accLvl<=guest) return res.status(400).send("Sorry you are not allowed to view the applications");
   if (accLvl==admin || accLvl==adminteacher){
     Application.find({},{__v:0}).lean().exec((err, applications)=>{
       if(err) return log_err(err,false,req,res);
@@ -225,7 +228,7 @@ exports.viewApplication = (req,res,next)=>{
       })
     })
   }
-  if(accLvl==student||accLvl==guest){
+  else if(accLvl==student||accLvl==guest){
     User.findOne({_id:req.user._id}, (err, thisUser)=>{
       if(err) return log_err(err,false,req,res);
       else if(!thisUser) return res.status(400).send("User is unknown!");
@@ -286,6 +289,23 @@ exports.changeApplicationStatus=(req, res, next)=>{
           };
           emailSender.sendApplicationEmailStatus(infos).then((info)=>{
             console.log(" MAIL OK SENT !!!")
+            // var message;
+            // switch(req.body.status){
+            //   case 'P': message='Your registration on '+infos.school_name.toUpperCase()+' is pended';break;
+            //   case 'A': message='You are ADMITTED on '+infos.school_name.toUpperCase()+'. Visit https://eshuri.rw/ to continue registration';break;
+            //   case 'F': message='Something is missing in your application on '+infos.school_name.toUpperCase()+': <b>'+infos.comment+'</b>';break;
+            //   case 'R': message='Your registration on '+infos.school_name.toUpperCase()+' is <b>Rejected</b>';break;
+            //   default: break;
+            // }
+            // new Notification({
+            //   user_id:req.user._id,
+            //   user_name:req.user.name,
+            //   content:message,
+            //   dest_id:user_details._id,
+            //   isAuto:false,
+            // }).save((err)=>{
+            //   if(err) return log_err(err,false,req,res);
+            // })
           }).catch((err)=>{
             console.log(" MAIL Not SENT !!!")
           });

@@ -174,10 +174,11 @@ exports.getToNextClass = (req,res,next)=>{
   if(req.body.new_class!=="fin") req.assert('new_class', 'Invalid data new class').isMongoId();
   const errors = req.validationErrors();
   var new_class = req.body.new_class;
-  var level = req.body.level;
-  var next_level = Number(level)+1;
+  var level = req.body.level,
+      next_level = Number(level)+1,
+      finalist = Number(level)==3||Number(level)==6?true:false;
   // Check if user is allowed to be finalist
-  if(new_class=="fin"&&(level!=3||level!=6)) return res.status(400).send("This student must not be a finalist");
+  // if(new_class=="fin"&&()) 
   if (errors) return res.status(400).send(errors[0].msg);
   School.findOne({_id:req.user.school_id},(err, school_exists)=>{
     if(err) return log_err(err,false,req,res);
@@ -191,6 +192,7 @@ exports.getToNextClass = (req,res,next)=>{
           if(err) return log_err(err,false,req,res);
           else if(!student_exists) return res.status(400).send("Unkown student");
           student_exists.class_id = class_exists._id;
+          student_exists.prev_classes.push(req.body.class_id);
           student_exists.save((err, done)=>{
             if(err) return log_err(err,false,req,res);
             // Save for user notification
@@ -210,11 +212,13 @@ exports.getToNextClass = (req,res,next)=>{
         })
       })
     }
-    if(new_class==="fin"){
+    else{
+      if(!finalist) return res.status(400).send("This student must not be a finalist");
       User.findOne({_id:req.body.student_id,school_id:school_exists._id,class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT},(err, student_exists)=>{
         if(err) return log_err(err,false,req,res);
         else if(!student_exists) return res.status(400).send("Unkown student");
         student_exists.class_id = null;
+        student_exists.prev_classes.push(req.body.class_id);
         student_exists.save((err, done)=>{
           if(err) return log_err(err,false,req,res);
           new Finalist({
@@ -400,7 +404,7 @@ exports.setClassTeacher =function(req,res,next){ // D
   School.findOne({_id:req.user.school_id},(err,school_exists)=>{
     if(err) return log_err(err,false,req,res);
     else if(!school_exists)  return res.status(400).send("School not recognized");
-    Classe.findOne({school_id:req.user.school_id, class_teacher:req.user._id},(err, isClassTeacher)=>{
+    Classe.findOne({school_id:req.user.school_id, class_teacher:req.body.teacher_id},(err, isClassTeacher)=>{
       if(err) return log_err(err,false,req,res);
       if(isClassTeacher) return res.status(400).send("Sorry this teacher is class teacher in another class");
       Classe.findOne({_id:req.body.class_id,school_id:school_exists._id},(err,class_exists)=>{

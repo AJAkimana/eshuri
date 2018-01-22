@@ -206,7 +206,6 @@ block append scripts
         }); 
       }
       $scope.editClass = function(classe){
-        //- console.log(JSON.stringify(classe))
         $scope.name=classe.name;
         $scope.level=classe.level;
         $scope.option=classe.option;
@@ -309,7 +308,6 @@ block append scripts
           $scope.unConfirmed =response.data.unConfirmed;
           $scope.courses =response.data.school_courses;
           $scope.programs =response.data.school_programs;
-          console.log('School program: '+$scope.programs)
         })
         .catch(function(erreur){
           Notifier.danger(erreur.data);
