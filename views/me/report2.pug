@@ -77,14 +77,15 @@ block append content
                                 td 
                                   span(ng-if="note.test<note.test_quota/2")
                                     u(style="color:red;") {{(note.test).toFixed(1)}}
-                                  span(ng-if="note.test>note.test_quota/2") {{(note.test).toFixed(1)}}
+                                  span(ng-if="note.test>=note.test_quota/2") {{(note.test).toFixed(1)}}
                                 td 
                                   span(ng-if="note.exam<note.exam_quota/2")
                                     u(style="color:red;") {{(note.exam).toFixed(1)}}
-                                  span(ng-if="note.exam>note.exam_quota/2") {{(note.exam).toFixed(1)}}
+                                  span(ng-if="note.exam>=note.exam_quota/2") {{(note.exam).toFixed(1)}}
                                 td 
                                   span(ng-if="note.total<note.course_weight/2")
                                     u(style="color:red;") {{(note.total).toFixed(1)}}
+                                  span(ng-if="note.total>=note.course_weight/2") {{(note.total).toFixed(1)}}
                       .col-md-12
                         .col-md-6
                           .ct-chart.ct-octave(id="{{'term_'+$index}}")
