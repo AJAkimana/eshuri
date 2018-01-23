@@ -24,8 +24,10 @@ exports.getPageOneCourse = function(req,res,next){
     
     else if(req.user.access_level == req.app.locals.access_level.STUDENT){
       temoin =true;
+      // var student_id=req.user._id;
+      // var student_class=req.user.class_id;
       if(String(course_exists.class_id)!= String(req.user.class_id) && 
-        req.user.course_retake.indexOf(String(course_exists._id))==-1)
+        req.user.course_retake.indexOf(String(course_exists._id))==-1 && req.user.prev_classes.indexOf(String(course_exists.class_id))==-1)
         return res.render("./lost",{msg:"You don't have the right to view this course"});
     }
     else if(req.user.access_level == req.app.locals.access_level.TEACHER || req.user.access_level == req.app.locals.access_level.ADMIN_TEACHER){

@@ -664,25 +664,22 @@ exports.getUserClasses = (req, res, next)=>{
   Marks.find().distinct("class_id", {school_id:req.user.school_id, student_id:req.user._id},(err, markClasses)=>{
     if (err) return log_err(err,false,req,res);
     listClasses=markClasses;
-    Classe.findOne({school_id:req.user.school_id, $or:[{_id:req.user.class_id},{class_teacher:req.user._id}]},(err, user_class)=>{
+    Classe.findOne({school_id:req.user.school_id, $or:[{_id:req.user.class_id},{class_teacher:req.user._id}]},{_id:1},(err, user_class)=>{
       if (err) return log_err(err,false,req,res);
-      if(listClasses.indexOf(String(user_class._id))==-1){
-        listClasses.push(user_class._id);
-      }
+      if(user_class)
+        if(listClasses.indexOf(String(user_class._id))==-1)listClasses.push(user_class._id);
       Course.find().distinct("class_id",{school_id:req.user.school_id, teacher_list:req.user._id},(err, class_courses)=>{
         if (err) return log_err(err,false,req,res);
         coursesClasses=class_courses;
-        // console.log(JSON.stringify('-------'+class_courses))
         // Check every class in the courses
-        async.each(coursesClasses, (thisList, listCallback)=>{
-          if(listClasses.indexOf(thisList)==-1){
+        async.eachSeries(coursesClasses, (thisList, listCallback)=>{
+          // console.log('-------'+listClasses)
+          if(listClasses.indexOf(String(thisList))==-1){
             listClasses.push(thisList)
           }
           listCallback();
         },(err)=>{
           if(err) return log_err(err,false,req,res);
-          console.log('From all lists classes: '+JSON.stringify(listClasses))
-          // console.log(' All list '+JSON.stringify(response))
           if(listClasses.length==0) return res.status(400).send("No classes of yours found contact your administrator");
           //Append to every id class info
           async.eachSeries(listClasses, (thisClass, callBack)=>{
@@ -704,7 +701,6 @@ exports.getUserClasses = (req, res, next)=>{
               })
             },(err)=>{
               if(err) return log_err(err,false,req,res);
-              // console.warn("Classes -----=> "+JSON.stringify(classes));
               // if everything are in place return data to front
               return res.json(classes)
             })

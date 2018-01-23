@@ -205,8 +205,10 @@ exports.viewApplication = (req,res,next)=>{
   var accLvl = req.user.access_level;
   var student=req.app.locals.access_level.STUDENT,
       admin=req.app.locals.access_level.ADMIN,
+      sa_school=req.app.locals.access_level.SA_SCHOOL,
       adminteacher=req.app.locals.access_level.ADMIN_TEACHER,
       guest=req.app.locals.access_level.GUEST;
+  if(accLvl>=sa_school && accLvl<=guest) return res.status(400).send("Sorry you are not allowed to view the applications");
   if (accLvl==admin || accLvl==adminteacher){
     Application.find({},{__v:0}).lean().exec((err, applications)=>{
       if(err) return log_err(err,false,req,res);
@@ -250,7 +252,6 @@ exports.viewApplication = (req,res,next)=>{
       })
     })
   }
-  else return res.end();
 }
 exports.changeApplicationStatus=(req, res, next)=>{
   req.assert('app_id', 'Invalid data').isMongoId();
