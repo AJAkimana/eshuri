@@ -87,7 +87,7 @@ exports.fbCallback = (req, res, next)=>{
   })(req, res, next);
 }
 exports.postSignIn = (req, res, next) => {
-  console.log('______________'+res.locals.csrftoken);
+  // console.log('______________'+res.locals.csrftoken);
   req.assert('email', 'Email is not valid').isEmail();
   req.assert('password', 'Password cannot be blank').notEmpty();
   const errors = req.validationErrors();
@@ -117,7 +117,7 @@ exports.postSignIn = (req, res, next) => {
       }
       else return res.send(link);     
     });
-    console.log(' New logIn------ '+JSON.stringify(req.logIn))
+    // console.log(' New logIn------ '+JSON.stringify(req.logIn))
   })(req, res, next);
 };
 exports.postOfflineSignIn = (req, res, next) => {
@@ -133,7 +133,6 @@ exports.postOfflineSignIn = (req, res, next) => {
   // console.log('Yienze '+errors[0].msg);
   if (errors) return res.status(400).send(errors[0].msg);
 
-
   passport.authenticate('local.signin', (err, user, info)=>{
     if(err || !user) return res.status(400).send(info.msg);
     req.logIn(user, (err,newUser) => {
@@ -142,7 +141,7 @@ exports.postOfflineSignIn = (req, res, next) => {
       var weeks = 7 * 24 * hours;    
       // Cookie expires after 1 week and 10 hours > REgister mornig expires night
       // first 9h du mat then expires the night
-      console.log('OFFLINE USER '+JSON.stringify(req.session));
+      // console.log('OFFLINE USER '+JSON.stringify(req.session));
       return ;
       req.session.cookie.maxAge = 1 * weeks + 10*hours;
       var link =req.user.access_level==1 ? "/dashboard":"/home";

@@ -515,7 +515,7 @@ module.exports = function(app) {
 	app.post('/profile.create', isAtLeastAdmin, schoolController.createSchoolProfile);
 	app.get('/profile/:profile_id', profileController.singleSchoolProfile);
 	app.get('/fees', isAtLeastAdmin, profileController.feesProfile);
-
+	// app.get('/:school_name', profileController.displayProfileSchoolDetail)
 	/*---------------------------------------------------------------------------
 					Profiling
 	----------------------------------------------------------------------------*/
