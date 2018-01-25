@@ -91,3 +91,9 @@ require('./routes')(app);
  */
 app.use(errorHandler());
 module.exports = app;
+// Demo credentials
+// student email: student1@demo.rw
+// admin email: teacher2@demo.rw
+//
+// Both Password: eshuri123
+
