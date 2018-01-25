@@ -3,3 +3,4 @@ node_modules/
 .eShuri.env.DEV
 .eShuri.env.TEST
 eshuri.js
+.idea/

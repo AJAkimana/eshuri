@@ -95,6 +95,7 @@ exports.postSignIn = (req, res, next) => {
 
   passport.authenticate('local.signin', (err, user, info)=>{
     if(err || !user) return res.status(400).send(info.msg);
+    console.log("after");
     req.logIn(user, (err,newUser) => {
       if (err) return next(err);
       var hours = 3600000;

@@ -25,6 +25,7 @@ const marksController =require('./controllers/marks');
 const videoController =require('./controllers/content/video');
 const timelineCtrl =require('./controllers/timeline');
 const backUpCtrl =require('./controllers/manage/backup');
+const paymentCtrl = require('./controllers/payment');
 
 const parentController =require('./controllers/parent');
 
@@ -524,9 +525,16 @@ module.exports = function(app) {
 	app.post('/application.change.status', isAtLeastAdmin, applicationsController.changeApplicationStatus)
 	app.post('/attach.fileid/:app_id', applicationsController.postIDFile);
 	app.post('/attach.file.transcript/:app_id', applicationsController.postTranscriptFile);
-	/*---------------------------------------------------------------------------
-					Application for admission
-	----------------------------------------------------------------------------*/
+
+
+    /*---------------------------------------------------------------------------
+                    Payment
+    ----------------------------------------------------------------------------*/
+    app.get('/payment', paymentCtrl.getPaymentPage);
+
+    /*---------------------------------------------------------------------------
+                    Application for admission
+    ----------------------------------------------------------------------------*/
 
 
 	app.get('/timeline',isAuthenticated,timelineCtrl.pageTimeline);

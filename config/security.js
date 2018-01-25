@@ -74,14 +74,14 @@ module.exports = function(app){
   // app.use(function(err, req, res, next) {
   //   if (err.code !== 'EBADCSRFTOKEN')  return next(err);
   //   console.log("=> "+err.code+" but given is "+ req.body._csrf)
-  //   // The token is not valid. CRSF 
+  //   // The token is not valid. CRSF
   //   return res.status(403).send('Your request is not legal.')
   //   // next();
   // })
   console.log(" CSRF attack Prevention not activated !")
 
-  // Dropping privileges 
-  process.setgid(parseInt(process.env.app_GID, 10));
-  process.setuid(parseInt(process.env.app_UID, 10));
+  // Dropping privileges
+  // process.setgid(parseInt(process.env.app_GID, 10));
+  // process.setuid(parseInt(process.env.app_UID, 10));
   console.log(" Privileges dropped to "+process.getuid())
 }
