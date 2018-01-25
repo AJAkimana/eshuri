@@ -794,10 +794,7 @@ exports.getSchoolData = (req,res,next)=>{
           })
         }
         ],(err)=>{
-          if(err) return log_err(err,false,req,res);
-          console.log('Returned data:'+JSON.stringify(theData))
-          console.log('----Returned data LIONEL:'+JSON.stringify(response))
-          // return res.json(response);
+          if(err) return log_err(err,false,req,res);;
           return res.json(theData);
         })
   })

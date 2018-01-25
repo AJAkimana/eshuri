@@ -41,7 +41,7 @@ exports.postIDFile = (req, res, next)=>{
       storage:storage,
       limits:{fileSize:fileMaxSize},
       fileFilter: (req, file, cb)=>{
-        console.log(" File before saving"+JSON.stringify(file))
+        // console.log(" File before saving"+JSON.stringify(file))
         if(file.mimetype !=="application/pdf") return cb("Sorry, only PDF are accepted")
         return cb(null, true);
       },
@@ -49,7 +49,7 @@ exports.postIDFile = (req, res, next)=>{
     .any();
     upload(req, res,(uploadErr)=>{
       if(uploadErr) return res.render("./lost",{msg:uploadErr});
-      console.log('File---'+req.files);
+      // console.log('File---'+req.files);
       User.findOne({_id:req.user._id},(err, user_details)=>{
         if(err) return log_err(err, false, req, res);
         else if(!user_details) return res.status(400).send('Unknown user');
@@ -86,7 +86,7 @@ exports.postTranscriptFile = (req, res, next)=>{
       storage:storage,
       limits:{fileSize:fileMaxSize},
       fileFilter: (req, file, cb)=>{
-        console.log(" File before saving"+JSON.stringify(file))
+        // console.log(" File before saving"+JSON.stringify(file))
         if(file.mimetype !=="application/pdf") return cb("Sorry, only PDF are accepted")
         return cb(null, true);
       },
@@ -164,7 +164,7 @@ exports.newAppSubmission = (req, res, next)=>{
         });
         newApplication.save((err, thisApplication)=>{
           if(err) return log_err(err,false,req,res);
-          console.log('The inserted application:'+JSON.stringify(thisApplication))
+          // console.log('The inserted application:'+JSON.stringify(thisApplication))
           return res.json(thisApplication._id);
         })
       })
@@ -221,7 +221,7 @@ exports.viewApplication = (req,res,next)=>{
         })
       },(err)=>{
         if(err) return log_err(err,false,req,res);
-        console.log('---------'+JSON.stringify(applications))
+        // console.log('---------'+JSON.stringify(applications))
         return res.json(applications);
       })
     })
@@ -244,7 +244,7 @@ exports.viewApplication = (req,res,next)=>{
           if(err) return log_err(err,false,req,res);
           response.push({applications:applications, user_info:thisUser})
           // applications.push({user_info:thisUser})
-          console.log('Applications: '+JSON.stringify(response));
+          // console.log('Applications: '+JSON.stringify(response));
           return res.json(response[0])
         })
       })

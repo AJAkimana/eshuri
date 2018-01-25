@@ -1,8 +1,7 @@
 nav.navbar.navbar-absolute.navbar-fixed-top(role='navigation', style="position:fixed; ")
-	//nav.navbar.navbar-inverse.navbar-fixed-top(role='navigation')
 	.container-fluid
 		.navbar-header
-			button.navbar-toggle(type='button', data-toggle='collapse')
+			button.navbar-toggle(type='button', data-toggle='#myNav')
 				span.sr-only Toggle navigation
 				span.icon-bar
 				span.icon-bar
@@ -15,7 +14,7 @@ nav.navbar.navbar-absolute.navbar-fixed-top(role='navigation', style="position:f
 								img(src='/favicon.png', alt='...',width="100%",height="auto")
 					.col-md-2.col-md-offset-1
 						strong eShuri 
-		.collapse.navbar-collapse.navbar-ex1-collapse
+		#myNav.collapse.navbar-collapse.navbar-ex1-collapse
 			ul.nav.navbar-nav.pull-right
 				if access > 1 && access <=4
 					li: a.btn-simple.btn.btn-info(style='color:#f05167;',href="/timeline")
@@ -78,11 +77,11 @@ nav.navbar.navbar-absolute.navbar-fixed-top(role='navigation', style="position:f
 								a(style='color:#3d4958;',href="/application")
 									span Applications
 				li: a(href="http://gocoderz.com/wp-content/uploads/articulate_uploads/Lesson_1:_Drivetrain/story_html5.html" target="_blank")
-						//i.material-icons code
-						strong Robotics Programming
+					//i.material-icons code
+					strong Robotics Programming
 				// payment
-				li: a.btn-simple.btn.btn-info(href="/payment")
-						strong Payment
+				//- li: a.btn-simple.btn.btn-info(href="/payment")
+					strong Payment
 				li.dropdown
 					if access
 						a.btn-simple.btn.btn-info.dropdown-toggle(style='color:#3d4958;',data-toggle="dropdown")
