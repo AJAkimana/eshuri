@@ -1,291 +1,382 @@
 extends ../layout 
 block append content
-	//- .main-panel
-		include ../partials/header 
-	.wrapper.wrapper-full-page.full-page-background(ng-controller="school_updateCtrl",style="background-image: url('../imgs/register.jpeg')")
-		.full-page.login-page
-			.content
-				.container-fluid
-					.row
-						.col-md-10.center
-							.card
-								.card-header.card-header-icon(data-background-color="rose")
-									i.material-icons class
-								.card-content
-									if access == 1.05
-										a.btn-simple.btn.label.btn-info(ng-click="opt_view=!opt_view")
-											i.material-icons school
-											| Use another option to mamage
-										.col-md-7.center(ng-show="opt_view")
-											.form-group.label-floating
-												h3 Use another option:
-												select.form-control(ng-model="currentSchool",ng-change="set_Option()")
-													option(value="{{school._id}}", ng-repeat="school in listSchools") {{$index + 1}}) {{school.name|uppercase}} 
-									
-									.col-md-12
-										a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.teachers/{{school_id}}") <strong> {{teachers}}</strong> Teachers
-											i.material-icons person
-										a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.admins/{{school_id}}") <strong> {{admins}}</strong> Administrators
-											i.material-icons supervisor_account
-										a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.accounts.validation") <strong> {{unConfirmed}}</strong> New accounts to confirm 
-											i.material-icons verified_user
-										a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.register.course/{{school_id}}") <strong> {{courses}}</strong> Courses 
-											i.material-icons class
-										a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.register.course/{{school_id}}") <strong> {{programs}}</strong> Programs 
-											i.material-icons class
-									.row
-										.col-md-3
-											.form-group.label-floating
-												label.control-label Enter a new class
-												input.form-control(type="text",autocomplete="off",ng-model="newClass.name")
-										.col-md-2
-											.form-group.label-floating
-												label.control-label Actual {{term_name|toTermName}}:
-												select.form-control(required="true",ng-model="newClass.currentTerm")
-													option(value="{{$index + 1}}", ng-repeat="i in getTerms_Limit()") {{term_name|toTermName}} {{$index + 1}}
-										.col-md-3
-											.form-group.label-floating
-												label.control-label Class teacher
-												select.form-control(required="true",ng-model="newClass.class_teacher")
-													option(value="{{teacher._id}}", ng-repeat="teacher in allteachers") {{teacher.name|uppercase}}
-										.col-md-2
-											.form-group.label-floating
-												label.control-label Level of the class
-												input.form-control(type="number",autocomplete="off",ng-model="newClass.level")
-										.col.-md-2
-											button.btn.btn-fill.btn-rose(ng-click="addClasse()") Add
-										hr
-										.col-md-12
-											h3.text-center List of classes at <strong>{{school_name|uppercase}}</strong> 
-											p.category Click to class name to view courses
-											.table-responsive(ng-show="classes.length")
-												form.form-inline
-													.form-group.pull-left
-														label Show
-														select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
-															option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
-														label /page
-													.form-group.pull-right
-														input.form-control(type='text', ng-model='search', placeholder='Search')
-												table.table
-													thead
-														th.text-center #
-														th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Classes
-														th: a.btn-simple.btn.label.btn-rose(ng-click="a='level';b=!b") Level
-														th: a.btn-simple.btn.label.btn-rose(ng-click="a='students';b=!b") No of students
-														th: a.btn-simple.btn.label.btn-rose(
-														ng-click="a='currentTerm';b=!b") {{term_name|toTermName}}
-														th: a.btn-simple.btn.label.btn-rose Class teacher
-														th: a.btn-simple.btn.label.btn-rose(
-														ng-click="a='academic_year';b=!b") Academic year
-														th Actions
-													tbody
-														tr(pagination-id="allclasses", dir-paginate="classe in classes |orderBy:a:b|filter:search|itemsPerPage:n_pages")
-															td(width="1%" height="1%") {{$index + 1}}
-															td: a(href="/dashboard.course/{{classe._id}}")
-																strong {{classe.name | uppercase}}
-															td {{classe.level }}
-															td: i <strong>{{classe.students}}</strong> students
-															td {{term_name|toTermName}} {{classe.currentTerm }}
-															td {{classe.class_teacher|toTeacher_name:allteachers}}
-															td {{classe.academic_year|yearToDate}}
-															td.td-actions.text-center
-																button.btn.btn-danger(type='button',ng-click="deleteClass(classe._id,classe.name)")
-																	i.material-icons close
-																button.btn.btn-info(type='button',ng-click="setClassTeacher(classe)",data-target='#set_class_teacher_Modal', data-toggle='modal')
-																	i.material-icons edit
-																	| Set class teacher
-												dir-pagination-controls.pull-right(pagination-id='allclasses', max-size='5', direction-links='true', boundary-links='true')
-											p.category.text-center(ng-show ="!classes.length") No class provided here
-									#set_class_teacher_Modal.modal.fade(role='dialog')
-										.modal-dialog
-											.modal-content
-												.modal-header
-													i.material-icons school
-													h5.card-title Set class teacher for {{class_name|uppercase}}
-												.modal-body
-													//.col-md-8
-														h4 Teacher list
-														div(ng-repeat ="t in currentTeachers")
-															h4: strong {{$index+1}}) {{t|toTeacher_name:teachers}}
-																.btn.btn-danger.btn-fab.btn-fab-mini(ng-click="dissociateTeacher(t)")
-																	i.material-icons close
-													.col-md-4
-														h4 Select teacher
-														.form-group.label-floating
-															select.form-control(ng-model="teacher_choosen",ng-change="setTeacher(this_class, teacher_choosen)")
-																option(disabled) Pick a teacher
-																option(value="{{teacher._id}}",ng-repeat="teacher in allteachers") {{teacher.name}}
-												.modal-footer
-													button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
+  //- .main-panel
+    include ../partials/header 
+  .wrapper.wrapper-full-page.full-page-background(ng-controller="school_updateCtrl",style="background-image: url('../imgs/register.jpeg')")
+    .full-page.login-page
+      .content
+        .container-fluid
+          .row
+            .col-md-10.center
+              .card
+                .card-header.card-header-icon(data-background-color="rose")
+                  i.material-icons class
+                .card-content
+                  if access == 1.05
+                    a.btn-simple.btn.label.btn-info(ng-click="opt_view=!opt_view")
+                      i.material-icons school
+                      | Use another option to mamage
+                    .col-md-7.center(ng-show="opt_view")
+                      .form-group.label-floating
+                        h3 Use another option:
+                        select.form-control(ng-model="currentSchool",ng-change="set_Option()")
+                          option(value="{{school._id}}", ng-repeat="school in listSchools") {{$index + 1}}) {{school.name|uppercase}} 
+                  
+                  .col-md-12
+                    a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.teachers/{{school_id}}") <strong> {{teachers}}</strong> Teachers
+                      i.material-icons person
+                    a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.admins/{{school_id}}") <strong> {{admins}}</strong> Administrators
+                      i.material-icons supervisor_account
+                    a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.accounts.validation") <strong> {{unConfirmed}}</strong> New accounts to confirm 
+                      i.material-icons verified_user
+                    a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.register.course/{{school_id}}") <strong> {{courses}}</strong> Courses 
+                      i.material-icons class
+                    a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.register.course/{{school_id}}") <strong> {{programs}}</strong> Programs 
+                      i.material-icons class
+                  .row
+                    .col-md-2
+                      .form-group.label-floating
+                        label.control-label Level of the class
+                        select.form-control(type="number",autocomplete="off",ng-model="newClass.level",ng-change="showOption(newClass.level)")
+                          option(value="{{l}}", ng-repeat="l in levels") {{l}} 
+                    .col-md-2
+                      .form-group.label-floating
+                        label.control-label Select option
+                        select.form-control(type="text",autocomplete="off",ng-model="newClass.option")
+                          option(value="{{o.abbreviation}}", ng-repeat="o in options") {{o.abbreviation|uppercase}}
+                    .col-md-2
+                      .form-group.label-floating
+                        label.control-label Sub class eg:A,B
+                        select.form-control(type="text",autocomplete="off",ng-model="newClass.sub_level")
+                          option(value="{{sl}}", ng-repeat="sl in slevels") {{sl|uppercase}}
+                    .col-md-2
+                      .form-group.label-floating
+                        label.control-label Actual {{term_name|toTermName}}:
+                        select.form-control(required="true",ng-model="newClass.currentTerm",ng-change="showClassName()")
+                          option(value="{{$index + 1}}", ng-repeat="i in getTerms_Limit()") {{term_name|toTermName}} {{$index + 1}}
+                    .col-md-3
+                      .form-group.label-floating
+                        label.control-label Class teacher
+                        select.form-control(required="true",ng-model="newClass.class_teacher")
+                          option(value="{{teacher._id}}", ng-repeat="teacher in allteachers") {{teacher.name|uppercase}}
+                    
+                    .col.-md-2
+                      button.btn.btn-fill.btn-rose(ng-click="addClasse()") Add
+                  .col-md-12.text-center
+                    h3(ng-show="show_class_name")
+                      |Class name: 
+                      strong S{{newClass.name|uppercase}}
+                    hr
+                  .row
+                    .col-md-12
+                      h3.text-center List of classes at <strong>{{school_name|uppercase}}</strong> 
+                      p.category Click to class name to view courses
+                      .table-responsive(ng-show="classes.length")
+                        form.form-inline
+                          .form-group.pull-left
+                            label Show
+                            select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
+                              option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
+                            label /page
+                          .form-group.pull-right
+                            input.form-control(type='text', ng-model='search', placeholder='Search')
+                        table.table
+                          thead
+                            th.text-center #
+                            th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Classes
+                            th: a.btn-simple.btn.label.btn-rose(ng-click="a='level';b=!b") Level
+                            th: a.btn-simple.btn.label.btn-rose(ng-click="a='students';b=!b") No of students
+                            th: a.btn-simple.btn.label.btn-rose(
+                            ng-click="a='currentTerm';b=!b") {{term_name|toTermName}}
+                            th: a.btn-simple.btn.label.btn-rose Class teacher
+                            th: a.btn-simple.btn.label.btn-rose(
+                            ng-click="a='academic_year';b=!b") Academic year
+                            th Actions
+                          tbody
+                            tr(style='color:#3d4958;',pagination-id="allclasses", dir-paginate="classe in classes |orderBy:a:b|filter:search|itemsPerPage:n_pages")
+                              td(width="1%" height="1%") {{$index + 1}}
+                              td: a(style='color:#3d4958;',href="/dashboard.course/{{classe._id}}")
+                                strong {{classe.name | uppercase|toClasseName:term_name}}
+                              td {{classe.level }}
+                              td: i <strong>{{classe.students}}</strong> students
+                              td {{term_name|toTermName}} {{classe.currentTerm }}
+                              td {{classe.class_teacher|toTeacher_name:allteachers}}
+                              td {{classe.academic_year|yearToDate}}
+                              td.td-actions.text-center
+                                button.btn.btn-primary(ng-click="editClass(classe)",data-target='#edit_class_Modal', data-toggle='modal')
+                                  i.material-icons edit
+                                button.btn.btn-danger(ng-click="deleteClass(classe._id,classe.name)")
+                                  i.material-icons close
+                                button.btn.btn-info(ng-click="setClassTeacher(classe)",data-target='#set_class_teacher_Modal', data-toggle='modal')
+                                  i.material-icons(style='color:#3d4958;') edit
+                                  | Set class teacher
+                        dir-pagination-controls.pull-right(pagination-id='allclasses', max-size='5', direction-links='true', boundary-links='true')
+                      p.category.text-center(ng-show ="!classes.length") No class provided here
+      #set_class_teacher_Modal.modal.fade(role='dialog')
+        .modal-dialog
+          .modal-content
+            .modal-header
+              i.material-icons school
+              h4.card-title 
+                | Set class teacher for 
+                strong {{class_name|uppercase}}
+            .modal-body
+              .col-md-4
+                h4 Select teacher
+                .form-group.label-floating
+                  select.form-control(ng-model="teacher_choosen",ng-change="setTeacher(this_class, teacher_choosen)")
+                    option(disabled) Pick a teacher
+                    option(value="{{teacher._id}}",ng-repeat="teacher in allteachers") {{teacher.name}}
+            .modal-footer
+              button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
+      #edit_class_Modal.modal.fade(role='dialog')
+        .modal-dialog
+          .modal-content
+            .modal-header
+              h4.card-title 
+                | Edit class:
+                strong {{name|uppercase}}
+
+            .modal-body
+              input.form-control(type="number",ng-model="level",placeholder="Level of the class")
+              input.form-control(type="text",ng-model="option",placeholder="Option if exits")
+              input.form-control(type="text",ng-model="sub_level",placeholder="Sub class eg:A,B")
+            .modal-footer
+              button.btn.btn-sm.btn-primary(ng-click="updateClass()") Confirm
+              button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
 block append scripts
-	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
-	script.
-		var app =angular.module('eshuri_App', ['ngRoute', 'angularUtils.directives.dirPagination']);
-		app
-		.filter('toTermName', function() {
-			return function(input){
-				return input=='S'?'Semester':'Term'
-			}
-		})
-		.filter('yearToDate', function() {
-			return function(input){
-				input =Number(input)+2000;
-				return input = input+'/'+Number(Number(input)+1);
-			}
-		})
-		.filter('toTeacher_name', function(){
-			return function(input,list_teachers){
-				if(input==''||!input)	return 'Not defined';
-				for(var i =0;i < list_teachers.length;i++)
-					if(list_teachers[i]._id == input) return list_teachers[i].name
-			}
-		})
-		.controller('school_updateCtrl', function($scope,$http,$window){
-			$scope.addClasse = function(){
-				if(!$scope.newClass) 
-					return Notifier.danger('You can\'t save class that has no name');
-				$scope.newClass._csrf =$scope.anti_csrf;
-				$scope.newClass.school_id =$scope.school_id;
-				$http
-				.post("/class.add",$scope.newClass)
-				.then(function(response){
-					Notifier.success($scope.newClass.name+" has been added to the school");
-					$scope.newClass =null;
-					$scope.getListClasses();
-				})
-				.catch(function(erreur){
-					Notifier.danger(erreur.data);
-				}); 
-			}
-			$scope.setClassTeacher=function(selectedClass){
-				$scope.class_name=selectedClass.name.toUpperCase();
-				$scope.this_class=selectedClass._id;
-			}
-			$scope.setTeacher=function(classe, teacher){
-				$http.post('/set.class.teacher',{_csrf:$scope.anti_csrf,class_id:classe, teacher_id:teacher})
-					.then(function(response){
-						$scope.getListClasses();
-						$scope.teacher_choosen=null;
-						$('#set_class_teacher_Modal').modal('hide');
-						Notifier.success("Successfully set");
-					})
-					.catch(function(erreur){
-						Notifier.danger(erreur.data);
-					});
-			}
-			$scope.getListClasses = function(){
-				$http
-				.get("/classe.list/"+$scope.school_id)
-				.then(function(response){
-					$scope.classes = response.data;
-				})
-				.catch(function(erreur){
-					Notifier.danger(erreur.data);
-				});
-			}
-			$scope.deleteClass = function(classe_id,classe_name){
-				swal({
-						title: 'Do you want to delete \n<i style="color:red">'+classe_name.toUpperCase()+'</i> \n ?',
-						text: "You will not be able to revert this!",
-						html:'<div class="form-group"><label> Type your password please</label>'+
-							'<input id="confirmPass" type="password" class="form-control" />'+
-						'</div> <span class="category"> This action cannot be reverted !</span>',
-						type: 'warning',
-						showCancelButton: true,
-						confirmButtonClass: 'btn btn-success',
-						cancelButtonClass: 'btn btn-danger',
-						confirmButtonText: 'Yes, delete it!',
-						buttonsStyling: false
-					}).then(function(){
-					  	$http
-						.post("/classe.delete",{_csrf:$scope.anti_csrf,classe_id:classe_id,
-							confirmPass:$("#confirmPass").val()
-						 })
-						.then(function(response){
-							$scope.getListClasses();
-							swal({
-								title: 'Deleted!',
-								text: classe_name+' has been deleted.',
-								type: 'success',
-								confirmButtonClass: "btn btn-success",
-								buttonsStyling: false
-							})
-						})
-						.catch(function(erreur){
-							Notifier.danger(erreur.data);
-						});
-					});
-			}
-			$scope.load_SchoolContent = function(){
-				$http
-				.get("/school.content.list/"+$scope.school_id)
-				.then(function(response){
-					$scope.term_name =response.data.term_name;
-					$scope.term_quantity=response.data.term_quantity; /// here not used 
-					$scope.school_name=response.data.name;
-					$scope.teachers =response.data.teachers;
-					$scope.admins =response.data.admins;
-					$scope.unConfirmed =response.data.unConfirmed;
-					$scope.courses =response.data.school_courses;
-					$scope.programs =response.data.school_programs;
-					console.log('School program: '+$scope.programs)
-				})
-				.catch(function(erreur){
-					Notifier.danger(erreur.data);
-				}); 
-			}
-			$scope.loadSchoolList = function(){
-				if(!$scope.department_id) return;
-				$http
-				.get("/option.list/"+$scope.department_id)
-				.then(function(response){
-					$scope.listSchools =response.data;
-				})
-				.catch(function(erreur){
-					Notifier.danger(erreur.data);
-				}); 
-			}
-			$scope.set_Option =function(){
-				if(!$scope.department_id) return;
-				$http
-				.get("/option.set/"+$scope.currentSchool)
-				.then(function(response){
-					swal({
-						title: 'Option has been succcessfully changed !',
-						text: 'You are now using the option you choose',
-						type: 'success',
-						confirmButtonClass: "btn btn-success",
-						buttonsStyling: false
-					})
-					setTimeout(()=>{$window.location.href="/dashboard"},2000)
-				})
-				.catch(function(erreur){
-					Notifier.danger(erreur.data);
-				}); 
-			}
-			$scope.getTerms_Limit = function(){
-			    return Array.apply(null, {length: $scope.term_quantity}).map(Number.call, Number)
-			}
-			$scope.loadTeachers = function(){
-				$http
-				.get("/school.teachers.list/"+$scope.school_id)
-				.then(function(response){
-					$scope.allteachers = response.data;
-				})
-				.catch(function(erreur){
-					Notifier.danger(erreur.data);
-				});
-			}
-			$scope.pages=[3,5,10,15,20,25];
-			$scope.anti_csrf ="#{csrf_token}";
-			$scope.school_id ="#{school_id}";
-			$scope.department_id ="#{department_id}";
-			$scope.term_quantity ="#{term_quantity}";
-			$scope.term_name ="#{term_name}";
-			if($scope.department_id) $scope.loadSchoolList();
-			$scope.load_SchoolContent();
-			$scope.loadTeachers();
-			$scope.getListClasses();
-			
-		})
+  script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+  script.
+    var app =angular.module('eshuri_App', ['ngRoute', 'angularUtils.directives.dirPagination']);
+    app
+    .filter('toTermName', function() {
+      return function(input){
+        return input=='S'?'Semester':'Term'
+      }
+    })
+    .filter('toClasseName', function() {
+      return function(input, term){
+        return term=='S'?'Y'+input:'S'+input
+      }
+    })
+    .filter('yearToDate', function() {
+      return function(input){
+        input =Number(input)+2000;
+        return input = input+'/'+Number(Number(input)+1);
+      }
+    })
+    .filter('toTeacher_name', function(){
+      return function(input,list_teachers){
+        if(input==''||!input) return 'Not defined';
+        for(var i =0;i < list_teachers.length;i++){
+          if(list_teachers[i]._id == input) return list_teachers[i].name
+        }
+      }
+    })
+    .controller('school_updateCtrl', function($scope,$http,$window){
+      $scope.levels=[1,2,3,4,5,6];
+      $scope.slevels=['','a','b','c','d']
+      $scope.showOption = function(level){
+        if(level<=3) $scope.options=[];
+        else $scope.getListCoursesAndPrograms()
+      }
+      $scope.showClassName = function(){
+        var classoption='',sublevel=' ';
+        if($scope.newClass.option) classoption=$scope.newClass.option;
+        if($scope.newClass.sub_level) sublevel=sublevel+$scope.newClass.sub_level;
+        else sublevel=''
+        $scope.newClass.name=$scope.newClass.level+' '+classoption+sublevel;
+        $scope.show_class_name=true;
+      }
+      $scope.addClasse = function(){
+        $scope.showClassName();
+        if(!$scope.newClass) return Notifier.danger('You can\'t save class that has no name');
+        $scope.newClass._csrf =$scope.anti_csrf;
+        $scope.newClass.school_id =$scope.school_id;
+        $http
+        .post("/class.add",$scope.newClass)
+        .then(function(response){
+          Notifier.success('S'+$scope.newClass.name+" has been added to the school");
+          $scope.newClass =null;
+          $scope.show_class_name=false;
+          $scope.getListClasses();
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data);
+        }); 
+      }
+      $scope.editClass = function(classe){
+        $scope.name=classe.name;
+        $scope.level=classe.level;
+        $scope.option=classe.option;
+        $scope.sub_level=classe.sub_level;
+        $scope.currentTerm=classe.currentTerm;
+        $scope.classe_id=classe._id;
+      }
+      $scope.thisClasse={};
+      $scope.updateClass = function(){
+        var classoption='',sublevel=' ';
+        if($scope.option) classoption=$scope.option;
+        if($scope.sub_level) sublevel=sublevel+$scope.sub_level;
+        else sublevel=''
+        $scope.name=$scope.level+' '+classoption+sublevel;
+        $scope.thisClasse.level=$scope.level;
+        $scope.thisClasse.option=$scope.option;
+        $scope.thisClasse.sub_level=$scope.sub_level;
+        $scope.thisClasse.classe_id=$scope.classe_id;
+        $scope.thisClasse.name=$scope.name
+        $http
+          .post('/classe.edit', $scope.thisClasse)
+          .then(function(response){
+            Notifier.success('S'+$scope.thisClasse.name+" has been modified");
+            //- $scope.thisClasse =null;
+            $('#edit_class_Modal').modal('hide');
+            $scope.getListClasses();
+          })
+          .catch(function(error){
+            Notifier.danger(error.data);
+          })
+      }
+      $scope.setClassTeacher=function(selectedClass){
+        $scope.class_name=selectedClass.name.toUpperCase();
+        $scope.this_class=selectedClass._id;
+      }
+      $scope.setTeacher=function(classe, teacher){
+        $http.post('/set.class.teacher',{_csrf:$scope.anti_csrf,class_id:classe, teacher_id:teacher})
+          .then(function(response){
+            $scope.getListClasses();
+            $scope.teacher_choosen=null;
+            $('#set_class_teacher_Modal').modal('hide');
+            Notifier.success("Successfully set");
+          })
+          .catch(function(erreur){
+            Notifier.danger(erreur.data);
+          });
+      }
+      $scope.getListClasses = function(){
+        $http
+        .get("/classe.list/"+$scope.school_id)
+        .then(function(response){
+          $scope.classes = response.data;
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data);
+        });
+      }
+      $scope.deleteClass = function(classe_id,classe_name){
+        swal({
+            title: 'Do you want to delete \n<i style="color:red">'+classe_name.toUpperCase()+'</i> \n ?',
+            text: "You will not be able to revert this!",
+            html:'<div class="form-group"><label> Type your password please</label>'+
+              '<input id="confirmPass" type="password" class="form-control" />'+
+            '</div> <span class="category"> This action cannot be reverted !</span>',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonClass: 'btn btn-success',
+            cancelButtonClass: 'btn btn-danger',
+            confirmButtonText: 'Yes, delete it!',
+            buttonsStyling: false
+          }).then(function(){
+              $http
+            .post("/classe.delete",{_csrf:$scope.anti_csrf,classe_id:classe_id,
+              confirmPass:$("#confirmPass").val()
+             })
+            .then(function(response){
+              $scope.getListClasses();
+              swal({
+                title: 'Deleted!',
+                text: classe_name+' has been deleted.',
+                type: 'success',
+                confirmButtonClass: "btn btn-success",
+                buttonsStyling: false
+              })
+            })
+            .catch(function(erreur){
+              Notifier.danger(erreur.data);
+            });
+          });
+      }
+      $scope.load_SchoolContent = function(){
+        $http
+        .get("/school.content.list/"+$scope.school_id)
+        .then(function(response){
+          $scope.term_name =response.data.term_name;
+          $scope.term_quantity=response.data.term_quantity; /// here not used 
+          $scope.school_name=response.data.name;
+          $scope.teachers =response.data.teachers;
+          $scope.admins =response.data.admins;
+          $scope.unConfirmed =response.data.unConfirmed;
+          $scope.courses =response.data.school_courses;
+          $scope.programs =response.data.school_programs;
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data);
+        }); 
+      }
+      $scope.loadSchoolList = function(){
+        if(!$scope.department_id) return;
+        $http
+        .get("/option.list/"+$scope.department_id)
+        .then(function(response){
+          $scope.listSchools =response.data;
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data);
+        }); 
+      }
+      $scope.getListCoursesAndPrograms = function(){
+        $http
+        .get("/school.courseAndProgram.list/#{school_id}")
+        .then(function(response){
+          //- $scope.courses = response.data.courses;
+          $scope.options = response.data.programs;
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data);
+        });
+      }
+      $scope.set_Option =function(){
+        if(!$scope.department_id) return;
+        $http
+        .get("/option.set/"+$scope.currentSchool)
+        .then(function(response){
+          swal({
+            title: 'Option has been succcessfully changed !',
+            text: 'You are now using the option you choose',
+            type: 'success',
+            confirmButtonClass: "btn btn-success",
+            buttonsStyling: false
+          })
+          setTimeout(()=>{$window.location.href="/dashboard"},2000)
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data);
+        }); 
+      }
+      $scope.getTerms_Limit = function(){
+          return Array.apply(null, {length: $scope.term_quantity}).map(Number.call, Number)
+      }
+      $scope.loadTeachers = function(){
+        $http
+        .get("/school.teachers.list/"+$scope.school_id)
+        .then(function(response){
+          $scope.allteachers = response.data;
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data);
+        });
+      }
+      $scope.show_class_name=false;
+      $scope.getListCoursesAndPrograms();
+      $scope.pages=[3,5,10,15,20,25];
+      $scope.anti_csrf ="#{csrf_token}";
+      $scope.school_id ="#{school_id}";
+      $scope.department_id ="#{department_id}";
+      $scope.term_quantity ="#{term_quantity}";
+      $scope.term_name ="#{term_name}";
+      if($scope.department_id) $scope.loadSchoolList();
+      $scope.load_SchoolContent();
+      $scope.loadTeachers();
+      $scope.getListClasses();
+      
+    })

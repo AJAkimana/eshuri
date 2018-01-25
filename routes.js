@@ -133,21 +133,22 @@ module.exports = function(app) {
 	var isGuestOrStudent=(req, res, next)=>{
 		if(req.isAuthenticated()&&(req.user.access_level == req.app.locals.access_level.GUEST||req.user.access_level == req.app.locals.access_level.STUDENT))
 			return next();
-		return res.status(400).send("This operation is only for guest or student")
+		return res.render("./lost",{msg:'This operation is only for guest or student'});
+		// return res.status(400).send("This operation is only for guest or student")
 	}
 	/* This function is dangerous*/
-	var createSA =(req,res,next)=>{
-		req.body.name="Akimana Jean dAmour";req.body.email="a.k.imanaja17@gmail.com";
-		req.body.password ="akimanaja";
-		req.body.password2 ="akimanaja";
-		req.body.phone_number="+2456";
-		req.body.type=1;
-		req.body.institution=2;
-		req.body.gender=1;
-		next();
-	}
+	// var createSA =(req,res,next)=>{
+	// 	req.body.name="Akimana Jean dAmour";req.body.email="a.k.imanaja17@gmail.com";
+	// 	req.body.password ="akimanaja";
+	// 	req.body.password2 ="akimanaja";
+	// 	req.body.phone_number="+2456";
+	// 	req.body.type=1;
+	// 	req.body.institution=2;
+	// 	req.body.gender=1;
+	// 	next();
+	// }
 	// THEN CHANGE ACCESS_LEVEL isValidated and isEnabled
-	app.get("/createSA",createSA,userController.postSignUp);
+	// app.get("/createSA",createSA,userController.postSignUp);
 	/* This function is the middleware that uploads file to the system*/
 	/*-------------*/
 	var upload_File = (req,res,next)=>{
@@ -271,7 +272,8 @@ module.exports = function(app) {
 	app .get('/school/:id_school',isAuthenticated, schoolController.homepageSchool);
 	app.post('/school.delete',isSuperAdmin, schoolController.removeSchool);
 	app.get('/school.content.list/:school_id',isAuthenticated, schoolController.getSchoolData);
-
+	// Get user classes from past to now.
+	app.get('/school.get.userClasses/:school_id', isAuthenticated, schoolController.getUserClasses);
 	/*
 	You send POST @ "/school.content.courses" -- {"_csrf":"","class_id":"58c970b9708c4a9f40dfbb85","currentTerm":1}
 	You will get a list of course_name, course_id, and teacher_id
@@ -347,8 +349,13 @@ module.exports = function(app) {
 	app .get('/classe.list.for.report/:school_id',isAuthenticated, classeController.getClasses_JSON_For_Report);
 	app .get('/classe.list.confirm/:school_id',isAuthenticated, classeController.getClasses_JSONConfirm);
 	
+	app.post('/classe.edit',isAtLeastAdmin,classeController.editClasse)
 	app.post('/classe.delete',isAtLeastAdmin, classeController.removeClasse);
 	app.post('/class.update.settings',isAtLeastAdmin, classeController.updateSettings);
+	app.get('/classe/:classe_id',isAuthenticated, classeController.getPageOneClasse);
+	app.get('/classe.get.courses/:classe_id/:t_quantity', isAuthenticated, classeController.getClassCourses);
+	app.get('/classe.get.nexts/:class_id', isAtLeastAdmin,classeController.getNextClasses);
+	app.post('/school.change.to.next',isAtLeastAdmin, classeController.getToNextClass);
 	
 				/*COURSES THINGS*/
 	app .get('/courses/:course_id',isAuthenticated, coursesController.getPageOneCourse);
@@ -363,8 +370,8 @@ module.exports = function(app) {
 	app.post('/school.add.new_program', isAtLeastAdmin, schoolController.postSchoolProgram);
 	app.get('/school.courseAndProgram.list/:school_id',isAuthenticated, schoolController.getSchoolCourseAndProgram_JSON);
 	app.post('/school.delete.program', isAtLeastAdmin, schoolController.deleteSchoolProgram)
-	app.post('/school.add.program',isAtLeastAdmin, coursesController.postSchoolCourse);
-	app.post('/delete.school.course',isAtLeastAdmin, coursesController.deleteSchoolCourse);
+	app.post('/school.add.course',isAtLeastAdmin, schoolController.postSchoolCourse);
+	app.post('/school.delete.course',isAtLeastAdmin, schoolController.deleteSchoolCourse);
 				/* UNIT THINGS*/
 	app.post('/unit.add',isAtLeastTeacher, unitsController.postNewUnit);
 	/*
@@ -517,7 +524,7 @@ module.exports = function(app) {
 					Application for admission
 	----------------------------------------------------------------------------*/
 	// app.get('/admission', isGuest, applicationsController.getApplicationPage);
-	app.get('/application.new', isGuestOrStudent, applicationsController.displayApplicationForm);
+	app.get('/application.new', isAuthenticated, isGuestOrStudent, applicationsController.displayApplicationForm);
 	app.post('/submit.new.application', isGuestOrStudent, applicationsController.newAppSubmission);
 	app.get('/application', isAuthenticated, applicationsController.viewApplicationPage);
 	app.get('/view.application', isAuthenticated, applicationsController.viewApplication)

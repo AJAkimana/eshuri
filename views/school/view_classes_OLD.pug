@@ -7,27 +7,19 @@ block append content
       .content
         .container-fluid
           .row
-            .col-md-12.col-xs-12.col-sm-12.col-lg-12
-              .col-xs-12.col-sm-12.col-md-8.col-lg-8.center
+            .col-md-12
+              .col-md-8.center
                 .card
                   .card-header
                     h3.card-title <strong>{{'#{school_name}'|uppercase}}</strong>
+                    h4.card-title.text-center Available classes
                     if access ==3
                       span.btn-simple.btn.label.btn-rose Your courses are marked with 
                         i.icon.ion-ios-checkmark
                     br
                     h2.card-title.text-center.text-info(ng-show="!years") <strong>Loading ...</strong>
                   .card-content
-                    .panel.panel-primary
-                      h3.panel-header.text-center Your available classes
-                      .panel-body
-                        .col-xs-12.col-sm-6.col-md-4.col-lg-4(ng-repeat="classe in classes")
-                          h3
-                            a(href='/classe/{{classe.class_id}}') {{classe.name|uppercase|toClasseName}}
-                          h4 {{classe.number}} courses
-                      .panel-footer
-                        h4.text-center Number of class {{classes.length}}
-                    //- .panel-group(role='tablist')#accordion
+                    .panel-group(role='tablist')#accordion
                       .panel.panel-default(ng-repeat="year in years")
                         .panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentYear(year._id)")
                           a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="true", aria-controls="{{'collapse_'+$index}}")
@@ -94,7 +86,7 @@ block append scripts
         $scope.currentTerm =term-1;
         $scope.courses=[];
         $http
-        .post("/school.content.courses/",
+        .post("/school.content.courses",
         {"_csrf":$scope.anti_csrf,"class_id":$scope.currentYear,"currentTerm":term})
         .then(function(response){
           $scope.courses =response.data;
@@ -126,20 +118,9 @@ block append scripts
         $scope.currentTerm =-1;
         $scope.currentYear= year;
       }
-      $scope.getUserClasses = function(){
-      	$http
-      	.get('/school.get.userClasses/'+$scope.school_id,{"_csrf":$scope.anti_csrf})
-      	.then(function(response){
-      		$scope.classes = response.data;
-      	})
-      	.catch(function(error){
-      		Notifier.danger(error.data)
-      	})
-      }
       $scope.currentTerm =-1;
       $scope.anti_csrf ="#{csrf_token}";
       $scope.school_id ="#{school_id}";
       $scope.load_SchoolContent();
       $scope.getTeacherID();
-      $scope.getUserClasses();
     })

@@ -27,14 +27,13 @@ exports.getPageReport = function(req,res,next){
 			});
 		}
 		if(accLvl>=admin||accLvl<=adminteacher){
-			//console.log(school_exists.po_box+"_________"+school_exists.phone_number)
 			return 	res.render('me/mark_report',{
 				title:"General marks",
 				school_id:req.user.school_id,
 				school_name:school_exists.name,
 				school_district:school_exists.district_name,
-				school_phone:school_exists.phone_number,
-				school_pob:school_exists.po_box,
+				school_phone:school_exists.contact.telephone,
+				school_pob:school_exists.contact.postal_code,
 				pic_id:req.user._id,pic_name:req.user.name,access_lvl:req.user.access_level,
 				csrf_token:res.locals.csrftoken, // always set this buddy
 			});
@@ -62,8 +61,8 @@ exports.getReportPageToTeacher=(req, res, next)=>{
 			school_id:req.user.school_id,
 			school_name:school_exists.name,
 			school_district:school_exists.district_name,
-			school_phone:school_exists.phone_number,
-			school_pob:school_exists.po_box,
+			school_phone:school_exists.contact.telephone,
+			school_pob:school_exists.contact.postal_code,
 			pic_id:req.user._id,pic_name:req.user.name,access_lvl:req.user.access_level,
 			csrf_token:res.locals.csrftoken, // always set this buddy
 		});
@@ -470,8 +469,8 @@ exports.getReport_JSON =(req,res,next)=>{
 						],(err)=>{
 							
 							// name: , test: , exam: , test_quota , exam_quota
-							var testWeight = currentCourse.test_quota;
-							var examWeight = currentCourse.exam_quota;
+							var testWeight = currentCourse.test_quota>0?currentCourse.test_quota:0;
+							var examWeight = currentCourse.exam_quota>0?currentCourse.exam_quota:0;
 							var courseWeight = !currentCourse.weightOnReport ? testWeight+examWeight : currentCourse.weightOnReport;
 
 							var noteCat=(studentCATMarks*testWeight)/totalCAT;
@@ -479,6 +478,8 @@ exports.getReport_JSON =(req,res,next)=>{
 							noteCat =noteCat>0?noteCat:0;
 							noteExam =noteExam>0?noteExam:0;
 							var totalCourse = noteCat + noteExam;
+							var percent = (totalCourse*100)/courseWeight;
+							// if(percent<50) return percent.underline();
 							//console.log("  CAT marks "+studentCATMarks+"/"+totalCAT);
 							//console.log("  Exam marks "+studentExamMarks+"/"+totalExam);
 							//console.log(" TOTAL "+currentCourse.name+" "+totalCourse);
@@ -488,6 +489,7 @@ exports.getReport_JSON =(req,res,next)=>{
 										 test:noteCat,
 										 exam:noteExam,
 										 total:totalCourse,
+										 percent:percent,
 										 test_quota:currentCourse.test_quota,
 										 exam_quota:currentCourse.exam_quota,
 										 course_weight:currentCourse.weightOnReport,
@@ -507,9 +509,10 @@ exports.getReport_JSON =(req,res,next)=>{
 		}
 	],(err)=>{
 		if(err) return log_err(err,false,req,res);
+
 		//console.log("REPORTmarks =>>>>"+JSON.stringify(reportData.marks))
 		//console.log("REPORT total =>>>>"+JSON.stringify(reportData.total));
-		//console.log("REPORT =>>>>"+JSON.stringify(reportData));
+		console.log("REPORT =>>>>"+JSON.stringify(reportData));
 		reportData[0].term_num =req.body.currentTerm;
 		//console.log()
 		return res.json(reportData)

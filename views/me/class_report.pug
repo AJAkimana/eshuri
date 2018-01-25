@@ -88,7 +88,7 @@ block append content
                               th(rowspan='3') CODE
                             tr
                               th(colspan='3',style='text-align:center;font-weight: bold;').cell-report MAX POINTS
-                              th(colspan='3').cell-report {{term_name|toTermName}} {{report.term_num}}
+                              th(colspan='4').cell-report {{term_name|toTermName}} {{report.term_num}}
                             tr(align='center')
                               th(style='text-align:center;font-weight: bold;') TEST
                               th(style='text-align:center;font-weight: bold;') EXAM 
@@ -96,15 +96,36 @@ block append content
                               th TEST
                               th EXAM 
                               th TOTAL 
+                              th PERCENT
                           tbody(ng-repeat="note in report.marks|orderBy:name")
                             tr
                               td(style='text-align:left;') {{note.name|uppercase}}
                               td(style='text-align:center;font-weight: bold;') {{note.test_quota}}
                               td(style='text-align:center;font-weight: bold;') {{note.exam_quota}}
                               td(style='text-align:center;font-weight: bold;') {{note.course_weight}}
+
+                              td 
+                                span(ng-if="note.test<note.test_quota/2")
+                                  u(style="color:red;") {{(note.test).toFixed(1)}}
+                                span(ng-if="note.test>=note.test_quota/2") {{(note.test).toFixed(1)}}
+                              td 
+                                span(ng-if="note.exam<note.exam_quota/2")
+                                  u(style="color:red;") {{(note.exam).toFixed(1)}}
+                                span(ng-if="note.exam>=note.exam_quota/2") {{(note.exam).toFixed(1)}}
+                              td 
+                                span(ng-if="note.total<note.course_weight/2")
+                                  u(style="color:red;") {{(note.total).toFixed(1)}}
+                                span(ng-if="note.total>=note.course_weight/2") {{(note.total.toFixed(1))}}
+                              td
+                                span(ng-if="note.percent<50")
+                                  u(style="color:red;") {{(note.percent).toFixed(1)}}
+                                span(ng-if="note.percent>=50") {{(note.percent).toFixed(1)}}
+
+
                               td {{(note.test).toFixed(1)}}
                               td {{(note.exam).toFixed(1)}}
                               td {{(note.total).toFixed(1)}}
+
                           tfoot
                             tr
                               th(style='text-align:center;font-weight: bold;') Total
@@ -252,3 +273,4 @@ block append scripts
 
       $scope.getAcademicYearsList();
     })
+  

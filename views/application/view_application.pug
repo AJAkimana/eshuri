@@ -31,7 +31,7 @@ block append content
 												td {{app.faculty|uppercase}}({{app.program|lowercase}})
 												td: select(ng-model='app.status', ng-options='st.id as st.name for st in register.statuses', ng-change="changeStatus(app._id, app.user_name, app.status)")
 												td: a.btn-simple.btn(ng-click="viewApplicant(app._id, app.user_name)") Review
-									p.category.text-center(ng-show ="!applications.length") No applications here
+									h4.text-center(ng-show ="!applications.length") No applications here
 							.card(ng-show="one_applicant")
 								.card-header(data-background-color="blue")
 									h4.title {{applicant_name}}
@@ -140,7 +140,10 @@ block append scripts
 					$scope.show_applications=true;
 					var appData = response.data
 					$scope.applications = response.data;
-					//- console.log('Applications: '+JSON.stringify(appData))
+					console.log('Applications: '+JSON.stringify(appData))
+				})
+				.catch(function(err){
+					Notifier.danger(err.data)
 				})
 			}
 			$scope.loadApplications()

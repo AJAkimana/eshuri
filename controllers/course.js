@@ -24,21 +24,23 @@ exports.getPageOneCourse = function(req,res,next){
     
     else if(req.user.access_level == req.app.locals.access_level.STUDENT){
       temoin =true;
+      // var student_id=req.user._id;
+      // var student_class=req.user.class_id;
       if(String(course_exists.class_id)!= String(req.user.class_id) && 
-        req.user.course_retake.indexOf(String(course_exists._id))==-1)
+        req.user.course_retake.indexOf(String(course_exists._id))==-1 && req.user.prev_classes.indexOf(String(course_exists.class_id))==-1)
         return res.render("./lost",{msg:"You don't have the right to view this course"});
     }
-    else if(req.user.access_level == req.app.locals.access_level.TEACHER){
+    else if(req.user.access_level == req.app.locals.access_level.TEACHER || req.user.access_level == req.app.locals.access_level.ADMIN_TEACHER){
       temoin =true;
       if(course_exists.teacher_list.indexOf(String(req.user._id))==-1)
         return res.render("./lost",{msg:"This course doesn't belong to you"});
     }
     //si ce nest pas klk un ki a un droit d acces pas infrie a celui d un teacher et sur la meme ecole donc pas ACCPTER
-    else if((req.user.access_level <= req.app.locals.access_level.TEACHER)){
-      temoin =true;
-      if(String(req.user.school_id)!= String(course_exists.school_id))
-       return res.render("./lost",{msg:"You are not authorized"});
-    }
+    // else if((req.user.access_level == req.app.locals.access_level.ADMIN_TEACHER||req.user.access_level == req.app.locals.access_level.ADMIN)){
+    //   temoin =true;
+    //   if(String(req.user.school_id)!= String(course_exists.school_id))
+    //    return res.render("./lost",{msg:"You are not authorized"});
+    // }
     if(!temoin) // cad si il n est ni teacher ni student ni inferieur.. then just reject
      return res.render("./lost",{msg:"You are not authorized to view this content"}); 
     //Get the school Info
@@ -113,55 +115,6 @@ exports.postNewCourse = function(req,res,next){
       })
     }); 
   })   
-}
-exports.postSchoolCourse = function(req, res, next){
-  req.assert('name', 'The name is required').notEmpty();
-  req.assert('school_id', 'Invalid data').isMongoId();
-  // req.assert('year', 'year is required').notEmpty();
-  // req.assert('attendance_limit', 'attendance_limit is required').notEmpty();
-
-  const errors = req.validationErrors();
-  if (errors) return res.status(400).send(errors[0].msg);
-  //check if you are a school admin 
-  else if(req.user.access_level > req.app.locals.access_level.ADMIN_TEACHER)
-    return res.status(400).send("Sorry you are not authorized");
-  //Check if the code is not already used
-  School.findOne({_id:req.body.school_id},(err,school_exists)=>{
-    if(err) return log_err(err,false,req,res);
-    else if(!school_exists)  return res.status(400).send("This school doesn't exists ");
-
-    SchoolCourse.checkCourseExists(req.body,(err,school_course_exists)=>{
-      if (err) return log_err(err,false,req,res);
-      else if(school_course_exists) return res.status(400).send("This course is registered");
-      let nouveauCourse = new SchoolCourse({
-        name:req.body.name,
-        school_id:req.body.school_id,
-      });
-      nouveauCourse.save(function(err){
-        if (err) return log_err(err,false,req,res);
-        return res.end();
-      });
-    }); 
-  });   
-}
-
-exports.deleteSchoolCourse = (req, res, next)=>{
-  req.assert('course_id', 'Invalid data').isMongoId();
-
-  const errors = req.validationErrors();
-  if (errors)  return res.status(400).send(errors[0].msg);
-
-  SchoolCourse.findOne({_id:req.body.course_id},function(err, course_exists){
-    if(err) return log_err(err,false,req,res);
-    else if(!course_exists) return res.status(400).send("Invalid data");
-    else if(String(req.user.school_id)!= String(course_exists.school_id))
-      return res.status(400).send("Not authorized to do this");
-
-    course_exists.remove((err)=>{
-      if(err)  return log_err(err,false,req,res);
-      res.end();
-    });
-  })
 }
 // recuperer le contenu des course
 exports.getCourses_JSON = function(req,res,next){ // R
@@ -535,9 +488,6 @@ exports.getMyMarks = (req,res,next)=>{
           return res.json(reponses);
         })      
       })
-    })
-
-
-      
+    }) 
   })
 }
