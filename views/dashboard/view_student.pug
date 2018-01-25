@@ -55,7 +55,7 @@ block append content
                           th: a.btn-simple.btn.label.btn-rose(ng-click="a='hasPaid';b=!b") Can pass tests
                           th: a.btn-simple.btn.label.btn-rose(ng-click="a='isEnabled';b=!b") Access to system
                           th: a.btn-simple.btn.label.btn-rose(ng-click="a='email';b=!b") Email
-                          th: a.btn-simple.btn.label.btn-rose(ng-click="a='phone';b=!b") Phone
+                          th: a.btn-simple.btn.label.btn-rose Previous class
                           th Actions
                         tbody
                           tr(pagination-id="allstudents", dir-paginate="student in students|orderBy:a:b|filter:search|itemsPerPage:n_pages")
@@ -65,7 +65,10 @@ block append content
                             td.text-center: a.btn-simple.btn.label.btn-rose(ng-click="enablePaid(student,student.hasPaid)") {{student.hasPaid|toPaid}}
                             td: a.btn-simple.btn.label(ng-click='activateUser(student)',ng-class="student.isEnabled?'btn-success':'btn-danger'") {{student.isEnabled|toURL}}
                             td {{student.email}}
-                            td {{student.phone_number}}
+                            td
+                              h5(ng-if="student.prev_classes.length==0") No class
+                              ul(ng-if="student.prev_classes.length!=0")
+                                li(type="1" ng-repeat="classe in student.prev_classes"): a.btn-simple.btn.label.btn-rose(ng-click="revertStudent(classe, student.name, student._id)") {{classe|toPreClasseName:classes|toClasseName:term_name|uppercase}}
                             td.td-actions.text-right
                               select(ng-model="new_class",ng-change="changeClass(student, new_class)")
                                 option(value="{{classe._id}}" ng-repeat="classe in nextClasses") {{classe.name|uppercase|toClasseName:term_name}}
@@ -91,6 +94,14 @@ block append scripts
         return term=='S'?'Y'+input:'S'+input
       }
     })
+    .filter('toPreClasseName', function(){
+      return function(input,list_classes){
+        //- if(input==''||!input) return 'No class';
+        for(var i =0;i < list_classes.length;i++){
+          if(list_classes[i]._id == input) return list_classes[i].name
+        }
+      }
+    })
     .filter('toURL', function() {
       return function(input){
         return input?'Enabled':'Disabled'
@@ -99,6 +110,37 @@ block append scripts
     .controller('studentCtrl', function($scope, $http,$window){
       $scope.view_student = function(id_student){
         $window.location.href ="/student/"+id_student;
+      }
+      $scope.revertStudent = function(classe, name, id){
+        console.log('nexts:'+classe+' name: '+name)
+        var body={class_id:$scope.class_id,student_id:id,new_class:classe, level:$scope.level}
+        var classeName='';
+        for(var i=0;i<$scope.classes.length;i++){
+          if($scope.classes[i]._id==classe){
+            if($scope.term_name=="T") classeName='S'+$scope.classes[i].name.toUpperCase();
+            else classeName='Y'+$scope.classes[i].name.toUpperCase();
+          } 
+        }
+        swal({
+          title: 'Revert Change classe action',
+          text: "Are sure you want to revert <i style='color:green'>"+name.toUpperCase()+"</i> to <i style='color:red'>"+classeName+"</i>?",
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonClass: 'btn btn-success',
+          cancelButtonClass: 'btn btn-warning',
+          confirmButtonText: 'Yes I am sure!',
+          buttonsStyling: false
+        }).then(function(){
+          $http
+          .post('/school.change.to.previous',body)
+          .then(function(response){
+            $scope.getstudentList();
+            Notifier.success("Classe of "+name.toUpperCase()+" has successfully reverted");
+          })
+          .catch(function(error){
+            Notifier.danger(error.data)
+          })
+        })
       }
       $scope.editStudent = function(sid, sname){
         var newName='';

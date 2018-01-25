@@ -304,7 +304,7 @@ module.exports = function(app) {
 	app .get('/dashboard.course/:classe_id',isAtLeastAdmin, dashboardController.getPageClasse);
 	app .get('/dashboard.register.course/:school_id',isAtLeastAdmin, dashboardController.getPageRegisterCourse);	
 	app .get('/dashboard.faculty/:univ_id',isAtLeastAdmin, dashboardController.getPageFaculties);
-	app .get('/dashboard.accounts.validation/',isAtLeastAdmin, dashboardController.getPageConfirmAccounts);
+	app .get('/dashboard.accounts.validation/:school_id',isAtLeastAdmin, dashboardController.getPageConfirmAccounts);
 	app.post('/dashboard.accounts.tovalidate',isAtLeastAdmin,dashboardController.getAccountsValidate_JSON);
 	app.post('/dashboard.validate.teacher',isAtLeastAdmin,dashboardController.confirmTeacherAccount);
 	app.post('/dashboard.validate.student',isAtLeastAdmin,dashboardController.confirmStudentAccount);
@@ -355,7 +355,7 @@ module.exports = function(app) {
 	app.get('/classe.get.courses/:classe_id/:t_quantity', isAuthenticated, classeController.getClassCourses);
 	app.get('/classe.get.nexts/:class_id', isAtLeastAdmin,classeController.getNextClasses);
 	app.post('/school.change.to.next',isAtLeastAdmin, classeController.getToNextClass);
-	
+	app.post('/school.change.to.previous',isAtLeastAdmin, classeController.returnToPreviousClass)
 				/*COURSES THINGS*/
 	app .get('/courses/:course_id',isAuthenticated, coursesController.getPageOneCourse);
 	app.post('/course.add',isAtLeastAdmin, coursesController.postNewCourse);
