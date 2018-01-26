@@ -42,7 +42,7 @@ block append content
                       i.fa.fa-circle-o-notch.fa-spin(style='font-size: 24px')
                       h2 Loading. Please wait...
                     
-                    .table-responsive(ng-show ="students.length")
+                    .table-responsive(ng-show ="students.length&&!loading")
                       form.form-inline
                         .form-group.pull-left
                           strong Show
@@ -224,7 +224,6 @@ block append scripts
       }
       $scope.getstudentList = function(classe, name, level){
         $scope.loading=true;
-        $scope.students=[]
         $scope.classe_name = name;
         $scope.level = level;
         $scope.class_id = classe
