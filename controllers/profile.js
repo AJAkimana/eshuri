@@ -1,4 +1,6 @@
 const School = require('../models/School'),
+      Classe = require('../models/Classe'),
+      SchoolProgram = require('../models/SchoolProgram'),
   email_sender = require('./email_sender'),
   log_err = require('./manage/errorLogger');
   
@@ -114,4 +116,19 @@ exports.saveSchoolFeesPerPay = function(req, res, next) {
       return res.end();
     }
   });
+}
+exports.displayProfileSchoolDetail = (req, res, next)=>{
+  School.findOne({_id:'58c96f9b708c4a9f40dfbb80'}, (err, school)=>{
+    if (err) return log_err(err, false, req, res);
+    else if (!school) return res.render("./lost",{msg:"Unkown school select other"});
+    Classe.find({school_id:school._id},(err, classes)=>{
+      if(err) return log_err(err, false, req, res);
+      return res.render('school/view_school_info',{
+        title:school.name,
+        school:school,
+        classes:classes,
+        csrf_token:res.locals.csrftoken,
+      })
+    })
+  })
 }

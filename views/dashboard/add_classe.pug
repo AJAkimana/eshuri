@@ -6,11 +6,36 @@ block append content
     .full-page.login-page
       .content
         .container-fluid
+          .card
+            .card-header
+              h3 
+                |Admin dashboard
+                .pull-right
+                  |{{school_name|uppercase}}
+                  i.material-icons school
+              .col-xs-12.col-sm-12.col-md-2.col-lg-2(ng-repeat="list in lists")
+                a(ng-if="list.type!='Students'", href="{{list.url}}/{{school_id}}")
+                  h5 {{list.number}} {{list.type}}
+                a(ng-if="list.type=='Students'", href="#")
+                  h5 {{list.number}} {{list.type}}
+            //- .card-content
+              h3.text-center 
+                strong 
+                  |{{school_name|uppercase}}
+                  i.material-icons school
           .row
-            .col-md-10.center
+            .col-xs-12.col-sm-12.col-md-2.col-lg-2
               .card
-                .card-header.card-header-icon(data-background-color="rose")
-                  i.material-icons class
+                .card-content
+                  .panel.panel-primary
+                    .panel-body
+                      .col-xs-12.col-sm-12.col-md-12.col-lg-12(ng-repeat="list in lists")
+                        a(ng-if="list.type!='Students'", href="{{list.url}}/{{school_id}}")
+                          h5 {{list.number}} {{list.type}}
+                        a(ng-if="list.type=='Students'", href="#")
+                          h5 {{list.number}} {{list.type}}
+            .col-xs-12.col-sm-12.col-md-10.col-lg-10
+              .card
                 .card-content
                   if access == 1.05
                     a.btn-simple.btn.label.btn-info(ng-click="opt_view=!opt_view")
@@ -21,18 +46,8 @@ block append content
                         h3 Use another option:
                         select.form-control(ng-model="currentSchool",ng-change="set_Option()")
                           option(value="{{school._id}}", ng-repeat="school in listSchools") {{$index + 1}}) {{school.name|uppercase}} 
-                  
-                  .col-md-12
-                    a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.teachers/{{school_id}}") <strong> {{teachers}}</strong> Teachers
-                      i.material-icons person
-                    a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.admins/{{school_id}}") <strong> {{admins}}</strong> Administrators
-                      i.material-icons supervisor_account
-                    a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.accounts.validation") <strong> {{unConfirmed}}</strong> New accounts to confirm 
-                      i.material-icons verified_user
-                    a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.register.course/{{school_id}}") <strong> {{courses}}</strong> Courses 
-                      i.material-icons class
-                    a.btn-simple.btn.label.btn-rose.pull-right(href="/dashboard.register.course/{{school_id}}") <strong> {{programs}}</strong> Programs 
-                      i.material-icons class
+                  .row
+                    h3.text-center Create new class
                   .row
                     .col-md-2
                       .form-group.label-floating
@@ -69,8 +84,8 @@ block append content
                     hr
                   .row
                     .col-md-12
-                      h3.text-center List of classes at <strong>{{school_name|uppercase}}</strong> 
-                      p.category Click to class name to view courses
+                      //- h3.text-center List of classes at <strong>{{school_name|uppercase}}</strong> 
+                      //- p.category Click to class name to view courses
                       .table-responsive(ng-show="classes.length")
                         form.form-inline
                           .form-group.pull-left
@@ -98,7 +113,11 @@ block append content
                               td: a(style='color:#3d4958;',href="/dashboard.course/{{classe._id}}")
                                 strong {{classe.name | uppercase|toClasseName:term_name}}
                               td {{classe.level }}
-                              td: i <strong>{{classe.students}}</strong> students
+                              td 
+                                i
+                                  a(style='color:#3d4958;',href="/dashboard.students/{{classe._id}}")
+                                    strong {{classe.students}} 
+                                    |students
                               td {{term_name|toTermName}} {{classe.currentTerm }}
                               td {{classe.class_teacher|toTeacher_name:allteachers}}
                               td {{classe.academic_year|yearToDate}}
@@ -300,9 +319,12 @@ block append scripts
         $http
         .get("/school.content.list/"+$scope.school_id)
         .then(function(response){
-          $scope.term_name =response.data.term_name;
-          $scope.term_quantity=response.data.term_quantity; /// here not used 
-          $scope.school_name=response.data.name;
+          $scope.lists = response.data[0].list;
+          
+          $scope.term_name =response.data[1].infos.term_name;
+          $scope.term_quantity=response.data[1].infos.term_quantity; /// here not used 
+          $scope.school_name=response.data[1].infos.name;
+          console.log('Lists:'+JSON.stringify(response.data[1].infos))
           $scope.teachers =response.data.teachers;
           $scope.admins =response.data.admins;
           $scope.unConfirmed =response.data.unConfirmed;

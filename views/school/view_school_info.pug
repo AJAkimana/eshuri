@@ -1,0 +1,72 @@
+doctype html
+//Copyrights ngendlio@gmail.com
+// akimanaja17@gmail.com)
+html(lang='en' ng-app="eshuri_App")
+  head
+    meta(charset='utf-8')
+    title #{title}
+    meta(content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0', name='viewport')
+    meta(charset="utf-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
+    meta(name='#{csrf_token}', content=_csrf)
+    link(rel='shortcut icon', href='/favicon.png')
+
+    link(rel='stylesheet', href='../css/bootstrap.min.css')
+  body(style="background-color: rgba(1, 1, 1, 0.03)")
+    .container-fluid
+      .row.content
+        .col-xs-12.col-sm-6.col-md-3.col-lg-3.sidenav
+          h4
+            |#{school.other_programs}
+          br
+          br
+          h4 Classes
+          -var schoolclasses = classes
+          ul.nav.nav-pills(style="height:50vh;overflow:scroll;")
+            each classe in classes.length?classes:classes=['No classes']
+              li.well= 'S'+classe.name.toUpperCase()
+          br
+          .input-group
+            input.form-control(type='text', placeholder='Search Blog..')
+            span.input-group-btn
+              button.btn.btn-default(type='button')
+                span.glyphicon.glyphicon-search
+        .col-xs-12.col-sm-6.col-md-9.col-lg-9
+          h1.text-center= school.name.toUpperCase()
+          hr
+          h2 I Love Food
+          h5
+            span.glyphicon.glyphicon-time
+            |  Post by Jane Dane, Sep 27, 2015.
+          h5
+            span.label.label-danger Food
+            span.label.label-primary Ipsum
+          br
+          p
+            | Food is my passion. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          br
+          br
+          h4
+            small RECENT POSTS
+          hr
+          h2 Officially Blogging
+          h5
+            span.glyphicon.glyphicon-time
+            |  Post by John Doe, Sep 24, 2015.
+          h5
+            span.label.label-success Lorem
+          br
+          p
+            | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          hr
+          h4 Leave a Comment:
+          form(role='form')
+            .form-group
+              textarea.form-control(rows='3', required='')
+            button.btn.btn-success(type='submit') Submit
+    footer.container-fluid
+      p Footer Text
+    script(src='js/homejs/jquery-3.2.1.min.js', type='text/javascript')
+    script(src='js/homejs/jquery-migrate.min.js', type='text/javascript')
+    script(src='js/homejs/bootstrap-3.3.7.min.js', type='text/javascript')
