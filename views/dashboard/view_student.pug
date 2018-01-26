@@ -224,6 +224,7 @@ block append scripts
       }
       $scope.getstudentList = function(classe, name, level){
         $scope.loading=true;
+        $scope.students=[]
         $scope.classe_name = name;
         $scope.level = level;
         $scope.class_id = classe
