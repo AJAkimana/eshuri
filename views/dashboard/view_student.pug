@@ -38,9 +38,9 @@ block append content
                       | List of students in 
                       strong {{classe_name|uppercase|toClasseName:term_name}} 
                     h3.category.text-center(ng-show ="!students.length") No student found
-                    .text-center(ng-show ="loading")
-                      i.fa.fa-circle-o-notch.fa-spin(style='font-size: 24px')
-                      h2 Loading. Please wait...
+                    .text-center.text-info(ng-show ="loading")
+                      i.fa.fa-circle-o-notch.fa-spin(style='font-size: 12px')
+                      h2: strong Loading. Please wait...
                     
                     .table-responsive(ng-show ="students.length&&!loading")
                       form.form-inline
