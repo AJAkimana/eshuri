@@ -655,34 +655,62 @@ exports.getUserClasses = (req, res, next)=>{
   req.assert('school_id', 'Invalid Data').isMongoId();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
-  var listClasses=[],classes=[],coursesClasses=[];
+  var listClasses=[], allclasses=[],coursesClasses=[],classes=[];
   var response={};
   var access_lvl = req.user.access_level,
       student = req.app.locals.access_level.STUDENT;
   var parametters = {};
-  response.classes=[];
-  Marks.find().distinct("class_id", {school_id:req.user.school_id, student_id:req.user._id},(err, markClasses)=>{
-    if (err) return log_err(err,false,req,res);
-    listClasses=markClasses;
-    Classe.findOne({school_id:req.user.school_id, $or:[{_id:req.user.class_id},{class_teacher:req.user._id}]},{_id:1},(err, user_class)=>{
-      if (err) return log_err(err,false,req,res);
-      if(user_class)
-        if(listClasses.indexOf(String(user_class._id))==-1)listClasses.push(user_class._id);
-      Course.find().distinct("class_id",{school_id:req.user.school_id, teacher_list:req.user._id},(err, class_courses)=>{
-        if (err) return log_err(err,false,req,res);
-        coursesClasses=class_courses;
-        // Check every class in the courses
-        async.eachSeries(coursesClasses, (thisList, listCallback)=>{
-          // console.log('-------'+listClasses)
-          if(listClasses.indexOf(String(thisList))==-1){
-            listClasses.push(thisList)
-          }
-          listCallback();
+  // response.classes=[];
+  // console.log('Users:'+JSON.stringify(req.user));
+  School.findOne({_id:req.params.school_id},(err, school_exists)=>{
+    if(err) return log_err(err,false,req,res);
+    else if(!school_exists) return res.status(400).send("Unkown school");
+    else if(String(school_exists._id)!=String(req.user.school_id)) return res.status(400).send("This is not your school:"+school_exists._id+" AND "+req.user.school_id);
+    if(access_lvl==student){
+      listClasses.push(req.user.class_id);
+      async.each(req.user.prev_classes, (thisClass, classCallBack)=>{
+        listClasses.push(thisClass);
+        classCallBack(null);
+      },(err)=>{
+        if(err) return log_err(err,false,req,res);
+        allclasses=listClasses;
+        async.eachSeries(allclasses, (thisClass, callBack)=>{
+          Classe.findOne({_id:thisClass},(err, class_details)=>{
+            if (err) return callBack(err);
+            classes.push({class_id:thisClass,name:class_details.name})
+            callBack();
+          })
         },(err)=>{
           if(err) return log_err(err,false,req,res);
-          if(listClasses.length==0) return res.status(400).send("No classes of yours found contact your administrator");
-          //Append to every id class info
-          async.eachSeries(listClasses, (thisClass, callBack)=>{
+          // append every class number of courses
+          async.eachSeries(classes, (thisClass, callBack)=>{
+            if(access_lvl == student) parametters = {class_id:thisClass.class_id};
+            else parametters = {class_id:thisClass.class_id, teacher_list:req.user._id}
+            Course.count(parametters,(err, number)=>{
+              if (err) return callBack(err);
+              thisClass.number=number;
+              callBack();
+            })
+          },(err)=>{
+            if(err) return log_err(err,false,req,res);
+            // console.log('Classes:'+JSON.stringify(classes))
+            // if everything are in place return data to front
+            return res.json(classes)
+          })
+        })
+      })
+    }
+    else{
+      Course.find().distinct("class_id",{school_id:school_exists._id, teacher_list:req.user._id},(err, class_courses)=>{
+        if (err) return log_err(err,false,req,res);
+        async.each(class_courses, (thisList, listCallback)=>{
+          listClasses.push(thisList);
+          listCallback(null);
+        },(err)=>{
+          if (err) return log_err(err,false,req,res);
+          allclasses=listClasses;
+          // console.log('Courses:'+allclasses)
+          async.eachSeries(allclasses, (thisClass, callBack)=>{
             Classe.findOne({_id:thisClass},(err, class_details)=>{
               if (err) return callBack(err);
               classes.push({class_id:thisClass,name:class_details.name})
@@ -701,15 +729,64 @@ exports.getUserClasses = (req, res, next)=>{
               })
             },(err)=>{
               if(err) return log_err(err,false,req,res);
+              // console.log('Classes:'+JSON.stringify(classes))
               // if everything are in place return data to front
               return res.json(classes)
             })
           })
         })
       })
-    })
-  });
+    }
+  })
 }
+  // Marks.find().distinct("class_id", {school_id:req.user.school_id, student_id:req.user._id},(err, markClasses)=>{
+  //   if (err) return log_err(err,false,req,res);
+  //   listClasses=markClasses;
+  //   Classe.findOne({school_id:req.user.school_id, $or:[{_id:req.user.class_id},{class_teacher:req.user._id}]},{_id:1},(err, user_class)=>{
+  //     if (err) return log_err(err,false,req,res);
+  //     if(user_class)
+  //       if(listClasses.indexOf(String(user_class._id))==-1)listClasses.push(user_class._id);
+  //     Course.find().distinct("class_id",{school_id:req.user.school_id, teacher_list:req.user._id},(err, class_courses)=>{
+  //       if (err) return log_err(err,false,req,res);
+  //       coursesClasses=class_courses;
+  //       // Check every class in the courses
+  //       async.eachSeries(coursesClasses, (thisList, listCallback)=>{
+  //         // console.log('-------'+listClasses)
+  //         if(listClasses.indexOf(String(thisList))==-1){
+  //           listClasses.push(thisList)
+  //         }
+  //         listCallback();
+  //       },(err)=>{
+  //         if(err) return log_err(err,false,req,res);
+  //         if(listClasses.length==0) return res.status(400).send("No classes of yours found contact your administrator");
+  //         //Append to every id class info
+  //         async.eachSeries(listClasses, (thisClass, callBack)=>{
+  //           Classe.findOne({_id:thisClass},(err, class_details)=>{
+  //             if (err) return callBack(err);
+  //             classes.push({class_id:thisClass,name:class_details.name})
+  //             callBack();
+  //           })
+  //         },(err)=>{
+  //           if(err) return log_err(err,false,req,res);
+  //           // append every class number of courses
+  //           async.eachSeries(classes, (thisClass, callBack)=>{
+  //             if(access_lvl == student) parametters = {class_id:thisClass.class_id};
+  //             else parametters = {class_id:thisClass.class_id, teacher_list:req.user._id}
+  //             Course.count(parametters,(err, number)=>{
+  //               if (err) return callBack(err);
+  //               thisClass.number=number;
+  //               callBack();
+  //             })
+  //           },(err)=>{
+  //             if(err) return log_err(err,false,req,res);
+  //             // if everything are in place return data to front
+  //             return res.json(classes)
+  //           })
+  //         })
+  //       })
+  //     })
+  //   })
+  // });
 exports.getSchoolData = (req,res,next)=>{
   //Get the term_name and term_quantity
   req.assert('school_id', 'Invalid data').isMongoId();
