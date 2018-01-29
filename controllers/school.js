@@ -40,7 +40,7 @@ exports.homepageSchool = function(req,res,next){
         school_id: school._id,
         school_name: school.name,
         term_name: school.term_name,
-        pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
+        pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,student_class:req.user.class_id,
         csrf_token:res.locals.csrftoken, // always set this buddy
       })
   })

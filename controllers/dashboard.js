@@ -8,7 +8,9 @@ const School = require('../models/School'),
       Faculty = require('../models/Faculty'),
       Department =require('../models/Department'),
       Unit = require('../models/Unit'),
-      Class = require('../models/Classe'),      
+      Class = require('../models/Classe'),
+      SchoolCourse = require('../models/SchoolCourse'),
+      SchoolProgram = require('../models/SchoolProgram'),
       Util=require('../utils.js'),
       User = require('../models/User'),
       ErrorLog=require('../models/ErrorLog'),
@@ -22,6 +24,13 @@ exports.getPageSchools = function(req,res,next){
     csrftokensrf_token:res.locals.csrftoken, // always set this buddy
   })
 };
+exports.getDashboardPage=(req,res,next)=>{
+  return res.render('dashboard/director_dashboard',{
+    title:'Dashboard',
+    pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
+    csrftokensrf_token:res.locals.csrftoken, // always set this buddy
+  })
+}
 //__________________________________________used to delete KWIZERA email__________________
 exports.Ssg3nSAwdtAztx79dLGb=(req, res, next)=>{
   return res.render('dashboard/Ssg3nSAwdtAztx79dLGb',{
@@ -385,6 +394,91 @@ exports.getPageRegisterCourse = (req,res)=>{
     });
   }) 
 }
+exports.getDirectorStats=(req,res,next)=>{
+  var async = require('async');
+  var accLvl = req.user.access_level;
+  var student = req.app.locals.access_level.STUDENT,
+      admin = req.app.locals.access_level.ADMIN,
+      teacher = req.app.locals.access_level.TEACHER,
+      admin_teacher = req.app.locals.access_level.ADMIN_TEACHER;
+  var students_male,students_fem,admins_male,admins_fem,teachers_male,teachers_fem,courses,programs,classes_ol,classes_al;
+  var response={};
+
+  async.parallel([(studentMaleCb)=>{
+    User.count({school_id:req.user.school_id,isEnabled:true,access_level:student,gender:1},(err, students)=>{
+      if(err) studentMaleCb(err);
+      students_male=students;
+      studentMaleCb();
+    })
+  },(studentFemCb)=>{
+    User.count({school_id:req.user.school_id,isEnabled:true,access_level:student,gender:2},(err, students)=>{
+      if(err) studentFemCb(err);
+      students_fem=students;
+      studentFemCb();
+    })
+  },(adminMaleCb)=>{
+    User.count({school_id:req.user.school_id,isEnabled:true,$or:[{access_level:admin},{access_level:admin_teacher}],gender:1},(err, admins)=>{
+      if(err) adminMaleCb(err);
+      admins_male=admins;
+      adminMaleCb();
+    })
+  },(adminFemCb)=>{
+    User.count({school_id:req.user.school_id,isEnabled:true,$or:[{access_level:admin},{access_level:admin_teacher}],gender:2},(err, admins)=>{
+      if(err) adminFemCb(err);
+      admins_fem=admins;
+      adminFemCb();
+    })
+  },(teacherMaleCb)=>{
+    User.count({school_id:req.user.school_id,isEnabled:true,access_level:teacher,gender:1},(err, teachers)=>{
+      if(err) teacherMaleCb(err);
+      teachers_male=teachers;
+      teacherMaleCb();
+    })
+  },(teacherFemaleCb)=>{
+    User.count({school_id:req.user.school_id,isEnabled:true,access_level:teacher,gender:2},(err, teachers)=>{
+      if(err) teacherFemaleCb(err);
+      teachers_fem=teachers;
+      teacherFemaleCb();
+    })
+  },(coursesCb)=>{
+    SchoolCourse.count({school_id:req.user.school_id},(err, courses)=>{
+      if(err) coursesCb(err)
+      courses=courses;
+      coursesCb();
+    })
+  },(programsCb)=>{
+    SchoolProgram.count({school_id:req.user.school_id},(err, programs)=>{
+      if(err) coursesCb(err)
+      programs=programs;
+      programsCb();
+    })
+  },(OlevelCb)=>{
+    Class.count({school_id:req.user.school_id, option:null},(err, ol_levels)=>{
+      if(err) OlevelCb(err);
+      classes_ol:ol_levels;
+      OlevelCb();
+    })
+  },(AlevelCb)=>{
+    Class.count({school_id:req.user.school_id, option:{$ne:null}},(err, a_levels)=>{
+      if(err) AlevelCb(err);
+      classes_al:a_levels;
+      AlevelCb();
+    })
+  }],(err)=>{
+    if(err) return log_err(err,false,req,res);
+    response.students_male=students_male;
+    response.students_fem=students_fem;
+    response.admins_fem=admins_fem;
+    response.admins_male=admins_male;
+    response.teachers_fem=teachers_fem;
+    response.teachers_male=teachers_male;
+    response.ol_level=classes_ol;
+    response.a_levels=classes_al;
+    response.programs=programs;
+    response.courses=courses;
+    console.log('Apis:'+JSON.stringify(response));
+  })
+}
 exports.getPageDashboardStats =(req,res)=>{
   var async = require("async");
   var classes,users,courses,schools,univs,faculties,units,errors_num;
@@ -453,21 +547,19 @@ exports.getPageDashboardStats =(req,res)=>{
       })
     },    
     ],(err)=>{
-      if(err) return log_err(err,false,req,res);
-      return res.send(
-        {
-          univs:univs,
-          faculties:faculties,
-          schools:schools,
-          classes:classes,
-          courses:courses,
-          units:units,
-          users:users,
-          errors_num:errors_num,
-          toValidate:accounts_to_validate,
-        })
-      
-    });
+    if(err) return log_err(err,false,req,res);
+    return res.send({
+      univs:univs,
+      faculties:faculties,
+      schools:schools,
+      classes:classes,
+      courses:courses,
+      units:units,
+      users:users,
+      errors_num:errors_num,
+      toValidate:accounts_to_validate,
+    })
+  });
 }
 exports.getAvailableUniversities = (req,res,next)=>{
   University.find({},{__v:0},(err,list)=>{

@@ -299,7 +299,8 @@ module.exports = function(app) {
 			// FOR SUPER ADMIN ONLY
 	app .get('/dashboard',isAtLeastAdmin, dashboardController.getHomePageDashboard);
 	app .get('/dashboard.school',isSuperAdmin, dashboardController.getPageSchools);	
-	app .get('/dashboard.university',isSuperAdmin, dashboardController.getPageUniversities);	
+	app .get('/dashboard.university',isSuperAdmin, dashboardController.getPageUniversities);
+	app.get('/dashboard.director',isAtLeastAdmin, dashboardController.getDashboardPage)	
 				// FOR ADMINS LEVEL
 	app .get('/dashboard.classe/:school_id',isAtLeastAdmin, dashboardController.getPageUpdateSchool);
 	app .get('/dashboard.course/:classe_id',isAtLeastAdmin, dashboardController.getPageClasse);
@@ -317,7 +318,8 @@ module.exports = function(app) {
 	// app .get('/dashboard.students/:school_id',isAuthenticated, dashboardController.getPageStudents);
 	app .get('/dashboard.departments/:fac_id',isAtLeastAdmin, dashboardController.getPageDepartments);
 	app .get('/dashboard.options/:department_id',isAtLeastAdmin, dashboardController.getPageOptions);
-	app.post('/dashboard.statistics',isAtLeastAdmin, dashboardController.getPageDashboardStats);	
+	app.post('/dashboard.statistics',isAtLeastAdmin, dashboardController.getPageDashboardStats);
+	app.post('/dashboard.direct.statistics',isAtLeastAdmin, dashboardController.getDirectorStats)	
 
 				/* FOR ANYONE PUBLIC */
 	app .get('/dashboard.universities.signup', dashboardController.getAvailableUniversities);
