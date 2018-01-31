@@ -455,11 +455,11 @@ exports.getReport_JSON =(req,res,next)=>{
 										if(err) return callbackExam(err);
 										Marks.findOne({content_id:oneExam,student_id:theUser._id}
 											,(err,marksExam)=>{
-												if(err) return callbackExam(err);
-												var amanota =(marksExam.percentage*currentMark.marks)/100;
-												studentExamMarks+= amanota>0? amanota:0;
-												totalExam+= currentMark.marks>0?currentMark.marks:0;
-												callbackExam(null);
+											if(err) return callbackExam(err);
+											var amanota =(marksExam.percentage*currentMark.marks)/100;
+											studentExamMarks+= amanota>0? amanota:0;
+											totalExam+= currentMark.marks>0?currentMark.marks:0;
+											callbackExam(null);
 										});
 									})
 								},(err)=>{
