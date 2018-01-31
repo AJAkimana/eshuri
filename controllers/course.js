@@ -6,19 +6,22 @@ const Course =require('../models/Course'),
       Content=require('../models/Content'),
       Marks=require('../models/MARKS'),
       School =require('../models/School'),
+      ObjectID = require('mongodb').ObjectID,
       log_err=require('./manage/errorLogger');
 /*
 A course is given by only one teacher and that teacher is set by the Admin of the School
 */
 // return the initial page
 exports.getPageOneCourse = function(req,res,next){
-  req.assert('course_id', 'Invalid data').isMongoId();
-  const errors = req.validationErrors();
-  if(errors) return res.render("./lost",{msg:"Invalid data"})
+  var ac_year = req.params.course_id.slice(0,2);
+  var course = req.params.course_id.slice(2);
+  var num_ac = parseInt(ac_year)
+  if(num_ac<17) return res.render("./lost",{msg:"Invalid data"});
+  if(!ObjectID.isValid(course)) return res.render("./lost",{msg:"Invalid data"});
   var response ={},temoin=false;
   // Check if the course exists
-  Course.findOne({_id:req.params.course_id},(err,course_exists)=>{
-    if(err) return log_err(err,false,req,res);
+  Course.findOne({_id:course},(err,course_exists)=>{
+    if(err) return res.render("./lost",{msg:"Invalid data"});
     else if(!course_exists) return res.render("./lost",{msg:"This course is not recognized"})
       // if he is a student and it is not your class or your are not retaking it !!
     
@@ -57,8 +60,9 @@ exports.getPageOneCourse = function(req,res,next){
           teacher_name:teacher_exists.name,
           school_name:school_exists.name,
           course_name :course_exists.name,
+          academic_year:num_ac,
           actual_term :course_exists.currentTerm,
-          course_id:req.params.course_id,
+          course_id:course,
           pic_id:req.user._id,
           pic_name:req.user.name.replace('\'',"\\'"),
           access_lvl:req.user.access_level,

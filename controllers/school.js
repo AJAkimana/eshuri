@@ -36,13 +36,13 @@ exports.homepageSchool = function(req,res,next){
       return res.render("./lost",{msg:"This is not your place"})
     // Mnt on va alors lui donner la HOMEPAGE DE CHAQUE SCHOOL
     return res.render('school/view_classes',{
-        title:school.name,
-        school_id: school._id,
-        school_name: school.name,
-        term_name: school.term_name,
-        pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,student_class:req.user.class_id,
-        csrf_token:res.locals.csrftoken, // always set this buddy
-      })
+      title:school.name,
+      school_id: school._id,
+      school_name: school.name,
+      term_name: school.term_name,
+      pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,student_class:req.user.class_id,
+      csrf_token:res.locals.csrftoken, // always set this buddy
+    })
   })
 };
 exports.postSchoolCourse = function(req, res, next){
@@ -657,8 +657,11 @@ exports.getUserClasses = (req, res, next)=>{
   if (errors) return res.status(400).send(errors[0].msg);
   var listClasses=[], allclasses=[],coursesClasses=[],classes=[];
   var response={};
-  var access_lvl = req.user.access_level,
-      student = req.app.locals.access_level.STUDENT;
+  var ac_year;
+  var access_lvl = req.user.access_level;
+  var student = req.app.locals.access_level.STUDENT,
+      teacher = req.app.locals.access_level.TEACHER?req.app.locals.access_level.STUDENT:req.app.locals.access_level.ADMIN_TEACHER,
+      hMaster = req.app.locals.access_level.SA_SCHOOL;
   var parametters = {};
   // response.classes=[];
   // console.log('Users:'+JSON.stringify(req.user));
@@ -667,25 +670,33 @@ exports.getUserClasses = (req, res, next)=>{
     else if(!school_exists) return res.status(400).send("Unkown school");
     else if(String(school_exists._id)!=String(req.user.school_id)) return res.status(400).send("This is not your school:"+school_exists._id+" AND "+req.user.school_id);
     if(access_lvl==student){
-      listClasses.push(req.user.class_id);
-      async.each(req.user.prev_classes, (thisClass, classCallBack)=>{
-        listClasses.push(thisClass);
-        classCallBack(null);
-      },(err)=>{
-        if(err) return log_err(err,false,req,res);
-        allclasses=listClasses;
-        async.eachSeries(allclasses, (thisClass, callBack)=>{
-          Classe.findOne({_id:thisClass},(err, class_details)=>{
-            if (err) return callBack(err);
-            classes.push({class_id:thisClass,name:class_details.name})
-            callBack();
+      async.series([(firstClass)=>{
+        Classe.findOne({_id:req.user.class_id, school_id:req.user.school_id},(err, studentclass_details)=>{
+          if(err) return firstClass(err);
+          //ac_year=studentclass.academic_year;
+          listClasses.push({class_id:studentclass_details._id,name:studentclass_details.name,academic_year:studentclass_details.academic_year});
+          firstClass(null);
+        })
+      },(cssCallback)=>{
+        async.each(req.user.prev_classes, (thisClass, classCallBack)=>{
+          // listClasses.push(thisClass);
+          Classe.findOne({_id:thisClass, school_id:req.user.school_id},(err, prev_class_details)=>{
+            if(err) classCallBack(err);
+            Marks.findOne({student_id:req.user._id,class_id:prev_class_details._id},(err,a_year)=>{
+              if(err) classCallBack(err)
+              // console.log('Aaaaa:'+a_year)
+              if(a_year!=null) listClasses.push({class_id:thisClass,name:prev_class_details.name,academic_year:a_year.academic_year});
+              classCallBack(null);
+            })
           })
         },(err)=>{
-          if(err) return log_err(err,false,req,res);
+          if(err) return cssCallback(err);
+          // allclasses=listClasses
+          // console.log('asdasd'+JSON.stringify(listClasses))
+          console.log('dsdsfsdfsdfsdfs')
           // append every class number of courses
-          async.eachSeries(classes, (thisClass, callBack)=>{
-            if(access_lvl == student) parametters = {class_id:thisClass.class_id};
-            else parametters = {class_id:thisClass.class_id, teacher_list:req.user._id}
+          async.eachSeries(listClasses, (thisClass, callBack)=>{
+            parametters = {class_id:thisClass.class_id};
             Course.count(parametters,(err, number)=>{
               if (err) return callBack(err);
               thisClass.number=number;
@@ -693,12 +704,12 @@ exports.getUserClasses = (req, res, next)=>{
             })
           },(err)=>{
             if(err) return log_err(err,false,req,res);
-            // console.log('Classes:'+JSON.stringify(classes))
+            // console.log('Classes:'+JSON.stringify(listClasses))
             // if everything are in place return data to front
-            return res.json(classes)
+            return res.json(listClasses)
           })
         })
-      })
+      }])
     }
     else{
       Course.find().distinct("class_id",{school_id:school_exists._id, teacher_list:req.user._id},(err, class_courses)=>{
@@ -713,7 +724,7 @@ exports.getUserClasses = (req, res, next)=>{
           async.eachSeries(allclasses, (thisClass, callBack)=>{
             Classe.findOne({_id:thisClass},(err, class_details)=>{
               if (err) return callBack(err);
-              classes.push({class_id:thisClass,name:class_details.name})
+              classes.push({class_id:thisClass,name:class_details.name,academic_year:class_details.academic_year})
               callBack();
             })
           },(err)=>{
@@ -833,7 +844,7 @@ exports.getSchoolData = (req,res,next)=>{
         (cb3)=>{
           User.count({school_id:req.params.school_id,access_level:req.app.locals.access_level.TEACHER},(err,num_teachers)=>{
             if(err) return cb3(err);
-            theData[0].list.push({type:'Teachers',number:num_teachers,url:'/dashboard.teachers',icon:'person'})
+            theData[0].list.push({type:'Teachers',number:num_teachers,url:'/dashboard.teachers/'+req.user.school_id,icon:'person'})
             response.teachers =num_teachers
             cb3(null);
           })
@@ -841,7 +852,7 @@ exports.getSchoolData = (req,res,next)=>{
         (cb4)=>{
           User.count({school_id:req.params.school_id,access_level:{$lte:req.app.locals.access_level.ADMIN_TEACHER}},(err,num_admins)=>{
             if(err) return cb4(err);
-            theData[0].list.push({type:'Administrators',number:num_admins,url:'/dashboard.admins',icon:'supervisor_account'})
+            theData[0].list.push({type:'Administrators',number:num_admins,url:'/dashboard.admins/'+req.user.school_id,icon:'supervisor_account'})
             response.admins =num_admins;
             cb4(null);
           })
@@ -849,7 +860,7 @@ exports.getSchoolData = (req,res,next)=>{
         (cb5)=>{
           User.count({school_id:req.params.school_id,access_level:req.app.locals.access_level.STUDENT},(err,num_students)=>{
             if(err) return cb5(err);
-            theData[0].list.push({type:'Students',number:num_students,url:'/dashboard.admins',icon:'person'})
+            theData[0].list.push({type:'Students',number:num_students,url:'/',icon:'person'})
             response.num_students =num_students;
             cb5(null);
           })
@@ -857,7 +868,7 @@ exports.getSchoolData = (req,res,next)=>{
         (cb6)=>{
           SchoolCourse.count({school_id:req.params.school_id},(err,num_school_courses)=>{
             if(err) return cb6(err);
-            theData[0].list.push({type:'Courses',number:num_school_courses,url:'/dashboard.register.course',icon:'class'})
+            theData[0].list.push({type:'Courses',number:num_school_courses,url:'/dashboard.register.course/'+req.user.school_id,icon:'class'})
             response.school_courses =num_school_courses;
             cb6(null);
           })
@@ -865,7 +876,7 @@ exports.getSchoolData = (req,res,next)=>{
         (cb7)=>{
           SchoolProgram.count({school_id:req.params.school_id},(err,num_school_programs)=>{
             if(err) return cb7(err);
-            theData[0].list.push({type:'Programs',number:num_school_programs,url:'/dashboard.register.course',icon:'class'})
+            theData[0].list.push({type:'Programs',number:num_school_programs,url:'/dashboard.register.course/'+req.user.school_id,icon:'class'})
             response.school_programs =num_school_programs;
             cb7(null);
           })

@@ -29,7 +29,10 @@ block append content
                     .col-md-5
                       h3.card-title <strong>{{'#{school_name}'|uppercase}}</strong>
                       h4.card-title Course: <strong>{{course_name|uppercase}}</strong>
-                      h5.card-title Teacher: {{teacher_name}} 
+                      h5.card-title Teacher: {{teacher_name}}
+                      h5.card-title 
+                        |Academic year: 
+                        strong {{'#{academic_year}'|yearToDate:term_name}} 
                       h5.card-title {{term_name|toTermName}} {{actual_term}}
                     .col-md-5
                       if access >= 4 && access <= 5
@@ -130,6 +133,12 @@ block append scripts
         return input;
       }
     })
+    .filter('yearToDate', function() {
+      return function(input, term){
+        input =Number(input)+2000;
+        return term=='T'?input:input+'/'+Number(Number(input)+1)
+      }
+    })
     .filter('toLink', function() {
       return function(input){ 
         switch(input){
@@ -147,7 +156,7 @@ block append scripts
       $scope.units=[];
       $scope.loadUnits = function(){
         $http
-        .post("/unit.list",{_csrf:$scope.anti_csrf,course_id :$scope.course_id})
+        .post("/unit.list",{_csrf:$scope.anti_csrf,course_id :$scope.course_id, academic_year:'#{academic_year}'})
         .then(function(response){
           $scope.units=response.data;
           console.log($scope.units)

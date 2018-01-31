@@ -17,7 +17,7 @@ exports.getPageReport = function(req,res,next){
 
 	School.findOne({_id:req.user.school_id},(err,school_exists)=>{
 		if(err)return log_err(err,false,req,res);
-		else if(!school_exists) return res.status(400).send("Invalid input");
+		else if(!school_exists) return res.render("./lost",{msg:"Invalid data"})
 		if(accLvl==student){
 			return res.render('me/report2',{
 				title:"Report",
@@ -51,7 +51,7 @@ exports.getReportPageToTeacher=(req, res, next)=>{
 
 	School.findOne({_id:req.user.school_id},(err,school_exists)=>{
 		if(err)return log_err(err,false,req,res);
-		else if(!school_exists) return res.status(400).send("Invalid input");
+		else if(!school_exists) return res.render("./lost",{msg:"Invalid data"})
 		Classe.findOne({school_id:school_exists._id,class_teacher:req.user._id},(err, thisClass)=>{
 			if(err) return log_err(err,false,req,res);
 			else if(!thisClass) return res.render("./lost",{msg:"Sorry, you are not CLASS TEACHER. Please contact admin!"});
@@ -73,13 +73,13 @@ exports.getReportPageToTeacher=(req, res, next)=>{
 exports.getPageReportUniversity = function(req,res,next){
 	req.assert('student_id', 'Invalid input').isMongoId();
 	const errors = req.validationErrors();
-	if (errors) return res.status(400).send(errors[0].msg);
+	if (errors) return res.render("./lost",{msg:errors[0].msg});
 	User.findOne({_id:req.user._id, access_level:req.app.locals.access_level.STUDENT},(err,student_exists)=>{
 		if(err) return log_err(err,false,req,res);
-		else if(!student_exists) return res.status(400).send("Invalid input");
+		else if(!student_exists) return res.render("./lost",{msg:"Invalid data"});
 		School.findOne({_id:student_exists.school_id},(err,school_exists)=>{
 			if(err)return log_err(err,false,req,res);
-			else if(!school_exists) return res.status(400).send("Invalid input");
+			else if(!school_exists) return res.render("./lost",{msg:"Invalid data"});
 			if(req.session.student){
 				return res.render('me/report2',{
 					title:"Transcript",

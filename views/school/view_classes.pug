@@ -23,9 +23,11 @@ block append content
                       .panel-body
                         .col-xs-12.col-sm-6.col-md-4.col-lg-4(ng-repeat="classe in classes")
                           h3
-                            a(href='/classe/{{classe.class_id}}') {{classe.name|uppercase|toClasseName}}
+                            a(href='/classe/{{classe.academic_year}}{{classe.class_id}}') {{classe.name|uppercase|toClasseName}}
                             span.btn-simple.btn.label(ng-show="classe.class_id=='#{student_class}'").btn-rose
                               i.icon.ion-ios-checkmark 
+                          h3
+                              strong {{classe.academic_year|yearToDate:term_name}}
                           h4 {{classe.number}} courses
                       .panel-footer
                         h4.text-center Number of class {{classes.length}}
@@ -74,13 +76,19 @@ block append scripts
         return term=='S'?'Y'+input:'S'+input
       }
     })
+    .filter('yearToDate', function() {
+      return function(input, term){
+        input =Number(input)+2000;
+        return term=='T'?input:input+'/'+Number(Number(input)+1)
+      }
+    })
     .controller('homePageSchoolCtrl', function($scope, $http,$window){
       // We receive years[], allCourses[],term_name,term_quantity     
       $scope.load_SchoolContent = function(){
         $http
         .get("/school.content.list/"+$scope.school_id)
         .then(function(response){
-          $scope.term_name =response.data.term_name;
+          //- $scope.term_name =response.data.term_name;
           $scope.term_quantity=response.data.term_quantity;
           $scope.years =response.data.classes;
           //console.log('We have Conteont '+JSON.stringify(response.data))
@@ -141,6 +149,7 @@ block append scripts
       $scope.currentTerm =-1;
       $scope.anti_csrf ="#{csrf_token}";
       $scope.school_id ="#{school_id}";
+      $scope.term_name="#{term_name}";
       $scope.load_SchoolContent();
       $scope.getTeacherID();
       $scope.getUserClasses();

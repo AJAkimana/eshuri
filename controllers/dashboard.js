@@ -13,6 +13,7 @@ const School = require('../models/School'),
       SchoolProgram = require('../models/SchoolProgram'),
       Util=require('../utils.js'),
       User = require('../models/User'),
+      async=require('async'),
       ErrorLog=require('../models/ErrorLog'),
       log_err=require('./manage/errorLogger');
 
@@ -25,10 +26,195 @@ exports.getPageSchools = function(req,res,next){
   })
 };
 exports.getDashboardPage=(req,res,next)=>{
-  return res.render('dashboard/director_dashboard',{
-    title:'Dashboard',
-    pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
-    csrftokensrf_token:res.locals.csrftoken, // always set this buddy
+  var async = require('async');
+  var accLvl = req.user.access_level;
+  var student = req.app.locals.access_level.STUDENT,
+      admin = req.app.locals.access_level.ADMIN,
+      teacher = req.app.locals.access_level.TEACHER,
+      admin_teacher = req.app.locals.access_level.ADMIN_TEACHER;
+  var students_male,students_fem,admins_male,admins_fem,teachers_male,teachers_fem,courses,programs,classes_ol,classes_al;
+  var response={};
+
+  async.parallel([(studentMaleCb)=>{
+    User.count({school_id:req.user.school_id,isEnabled:true,access_level:student,gender:1},(err, students)=>{
+      if(err) studentMaleCb(err);
+      response.students_male=students;
+      studentMaleCb();
+    })
+  },(studentFemCb)=>{
+    User.count({school_id:req.user.school_id,isEnabled:true,access_level:student,gender:2},(err, students)=>{
+      if(err) studentFemCb(err);
+      response.students_fem=students;
+      studentFemCb();
+    })
+  },(adminMaleCb)=>{
+    User.count({school_id:req.user.school_id,isEnabled:true,$or:[{access_level:admin},{access_level:admin_teacher}],gender:1},(err, admins)=>{
+      if(err) adminMaleCb(err);
+      response.admins_male=admins;
+      adminMaleCb();
+    })
+  },(adminFemCb)=>{
+    User.count({school_id:req.user.school_id,isEnabled:true,$or:[{access_level:admin},{access_level:admin_teacher}],gender:2},(err, admins)=>{
+      if(err) adminFemCb(err);
+      response.admins_fem=admins;
+      adminFemCb();
+    })
+  },(teacherMaleCb)=>{
+    User.count({school_id:req.user.school_id,isEnabled:true,access_level:teacher,gender:1},(err, teachers)=>{
+      if(err) teacherMaleCb(err);
+      response.teachers_male=teachers;
+      teacherMaleCb();
+    })
+  },(teacherFemaleCb)=>{
+    User.count({school_id:req.user.school_id,isEnabled:true,access_level:teacher,gender:2},(err, teachers)=>{
+      if(err) teacherFemaleCb(err);
+      response.teachers_fem=teachers;
+      teacherFemaleCb();
+    })
+  },(coursesCb)=>{
+    SchoolCourse.count({school_id:req.user.school_id},(err, courses)=>{
+      if(err) coursesCb(err)
+      response.courses=courses;
+      coursesCb();
+    })
+  },(programsCb)=>{
+    SchoolProgram.count({school_id:req.user.school_id},(err, programs)=>{
+      if(err) programsCb(err)
+      response.programs=programs;
+      programsCb();
+    })
+  },(OlevelCb)=>{
+    Class.count({school_id:req.user.school_id, option:null},(err, ol_levels)=>{
+      if(err) OlevelCb(err);
+      response.classes_ol=ol_levels;
+      OlevelCb();
+    })
+  },(AlevelCb)=>{
+    Class.count({school_id:req.user.school_id, option:{$ne:null}},(err, a_levels)=>{
+      if(err) AlevelCb(err);
+      response.classes_al=a_levels;
+      AlevelCb();
+    })
+  }],(err)=>{
+    if(err) return log_err(err,false,req,res);
+    console.log('Apis:'+JSON.stringify(response));
+    return res.render('dashboard/director_dashboard',{
+      title:'Dashboard',
+      info:response,
+      school_id:req.user.school_id,
+      pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),
+      access_lvl:req.user.access_level,
+      csrf_token:res.locals.csrftoken, // always set this buddy
+    })
+  })
+}
+exports.viewPageUserDetails=(req,res,next)=>{
+  req.assert('user_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.render("./lost",{msg:errors[0].msg})
+  var listClasses=[],allclasses=[],classes=[];
+  var student = req.app.locals.access_level.STUDENT,
+      teacher = req.app.locals.access_level.TEACHER,
+      admin_teacher = req.app.locals.access_level.ADMIN_TEACHER,
+      hMaster = req.app.locals.access_level.SA_SCHOOL;
+  var parametters={};
+  School.findOne({_id:req.user.school_id},(err, school)=>{
+    if(err) return res.render("./lost",{msg:"Invalid data"});
+    if(!school) return res.render("./lost",{msg:"Unkown school"});
+    User.findOne({_id:req.params.user_id,school_id:req.user.school_id},(err, userExists)=>{
+      if(err) return res.render("./lost",{msg:"Invalid data"});
+      if(!userExists) return res.render("./lost",{msg:"Unkown student"});
+      if(userExists.access_level==student){
+        listClasses.push(userExists.class_id);
+        async.each(userExists.prev_classes, (thisClass, classCallBack)=>{
+          listClasses.push(thisClass);
+          classCallBack(null);
+        },(err)=>{
+          if(err) return log_err(err,false,req,res);
+          allclasses=listClasses;
+          async.eachSeries(allclasses, (thisClass, callBack)=>{
+            Classe.findOne({_id:thisClass},(err, class_details)=>{
+              if (err) return callBack(err);
+              classes.push({class_id:thisClass,name:class_details.name})
+              callBack();
+            })
+          },(err)=>{
+            if(err) return log_err(err,false,req,res);
+            // append every class number of courses
+            async.eachSeries(classes, (thisClass, callBack)=>{
+              parametters = {class_id:thisClass.class_id};
+              Course.count(parametters,(err, number)=>{
+                if (err) return callBack(err);
+                thisClass.number=number;
+                callBack();
+              })
+            },(err)=>{
+              if(err) return log_err(err,false,req,res);
+              console.log('Classes:'+JSON.stringify(classes))
+              // if everything are in place return data to front
+              return res.render('dashboard/one_student_view',{
+                title:userExists.name.toUpperCase(),
+                school_id: req.user.school_id,
+                school_name: school.name,
+                username:userExists.name,
+                userid:userExists._id,
+                lastSeen:userExists.lastSeen,
+                classes:classes,
+                term_name: school.term_name,
+                pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,student_class:req.user.class_id,
+                csrf_token:res.locals.csrftoken, // always set this buddy
+              })
+            })
+          })
+        })
+      }else if(userExists.access_level==teacher){
+        Course.find().distinct("class_id",{school_id:school._id, teacher_list:req.params.user_id},(err, class_courses)=>{
+          if (err) return log_err(err,false,req,res);
+          async.each(class_courses, (thisList, listCallback)=>{
+            listClasses.push(thisList);
+            listCallback(null);
+          },(err)=>{
+            if (err) return log_err(err,false,req,res);
+            allclasses=listClasses;
+            // console.log('Courses:'+allclasses)
+            async.eachSeries(allclasses, (thisClass, callBack)=>{
+              Classe.findOne({_id:thisClass},(err, class_details)=>{
+                if (err) return callBack(err);
+                classes.push({class_id:thisClass,name:class_details.name})
+                callBack();
+              })
+            },(err)=>{
+              if(err) return log_err(err,false,req,res);
+              // append every class number of courses
+              async.eachSeries(classes, (thisClass, callBack)=>{
+                parametters = {class_id:thisClass.class_id, teacher_list:req.params.user_id};
+                Course.count(parametters,(err, number)=>{
+                  if (err) return callBack(err);
+                  thisClass.number=number;
+                  callBack();
+                })
+              },(err)=>{
+                if(err) return log_err(err,false,req,res);
+                // console.log('Classes:'+JSON.stringify(classes))
+                // if everything are in place return data to front
+                return res.render('dashboard/one_student_view',{
+                  title:userExists.name.toUpperCase(),
+                  school_id: req.user.school_id,
+                  school_name: school.name,
+                  username:userExists.name,
+                  userid:userExists._id,
+                  lastSeen:userExists.lastSeen,
+                  classes:classes,
+                  term_name: school.term_name,
+                  pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,student_class:req.user.class_id,
+                  csrf_token:res.locals.csrftoken, // always set this buddy
+                })
+              })
+            })
+          })
+        })
+      }
+    })
   })
 }
 //__________________________________________used to delete KWIZERA email__________________
@@ -407,75 +593,65 @@ exports.getDirectorStats=(req,res,next)=>{
   async.parallel([(studentMaleCb)=>{
     User.count({school_id:req.user.school_id,isEnabled:true,access_level:student,gender:1},(err, students)=>{
       if(err) studentMaleCb(err);
-      students_male=students;
+      response.students_male=students;
       studentMaleCb();
     })
   },(studentFemCb)=>{
     User.count({school_id:req.user.school_id,isEnabled:true,access_level:student,gender:2},(err, students)=>{
       if(err) studentFemCb(err);
-      students_fem=students;
+      response.students_fem=students;
       studentFemCb();
     })
   },(adminMaleCb)=>{
     User.count({school_id:req.user.school_id,isEnabled:true,$or:[{access_level:admin},{access_level:admin_teacher}],gender:1},(err, admins)=>{
       if(err) adminMaleCb(err);
-      admins_male=admins;
+      response.admins_male=admins;
       adminMaleCb();
     })
   },(adminFemCb)=>{
     User.count({school_id:req.user.school_id,isEnabled:true,$or:[{access_level:admin},{access_level:admin_teacher}],gender:2},(err, admins)=>{
       if(err) adminFemCb(err);
-      admins_fem=admins;
+      response.admins_fem=admins;
       adminFemCb();
     })
   },(teacherMaleCb)=>{
     User.count({school_id:req.user.school_id,isEnabled:true,access_level:teacher,gender:1},(err, teachers)=>{
       if(err) teacherMaleCb(err);
-      teachers_male=teachers;
+      response.teachers_male=teachers;
       teacherMaleCb();
     })
   },(teacherFemaleCb)=>{
     User.count({school_id:req.user.school_id,isEnabled:true,access_level:teacher,gender:2},(err, teachers)=>{
       if(err) teacherFemaleCb(err);
-      teachers_fem=teachers;
+      response.teachers_fem=teachers;
       teacherFemaleCb();
     })
   },(coursesCb)=>{
     SchoolCourse.count({school_id:req.user.school_id},(err, courses)=>{
       if(err) coursesCb(err)
-      courses=courses;
+      response.courses=courses;
       coursesCb();
     })
   },(programsCb)=>{
     SchoolProgram.count({school_id:req.user.school_id},(err, programs)=>{
-      if(err) coursesCb(err)
-      programs=programs;
+      if(err) programsCb(err)
+      response.programs=programs;
       programsCb();
     })
   },(OlevelCb)=>{
     Class.count({school_id:req.user.school_id, option:null},(err, ol_levels)=>{
       if(err) OlevelCb(err);
-      classes_ol:ol_levels;
+      response.classes_ol=ol_levels;
       OlevelCb();
     })
   },(AlevelCb)=>{
     Class.count({school_id:req.user.school_id, option:{$ne:null}},(err, a_levels)=>{
       if(err) AlevelCb(err);
-      classes_al:a_levels;
+      response.classes_al=a_levels;
       AlevelCb();
     })
   }],(err)=>{
     if(err) return log_err(err,false,req,res);
-    response.students_male=students_male;
-    response.students_fem=students_fem;
-    response.admins_fem=admins_fem;
-    response.admins_male=admins_male;
-    response.teachers_fem=teachers_fem;
-    response.teachers_male=teachers_male;
-    response.ol_level=classes_ol;
-    response.a_levels=classes_al;
-    response.programs=programs;
-    response.courses=courses;
     console.log('Apis:'+JSON.stringify(response));
   })
 }

@@ -13,6 +13,9 @@ block append content
                   .card-header
                     h3.card-title 
                       strong {{'#{title}'|uppercase}}
+                      p.pull-right
+                        | Academic Year: 
+                        strong {{'#{academic_year}'|yearToDate:term_name}}
                   .card-content
                     .panel-group(role='tablist')#accordion
                       .panel.panel-default(ng-repeat="term in termCourses")
@@ -27,7 +30,8 @@ block append content
                             .col-xs-12.col-sm-12.col-md-12.col-lg-12
                               .col-xs-12.col-sm-6.col-md-4.col-lg-4(ng-repeat="course in term.t_content")
                                 h3
-                                  a(href='/courses/{{course._id}}') {{course.name|uppercase}}
+                                  a(href='/courses/'+academic_year+'{{course._id}}') {{course.name|uppercase}}
+                                  //- a(href='/courses/{{course._id}}') {{course.name|uppercase}}
                                 h4
                                   | Code: 
                                   strong {{course.code|uppercase}}
@@ -43,8 +47,10 @@ block append content
                         .col-xs-12.col-sm-6.col-md-4.col-lg-4(ng-repeat="classe in classes")
                           div(ng-class="'s'+classe.name==name?'btn-danger':''")
                             h3
-                              a(href='/classe/{{classe.class_id}}')
+                              a(href='/classe/{{classe.academic_year}}{{classe.class_id}}')
                                 b {{classe.name|uppercase|toClasseName}}
+                            h3
+                              strong {{classe.academic_year|yearToDate:term_name}}
                             h4 {{classe.number}} courses
                       .panel-footer
                         h4.text-center Number of class {{classes.length}}
@@ -62,6 +68,12 @@ block append scripts
     .filter('toClasseName', function() {
       return function(input, term){
         return term=='S'?'Y'+input:'S'+input
+      }
+    })
+    .filter('yearToDate', function() {
+      return function(input, term){
+        input =Number(input)+2000;
+        return term=='T'?input:input+'/'+Number(Number(input)+1)
       }
     })
     .controller('classTermCtrl',function($scope,$http,$window, $document){
@@ -92,6 +104,7 @@ block append scripts
       $scope.school_id ="#{school_id}";
       $scope.class_id ="#{class_id}";
       $scope.anti_csrf ="#{csrf_token}";
+      $scope.term_name="#{term_name}";
       $scope.term_quantity="#{term_quantity}";
       $scope.getUserClasses();
       $scope.getCourses();

@@ -1,0 +1,86 @@
+extends ../layout
+block append content 
+  //- .main-panel
+    include ../partials/header
+  .wrapper.wrapper-full-page.full-page-background(ng-controller="homePageSchoolCtrl",style="background-image: url('../imgs/register.jpeg')")
+    .full-page.login-page
+      .content
+        .container-fluid
+          .row
+            .col-md-12.col-xs-12.col-sm-12.col-lg-12
+              .col-xs-12.col-sm-12.col-md-8.col-lg-8.center
+                .card
+                  .card-header
+                    h3.card-title 
+                      strong {{'#{username}'|uppercase}}
+                      p.pull-right
+                        | Last seen: 
+                        strong {{'#{lastSeen}'|toMoment}}
+                    h4 Access platform: {{'#{lastSeen}'|date}}
+                  .card-content
+                    .panel.panel-primary
+                      .panel-body
+                        each classe in classes.length?classes:classes=['No classes']
+                          .col-xs-12.col-sm-6.col-md-4.col-lg-4
+                            h3
+                              a(href='/classe/') {{'#{classe.name}'|uppercase|toClasseName}}
+                            h4 #{classe.number} courses
+                      .panel-footer
+                        h4.text-center Number of class #{classes.length}
+
+
+block append scripts
+  script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+  script(src="../js/MIT/MIT_moment.min.js", type="text/javascript")
+  script(src="../js/MIT/jasny-bootstrap.min.js", type="text/javascript")
+  script.
+    var app =angular.module('eshuri_App', ['ngRoute']);
+    app
+    .filter('toTermName', function() {
+      return function(input){ 
+        return input=='S'?'Semester':'Term'
+      }
+    })
+    .filter('toClasseName', function() {
+      return function(input, term){
+        return term=='S'?'Y'+input:'S'+input
+      }
+    })
+    .filter('toMoment', ['$interval', function ($interval){
+      // trigger digest every 60 seconds
+      $interval(function (){}, 60000);
+
+      function fromNowFilter(input){
+        return moment(input).fromNow();
+      }
+      fromNowFilter.$stateful = true;
+      return fromNowFilter;
+    }])
+    .controller('homePageSchoolCtrl', function($scope, $http,$window){
+      // We receive years[], allCourses[],term_name,term_quantity     
+      $scope.load_SchoolContent = function(){
+        $http
+        .get("/school.content.list/"+$scope.school_id)
+        .then(function(response){
+          $scope.term_name =response.data.term_name;
+          $scope.term_quantity=response.data.term_quantity;
+          $scope.years =response.data.classes;
+          //console.log('We have Conteont '+JSON.stringify(response.data))
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data);
+        }); 
+      }
+      $scope.getTerms_Limit = function() {
+          return Array.apply(null, {length: $scope.term_quantity}).map(Number.call, Number)
+      }
+      $scope.showCourse = function(cours){
+        //if($scope.teacher_id != cours.teacher_id)
+        //  Notifier.danger("This course is not yours")
+        //else
+         $window.location.href="/courses/"+cours._id
+      }
+      $scope.anti_csrf ="#{csrf_token}";
+      $scope.school_id ="#{school_id}";
+      $scope.load_SchoolContent();
+    })

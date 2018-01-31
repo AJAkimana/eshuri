@@ -2,10 +2,12 @@ const Classe =require('../models/Classe'),
       Course =require("../models/Course"),
       User =require("../models/User"),
       School = require('../models/School'),
+      Mark = require('../models/MARKS'),
       Notification=require("../models/Notification"),
       Content=require('../models/Content'),
       log_err=require('./manage/errorLogger'),
       Finalist=require('../models/Finalist'),
+      ObjectID = require('mongodb').ObjectID,
       SchoolProgram=require('../models/SchoolProgram'); 
 /*
 Une classe est par exemple S2MCE pour le sHigh school ou 3 rd Year in Universitites
@@ -49,7 +51,7 @@ exports.postNewClass =(req,res,next)=>{
         sub_level:req.body.sub_level,
       });      
       newClass.save((err)=>{
-        if(err) return console.log(JSON.stringify(err));
+        if(err) return log_err(err,false,req,res);
         return res.end();
       })
     })    
@@ -83,24 +85,48 @@ exports.getClasses_JSON = (req,res,next)=>{
   })
 }
 exports.getPageOneClasse = (req,res,next)=>{
-  req.assert('classe_id', 'Invalid data').isMongoId();
+  // req.assert('classe_id', 'Invalid data').isMongoId();
+  var ac_year = req.params.classe_id.slice(0,2);
+  var classe = req.params.classe_id.slice(2);
+  var num_ac = parseInt(ac_year)
+  if(num_ac<17) return res.render("./lost",{msg:"Invalid data"});
+  if(!ObjectID.isValid(classe)) return res.render("./lost",{msg:"Invalid data"});
+  var response ={},temoin=false;
   const errors = req.validationErrors();
   if(errors) return res.render("./lost",{msg:"Invalid data"})
   var class_name = '', first_letter='';
+  var async=require('async');
+  var academic_year;
   School.findOne({_id:req.user.school_id},(err,school_exists)=>{
     if(err) return log_err(err,false,req,res);
     else if(!school_exists)  return res.status(400).send("This school doesn't exists ");
-    Classe.findOne({_id:req.params.classe_id,school_id:req.user.school_id},(err,classe_exists)=>{
+    Classe.findOne({_id:classe,school_id:req.user.school_id},(err,classe_exists)=>{
       if(err) return log_err(err,false,req,res);
       else if(!classe_exists)  return res.status(400).send("This class doesn't exists ");
       first_letter=classe_exists.name.toLowerCase().charAt(0);
       class_name = first_letter==='s'?classe_exists.name:'s'+classe_exists.name;
+      // base_ac = class_exists.academic_year;
+      // async.parallel([(cb)=>{
+      //   if(req.user.prev_classes.indexOf(String(classe))!=-1){
+      //     Mark.findOne({student_id:req.user._id,class_id:classe},{academic_year:1},(err, a_year)=>{
+      //       if(err) return cb(err);
+      //       academic_year=a_year.academic_year;
+
+      //       cb();
+      //     })
+      //   }else{
+      //     academic_year=classe_exists.academic_year;
+      //     cb();
+      //   }
+      // }],(err)=>{
       return res.render('school/view_class_term',{
         title:class_name.toUpperCase(),
         pic_id:req.user._id,
         school_name:school_exists.name,
+        academic_year:num_ac,
+        term_name:school_exists.term_name,
         term_quantity:school_exists.term_quantity,
-        class_id:req.params.classe_id,
+        class_id:classe,
         school_id:req.user.school_id,
         pic_name:req.user.name.replace('\'',"\\'"),
         access_lvl:req.user.access_level,
@@ -110,7 +136,6 @@ exports.getPageOneClasse = (req,res,next)=>{
   })
 }
 exports.getClassCourses = (req, res, next)=>{
-  console.log(req.params.t_quantity)
   req.assert('classe_id', 'Invalid data').isMongoId();
   req.assert('t_quantity', 'Invalid data').isIn([2,3]);
   const errors = req.validationErrors();
@@ -149,6 +174,24 @@ exports.getClassCourses = (req, res, next)=>{
     })
   })
 }
+exports.getClasseToRepeat=(req,res,next)=>{
+  req.assert('class_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  var parametters = {};
+  Classe.findOne({_id:req.params.class_id,school_id:req.user.school_id},(err, class_exists)=>{
+    if(err) return log_err(err,false,req,res);
+    if(!class_exists) return res.status(400).send("Unkown class");
+    var level_class = Number(class_exists.level);
+    if(class_exists.level>3) parametters = {level:level_class, school_id:req.user.school_id, option:class_exists.option};
+    else parametters = {level:level_class, school_id:req.user.school_id, option:null};
+    Classe.find(parametters, (err, classes)=>{
+      if(err) return log_err(err,false,req,res);
+      // console.log('LEVEL: '+next_class+' Classes:'+JSON.stringify(nextClasses))
+      return res.json(classes);
+    })
+  })
+}
 exports.getNextClasses = (req, res, next)=>{
   req.assert('class_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
@@ -159,11 +202,52 @@ exports.getNextClasses = (req, res, next)=>{
     if(!class_exists) return res.status(400).send("Unkown class");
     var next_class = Number(class_exists.level)+1;
     if(class_exists.level>3) parametters = {level:next_class, school_id:req.user.school_id, option:class_exists.option};
-    else parametters = {level:next_class, school_id:req.user.school_id};
+    else parametters = {level:next_class, school_id:req.user.school_id, option:null};
     Classe.find(parametters, (err, nextClasses)=>{
       if(err) return log_err(err,false,req,res);
       // console.log('LEVEL: '+next_class+' Classes:'+JSON.stringify(nextClasses))
       return res.json(nextClasses);
+    })
+  })
+}
+exports.setStudentToRepeat = (req,res,next)=>{
+  req.assert('class_id', 'Invalid data').isMongoId();
+  req.assert('student_id', 'Invalid data').isMongoId();
+  req.assert('level', 'Invalid data').isIn([1,2,3,4,5,6]);
+  req.assert('new_class', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  var new_class = req.body.new_class;
+  var level = req.body.level;
+  School.findOne({_id:req.user.school_id},(err, school_exists)=>{
+    if(err) return log_err(err,false,req,res);
+    else if(!school_exists)  return res.status(400).send("This school doesn't exists ");
+    Classe.findOne({_id:new_class,school_id:school_exists._id}, (err, class_exists)=>{
+      if(err) return log_err(err,false,req,res);
+      else if(!class_exists)  return log_err(err,false,req,res);
+      else if(class_exists.level!=level) return res.status(400).send("Invalid repeating class");
+      User.findOne({_id:req.body.student_id,school_id:school_exists._id,class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT},(err, student_exists)=>{
+        if(err) return log_err(err,false,req,res);
+        else if(!student_exists) return res.status(400).send("Unkown student");
+        student_exists.class_id = class_exists._id;
+        student_exists.prev_classes.push(req.body.class_id);
+        student_exists.save((err, done)=>{
+          if(err) return log_err(err,false,req,res);
+          // Save for user notification
+          new Notification({
+            user_id:req.user._id,
+            user_name:req.user.name,
+            content:req.user.name+" has changed your class to S"+class_exists.name+". Keep it up, I know can make it. SUCCESS!!!",
+            school_id:school_exists._id,
+            class_id:class_exists._id,
+            dest_id:student_exists._id,
+            isAuto:false
+          }).save((err)=>{
+            if(err) return log_err(err,false,req,res);
+            res.end();
+          })
+        })
+      })
     })
   })
 }
@@ -264,7 +348,9 @@ exports.returnToPreviousClass = (req,res,next)=>{
     Classe.findOne({_id:new_class,school_id:school_exists._id}, (err, class_exists)=>{
       if(err) return log_err(err,false,req,res);
       else if(!class_exists)  return log_err(err,false,req,res);
-      else if(class_exists.level!=previous_level) return res.status(400).send("Invalid previous class");
+      // else if(class_exists.level!=level||class_exists.level!=previous_level)
+      //   console.log('pppp:'+class_exists.level+' jkjjj:'+level)
+      //   return res.status(400).send("Invalid reverting class");
       User.findOne({_id:req.body.student_id,school_id:school_exists._id,class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT},(err, student_exists)=>{
         if(err) return log_err(err,false,req,res);
         else if(!student_exists) return res.status(400).send("Unkown student");
