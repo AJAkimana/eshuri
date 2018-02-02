@@ -307,7 +307,7 @@ module.exports = function(app) {
 	app .get('/dashboard',isAtLeastAdmin, dashboardController.getHomePageDashboard);
 	app .get('/dashboard.school',isSuperAdmin, dashboardController.getPageSchools);	
 	app .get('/dashboard.university',isSuperAdmin, dashboardController.getPageUniversities);
-	app.get('/dashboard.director',isAtLeastAdmin, dashboardController.getDashboardPage)	
+	app.get('/dashboard.director',isSchoolDirector, dashboardController.getDashboardPage)	
 				// FOR ADMINS LEVEL
 	app .get('/dashboard.classe/:school_id',isAtLeastAdmin, dashboardController.getPageUpdateSchool);
 	app .get('/dashboard.course/:classe_id',isAtLeastAdmin, dashboardController.getPageClasse);
