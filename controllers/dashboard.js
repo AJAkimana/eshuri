@@ -645,7 +645,7 @@ exports.getDirectorStats=(req,res,next)=>{
       programsCb();
     })
   },(OlevelCb)=>{
-    Class.count({school_id:req.user.school_id, option:null},(err, ol_levels)=>{
+    Class.count({school_id:req.user.school_id, $or:[{option:null},{option:''}]},(err, ol_levels)=>{
       if(err) OlevelCb(err);
       response.classes_ol=ol_levels;
       OlevelCb();
