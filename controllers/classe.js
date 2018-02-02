@@ -184,7 +184,7 @@ exports.getClasseToRepeat=(req,res,next)=>{
     if(!class_exists) return res.status(400).send("Unkown class");
     var level_class = Number(class_exists.level);
     if(class_exists.level>3) parametters = {level:level_class, school_id:req.user.school_id, option:class_exists.option};
-    else parametters = {level:level_class, school_id:req.user.school_id, option:null};
+    else parametters = {level:level_class, school_id:req.user.school_id, $or:[{option:null},{option:''}]};
     Classe.find(parametters, (err, classes)=>{
       if(err) return log_err(err,false,req,res);
       // console.log('LEVEL: '+next_class+' Classes:'+JSON.stringify(nextClasses))
