@@ -23,7 +23,7 @@ block append content
                         each classe in classes.length?classes:classes=['No classes']
                           .col-xs-12.col-sm-6.col-md-4.col-lg-4
                             h3
-                              a(href='/classe/') {{'#{classe.name}'|uppercase|toClasseName}}
+                              a(href='#') {{'#{classe.name}'|uppercase|toClasseName}}
                             h4 #{classe.number} courses
                       .panel-footer
                         h4.text-center Number of class #{classes.length}

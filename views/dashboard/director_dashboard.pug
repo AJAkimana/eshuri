@@ -66,10 +66,11 @@ block append content
                     -var all_teachers=info.teachers_male+info.teachers_fem
                     -var all_admins=info.admins_male+info.admins_fem
                     -var all_users=all_students+all_teachers+all_admins
-                    | #{all_students} students
-                    .text-center
-                      | #{info.students_male} M,
-                      | #{info.students_fem} F
+                    a(href="/dashboard.classe/"+school_id) 
+                      | #{all_students} students
+                      .text-center
+                        | #{info.students_male} M,
+                        | #{info.students_fem} F
                     a(href="/dashboard.teachers/"+school_id) #{all_teachers} teachers
                       .text-center
                         | #{info.teachers_male} M,
