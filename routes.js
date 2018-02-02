@@ -86,7 +86,7 @@ module.exports = function(app) {
 	var isAtLeastHOD =function(req,res,next){
 		if(req.isAuthenticated() && req.user.access_level <= req.app.locals.access_level.HOD) 
 			return next();
-		return res.status(400).send("This operation is for Head of departments");     	
+		return res.status(400).send("This operation is for Head of school");     	
 	}
 	var isAtLeastAdmin =function(req,res,next){
 		if(req.isAuthenticated() && req.user.access_level <= req.app.locals.access_level.ADMIN_TEACHER) 
@@ -294,13 +294,15 @@ module.exports = function(app) {
 	app.get('/school.allUsers.list/:school_id',isAuthenticated, schoolController.getUsersSchool);
 	//Users for teaChat
 	app.get('/school.allTeacAdminUsers.list/:school_id', isTeacherOrAdmin, schoolController.getTeacherAndAdminSchool);
+	app.get('/finalists/:school_id', isAtLeastAdmin, schoolController.getPageFinalists)
+	app.get('/school.finalist.list', isAtLeastAdmin, schoolController.getAllFinalists)
 	/*				DASHBOARD THINGS
 		Concerning adding new school, classe, course -- > For SA and A, Only*/
 			// FOR SUPER ADMIN ONLY
 	app .get('/dashboard',isAtLeastAdmin, dashboardController.getHomePageDashboard);
 	app .get('/dashboard.school',isSuperAdmin, dashboardController.getPageSchools);	
 	app .get('/dashboard.university',isSuperAdmin, dashboardController.getPageUniversities);
-	app.get('/dashboard.director',isAtLeastAdmin, dashboardController.getDashboardPage)	
+	app.get('/dashboard.director',isAtLeastHOD, dashboardController.getDashboardPage)	
 				// FOR ADMINS LEVEL
 	app .get('/dashboard.classe/:school_id',isAtLeastAdmin, dashboardController.getPageUpdateSchool);
 	app .get('/dashboard.course/:classe_id',isAtLeastAdmin, dashboardController.getPageClasse);
@@ -542,7 +544,7 @@ module.exports = function(app) {
     /*---------------------------------------------------------------------------
                     Payment
     ----------------------------------------------------------------------------*/
-    app.get('/payment', paymentCtrl.getPaymentPage);
+    // app.get('/payment', paymentCtrl.getPaymentPage);
 
     /*---------------------------------------------------------------------------
                     Application for admission

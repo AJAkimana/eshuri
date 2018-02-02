@@ -9,13 +9,13 @@ block append content
       .content
         .container-fluid
           .row
-            .col-xs-12.col-sm-6.col-md-4.col-lg-4
+            .col-xs-12.col-sm-6.col-md-3.col-lg-3
               .card.card-stats
                 .card-header.card-header-icon(data-background-color="orange")
                   i.material-icons school
                 .card-content
                   p.category Total classes
-                  h3.card-title: a(href="/dashboard.school/") 
+                  h3.card-title: a(href="/dashboard.classe/"+school_id) 
                     | #{info.classes_ol} O Level
                     br
                     | #{info.classes_al} A Level
@@ -25,7 +25,7 @@ block append content
                   .stats
                     -var all_classes = info.classes_ol+info.classes_al
                     i.material-icons local_offer </i> #{all_classes} classes
-            .col-xs-12.col-sm-6.col-md-4.col-lg-4
+            .col-xs-12.col-sm-6.col-md-3.col-lg-3
               .card.card-stats
                 .card-header.card-header-icon(data-background-color="green")
                   i.material-icons school
@@ -40,7 +40,22 @@ block append content
                 .card-footer
                   .stats
                     i.material-icons local_offer </i> Click to view details
-            .col-xs-12.col-sm-6.col-md-4.col-lg-4
+            .col-xs-12.col-sm-6.col-md-3.col-lg-3
+              .card.card-stats
+                .card-header.card-header-icon(data-background-color="rose")
+                  i.material-icons school
+                .card-content
+                  p.category Total finalists
+                  h3.card-title: a(href="/finalists/"+school_id) 
+                    | #{info.finalists} students
+                    br
+                    br
+                    br
+                    br
+                .card-footer
+                  .stats
+                    i.material-icons local_offer </i> Click to view details
+            .col-xs-12.col-sm-6.col-md-3.col-lg-3
               .card.card-stats
                 .card-header.card-header-icon(data-background-color="rose")
                   i.material-icons person

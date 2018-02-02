@@ -8,6 +8,7 @@ const School =require('../models/School'),
       Content=require('../models/Content'),
       Marks =require('../models/MARKS'),
       Classe =require('../models/Classe'),
+      Finalist = require('../models/Finalist'),
       log_err=require('./manage/errorLogger'),
       async = require('async');;
 /*
@@ -880,6 +881,14 @@ exports.getSchoolData = (req,res,next)=>{
             response.school_programs =num_school_programs;
             cb7(null);
           })
+        },
+        (cb8)=>{
+          Finalist.count({school_id:req.params.school_id},(err,num_finalists)=>{
+            if(err) return cb8(err);
+            theData[0].list.push({type:'Finalists',number:num_finalists,url:'/finalists/'+req.user.school_id,icon:'person'})
+            response.school_finalists =num_finalists;
+            cb8(null);
+          })
         }
         ],(err)=>{
           if(err) return log_err(err,false,req,res);;
@@ -887,7 +896,44 @@ exports.getSchoolData = (req,res,next)=>{
         })
   })
 }
-
+exports.getPageFinalists = (req,res,next)=>{
+  req.assert('school_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if(errors) return res.status(400).send(errors[0].msg);
+  var async = require('async');
+  School.findOne({_id:req.params.school_id},(err, school)=>{
+    if(err) return res.render("./lost",{msg:'Service not available'});
+    if(!school) return res.render("./lost",{msg:'Service not available'});
+    return res.render('dashboard/view_finalist_user',{
+      title:'Finalists',
+      pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
+      school_name:school.name,
+      term_name:school.term_name,
+      school_id:req.params.school_id,
+      csrf_token: res.locals.csrftoken
+    })
+  })
+}
+exports.getAllFinalists=(req,res,next)=>{
+  Finalist.find({school_id:req.user.school_id}).lean().exec((err,all_finalists)=>{
+    if(err) return log_err(err,false,req,res);
+    async.eachSeries(all_finalists, (thisfinalist, finalistCb)=>{
+      User.findOne({_id:thisfinalist.student_id},(err, user_details)=>{
+        if(err) return finalistCb(err);
+        var gender=(user_details.gender==1)?'Male':'Female';
+        thisfinalist.name=user_details.name;
+        thisfinalist.classes=user_details.prev_classes;
+        thisfinalist.phone=user_details.phone_number;
+        thisfinalist.urn=user_details.URN;
+        thisfinalist.gender=gender;
+        finalistCb(null);
+      })
+    },(err)=>{
+      if(err) return log_err(err,false,req,res);
+      return res.json(all_finalists);
+    })
+  })
+}
 exports.getCoursesList = (req,res,next)=>{
   // Je checke si existe
   req.assert('class_id', 'Invalid data').isMongoId();

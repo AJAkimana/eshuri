@@ -13,6 +13,7 @@ const School = require('../models/School'),
       SchoolProgram = require('../models/SchoolProgram'),
       Util=require('../utils.js'),
       User = require('../models/User'),
+      Finalist = require('../models/Finalist'),
       async=require('async'),
       ErrorLog=require('../models/ErrorLog'),
       log_err=require('./manage/errorLogger');
@@ -95,9 +96,14 @@ exports.getDashboardPage=(req,res,next)=>{
       response.classes_al=a_levels;
       AlevelCb();
     })
+  },(finalistCb)=>{
+    Finalist.count({school_id:req.user.school_id},(err, finalits)=>{
+      if(err) finalistCb(err);
+      response.finalists=finalits;
+      finalistCb();
+    })
   }],(err)=>{
-    if(err) return log_err(err,false,req,res);
-    console.log('Apis:'+JSON.stringify(response));
+    if(err) return res.render('/lost', {msg:'Service not available'});
     return res.render('dashboard/director_dashboard',{
       title:'Dashboard',
       info:response,
@@ -291,8 +297,8 @@ exports.getHomePageDashboard = function(req,res,next){
   var link ="";
   switch(req.user.access_level){
     case req.app.locals.access_level.SUPERADMIN: break;
-    case req.app.locals.access_level.HOD:
-    case req.app.locals.access_level.SA_SCHOOL:
+    case req.app.locals.access_level.HOD: link="/dashboard.director";break;
+    case req.app.locals.access_level.SA_SCHOOL: 
     case req.app.locals.access_level.ADMIN_TEACHER:
     case req.app.locals.access_level.ADMIN: link="/dashboard.classe/"+req.user.school_id;break;
     default: break;

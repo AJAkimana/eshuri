@@ -36,16 +36,16 @@ nav.navbar.navbar-absolute.navbar-fixed-top(role='navigation', style="position:f
 						//i.material-icons school
 						strong My Students
 				//Only admins has dashboard
-				if access <= 2.1
+				if access <= 2.1 && access!=1.05
 					li: a.btn-simple.btn.btn-warning(style='color:#3d4958;',href="/dashboard")
 						//i.material-icons dashboard
 						strong Dashboard
-				if access >=2 && access <=4
+				if access >=1.05 && access <=4
 					li.dropdown
 						a.btn-simple.btn.btn-info.dropdown-toggle(style='color:#f05167;',data-toggle="dropdown")
 							strong Reports
 						ul.dropdown-menu
-							if access == 4||access==2.1||access==2
+							if access == 4||access==2.1||access==2||access==1.05
 								li: a(href="/report") School reports
 							li.divider
 							if access==2.1||access==3
@@ -76,14 +76,15 @@ nav.navbar.navbar-absolute.navbar-fixed-top(role='navigation', style="position:f
 							li
 								a(style='color:#3d4958;',href="/application")
 									span Applications
-				//- li: a(href="http://gocoderz.com/wp-content/uploads/articulate_uploads/Lesson_1:_Drivetrain/story_html5.html" target="_blank")
+				li: a(href="http://gocoderz.com/wp-content/uploads/articulate_uploads/Lesson_1:_Drivetrain/story_html5.html" target="_blank")
 					//i.material-icons code
 					strong Robotics Programming
 				// payment
-				li: a.btn-simple.btn.btn-info(href="/dashboard.director")
-					strong Dir. Dash
+				if access==1.05
+					li: a.btn-simple.btn.btn-info(href="/dashboard.director")
+						strong Dir. Dash
 				//- li: a.btn-simple.btn.btn-info(href="/payment")
-				li: a.btn-simple.btn.btn-info(href="/payment")
+				//- li: a.btn-simple.btn.btn-info(href="/payment")
 					strong Payment
 				li.dropdown
 					if access
