@@ -83,6 +83,11 @@ module.exports = function(app) {
 			return next();
 		return res.status(400).send(" You are not authorized to access this");     	
 	}
+	var isSchoolDirector =function(req,res,next){
+		if(req.isAuthenticated() && req.user.access_level == req.app.locals.access_level.SA_SCHOOL) 
+			return next();
+		return res.status(400).send(" This operation is for Head of school");     	
+	}
 	var isAtLeastHOD =function(req,res,next){
 		if(req.isAuthenticated() && req.user.access_level <= req.app.locals.access_level.HOD) 
 			return next();
@@ -302,7 +307,7 @@ module.exports = function(app) {
 	app .get('/dashboard',isAtLeastAdmin, dashboardController.getHomePageDashboard);
 	app .get('/dashboard.school',isSuperAdmin, dashboardController.getPageSchools);	
 	app .get('/dashboard.university',isSuperAdmin, dashboardController.getPageUniversities);
-	app.get('/dashboard.director',isAtLeastHOD, dashboardController.getDashboardPage)	
+	app.get('/dashboard.director',isSchoolDirector, dashboardController.getDashboardPage)	
 				// FOR ADMINS LEVEL
 	app .get('/dashboard.classe/:school_id',isAtLeastAdmin, dashboardController.getPageUpdateSchool);
 	app .get('/dashboard.course/:classe_id',isAtLeastAdmin, dashboardController.getPageClasse);

@@ -297,7 +297,7 @@ exports.getHomePageDashboard = function(req,res,next){
   var link ="";
   switch(req.user.access_level){
     case req.app.locals.access_level.SUPERADMIN: break;
-    case req.app.locals.access_level.HOD: link="/dashboard.director";break;
+    case req.app.locals.access_level.HOD:
     case req.app.locals.access_level.SA_SCHOOL: 
     case req.app.locals.access_level.ADMIN_TEACHER:
     case req.app.locals.access_level.ADMIN: link="/dashboard.classe/"+req.user.school_id;break;
