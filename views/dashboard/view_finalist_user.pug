@@ -87,7 +87,7 @@ block append scripts
         .get("/school.finalist.list")
         .then(function(response){
           $scope.students = response.data
-          console.log(JSON.stringify($scope.students))
+          
         })
         .catch(function(erreur){
           Notifier.danger(erreur.data);
