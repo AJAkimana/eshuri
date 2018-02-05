@@ -28,34 +28,33 @@ exports.postNewUnit = function(req,res,next){
       if(err) return log_err(err,false,req,res);
       else if(unit_exists) return res.status(400).send("This unit name is already taken");
       // Otherwise we save the course
-        let nouveauUnit = new Unit({
-          title:req.body.title,
-          description:req.body.description,
-          course_id:req.body.course_id,
+      let nouveauUnit = new Unit({
+        title:req.body.title,
+        description:req.body.description,
+        course_id:req.body.course_id,
+      })
+      nouveauUnit.save(function(err){
+        if(err) return log_err(err,false,req,res);
+        new Notification({
+          user_id:req.user._id,
+          user_name:req.user.name,
+          content: req.user.name+" has added a new unit "+req.body.title+" in "+course_exists.name+
+          ":=>"+req.body.description,
+          class_id:req.user.class_id||null,
+          school_id:req.user.school_id,
+          isAuto:false,             
+        }).save((err)=>{
+          if(err) console.log(" You have to log "+err)
         })
-        nouveauUnit.save(function(err){
-          if(err) return log_err(err,false,req,res);
-          new Notification({
-            user_id:req.user._id,
-            user_name:req.user.name,
-            content: req.user.name+" has added a new unit "+req.body.title+" in "+course_exists.name+
-            ":=>"+req.body.description,
-            class_id:req.user.class_id||null,
-            school_id:req.user.school_id,
-            isAuto:false,             
-          }).save((err)=>{
-            if(err) console.log(" You have to log "+err)
-          })
-          return res.end();          
-        })
+        return res.end();          
       })
     })
-      
-    
+  })
 }
 // recuperer le contenu des unit
 exports.getUnit_JSON = function(req,res,next){ // R
   req.assert('course_id', 'Invalid data').isMongoId();
+  req.assert('academic_year','Invalid data').isInt();
   const errors = req.validationErrors();
   if (errors)  return res.status(400).send(errors[0].msg);
   Unit
@@ -64,7 +63,7 @@ exports.getUnit_JSON = function(req,res,next){ // R
   // .sort({date:1})
   .exec(function(err, units){
     if(err) return log_err(err,false,req,res);
-    console.log(" --->"+JSON.stringify(units));
+    // console.log(" --->"+JSON.stringify(units));
     return res.json(units);
   })
 }

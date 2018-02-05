@@ -37,7 +37,7 @@ block append content
 											tbody
 												tr(pagination-id="allteachers", dir-paginate="teacher in teachers| orderBy:a:b|filter:search|itemsPerPage:n_pages")
 													td(width="1%" height="1%") {{$index + 1}}
-													td: a(href="/dashboard.teachers/{{teacher._id}}") {{teacher.name|uppercase}}
+													td: a(href="/user/{{teacher._id}}") {{teacher.name|uppercase}}
 													td {{teacher.URN|uppercase}}
 													td {{teacher.email}}
 													td {{teacher.phone_number}}

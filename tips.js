@@ -82,4 +82,5 @@ swal({
 			}
 		}
 	})
+{ "_id" : ObjectId("599d76bda93230c0701e1412"), "updatedAt" : ISODate("2018-01-15T07:55:06.514Z"), "created_at" : ISODate("2017-08-23T12:36:13.373Z"), "name" : "MUKAMURAMA", "email" : "mjuve25@yahoo.fr", "URN" : "lbdd-118010", "password" : "$2a$10$GJ4k507Ssv5BAwUBvkY1YO5hFMMmsAn3VS0VqOvxREHaFmdVIVD/W", "school_id" : ObjectId("595647b43e5ea452049f2aa4"), "phone_number" : "0782536587", "hasPaid" : true, "course_retake" : [ ], "isValidated" : false, "isEnabled" : true, "access_level" : 2.1, "gender" : 2, "__v" : 0, "lastSeen" : ISODate("2017-08-23T13:43:19.642Z") }
 	//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

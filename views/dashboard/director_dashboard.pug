@@ -1,0 +1,103 @@
+extends ../layout
+block append scripts
+  script(src="../js/MIT/jquery.select-bootstrap.js",type="application/javascript")
+block append content 
+  //- .main-panel
+    include ../partials/header
+  .wrapper.wrapper-full-page.full-page-background(ng-controller="dashboardCtrl",style="background-image: url('../imgs/register.jpeg')")
+    .full-page.login-page
+      .content
+        .container-fluid
+          .row
+            .col-xs-12.col-sm-6.col-md-3.col-lg-3
+              .card.card-stats
+                .card-header.card-header-icon(data-background-color="orange")
+                  i.material-icons school
+                .card-content
+                  p.category Total classes
+                  h3.card-title: a(href="/dashboard.classe/"+school_id) 
+                    | #{info.classes_ol} O Level
+                    br
+                    | #{info.classes_al} A Level
+                    br
+                    br
+                .card-footer
+                  .stats
+                    -var all_classes = info.classes_ol+info.classes_al
+                    i.material-icons local_offer </i> #{all_classes} classes
+            .col-xs-12.col-sm-6.col-md-3.col-lg-3
+              .card.card-stats
+                .card-header.card-header-icon(data-background-color="green")
+                  i.material-icons school
+                .card-content
+                  p.category Total courses and programs
+                  h3.card-title: a(href="/dashboard.register.course/"+school_id) 
+                    | #{info.courses} courses
+                    br
+                    | #{info.programs} programs 
+                    br
+                    br
+                .card-footer
+                  .stats
+                    i.material-icons local_offer </i> Click to view details
+            .col-xs-12.col-sm-6.col-md-3.col-lg-3
+              .card.card-stats
+                .card-header.card-header-icon(data-background-color="rose")
+                  i.material-icons school
+                .card-content
+                  p.category Total finalists
+                  h3.card-title: a(href="/finalists/"+school_id) 
+                    | #{info.finalists} students
+                    br
+                    br
+                    br
+                .card-footer
+                  .stats
+                    i.material-icons local_offer </i> Click to view details
+            .col-xs-12.col-sm-6.col-md-3.col-lg-3
+              .card.card-stats
+                .card-header.card-header-icon(data-background-color="rose")
+                  i.material-icons person
+                .card-content
+                  p.category Total number of users
+                  h3.card-title
+                    -var all_students = info.students_male+info.students_fem
+                    -var all_teachers=info.teachers_male+info.teachers_fem
+                    -var all_admins=info.admins_male+info.admins_fem
+                    -var all_users=all_students+all_teachers+all_admins
+                    a(href="/dashboard.classe/"+school_id) 
+                      | #{all_students} students
+                      .text-center
+                        | #{info.students_male} M,
+                        | #{info.students_fem} F
+                    a(href="/dashboard.teachers/"+school_id) #{all_teachers} teachers
+                      .text-center
+                        | #{info.teachers_male} M,
+                        | #{info.teachers_fem} F
+                    a(href="/dashboard.admins/"+school_id) #{all_admins} admins
+                      .text-center
+                        | #{info.admins_male} M,
+                        | #{info.admins_fem} F
+                .card-footer
+                  .text-center
+                    | M: Male,
+                    | F:Female
+                    h3.pull-right #{all_users} users
+block append scripts
+  script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+  script.
+    var app =angular.module('eshuri_App', ['ngRoute']);
+    app
+    .controller('dashboardCtrl', function($scope,$http){
+      $scope.loadDashboardInfo = function(){
+        $http
+        .post("/dashboard.direct.statistics",{_csrf:$scope.anti_csrf})
+        .then(function(response){
+        
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data);
+        });
+      }
+      $scope.loadDashboardInfo()
+    })

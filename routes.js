@@ -83,10 +83,15 @@ module.exports = function(app) {
 			return next();
 		return res.status(400).send(" You are not authorized to access this");     	
 	}
+	var isSchoolDirector =function(req,res,next){
+		if(req.isAuthenticated() && req.user.access_level == req.app.locals.access_level.SA_SCHOOL) 
+			return next();
+		return res.status(400).send(" This operation is for Head of school");     	
+	}
 	var isAtLeastHOD =function(req,res,next){
 		if(req.isAuthenticated() && req.user.access_level <= req.app.locals.access_level.HOD) 
 			return next();
-		return res.status(400).send("This operation is for Head of departments");     	
+		return res.status(400).send("This operation is for Head of school");     	
 	}
 	var isAtLeastAdmin =function(req,res,next){
 		if(req.isAuthenticated() && req.user.access_level <= req.app.locals.access_level.ADMIN_TEACHER) 
@@ -294,12 +299,15 @@ module.exports = function(app) {
 	app.get('/school.allUsers.list/:school_id',isAuthenticated, schoolController.getUsersSchool);
 	//Users for teaChat
 	app.get('/school.allTeacAdminUsers.list/:school_id', isTeacherOrAdmin, schoolController.getTeacherAndAdminSchool);
+	app.get('/finalists/:school_id', isAtLeastAdmin, schoolController.getPageFinalists)
+	app.get('/school.finalist.list', isAtLeastAdmin, schoolController.getAllFinalists)
 	/*				DASHBOARD THINGS
 		Concerning adding new school, classe, course -- > For SA and A, Only*/
 			// FOR SUPER ADMIN ONLY
 	app .get('/dashboard',isAtLeastAdmin, dashboardController.getHomePageDashboard);
 	app .get('/dashboard.school',isSuperAdmin, dashboardController.getPageSchools);	
-	app .get('/dashboard.university',isSuperAdmin, dashboardController.getPageUniversities);	
+	app .get('/dashboard.university',isSuperAdmin, dashboardController.getPageUniversities);
+	app.get('/dashboard.director',isSchoolDirector, dashboardController.getDashboardPage)	
 				// FOR ADMINS LEVEL
 	app .get('/dashboard.classe/:school_id',isAtLeastAdmin, dashboardController.getPageUpdateSchool);
 	app .get('/dashboard.course/:classe_id',isAtLeastAdmin, dashboardController.getPageClasse);
@@ -317,7 +325,8 @@ module.exports = function(app) {
 	// app .get('/dashboard.students/:school_id',isAuthenticated, dashboardController.getPageStudents);
 	app .get('/dashboard.departments/:fac_id',isAtLeastAdmin, dashboardController.getPageDepartments);
 	app .get('/dashboard.options/:department_id',isAtLeastAdmin, dashboardController.getPageOptions);
-	app.post('/dashboard.statistics',isAtLeastAdmin, dashboardController.getPageDashboardStats);	
+	app.post('/dashboard.statistics',isAtLeastAdmin, dashboardController.getPageDashboardStats);
+	app.post('/dashboard.direct.statistics',isAtLeastAdmin, dashboardController.getDirectorStats)	
 
 				/* FOR ANYONE PUBLIC */
 	app .get('/dashboard.universities.signup', dashboardController.getAvailableUniversities);
@@ -355,8 +364,10 @@ module.exports = function(app) {
 	app.get('/classe/:classe_id',isAuthenticated, classeController.getPageOneClasse);
 	app.get('/classe.get.courses/:classe_id/:t_quantity', isAuthenticated, classeController.getClassCourses);
 	app.get('/classe.get.nexts/:class_id', isAtLeastAdmin,classeController.getNextClasses);
+	app.get('/classe.get.repeat/:class_id', isAtLeastAdmin,classeController.getClasseToRepeat)
 	app.post('/school.change.to.next',isAtLeastAdmin, classeController.getToNextClass);
 	app.post('/school.change.to.previous',isAtLeastAdmin, classeController.returnToPreviousClass)
+	app.post('/student.post.repeat',isAtLeastAdmin,classeController.setStudentToRepeat);
 				/*COURSES THINGS*/
 	app .get('/courses/:course_id',isAuthenticated, coursesController.getPageOneCourse);
 	app.post('/course.add',isAtLeastAdmin, coursesController.postNewCourse);
@@ -489,6 +500,7 @@ module.exports = function(app) {
 	app.post('/student.set.retake',isAtLeastTeacher,coursesController.setStudentRetake);
 	app.post('/student.delete.retake',isAtLeastTeacher,coursesController.removeRetakeCourse);
 	app.get('/student.marks.page/:course_id',isAuthenticated,coursesController.getPageMyMarks)
+	app.get('/user/:user_id',isAtLeastAdmin,dashboardController.viewPageUserDetails)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// app.get('/teacher.student.marks.page/:course_id',isTeacherOrAdmin,coursesController.getStudentPageMyMarks)
@@ -537,7 +549,7 @@ module.exports = function(app) {
     /*---------------------------------------------------------------------------
                     Payment
     ----------------------------------------------------------------------------*/
-    app.get('/payment', paymentCtrl.getPaymentPage);
+    // app.get('/payment', paymentCtrl.getPaymentPage);
 
     /*---------------------------------------------------------------------------
                     Application for admission
