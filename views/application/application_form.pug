@@ -149,7 +149,7 @@ block append content
                           //- input.form-control(type="email", name="e",required="true",ng-model="nvUser.email",autocomplete="off")
                           input.form-control(type='text', name='guardian2_email', ng-maxlength='250', ng-model='regForm.guardian2_email')
                       .row
-                        h2.info-text  Residance
+                        h2.info-text  Residence
                         .col-md-4.col-sm-4.col-lg-4
                           .form-group.label-floating
                             label.control-label Province
@@ -219,15 +219,15 @@ block append content
                         .form-group.label-floating
                           label.control-label Your grade*
                           input.form-control(type='text', name='grade', ng-model='regForm.grade', required='true',)
-                        h4.info-text Finencial Category
+                        h4.info-text Financial Category
                         .radio
                           label
                             input(type='radio', name='finance',ng-model='regForm.finance', value='self', ng-change="showOther(regForm.finance)")
-                            | Self sponsership
+                            | Self sponsorship
                         .radio
                           label
                             input(type='radio', name='finance',ng-model='regForm.finance', value='farg', ng-change="showOther(regForm.finance)")
-                            | FARG sponsership
+                            | FARG sponsorship
                         .radio
                           label
                             input(type='radio', name='finance', ng-model='regForm.finance', value='', ng-change="showOther(regForm.finance)")
