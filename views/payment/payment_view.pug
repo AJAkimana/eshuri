@@ -47,6 +47,23 @@ block append scripts
                 console.log($scope.number);
                 console.log($scope.amount);
                 console.log($scope.school.name);
+                console.log($window.location);
+                console.log($window.location.host);
+                $scope.paymentForm.email = $scope.email;
+                $scope.paymentForm.phone = $scope.phone;
+                $scope.paymentForm.student_URN = $scope.number;
+                $scope.paymentForm.amount = $scope.amount;
+                $scope.paymentForm.school_name = $scope.school.name;
+                $scope.paymentForm.url = $window.location.host;
+                $http
+                    .post('/payment.post', $scope.paymentForm)
+                    .then(function (response) {
+                        Notifier.success("Seen url " + response.data.url);
+                        $window.location.href = response.data.url;
+                    })
+                    .catch(function (error) {
+                        Notifier.danger(error.data);
+                    });
             }
             $scope.loadSchools = function () {
                 $http
