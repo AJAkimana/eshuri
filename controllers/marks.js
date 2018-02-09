@@ -745,7 +745,7 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 	})
 	function allReportDatasMarks(){
 		async.series([(getAllStudentsInClass)=>{
-			User.find({class_id:thisClass,access_level:req.app.locals.access_level.STUDENT},{_id:1,name:1,class_id:1, URN:1},(error, student_list)=>{
+			User.find({$or:[{prev_classes:thisClass},{class_id:thisClass,access_level:req.app.locals.access_level.STUDENT}]},{_id:1,name:1,class_id:1, URN:1},(error, student_list)=>{
 				if(error) return log_err(error, false, req, res);
 				listStudents = student_list;
 				//console.warn("students -=> "+JSON.stringify(listStudents));
