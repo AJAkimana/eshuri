@@ -100,7 +100,7 @@ exports.get_Content_JSON = (req,res,next)=>{
       .sort({upload_time:1})
       .exec((err,content_list)=>{
         if(err) return log_err(err,false,req,res);
-        console.log('contents:'+JSON.stringify(content_list))
+        // console.log('contents:'+JSON.stringify(content_list))
         return res.json(content_list); 
       })
   }
@@ -177,7 +177,7 @@ exports.set_Quoted = (req,res,next)=>{
      return res.status(400).send("This is not your course ;)");
     content_exists.isQuoted =!content_exists.isQuoted;
     // Update first the MARKS before CONTENT
-    Marks.findOneAndUpdate({content_id:req.body.content_id},{$set:{isQuoted:content_exists.isQuoted}},
+    Marks.update({content_id:req.body.content_id},{$set:{isQuoted:content_exists.isQuoted}},{multi:true},
       (err,marks_exists)=>{
       if(err) return log_err(err,false,req,res);
       content_exists.save((err,ok)=>{
@@ -273,59 +273,65 @@ exports.getListContentPerCourse = (req,res,next)=>{
   // I want to fetch all corresponding 
   var async =require("async");
   var content_List=[],course_quota={};
-  async.series([
-          //first compute the content marks
-    (callback_1)=>{
-      async.parallel([
-        (callback)=>{
-          Content
-          .find({course_id:req.params.course_id,type:{$gte:3,$lte:6}},
-            {source_question:0,course_id:0,school_id:0,unit_id:0,owner_URN:0,answers:0,time:0,academic_year:0,
-              isPublished:0,updatedAt:0,q_solution:0,q_info:0
-            })
-          .sort({isQuoted:-1})
-          .exec((err,content_list)=>{
-            if(err) callback(err);
-            content_List = content_list;
-            callback(null);
-          }) 
+  Course.findOne({_id:req.params.course_id},(err, course)=>{
+    if(err) return res.status(400).send("Invalid data");
+    if(!course) return res.status(400).send("Invalid data");
+    Classe.findOne({_id:course.class_id},(err, classe)=>{
+      if(err) return res.status(400).send("Invalid data");
+      if(!classe) return res.status(400).send("Invalid data");
+      async.series([
+              //first compute the content marks
+        (callback_1)=>{
+          async.parallel([
+            (callback)=>{
+              Content
+              .find({course_id:req.params.course_id,academic_year:classe.academic_year,type:{$gte:3,$lte:6}},
+                {source_question:0,course_id:0,school_id:0,unit_id:0,owner_URN:0,answers:0,time:0,academic_year:0,
+                  isPublished:0,updatedAt:0,q_solution:0,q_info:0
+                })
+              .sort({isQuoted:-1})
+              .exec((err,content_list)=>{
+                if(err) callback(err);
+                content_List = content_list;
+                callback(null);
+              }) 
+            },
+            (callback)=>{
+              Course.findOne({_id:req.params.course_id},(err,course_exists)=>{
+                if(err) callback(err);
+                else if(!course_exists) callback("The course doesn't exists ")
+                course_quota.test =course_exists.test_quota;
+                course_quota.exam =course_exists.exam_quota;
+                course_quota.courseWeight =course_exists.weightOnReport;
+                callback(null);
+              })
+            }
+          ],(err)=>{
+            return callback_1(err);        
+         })
         },
-        (callback)=>{
-          Course.findOne({_id:req.params.course_id},(err,course_exists)=>{
-            if(err) callback(err);
-            else if(!course_exists) callback("The course doesn't exists ")
-            course_quota.test =course_exists.test_quota;
-            course_quota.exam =course_exists.exam_quota;
-            course_quota.courseWeight =course_exists.weightOnReport;
-            callback(null);
+        //second parallel computation
+        (callback_2)=>{
+          async.each(content_List,(currentContent,callback_parallel)=>{
+            Marks.aggregate([
+              {$match:{content_id:currentContent._id}},
+              {$group:{ _id:null,average:{$avg:'$percentage'}}}
+            ],(err,results)=>{
+              if(err) callback_parallel(err);
+              // console.log("Exam AVG ="+JSON.stringify(results))
+              currentContent.__v = results.length>0? Number(results[0].average):0;
+              //console.log("CONTENT ="+JSON.stringify(currentContent.avg))
+              callback_parallel(null);
+            })
+          },(err)=>{
+            return callback_2(err);
           })
-        }
+        },
       ],(err)=>{
-        return callback_1(err);        
-     })
-    },
-    //second parallel computation
-    (callback_2)=>{
-      async.each(content_List,(currentContent,callback_parallel)=>{
-        Marks.aggregate([
-          {$match:{content_id:currentContent._id}},
-          {$group:{ _id:null,average:{$avg:'$percentage'}}}
-        ],(err,results)=>{
-          if(err) callback_parallel(err);
-          // console.log("Exam AVG ="+JSON.stringify(results))
-          currentContent.__v = results.length>0? Number(results[0].average):0;
-          //console.log("CONTENT ="+JSON.stringify(currentContent.avg))
-          callback_parallel(null);
-        })
-      },(err)=>{
-        return callback_2(err);
+        if(err) return res.status(500).send(" Sorry, a problem occured");
+        return res.json({list:content_List,course_quota:course_quota});
       })
-    },
-  ],(err)=>{
-    if(err) return res.status(500).send(" Sorry, a problem occured");
-    return res.json({list:content_List,course_quota:course_quota});
-  })
-    
-  
+    })
+  }) 
 }
 

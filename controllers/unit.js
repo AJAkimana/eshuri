@@ -31,6 +31,7 @@ exports.postNewUnit = function(req,res,next){
       let nouveauUnit = new Unit({
         title:req.body.title,
         description:req.body.description,
+        academic_year:req.body.academic_year,
         course_id:req.body.course_id,
       })
       nouveauUnit.save(function(err){
@@ -40,7 +41,8 @@ exports.postNewUnit = function(req,res,next){
           user_name:req.user.name,
           content: req.user.name+" has added a new unit "+req.body.title+" in "+course_exists.name+
           ":=>"+req.body.description,
-          class_id:req.user.class_id||null,
+          class_id:course_exists.class_id,
+          // class_id:req.user.class_id||null,
           school_id:req.user.school_id,
           isAuto:false,             
         }).save((err)=>{

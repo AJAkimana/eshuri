@@ -7,8 +7,9 @@ Quizzes, tests, assessments and assignements belongs to a Unit
 var UnitSchema =new Schema({
 	title:{type:String,required:true,maxlength:100,unique:false,lowercase:true,trim:true},
 	description:{type:String,required:true,maxlength:140,unique:false,lowercase:true,trim:true},
+	academic_year:{type:Number,required:false,unique:false},
 	course_id:{type: Schema.Types.ObjectId,required:true,unique:false},
-});
+}, { timestamps: { createdAt: 'created_at' }});
 
 UnitSchema.pre('save', function (next) {
 	next();

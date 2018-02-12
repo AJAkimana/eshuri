@@ -234,6 +234,7 @@ block append scripts
       $scope.addUnit = function(){
         $scope.unit._csrf =$scope.anti_csrf;
         $scope.unit.course_id =$scope.course_id;
+        $scope.unit.academic_year = "#{academic_year}"
         $http
         .post("/unit.add", $scope.unit)
         .then(function(response){

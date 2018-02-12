@@ -73,10 +73,9 @@ exports.postNew_Uploaded = (req,res,next)=>{
         })
         .save((err)=>{
           if(err) return res.redirect("back")
-          return res.redirect("/courses/"+course_exists._id);
+          return res.redirect("/courses/"+class_exists.academic_year+course_exists._id);
         })
-      })
-        
+      }) 
     })
   })
 }
@@ -159,11 +158,10 @@ exports.uploadAnswer = (req,res,next)=>{
             comment: req.body.comment|| null,
           }).save((err)=>{
             if(err) return log_err(err,false,req,res);
-            return res.redirect("/courses/"+course_exists._id);
+            return res.redirect("/courses/"+class_exists.academic_year+course_exists._id);
           })            
         })  
-      })
-            
+      })      
     })
   }) 
 }

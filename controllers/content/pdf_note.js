@@ -52,25 +52,25 @@ exports.postNew_Note = (req,res,next)=>{
       //Check that you have the right to upload it
       else if(course_exists.teacher_list.indexOf(String(req.user._id)) ==-1)
         return res.status(400).send("Sorry, this course is not yours");
-    Classe.findOne({_id:course_exists.class_id},(err,class_exists)=>{
-      if(err) return log_err(err,false,req,res);
-      else if(!class_exists) return res.status(400).send('Invalid data');      
-      new Content({
-            title:req.body.title,
-            source_question:req.file.path,
-            currentTerm:class_exists.currentTerm,
-            academic_year:class_exists.academic_year,
-            course_id:course_exists._id,
-            school_id:course_exists.school_id,
-            unit_id:unit_exists._id,
-            owner_URN: req.user.URN,
-            type: req.app.locals.type.PDF_Note,
-          })
-          .save((err)=>{
-            if(err) return res.render("./lost",{msg:"Upload has failed"})
-            return res.redirect("/courses/"+course_exists._id);
-          })  
-    })
+      Classe.findOne({_id:course_exists.class_id},(err,class_exists)=>{
+        if(err) return log_err(err,false,req,res);
+        else if(!class_exists) return res.status(400).send('Invalid data');      
+        new Content({
+          title:req.body.title,
+          source_question:req.file.path,
+          currentTerm:class_exists.currentTerm,
+          academic_year:class_exists.academic_year,
+          course_id:course_exists._id,
+          school_id:course_exists.school_id,
+          unit_id:unit_exists._id,
+          owner_URN: req.user.URN,
+          type: req.app.locals.type.PDF_Note,
+        })
+        .save((err)=>{
+          if(err) return res.render("./lost",{msg:"Upload has failed"})
+          return res.redirect("/courses/"+class_exists.academic_year+course_exists._id);
+        })  
+      })
     })
   })
 }
@@ -109,20 +109,26 @@ exports.postUpdateNote = (req,res,next)=>{
     else if(!contentToUpdate)  return res.status(400).send("Invalid data type");
     else if(String(req.user.URN) != String(contentToUpdate.owner_URN))
         return res.status(400).send("This course is not yours");
+    Course.findOne({_id:contentToUpdate.course_id},(err, course)=>{
+      if(err) return res.status(400).send("Invalid data");
+      if(!course) return res.status(400).send("Invalid data");
+      Classe.findOne({_id:course.class_id},(err, classe)=>{
+        if(err) return res.status(400).send("Invalid data");
+        if(!classe) return res.status(400).send("Invalid data");
+        var oldFilePath =contentToUpdate.source_question;
 
-    var oldFilePath =contentToUpdate.source_question;
-
-    contentToUpdate.source_question =req.file.path;
-    // console.log(" I will save "+JSON.stringify(contentToUpdate))
-    contentToUpdate.save((err)=>{
-      // console.log("Saving "+err)
-      if(err) return log_err(err,false,req,res);
-        // ASYNCHRONOUSELY REMOVE FILE
-      require("fs").unlink(oldFilePath,(err)=>{
-        if(err) console.log(" FILE NOT DELETED !")
-      });
-
-      return res.redirect("/courses/"+contentToUpdate.course_id);
+        contentToUpdate.source_question =req.file.path;
+        // console.log(" I will save "+JSON.stringify(contentToUpdate))
+        contentToUpdate.save((err)=>{
+          // console.log("Saving "+err)
+          if(err) return log_err(err,false,req,res);
+            // ASYNCHRONOUSELY REMOVE FILE
+          require("fs").unlink(oldFilePath,(err)=>{
+            if(err) console.log(" FILE NOT DELETED !")
+          });
+          return res.redirect("/courses/"+classe.academic_year+contentToUpdate.course_id);
+        })
+      })
     })
   })    
 }

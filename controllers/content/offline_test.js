@@ -199,10 +199,7 @@ exports.getPageOfflineStudents = (req,res,next)=>{
           return res.json(reponse);
         })
       })
-
-
   	})
-  	
   })
 }
 exports.setMarksStudent = (req,res,next)=>{
@@ -229,8 +226,8 @@ exports.setMarksStudent = (req,res,next)=>{
   			access_level:req.app.locals.access_level.STUDENT},(err,user_exists)=>{
 	  		if(err) return log_err(err,false,req,res);
 	  		else if(!user_exists) return res.status(400).send("The user doesn't exists");
-	  		else if(String(user_exists.class_id)!=String(course_exists.class_id))
-	  			return res.status(400).send("Invalid input"+course_exists.class_id);
+	  		// else if(String(user_exists.class_id)!=String(course_exists.class_id))
+	  		// 	return res.status(400).send("Invalid input"+course_exists.class_id);
         else if(course_exists.teacher_list.indexOf(req.user._id)==-1)
           return res.status(400).send("You are not authorized to do this");
         Classe.findOne({_id:course_exists.class_id},(err,class_exists)=>{
@@ -256,8 +253,8 @@ exports.setMarksStudent = (req,res,next)=>{
             course_id:content_exists.course_id,
             course_name:course_exists.name,
             level: course_exists.level,
-            isCAT:true,
-            isQuoted:true,
+            isCAT:content_exists.isCAT,
+            isQuoted:content_exists.isQuoted,
             // uploaded_file:"",
             // uploaded_text:"",
             // uploaded_array:req.body.studentChoices,

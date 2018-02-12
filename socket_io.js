@@ -4,7 +4,7 @@ https://www.packtpub.com/books/content/adding-real-time-functionality-using-sock
 var num_clients=0;
 const Message =require('./models/Message'),
 	  Util =require("./utils"),
-	User =require('./models/User');
+	  User =require('./models/User');
 module.exports = function(app) {
 	// INITIALISTION
   var server = require('http').createServer(app);
