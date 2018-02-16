@@ -526,18 +526,20 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 	const errors = req.validationErrors();
 	if (errors) return res.status(400).send(errors[0].msg);
 
-	var currentAcademicYear=req.body.academic_year;
-	var thisClass = req.body.class_id;
-	var thisStudent = req.body.student_id;
+	var currentAcademicYear=req.body.academic_year, 
+		thisClass = req.body.class_id, 
+		thisStudent = req.body.student_id;
 	var reportData = [];
-	var termLists = [];
-	var listStudents = [];
-	var listCourses = []; //you have to include course quota
-	var listAssessments = [];
-	var termOne = [], termTwo = [], termThree = [];
-	var totals = [], termMarks = [];
-	var totalQuizzes=0, totalExams=0, totalQuotes=0;
-	var totalQuizzT1=0, totalQuizzT2=0, totalQuizzT3=0, totalExamT1=0, totalExamT2=0, totalExamT3=0, courseTerm1Marks=0, courseTerm2Marks=0, courseTerm3Marks=0;
+		termLists = [];
+		listStudents = [],
+		listCourses = [], 
+		listAssessments = [], 
+		termOne = [], termTwo = [], termThree = [], 
+		totals = [], termMarks = [];
+	var totalQuizzes=0, totalExams=0, totalQuotes=0, totalQuizzT1=0,
+		totalQuizzT2=0, totalQuizzT3=0, totalExamT1=0, totalExamT2=0,
+		totalExamT3=0, courseTerm1Marks=0, courseTerm2Marks=0,
+		courseTerm3Marks=0;
 
 	var user_name='', classe_name='', user_urn='';
 	var async = require("async");
@@ -570,7 +572,7 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 				Course.find({school_id:req.user.school_id,class_id:thisClass, currentTerm:thisTerm},{_id:1, name:1, code:1, currentTerm:1, test_quota:1, exam_quota:1, weightOnReport:1},(err, coursesList)=>{
 					if(err) return callbackCourse(err);
 					listOfCourses = coursesList;
-					//console.warn("Courses -=-=-=-=-=-=-=> "+JSON.stringify(listOfCourses));
+					console.warn("Courses -=-=-=-=-=-=-=> "+JSON.stringify(listOfCourses));
 					callbackCourse(null);
 				});
 			},(testAndExamOfEveryCourse)=>{
@@ -707,6 +709,7 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 	if (errors) return res.status(400).send(errors[0].msg);
 	var currentAcademicYear=req.body.academic_year;
 	var thisClass = req.body.class_id;
+	var class_academy, parametters={};
 	//*****************************************************************
 		// All arrays variables
 	//*****************************************************************
@@ -733,9 +736,12 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 		if(err) return log_err(err, false, req, res);
 		//userDetails.push({classe:class_details});
 		classe_name=class_details.name;
+		class_academy = class_details.academic_year;
+		if(class_academy==currentAcademicYear) parametters={class_id:thisClass,access_level:req.app.locals.access_level.STUDENT};
+		else parametters={prev_classes:thisClass, access_level:req.app.locals.access_level.STUDENT}
 	});
 	//++++++++++++++++++Validate mark for errors
-	Marks.find().distinct("currentTerm", {class_id:thisClass},(err, allterms)=>{
+	Marks.find().distinct("currentTerm", {class_id:thisClass, academic_year:currentAcademicYear},(err, allterms)=>{
 		if(err) return log_err(err, false, req, res);
 		alterms=allterms;
 		//console.log('term quantity:'+alterms)
@@ -745,7 +751,7 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 	})
 	function allReportDatasMarks(){
 		async.series([(getAllStudentsInClass)=>{
-			User.find({$or:[{prev_classes:thisClass},{class_id:thisClass,access_level:req.app.locals.access_level.STUDENT}]},{_id:1,name:1,class_id:1, URN:1},(error, student_list)=>{
+			User.find(parametters,{_id:1,name:1,class_id:1, URN:1},(error, student_list)=>{
 				if(error) return log_err(error, false, req, res);
 				listStudents = student_list;
 				//console.warn("students -=> "+JSON.stringify(listStudents));

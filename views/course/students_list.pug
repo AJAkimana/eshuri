@@ -34,11 +34,13 @@ block append content
 												th.text-center #
 												th URN
 												th(ng-click="a='name';b=!b") Name
+												th(ng-click="a='lastSeen';b=!b") Last seen
 											tbody
 												tr(pagination-id="allstudents", dir-paginate="student in studentsInClass |orderBy:a:b|filter:search|itemsPerPage:n_pages")
 													td(width="1%" height="1%") {{$index + 1}}
 													td: a(href="#") {{student.URN|uppercase}}
 													td: a(href="#") {{student.name|uppercase}}
+													td {{student.lastSeen|toMoment}}
 																
 										dir-pagination-controls.pull-right(pagination-id='allstudents', max-size='5', direction-links='true', boundary-links='true')
 									p.category(ng-show="!studentsInClass.length") No students following the course
@@ -101,6 +103,15 @@ block append scripts
 				return input? "is Test":"is Exam"
 			}
 		})
+		.filter('toMoment', ['$interval', function ($interval){
+			// trigger digest every 60 seconds
+			$interval(function (){}, 60000);
+			function fromNowFilter(input){
+				return moment(input).fromNow();
+			}
+			fromNowFilter.$stateful = true;
+			return fromNowFilter;
+		}])
 		.controller('studentCourseCtrl', function($scope, $http,$window){
 			$scope.loadstudents = function(){
 				$scope.add_retake =false;

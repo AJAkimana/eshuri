@@ -84,10 +84,9 @@ block append scripts
       // We receive years[], allCourses[],term_name,term_quantity     
       $scope.loadFinalistsList = function(){
         $http
-        .get("/school.finalist.list")
+        .get("/school.finalist.list/"+$scope.school_id)
         .then(function(response){
           $scope.students = response.data
-          
         })
         .catch(function(erreur){
           Notifier.danger(erreur.data);

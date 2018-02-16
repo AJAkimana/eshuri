@@ -26,7 +26,17 @@ exports.getPageSchools = function(req,res,next){
     csrftokensrf_token:res.locals.csrftoken, // always set this buddy
   })
 };
-exports.getDashboardPage=(req,res,next)=>{
+exports.getSchoolRedirection = (req, res, next)=>{
+  req.assert('school_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.render("./lost",{msg:errors[0].msg});
+
+  var superAdmin = req.app.locals.access_level.SUPERADMIN;
+  var hod = req.app.locals.access_level.HOD;
+  var accLvl = req.user.access_level;
+
+  // if(accLvl != hod || accLvl != superAdmin) return res.redirect("back");
+  var school_id = req.params.school_id;
   var async = require('async');
   var accLvl = req.user.access_level;
   var student = req.app.locals.access_level.STUDENT,
@@ -35,89 +45,100 @@ exports.getDashboardPage=(req,res,next)=>{
       admin_teacher = req.app.locals.access_level.ADMIN_TEACHER;
   var students_male,students_fem,admins_male,admins_fem,teachers_male,teachers_fem,courses,programs,classes_ol,classes_al;
   var response={};
-
-  async.parallel([(studentMaleCb)=>{
-    User.count({school_id:req.user.school_id,isEnabled:true,access_level:student,gender:1},(err, students)=>{
-      if(err) studentMaleCb(err);
-      response.students_male=students;
-      studentMaleCb();
-    })
-  },(studentFemCb)=>{
-    User.count({school_id:req.user.school_id,isEnabled:true,access_level:student,gender:2},(err, students)=>{
-      if(err) studentFemCb(err);
-      response.students_fem=students;
-      studentFemCb();
-    })
-  },(adminMaleCb)=>{
-    User.count({school_id:req.user.school_id,isEnabled:true,$or:[{access_level:admin},{access_level:admin_teacher}],gender:1},(err, admins)=>{
-      if(err) adminMaleCb(err);
-      response.admins_male=admins;
-      adminMaleCb();
-    })
-  },(adminFemCb)=>{
-    User.count({school_id:req.user.school_id,isEnabled:true,$or:[{access_level:admin},{access_level:admin_teacher}],gender:2},(err, admins)=>{
-      if(err) adminFemCb(err);
-      response.admins_fem=admins;
-      adminFemCb();
-    })
-  },(teacherMaleCb)=>{
-    User.count({school_id:req.user.school_id,isEnabled:true,access_level:teacher,gender:1},(err, teachers)=>{
-      if(err) teacherMaleCb(err);
-      response.teachers_male=teachers;
-      teacherMaleCb();
-    })
-  },(teacherFemaleCb)=>{
-    User.count({school_id:req.user.school_id,isEnabled:true,access_level:teacher,gender:2},(err, teachers)=>{
-      if(err) teacherFemaleCb(err);
-      response.teachers_fem=teachers;
-      teacherFemaleCb();
-    })
-  },(coursesCb)=>{
-    SchoolCourse.count({school_id:req.user.school_id},(err, courses)=>{
-      if(err) coursesCb(err)
-      response.courses=courses;
-      coursesCb();
-    })
-  },(programsCb)=>{
-    SchoolProgram.count({school_id:req.user.school_id},(err, programs)=>{
-      if(err) programsCb(err)
-      response.programs=programs;
-      programsCb();
-    })
-  },(OlevelCb)=>{
-    Class.count({school_id:req.user.school_id, option:null},(err, ol_levels)=>{
-      if(err) OlevelCb(err);
-      response.classes_ol=ol_levels;
-      OlevelCb();
-    })
-  },(AlevelCb)=>{
-    Class.count({school_id:req.user.school_id, option:{$ne:null}},(err, a_levels)=>{
-      if(err) AlevelCb(err);
-      response.classes_al=a_levels;
-      AlevelCb();
-    })
-  },(finalistCb)=>{
-    Finalist.count({school_id:req.user.school_id},(err, finalits)=>{
-      if(err) finalistCb(err);
-      response.finalists=finalits;
-      finalistCb();
-    })
-  }],(err)=>{
-    if(err) return res.render('/lost', {msg:'Service not available'});
-    return res.render('dashboard/director_dashboard',{
-      title:'Dashboard',
-      info:response,
-      school_id:req.user.school_id,
-      pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),
-      access_lvl:req.user.access_level,
-      csrf_token:res.locals.csrftoken, // always set this buddy
+  School.findOne({_id:school_id},(err, school_exists)=>{
+    if(err) return res.render("./lost",{msg:"Invalid data"});
+    if(!school_exists) return res.render("./lost",{msg:"Unkown school"});
+    async.parallel([(studentMaleCb)=>{
+      User.count({school_id:school_id,isEnabled:true,access_level:student,gender:1},(err, students)=>{
+        if(err) studentMaleCb(err);
+        response.students_male=students;
+        studentMaleCb();
+      })
+    },(studentFemCb)=>{
+      User.count({school_id:school_id,isEnabled:true,access_level:student,gender:2},(err, students)=>{
+        if(err) studentFemCb(err);
+        response.students_fem=students;
+        studentFemCb();
+      })
+    },(adminMaleCb)=>{
+      User.count({school_id:school_id,isEnabled:true,$or:[{access_level:admin},{access_level:admin_teacher}],gender:1},(err, admins)=>{
+        if(err) adminMaleCb(err);
+        response.admins_male=admins;
+        adminMaleCb();
+      })
+    },(adminFemCb)=>{
+      User.count({school_id:school_id,isEnabled:true,$or:[{access_level:admin},{access_level:admin_teacher}],gender:2},(err, admins)=>{
+        if(err) adminFemCb(err);
+        response.admins_fem=admins;
+        adminFemCb();
+      })
+    },(teacherMaleCb)=>{
+      User.count({school_id:school_id,isEnabled:true,access_level:teacher,gender:1},(err, teachers)=>{
+        if(err) teacherMaleCb(err);
+        response.teachers_male=teachers;
+        teacherMaleCb();
+      })
+    },(teacherFemaleCb)=>{
+      User.count({school_id:school_id,isEnabled:true,access_level:teacher,gender:2},(err, teachers)=>{
+        if(err) teacherFemaleCb(err);
+        response.teachers_fem=teachers;
+        teacherFemaleCb();
+      })
+    },(coursesCb)=>{
+      SchoolCourse.count({school_id:school_id},(err, courses)=>{
+        if(err) coursesCb(err)
+        response.courses=courses;
+        coursesCb();
+      })
+    },(programsCb)=>{
+      SchoolProgram.count({school_id:school_id},(err, programs)=>{
+        if(err) programsCb(err)
+        response.programs=programs;
+        programsCb();
+      })
+    },(OlevelCb)=>{
+      Class.count({school_id:school_id, option:null},(err, ol_levels)=>{
+        if(err) OlevelCb(err);
+        response.classes_ol=ol_levels;
+        OlevelCb();
+      })
+    },(AlevelCb)=>{
+      Class.count({school_id:school_id, option:{$ne:null}},(err, a_levels)=>{
+        if(err) AlevelCb(err);
+        response.classes_al=a_levels;
+        AlevelCb();
+      })
+    },(finalistCb)=>{
+      Finalist.count({school_id:school_id},(err, finalits)=>{
+        if(err) finalistCb(err);
+        response.finalists=finalits;
+        finalistCb();
+      })
+    }],(err)=>{
+      if(err) return res.render('/lost', {msg:'Service not available'});
+      return res.render('dashboard/director_dashboard',{
+        title:'Dashboard',
+        info:response,
+        school_id:school_id,
+        school_name:school_exists.name.toUpperCase(),
+        pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),
+        access_lvl:req.user.access_level,
+        csrf_token:res.locals.csrftoken, // always set this buddy
+      })
     })
   })
+}
+exports.getDashboardPage=(req,res,next)=>{
+  var superAdmin = req.app.locals.access_level.SUPERADMIN;
+      hod = req.app.locals.access_level.HOD;
+      accLvl = req.user.access_level;
+  if(accLvl == hod) return res.redirect('/school.dashboard.home/'+req.user.school_id);
+  else return res.redirect("back");
 }
 exports.viewPageUserDetails=(req,res,next)=>{
   req.assert('user_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
-  if (errors) return res.render("./lost",{msg:errors[0].msg})
+  if (errors) return res.render("./lost",{msg:errors[0].msg});
   var listClasses=[],allclasses=[],classes=[];
   var student = req.app.locals.access_level.STUDENT,
       teacher = req.app.locals.access_level.TEACHER,

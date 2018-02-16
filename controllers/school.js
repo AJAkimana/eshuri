@@ -7,8 +7,10 @@ const School =require('../models/School'),
       Department =require('../models/Department'),
       Content=require('../models/Content'),
       Marks =require('../models/MARKS'),
+      Util =require("../utils"),
       Classe =require('../models/Classe'),
       Finalist = require('../models/Finalist'),
+      Message = require('../models/Message'),
       log_err=require('./manage/errorLogger'),
       async = require('async');;
 /*
@@ -915,7 +917,10 @@ exports.getPageFinalists = (req,res,next)=>{
   })
 }
 exports.getAllFinalists=(req,res,next)=>{
-  Finalist.find({school_id:req.user.school_id}).lean().exec((err,all_finalists)=>{
+  req.assert('school_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if(errors) return res.status(400).send(errors[0].msg);
+  Finalist.find({school_id:req.params.school_id}).lean().exec((err,all_finalists)=>{
     if(err) return log_err(err,false,req,res);
     async.eachSeries(all_finalists, (thisfinalist, finalistCb)=>{
       User.findOne({_id:thisfinalist.student_id},(err, user_details)=>{
@@ -993,6 +998,9 @@ exports.getUsersSchool = (req,res,next)=>{
   req.assert('school_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
   if(errors) return res.status(400).send(errors[0].msg);
+
+  var async = require('async');
+  var msg_number=0
   if(req.user.access_level==5){
     User.find({school_id:req.params.school_id,access_level:3,_id:{$ne:req.user._id},isEnabled:true},
       {__v:0,email:0,password:0,gender:0,phone_number:0,class_id:0,school_id:0
@@ -1005,11 +1013,25 @@ exports.getUsersSchool = (req,res,next)=>{
   }else{
     User.find({school_id:req.params.school_id,_id:{$ne:req.user._id},isEnabled:true},
       {__v:0,email:0,password:0,gender:0,phone_number:0,class_id:0,school_id:0
-        ,isEnabled:0,isValidated:0,upload_time:0,updatedAt:0}
-      ,(err,usersList)=>{
+        ,isEnabled:0,isValidated:0,upload_time:0,updatedAt:0}).sort({name:1}).lean().exec((err,usersList)=>{
       if(err) return log_err(err,false,req,res);
+      async.eachSeries(usersList, (thisUser, userCallBack)=>{
+        Message.count({conv_id:Util.getConv_id(req.user._id,thisUser._id), isRead:false}, (err, msg_number)=>{
+          if(err) userCallBack(err)
+          msg_number = msg_number;
 
-      return res.json(usersList);
+          thisUser.unReads = msg_number;
+          if(msg_number>0) thisUser.hasMsg = true;
+          else thisUser.hasMsg = false;
+
+          console.log(msg_number+'<------------NAME: '+thisUser.name+'--UN-READ: '+thisUser.unReads+'--HAS MSG: '+thisUser.hasMsg)
+          userCallBack();
+        })
+      }, (err)=>{
+        if(err) return log_err(err,false,req,res);
+        // Every thing is right return all users
+        return res.json(usersList);
+      })
     })
   }
 

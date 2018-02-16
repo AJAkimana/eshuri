@@ -83,8 +83,8 @@ module.exports = function(app) {
 			return next();
 		return res.status(400).send(" You are not authorized to access this");     	
 	}
-	var isSchoolDirector =function(req,res,next){
-		if(req.isAuthenticated() && req.user.access_level == req.app.locals.access_level.SA_SCHOOL) 
+	var isAtLeastSchoolDirector =function(req,res,next){
+		if(req.isAuthenticated() && req.user.access_level <= req.app.locals.access_level.SA_SCHOOL) 
 			return next();
 		return res.status(400).send(" This operation is for Head of school");     	
 	}
@@ -300,14 +300,15 @@ module.exports = function(app) {
 	//Users for teaChat
 	app.get('/school.allTeacAdminUsers.list/:school_id', isTeacherOrAdmin, schoolController.getTeacherAndAdminSchool);
 	app.get('/finalists/:school_id', isAtLeastAdmin, schoolController.getPageFinalists)
-	app.get('/school.finalist.list', isAtLeastAdmin, schoolController.getAllFinalists)
+	app.get('/school.finalist.list/:school_id', isAtLeastAdmin, schoolController.getAllFinalists)
 	/*				DASHBOARD THINGS
 		Concerning adding new school, classe, course -- > For SA and A, Only*/
 			// FOR SUPER ADMIN ONLY
 	app .get('/dashboard',isAtLeastAdmin, dashboardController.getHomePageDashboard);
 	app .get('/dashboard.school',isSuperAdmin, dashboardController.getPageSchools);	
 	app .get('/dashboard.university',isSuperAdmin, dashboardController.getPageUniversities);
-	app.get('/dashboard.director',isSchoolDirector, dashboardController.getDashboardPage)	
+	app.get('/dashboard.director',isAtLeastSchoolDirector, dashboardController.getDashboardPage);
+	app.get('/school.dashboard.home/:school_id', isAtLeastSchoolDirector, dashboardController.getSchoolRedirection)	
 				// FOR ADMINS LEVEL
 	app .get('/dashboard.classe/:school_id',isAtLeastAdmin, dashboardController.getPageUpdateSchool);
 	app .get('/dashboard.course/:classe_id',isAtLeastAdmin, dashboardController.getPageClasse);
@@ -563,6 +564,7 @@ module.exports = function(app) {
 	app .get('/timeline.get',isAuthenticated,timelineCtrl.getTimeline);
 	app.get('/timeline.get.adminpost', isTeacherOrAdmin, timelineCtrl.getAdminPosts);
 	app .get('/messages.get/:from_id',isAuthenticated,timelineCtrl.getMEssageFromOne);
+	app.post('/messages.delete.unread',isAuthenticated, timelineCtrl.deleteUnReads)
 
 	app.get('/library',isAuthenticated,libraryCtrl.getLibraryViewPage)
 	app.post('/library.book.list',isAtLeastStudent,libraryCtrl.getLibraryBookList)

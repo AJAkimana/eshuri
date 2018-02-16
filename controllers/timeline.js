@@ -153,6 +153,16 @@ exports.getMEssageFromOne = (req,res,next)=>{
     return res.json(listCOnv)
   })
 } 
+exports.deleteUnReads = (req, res, next)=>{
+  req.assert('user_id',"Invalid data").isMongoId();
+  const errors = req.validationErrors();
+  if(errors) return res.status(400).send(errors[0].msg);
+  Message.update({conv_id:Util.getConv_id(req.user._id,req.body.user_id), isRead:false},{$set:{isRead:true}}, {multi:true}, (err, done)=>{
+    if(err) return log_err(err,false,req,res);
+    console.log('Delete:--'+JSON.stringify(done))
+    return res.end();
+  })
+}
 exports.addLike = (req,res,next)=>{
   req.assert('post_id',"Invalid data").isMongoId();
   const errors = req.validationErrors();

@@ -46,7 +46,7 @@ block append content
 													span {{applicant.user.name}}
 													br
 													label Gender: 
-													span {{applicant.user.gender}}
+													span {{applicant.user.gender|toGender}}
 													br
 													label Email: 
 													span {{applicant.user.email}}
@@ -131,7 +131,7 @@ block append scripts
 		})
 		.controller('viewApplicationCtrl', function($scope, $http, $window){
 			$scope.register = {};
-			$scope.register.statuses = [{id: "A",name: "Admit"}, {id: "P",name: "Pending"}, {id: "F",}, {id: "R",name: "Rejected"}];
+			$scope.register.statuses = [{id: "A",name: "Admit"}, {id: "P",name: "Pending"}, {id: "F", name: "Missing information"}, {id: "R",name: "Rejected"}];
 			$scope.loadApplications = function(){
 				$http
 				.get('/view.application')

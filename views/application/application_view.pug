@@ -28,7 +28,9 @@ block append content
 													td {{application.year_o_s}}
 													td {{application.faculty|uppercase}}
 													td.text-primary {{application.status|to_Status}}
-									h4.category.text-center(ng-show ="!applications.length") You haven't applied yet
+									h4.category.text-center(ng-show ="!applications.length") 
+										|You haven't applied yet  
+										a.btn-simple.btn-rose.pull-right(href="/application.new") Apply now
 												
 block append scripts
 	script(src="../js/select/select.js", type="text/javascript")
@@ -55,7 +57,6 @@ block append scripts
 				.then(function(response){
 					var appData = response.data
 					$scope.applications = response.data.applications;
-					//- console.log('Applications: '+JSON.stringify(appData))
 				})
 			}
 			$scope.loadApplications()

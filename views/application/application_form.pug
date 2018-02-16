@@ -5,32 +5,33 @@ block append content
       .content
         .container-fluid(ng-show="upload_files")
           .col-md-8.center
-            .col-md-12.text-center
-              h3.info-text User Documents
-            .col-md-12
-              .row
-                .col-md-6
-                  h4 Attach your Identification Document, ID or Passport
-                  input(type='file', ngf-select='', ngf-max-size="1MB", ng-model='id_file')
-                .col-md-6
-                  .progress
-                    .progress-bar(role='progressbar', aria-valuenow='{{id_progress}}', aria-valuemin='0', aria-valuemax='100', style="width:{{id_progress}}%") 
-                  | {{id_progress}}%   
-              hr
-              .row
-                .col-md-6
-                  h4 Attach a Transcript
-                  input(type='file', ngf-select='', ngf-max-size="1MB", ng-model='transcript_file')
-                .col-md-6
-                  .progress
-                    .progress-bar(role='progressbar', aria-valuenow='{{trans_progress}}', aria-valuemin='0', aria-valuemax='100', style="width:{{trans_progress}}%") 
-                  | {{trans_progress}}%  
-              button.btn-primary(ng-click='saveFiles()') Save
-              
-                //- div(ng-show='progressVisible')
-                  .percent {{progress}}%
-                  .progress-bar(ng-show="upload_files")
-                    .uploaded(ng-style="{'width': progress+'%'}")
+            .card
+              .col-md-12.text-center
+                h3.info-text User Documents
+              .col-md-12
+                .row
+                  .col-md-6
+                    h4 Attach your Identification Document, ID or Passport
+                    input(type='file', ngf-select='', ngf-max-size="1MB", ng-model='id_file')
+                  .col-md-6
+                    .progress
+                      .progress-bar(role='progressbar', aria-valuenow='{{id_progress}}', aria-valuemin='0', aria-valuemax='100', style="width:{{id_progress}}%") 
+                    | {{id_progress}}%   
+                hr
+                .row
+                  .col-md-6
+                    h4 Attach a Transcript
+                    input(type='file', ngf-select='', ngf-max-size="1MB", ng-model='transcript_file')
+                  .col-md-6
+                    .progress
+                      .progress-bar(role='progressbar', aria-valuenow='{{trans_progress}}', aria-valuemin='0', aria-valuemax='100', style="width:{{trans_progress}}%") 
+                    | {{trans_progress}}%  
+                button.btn-primary(ng-click='saveFiles()') Save
+                
+                  //- div(ng-show='progressVisible')
+                    .percent {{progress}}%
+                    .progress-bar(ng-show="upload_files")
+                      .uploaded(ng-style="{'width': progress+'%'}")
         .container-fluid(ng-show="select_school")
           .row
             .col-md-3

@@ -156,6 +156,7 @@ exports.getClassCourses = (req, res, next)=>{
     if(err) return log_err(err,false,req,res);
     allcourses=courses;
     async.eachSeries(allcourses, (thisCourse, courseCallback)=>{
+      console.log('==========='+thisCourse.name)
       Content.count({course_id:thisCourse._id,school_id:req.user.school_id},(err, content_number)=>{
         if(err) return courseCallback(err);
         thisCourse.content_number=content_number;
