@@ -1,5 +1,5 @@
-import urlencode from 'urlencode';
-import crypto from 'crypto';
+const urlencode =require('urlencode'),
+    crypto =  require('crypto');
 
 
 
@@ -82,4 +82,4 @@ class Payurl {
 
 }
 
-export {Payurl};
+module.exports = Payurl;

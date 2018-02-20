@@ -550,7 +550,8 @@ module.exports = function(app) {
     /*---------------------------------------------------------------------------
                     Payment
     ----------------------------------------------------------------------------*/
-    // app.get('/payment', paymentCtrl.getPaymentPage);
+    app.get('/payment', paymentCtrl.getPaymentPage);
+    app.post('/payment.post', paymentCtrl.postPayment);
 
     /*---------------------------------------------------------------------------
                     Application for admission

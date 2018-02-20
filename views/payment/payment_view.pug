@@ -1,7 +1,83 @@
 extends ../layout
 block append content
-    .row
-        .col-md-3.col-sm-4.col-lg-4.col-md-offset-1
-            .form-group.label-floating
-                label Email
-                input.form-control(type="email", name="e",required="true",autocomplete="off")
+    .wrapper.wrapper-full-page.full-page-background(ng-controller="paymentCtrl",style="background: linear-gradient(to right, blue , green) ")
+        .full-page.login-page(filter-color="white")
+            .content
+                .container-fluid
+                    .row
+                        .col-md-3.col-sm-4.col-lg-4.col-md-offset-1
+                            .form-group.label-floating
+                                label.control-label Email
+                                input.form-control(ng-model="email", type="email", name="e",required="true",autocomplete="off")
+                            .form-group.label-floating
+                                label.control-label Phone number
+                                input.form-control(ng-model="phone", type='text', name='phone', ng-maxlength='12')
+                            .form-group.label-floating
+                                label.control-label Student number
+                                input.form-control(ng-model="number", type='text', name='student number')
+                            .form-group.label-floating
+                                label.control-label Amount
+                                input.form-control(ng-model="amount", type='text', name='amount')
+                            .form-group.label-floating
+                                label.control-label Select School
+                                select(ng-model="school", ng-options="school.name|uppercase|limitTo: 17 for school in schools")
+                            .btn.btn-success.col-md-4(ng-click="pay()") Pay
+
+
+block append scripts
+    script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+    script(src="../js/MIT/jquery.bootstrap-wizard.js", type="text/javascript")
+    script(src="../js/MIT/init_wizard.js", type="text/javascript")
+    script(src="../js/MIT/jquery.validate.min.js", type="text/javascript")
+    script(src="../homejs/ng-file-upload.min.js")
+    script(src="../homejs/ng-file-upload-shim.min.js")
+    script.
+        var app = angular.module('eshuri_App', ['ngRoute', 'ngStorage', 'ngFileUpload']);
+        app.controller('paymentCtrl', function($scope, $http, $window, $localStorage){
+            $scope.paymentForm={};
+            $scope.email="";
+            $scope.phone="";
+            $scope.number="";
+            $scope.amount="";
+            $scope.school="";
+            $scope.pay= function() {
+                console.log("I am here");
+                console.log($scope.email);
+                console.log($scope.phone);
+                console.log($scope.number);
+                console.log($scope.amount);
+                console.log($scope.school.name);
+                console.log($window.location);
+                console.log($window.location.host);
+                $scope.paymentForm.email = $scope.email;
+                $scope.paymentForm.phone = $scope.phone;
+                $scope.paymentForm.student_URN = $scope.number;
+                $scope.paymentForm.amount = $scope.amount;
+                $scope.paymentForm.school_name = $scope.school.name;
+                $scope.paymentForm.url = $window.location.host;
+                $http
+                    .post('/payment.post', $scope.paymentForm)
+                    .then(function (response) {
+                        Notifier.success("Seen url " + response.data.url);
+                        $window.location.href = response.data.url;
+                    })
+                    .catch(function (error) {
+                        Notifier.danger(error.data);
+                    });
+            }
+            $scope.loadSchools = function () {
+                $http
+                    .get("/eshuri/schools/alljson.json")
+                    .then(function (response) {
+                        $scope.schools = response.data;
+                    })
+                    .catch(function (erreur) {
+                        Notifier.danger('erreur.data');
+                    });
+            }
+            $scope.loadSchools();
+            $().ready(function () {
+                wizard.initMaterialWizard();
+            });
+
+        });
