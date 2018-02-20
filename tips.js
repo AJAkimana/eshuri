@@ -87,5 +87,4 @@ swal({
 
 	Admin dashboard
 	Chat for every user wherever they are
-
 	Content for student for previous year
