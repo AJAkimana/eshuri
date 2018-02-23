@@ -19,6 +19,9 @@ block append content
 									.col-md-12
 										h3.text-center List of students at 
 											strong {{'#{school_name}'|uppercase}}
+											p.pull-right
+												strong {{students.length}}
+												| students
 										.table-responsive(ng-show="students.length")
 											form.form-inline
 												.form-group.pull-left
