@@ -1,4 +1,5 @@
 node_modules/
+.eShuri.env.DEVs
 .eShuri.env.DEV
 .eShuri.env.PROD
 .eShuri.env.TEST

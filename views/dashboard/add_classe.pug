@@ -14,9 +14,7 @@ block append content
                   |{{school_name|uppercase}}
                   i.material-icons school
               .col-xs-12.col-sm-12.col-md-2.col-lg-2(ng-repeat="list in lists")
-                a(ng-if="list.type!='Students'", href="{{list.url}}")
-                  h5 {{list.number}} {{list.type}}
-                a(ng-if="list.type=='Students'", href="#")
+                a(href="{{list.url}}")
                   h5 {{list.number}} {{list.type}}
             //- .card-content
               h3.text-center 
@@ -30,9 +28,7 @@ block append content
                   .panel.panel-primary
                     .panel-body
                       .col-xs-12.col-sm-12.col-md-12.col-lg-12(ng-repeat="list in lists")
-                        a(ng-if="list.type!='Students'", href="{{list.url}}")
-                          h5 {{list.number}} {{list.type}}
-                        a(ng-if="list.type=='Students'", href="#")
+                        a(href="{{list.url}}")
                           h5 {{list.number}} {{list.type}}
             .col-xs-12.col-sm-12.col-md-10.col-lg-10
               .card

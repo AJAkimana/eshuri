@@ -309,7 +309,7 @@ module.exports = function(app) {
 	app .get('/dashboard.university',isSuperAdmin, dashboardController.getPageUniversities);
 	app.get('/dashboard.director',isAtLeastSchoolDirector, dashboardController.getDashboardPage);
 	app.get('/school.dashboard.home/:school_id', isAtLeastSchoolDirector, dashboardController.getSchoolRedirection)	
-				// FOR ADMINS LEVEL
+			// FOR ADMINS LEVEL
 	app .get('/dashboard.classe/:school_id',isAtLeastAdmin, dashboardController.getPageUpdateSchool);
 	app .get('/dashboard.course/:classe_id',isAtLeastAdmin, dashboardController.getPageClasse);
 	app .get('/dashboard.register.course/:school_id',isAtLeastAdmin, dashboardController.getPageRegisterCourse);	
@@ -379,6 +379,8 @@ module.exports = function(app) {
 	app.get('/course.page.edit.quota/:course_id',isAtLeastTeacher,coursesController.getPageEditQuota)
 	app.post('/course.update.quota',isAtLeastTeacher, coursesController.updateQuota);
 
+	app.get('/school.students/:school_id', isAtLeastAdmin, schoolController.getPageStudents)
+	app.post('/school.students.json', isAtLeastAdmin,schoolController.getStudents_JSON)
 	app.post('/school.add.new_program', isAtLeastAdmin, schoolController.postSchoolProgram);
 	app.get('/school.courseAndProgram.list/:school_id',isAuthenticated, schoolController.getSchoolCourseAndProgram_JSON);
 	app.post('/school.delete.program', isAtLeastAdmin, schoolController.deleteSchoolProgram)

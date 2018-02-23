@@ -654,6 +654,57 @@ exports.editStudent = (req, res, next)=>{
     })
   })
 }
+
+exports.getPageStudents = (req, res, next)=>{
+  req.assert('school_id', 'Invalid Data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.render("./lost",{msg:errors[0].msg})
+  School.findOne({_id:req.params.school_id},(err,school)=>{
+    if(err) return log_err(err,true,req,res);
+    else if(!school) return res.render("./lost",{msg:"Invalid data"})
+    else if(String(school._id)!= String(req.user.school_id))
+      return res.render("./lost",{msg:"This is not your place"})
+    // Mnt on va alors lui donner la HOMEPAGE DE CHAQUE SCHOOL
+    var school_name = school.name.split(' ').map((item)=>{
+      return item[0]
+    }).join('').toUpperCase();
+    return res.render('school/view_students',{
+      title:school_name+' students',
+      school_id: school._id,
+      school_name: school.name,
+      term_name: school.term_name,
+      pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,student_class:req.user.class_id,
+      csrf_token:res.locals.csrftoken, // always set this buddy
+    })
+  })
+}
+exports.getStudents_JSON = (req, res, next)=>{
+  req.assert('school_id', 'Invalid Data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  var async = require('async');
+  School.findOne({_id:req.body.school_id},(err,school)=>{
+    if(err) return log_err(err,true,req,res);
+    else if(!school) return res.status(400).send('Invalid data');
+    else if(String(school._id)!= String(req.user.school_id))
+      return res.status(400).send('This is not your school');
+    var class_prefix = school.term_name=='T'?'S':'Y'
+    User.find({school_id:req.body.school_id,access_level:req.app.locals.access_level.STUDENT},{__v:0,password:0,gender:0,isValidated:0,upload_time:0,updatedAt:0}).sort({name:1}).lean().exec((err, students_list)=>{
+      if(err) return log_err(err,false,req,res);
+      async.each(students_list, (thisStudent, callBack)=>{
+        Classe.findOne({_id:thisStudent.class_id}, (err, classe)=>{
+          if(err) callBack(err);
+          if(classe) thisStudent.classe=class_prefix+classe.name.toUpperCase();
+          else thisStudent.classe='No class assigned'
+          callBack(null);
+        })
+      },(err)=>{
+        if(err) return log_err(err,false,req,res);
+        return res.json(students_list);
+      })
+    })
+  })
+}
 exports.getUserClasses = (req, res, next)=>{
   req.assert('school_id', 'Invalid Data').isMongoId();
   const errors = req.validationErrors();
@@ -753,54 +804,7 @@ exports.getUserClasses = (req, res, next)=>{
     }
   })
 }
-  // Marks.find().distinct("class_id", {school_id:req.user.school_id, student_id:req.user._id},(err, markClasses)=>{
-  //   if (err) return log_err(err,false,req,res);
-  //   listClasses=markClasses;
-  //   Classe.findOne({school_id:req.user.school_id, $or:[{_id:req.user.class_id},{class_teacher:req.user._id}]},{_id:1},(err, user_class)=>{
-  //     if (err) return log_err(err,false,req,res);
-  //     if(user_class)
-  //       if(listClasses.indexOf(String(user_class._id))==-1)listClasses.push(user_class._id);
-  //     Course.find().distinct("class_id",{school_id:req.user.school_id, teacher_list:req.user._id},(err, class_courses)=>{
-  //       if (err) return log_err(err,false,req,res);
-  //       coursesClasses=class_courses;
-  //       // Check every class in the courses
-  //       async.eachSeries(coursesClasses, (thisList, listCallback)=>{
-  //         // console.log('-------'+listClasses)
-  //         if(listClasses.indexOf(String(thisList))==-1){
-  //           listClasses.push(thisList)
-  //         }
-  //         listCallback();
-  //       },(err)=>{
-  //         if(err) return log_err(err,false,req,res);
-  //         if(listClasses.length==0) return res.status(400).send("No classes of yours found contact your administrator");
-  //         //Append to every id class info
-  //         async.eachSeries(listClasses, (thisClass, callBack)=>{
-  //           Classe.findOne({_id:thisClass},(err, class_details)=>{
-  //             if (err) return callBack(err);
-  //             classes.push({class_id:thisClass,name:class_details.name})
-  //             callBack();
-  //           })
-  //         },(err)=>{
-  //           if(err) return log_err(err,false,req,res);
-  //           // append every class number of courses
-  //           async.eachSeries(classes, (thisClass, callBack)=>{
-  //             if(access_lvl == student) parametters = {class_id:thisClass.class_id};
-  //             else parametters = {class_id:thisClass.class_id, teacher_list:req.user._id}
-  //             Course.count(parametters,(err, number)=>{
-  //               if (err) return callBack(err);
-  //               thisClass.number=number;
-  //               callBack();
-  //             })
-  //           },(err)=>{
-  //             if(err) return log_err(err,false,req,res);
-  //             // if everything are in place return data to front
-  //             return res.json(classes)
-  //           })
-  //         })
-  //       })
-  //     })
-  //   })
-  // });
+
 exports.getSchoolData = (req,res,next)=>{
   //Get the term_name and term_quantity
   req.assert('school_id', 'Invalid data').isMongoId();
@@ -863,7 +867,7 @@ exports.getSchoolData = (req,res,next)=>{
         (cb5)=>{
           User.count({school_id:req.params.school_id,access_level:req.app.locals.access_level.STUDENT},(err,num_students)=>{
             if(err) return cb5(err);
-            theData[0].list.push({type:'Students',number:num_students,url:'/',icon:'person'})
+            theData[0].list.push({type:'Students',number:num_students,url:'/school.students/'+req.user.school_id,icon:'person'})
             response.num_students =num_students;
             cb5(null);
           })

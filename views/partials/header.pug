@@ -1,4 +1,4 @@
-nav.navbar.navbar-absolute.navbar-fixed-top(role='navigation', style="position:fixed; ")
+//- nav.navbar.navbar-absolute.navbar-fixed-top(role='navigation', style="position:fixed; ")
 	.container-fluid
 		.navbar-header
 			button.navbar-toggle(type='button', data-toggle='#myNav')
@@ -118,3 +118,124 @@ nav.navbar.navbar-absolute.navbar-fixed-top(role='navigation', style="position:f
 								a(href="/user.logout")
 									i.material-icons face
 									| Logout
+
+nav.navbar.navbar-default.navbar-fixed-top
+	.container
+		.navbar-header
+			button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
+				span.sr-only Toggle navigation
+				span.icon-bar
+				span.icon-bar
+				span.icon-bar
+			a.navbar-brand(href='/') 
+				.row
+					.col-md-2
+						.logo
+							.avatar
+								img(src='/favicon.png', alt='...',width="100%",height="auto")
+					.col-md-2.col-md-offset-1
+						strong eShuri 
+		#navbar.navbar-collapse.collapse
+			ul.nav.navbar-nav
+				if access > 1 && access <=4
+					li: a.btn-simple(style='color:#f05167;',href="/timeline")
+						//i.material-icons web_asset
+						strong Eshuri Wall
+					li: a(style='color:#3d4958;',href="/school")
+						//i.material-icons school
+						strong My school
+				if access <= 4 && access != 1
+					li: a(style='color:#f05167;',href="/library")
+						//i.material-icons book
+						strong Library
+				if access ==4
+					li: a(style='color:#3d4958;',href="/parents")
+						//i.material-icons school
+						strong My parents 
+				if access ==5
+					li: a(style='color:#f05167;',href="/parent")
+						//i.material-icons school
+						strong My Students
+				//Only admins has dashboard
+				if access <= 2.1 && access!=1.1
+					li: a(style='color:#3d4958;',href="/dashboard")
+						//i.material-icons dashboard
+						strong Dashboard
+				if access >=1.1 && access <=4
+					li.dropdown
+						a.dropdown-toggle(style='color:#f05167;',data-toggle="dropdown")
+							strong Reports
+						ul.dropdown-menu
+							if access == 4||access==2.1||access==2||access==1.1
+								li: a(href="/report") School reports
+							li.divider
+							if access==2.1||access==3
+								li: a(href="/report.teacher") Class report
+				if access==4||access==4.1
+					li.dropdown
+						a.dropdown-toggle(style='color:#3d4958;',data-toggle="dropdown")
+							strong Applications
+						ul.dropdown-menu
+							li
+								a(href="/application.new")
+									i.icon.ion-ios-plus
+									span New
+							li.divider
+							li
+								a(href="/application")
+									i.icon.ion-ios-list
+									span View
+				if access<=2.1&&access!=1
+					li.dropdown
+						a.dropdown-toggle(style='color:#3d4958;',data-toggle="dropdown")
+							strong School admin
+						ul.dropdown-menu
+							li
+								a(href="/profile")
+									span Profile
+							li.divider
+							li
+								a(style='color:#3d4958;',href="/application")
+									span Applications
+				li: a(href="http://gocoderz.com/wp-content/uploads/articulate_uploads/Lesson_1:_Drivetrain/story_html5.html" target="_blank")
+					//i.material-icons code
+					strong Robotics Programming
+				// payment
+				if access==1.1
+					li: a(href="/dashboard.director")
+						strong Dir. Dash
+				//- li: a(href="/payment")
+					strong Payment
+			ul.nav.navbar-nav.navbar-right
+				li.dropdown
+						if access
+							a.dropdown-toggle(style='color:#3d4958;',data-toggle="dropdown")
+								//i.material-icons person
+								strong {{'#{pic_name}'|| 'Account'|uppercase}}
+						if !access
+							a.dropdown-toggle(style='color:#3d4958;',data-toggle="dropdown")
+								i.material-icons person
+								strong New Account
+						ul.dropdown-menu
+							if access
+								li
+									a(href="/user.settings")
+										//i.material-icons settings
+										| Change your settings
+							if !access
+								li.divider
+								li
+									a(href="/user.signup")
+										//i.material-icons person
+										| New account
+								li.divider
+								li
+									a(href="/user.signin")
+										i.material-icons person
+										| Login
+							if access
+								li.divider
+								li
+									a(href="/user.logout")
+										i.material-icons face
+										| Logout
