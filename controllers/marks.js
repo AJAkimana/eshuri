@@ -345,21 +345,69 @@ exports.getClassMarks =function(req,res,next){
 	})
 }
 
-
+exports.getMidTermMarks = (req, res, next)=>{
+	req.assert('class_id', 'Invalid data').isMongoId();
+	req.assert('academic_year', 'Invalid data').isInt();
+	req.assert('term', 'Invalid data').isInt();
+	const errors = req.validationErrors();
+	if (errors) return res.status(400).send(errors[0].msg);
+	var async = require("async");
+	var students = [],marks = [];
+	async.series([(callBack_getStudentList)=>{
+		User.find({class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT},{_id:1,name:1,class_id:1, URN:1},(err, this_class_students)=>{
+			if(err) return callBack_getStudentList(err);
+			students = this_class_students;
+			callBack_getStudentList(null);
+		})
+	},(callBack_treatEachStudents)=>{
+		marks.push({student:[]});
+		async.each(students, (thisStudent, studentCb)=>{
+			var listAssessmts = [];
+			async.series([(Cb_getAssessments)=>{
+				Marks.find().distinct("content_id", {class_id:req.body.class_id,student_id:thisStudent._id,isQuoted:true,academic_year:req.body.academic_year},(err, student_assmnts)=>{
+					if(err) return Cb_getAssessments(err);
+					listAssessmts = student_assmnts;
+					Cb_getAssessments(null);
+				})
+			},(Cb_getMarksFromAssmnts)=>{
+				var totalAssmnts = 0, totalMarks = 0;
+				async.each(listAssessmts, (thisList, list_callBack)=>{
+					Content.findOne({_id:thisList}, (err, assmntMarks)=>{
+						if(err) return list_callBack(err);
+						Marks.findOne({content_id:thisList, student_id:thisStudent._id},(err, mark)=>{
+							if(err) list_callBack(err);
+							var overMarks = (mark.percentage*assmntMarks.marks)/100;
+							totalAssmnts += (overMarks>0)?overMarks:0;
+							totalMarks += assmntMarks.marks>0?assmntMarks.marks:0;
+							list_callBack(null)
+						})
+					})
+				},(err)=>{
+					marks[0].student.push({name:thisStudent.name, marks:totalAssmnts})
+					console.log('Student name: '+thisStudent.name+' ==>Marks: '+totalAssmnts+' out of '+totalMarks)
+					return Cb_getMarksFromAssmnts(null)
+				})
+			}],(err)=>{
+				return studentCb(null)
+			})
+		},(err)=>{
+			return callBack_treatEachStudents(null)
+		})
+	}],(err)=>{
+		console.log('Students:===>'+JSON.stringify(marks))
+	})
+}
 exports.getReport_JSON =(req,res,next)=>{
+	req.assert('currentTerm', 'Choose the term').isInt();
+	req.assert('academic_year', 'Choose the academic year please').isInt();
+	const errors = req.validationErrors();
+	if (errors) return res.status(400).send(errors[0].msg);
 	var accLvl=req.user.access_level;
 	var teacher=req.app.locals.access_level.TEACHER;
 	var adminteacher=req.app.locals.access_level.ADMIN_TEACHER;
 	var parent=req.app.locals.access_level.PARENT;
-	req.assert('currentTerm', 'Choose the term').isInt();
-	req.assert('academic_year', 'Choose the academic year please').isInt();
-	// if(accLvl==teacher||accLvl==adminteacher)
-	// 	req.assert('student_id', 'Invalid data').isEmpty();
-	//console.log('Students: '+JSON.stringify(req.body.student))
-	const errors = req.validationErrors();
-	if (errors) return res.status(400).send(errors[0].msg);
-
 	var currentAcademicYear=req.body.academic_year;
+
 	var listCourses=[],listContent_id=[];
 	var reportData =[];
 	var theUser
@@ -372,9 +420,8 @@ exports.getReport_JSON =(req,res,next)=>{
 	else{
 		theUser=req.user
 	}
-	
+	var async = require('async');
 	/* GET IN FIRST PLACE THE CONTENT LIST for this course,academic year and this student and this class*/
-	var async = require("async");
 
 	async.series([
 		// 1.
@@ -713,21 +760,11 @@ exports.getFullReportAllStudent=(req, res, next)=>{
 	//*****************************************************************
 		// All arrays variables
 	//*****************************************************************
-	var reportData = [],
-		termLists = [],
-		listStudents = [],
-		listOfCourses=[],
-		students = [],
-		listCourses = [],
-		listAssessments = [],
-		termOne = [],
-		termTwo = [],
-		termThree = [],
-		totals = [],
-		studentMark=[],
-		allMarksPackage = [],
-		classDetails=[],
-		alterms=[];
+	var reportData = [],termLists = [],listStudents = [],listOfCourses=[],
+		students = [],listCourses = [],listAssessments = [],
+		termOne = [],termTwo = [],termThree = [],
+		totals = [],studentMark=[],allMarksPackage = [],
+		classDetails=[],alterms=[];
 	//*****************************************************************
 		// All arrays variables
 	//*****************************************************************
