@@ -21,16 +21,21 @@ exports.pageNewOfflineTest = (req,res,next)=>{
 	  else if(!course_exists ) return res.render("./lost",{msg:"Invalid data"})
     else if(course_exists.teacher_list.indexOf(String(req.user._id)) ==-1)
       return res.render("./lost",{msg:"This course doesn'y belong to you"})
-	  return res.render('content/offline_test/new_offline',{
-  		title:'Offline test',
-  		unit_name:unit_exists.title,
-  		course_id:course_exists._id,
-  		unit_id:req.params.unit_id,
-  		pic_id:req.user._id,
-      access_lvl:req.user.access_level,
-      csrf_token:res.locals.csrftoken, // always set this buddy
-  	  })
-  	})
+    Classe.findOne({_id:course_exists.class_id},(err, class_info)=>{
+      if(err) return res.render("./lost",{msg:"Invalid data"});
+      if(!class_info) return res.render("./lost",{msg:"Invalid data"});
+      return res.render('content/offline_test/new_offline',{
+        title:'Offline test',
+        unit_name:unit_exists.title,
+        course_id:course_exists._id,
+        unit_id:req.params.unit_id,
+        academic_year:class_info.academic_year,
+        pic_id:req.user._id,
+        access_lvl:req.user.access_level,
+        csrf_token:res.locals.csrftoken, // always set this buddy
+        })
+      })
+    })
   })
 }
 

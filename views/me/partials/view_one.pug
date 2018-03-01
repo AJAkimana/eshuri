@@ -1,0 +1,113 @@
+.col-md-12.center(ng-show="students_list")
+  .card
+    .card-header.card-header-icon(data-background-color="rose")
+      i.material-icons report
+    .card-content
+      h4.card-title.text-center.text-info <strong>Click on student NAME to get the full report</strong>
+      .col-md-12
+        .box
+          .box-body
+            h2.card-title.text-center.text-info(ng-show="!studentsMark.length") <strong>Loading, please wait...</strong>
+            .col-md-12(ng-show="studentsMark.length")
+              .table-responsive.table-condensed.table-striped
+                center(ng-repeat="classinfo in classInfo")
+                  h3
+                    strong Students progress for class {{classinfo.name|uppercase}} in {{classinfo.a_year|toNormal}}
+                  strong {{classinfo.a_year|toNormal}} ANNUAL REPORT
+                  button.btn.btn-label.btn-primary.pull-right(ng-click="printDiv('student-report')") Print
+                form.form-inline
+                  .form-group.pull-left
+                      select.form-control(ng-init="n_pages=studentsMark.length", ng-model="n_pages",)
+                          option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
+                      strong pages
+                  .form-group.pull-right
+                      input.form-control(type='text', ng-model='search', placeholder='Search')
+                #student-report
+                  table.table.table-bordered
+                    thead
+                      tr
+                        th(rowspan='4')
+                          | Student names
+
+                        //Terms ______+___________+_______________
+                        th.report-th(colspan='5'): strong Term I
+                        th.report-th(colspan='5'): strong Term II
+                        th.report-th(colspan='5'): strong Term III
+                        th.report-th(colspan="3"): strong Year Total
+
+                      //Assessment test and exam____+_______________+__
+                      tr(align='center')
+                        th.report-th: strong Test
+                        th.report-th: strong Ex
+                        th.report-th: strong Tot
+                        th.report-th: strong %
+                        th.report-th: strong Plc
+                        th.report-th: strong Test
+                        th.report-th: strong Ex
+                        th.report-th: strong Tot
+                        th.report-th: strong %
+                        th.report-th: strong Plc
+                        th.report-th: strong Test
+                        th.report-th: strong Ex
+                        th.report-th: strong Tot   
+                        th.report-th: strong %
+                        th.report-th: strong Plc
+                        th.report-th: strong Total
+                        th.report-th: strong %
+                        th.report-th: strong Plc
+                    tbody(align='right')
+                      tr(pagination-id='allsmarks', dir-paginate="mark in studentsMark|filter:search|itemsPerPage:n_pages|orderBy:name")
+                        td.report-td: label.btn-simple.btn-link(ng-click="getOneStudentReport(mark)") {{mark.name|uppercase}}
+                        td {{(mark.test_t1_mark).toFixed(1)}}
+                        td {{(mark.exam_t1_mark).toFixed(1)}}
+                        td {{(mark.total_t1_mark).toFixed(1)}}
+                        td.report-td-pct
+                          span(ng-if="mark.total_t1_pct<100/2")
+                            u(style="color:red;") {{(mark.total_t1_pct).toFixed(1)}}%
+                          span(ng-if="mark.total_t1_pct>=100/2") {{(mark.total_t1_pct).toFixed(1)}}%
+                        td {{mark.place1}}
+                        td {{(mark.test_t2_mark).toFixed(1)}}
+                        td {{(mark.exam_t2_mark).toFixed(1)}}
+                        td {{(mark.total_t2_mark).toFixed(1)}}
+                        td.report-td-pct 
+                          span(ng-if="mark.total_t2_pct<100/2")
+                            u(style="color:red;") {{(mark.total_t2_pct).toFixed(1)}}%
+                          span(ng-if="mark.total_t2_pct>=100/2") {{(mark.total_t2_pct).toFixed(1)}}%
+
+                        td {{mark.place2}}
+                        td {{(mark.test_t3_mark).toFixed(1)}}
+                        td {{(mark.exam_t3_mark).toFixed(1)}}
+                        td {{(mark.total_t3_mark).toFixed(1)}}
+                        td.report-td-pct 
+                          span(ng-if="mark.total_t3_pct<100/2")
+                            u(style="color:red;") {{(mark.total_t3_pct).toFixed(1)}}%
+                          span(ng-if="mark.total_t2_pct>=100/2") {{(mark.total_t3_pct).toFixed(1)}}%
+                        td {{mark.place3}}
+                        td.report-td-pct {{(mark.annual).toFixed(1)}}
+                        td.report-td-pct 
+                          span(ng-if="mark.annual_pct<100/2")
+                            u(style="color:red;") {{(mark.annual_pct).toFixed(1)}}%
+                          span(ng-if="mark.annual_pct>=100/2") {{(mark.annual_pct).toFixed(1)}}%
+                        td.report-td-pct {{mark.year_place}}
+                  dir-pagination-controls(pagination-id='allsmarks', max-size='5', direction-links='true', boundary-links='true')
+              .col-md-12        
+                .col-md-6
+                  center
+                    h4
+                      strong Courses
+                  .table-responsive.table-condensed.table-striped
+                    table.table.table-bordered
+                      thead
+                        tr
+                          th #
+                          th Name
+                          th Test
+                          th Exam
+                          th Total
+                      tbody
+                        tr(ng-repeat="course in courses|orderBy:'name'")
+                          th {{$index+1}}
+                          th {{course.name|uppercase}}
+                          th {{course.test_quota}}
+                          th {{course.exam_quota}}
+                          th {{course.weightOnReport}}

@@ -8,6 +8,11 @@
   font-weight: bold;
   text-align:center;
 }
+.align-lft{
+  font-weight: bold; 
+  background: #e3e7ed; 
+  text-align:left;
+}
 .report-td{
   font-weight: bold; 
   background: #e3e7ed; 

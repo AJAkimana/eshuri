@@ -1,4 +1,5 @@
 const Payurl = require('../config/migs'),
+      log_err=require('./manage/errorLogger'),
       Payment = require('../models/Payment');
 
 exports.getPaymentPage = function(req, res, next) {

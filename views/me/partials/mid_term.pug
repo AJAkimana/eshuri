@@ -1,0 +1,24 @@
+.col-md-12.center
+  .card
+    .card-header.card-header-icon(data-background-color="rose")
+      i.material-icons report
+    .card-content
+      h2.card-title.text-center.text-info(ng-show="midMarks.students.length")
+        strong Mid-term report for {{classename|uppercase|toClasseName}}
+      h2.card-title.text-center.text-info(ng-show="!midMarks.students.length") <strong>Loading, please wait...</strong>
+      .box
+        .box-body
+          .surround.surround-perfect
+            table.table.table-condensed.table-striped.table-bordered
+              thead
+                tr
+                  th Places
+                  th Student names
+                  th(ng-repeat="course in courses") {{course.name|uppercase}} / {{course.outof}}
+                  th Marks/{{mid_total_marks}}
+              tbody
+                tr(ng-repeat="m in midMarks track by $index")
+                  td {{$index + 1}}
+                  td(style='font-weight: bold; text-align:left;') {{m.name|uppercase}}
+                  td(ng-repeat="cour in m.courses") {{(cour.points).toFixed(1)}}
+                  td {{(m.marks).toFixed(1)}}

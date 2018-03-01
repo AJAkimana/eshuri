@@ -51,7 +51,7 @@ block append scripts
 				})
 				.then(function(response){
 					Notifier.success(" Operation successful")
-					setTimeout(function(){$window.location.href="/courses/#{course_id}"},2000);
+					setTimeout(function(){$window.location.href="/courses/"+"#{academic_year}"+"#{course_id}"},2000);
 				})
 				.catch(function(erreur){
 					Notifier.danger(erreur.data);

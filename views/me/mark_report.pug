@@ -11,7 +11,7 @@ block append content
       .content
         .container-fluid
           .row
-            .col-md-6.center
+            .col-md-12.center
               .card
                 .card-header.card-header-icon(data-background-color="rose")
                   i.material-icons school
@@ -20,410 +20,35 @@ block append content
                     strong This report is designed to generate yearly marks.
                   h4.card-title Complete the parameters to generate the report
                   .row
-                    .col-md-5
+                    .col-md-2
                       .form-group.label-floating
                         label.control-label Choose the class
                         select.form-control(required="true",ng-model="selectClass",ng-change="getAcademicYearsList()")
                           option(value="", disabled selected)
-                          option(value="{{class._id}}", ng-repeat="class in ClassList") {{class.name|uppercase}}
-                    .col-md-4
+                          option(value="{{class._id}}", ng-repeat="class in ClassList") {{class.name|uppercase|toClasseName}}
+                    .col-md-2
                       .form-group.label-floating
                         label.control-label Choose the academic year
-                        select.form-control(required="true",ng-model="choosen_year",ng-change="getAllStudentsReport()")
+                        select.form-control(required="true",ng-model="choosen_year",ng-change="getListTerms()")
                           option(value="", disabled selected)
                           option(value="{{umwaka}}", ng-repeat="umwaka in academic_years") {{umwaka|toNormal}}
-
-                    .col-md-3
+                    .col-md-2
+                      .form-group.label-floating
+                        label.control-label Choose the {{term_name|toTermName}}
+                        select.form-control(required="true",ng-model="choosen_term")
+                          option(value="", disabled selected)
+                          option(value="{{term}}", ng-repeat="term in list_terms") {{term_name|toTermName}} {{term}}
+                    .col-md-6
+                      label.radio-inline
+                        input(type="radio",ng-model="report_type", value="is_midterm")
+                        | Is Mid-term 
+                      label.radio-inline
+                        input(type="radio",ng-model="report_type", value="is_yearly")
+                        | Is yearly
                       button.btn.btn-rose.center(ng-click="getAllStudentsReport()") Get report
-            .col-md-12.center(ng-show="students_list")
-              .card
-                .card-header.card-header-icon(data-background-color="rose")
-                  i.material-icons report
-                .card-content
-                  h4.card-title.text-center.text-info <strong>Click on student NAME to get the full report</strong>
-                  .col-md-12
-                    .box
-                      .box-body
-                        h2.card-title.text-center.text-info(ng-show="!studentsMark.length") <strong>Loading, please wait...</strong>
-                        .col-md-12(ng-show="studentsMark.length")
-                          .table-responsive.table-condensed.table-striped
-                            center(ng-repeat="classinfo in classInfo")
-                              h3
-                                strong Students progress for class {{classinfo.name|uppercase}} in {{classinfo.a_year|toNormal}}
-                              strong {{classinfo.a_year|toNormal}} ANNUAL REPORT
-                              button.btn.btn-label.btn-primary.pull-right(ng-click="printDiv('student-report')") Print
-                            form.form-inline
-                              .form-group.pull-left
-                                  select.form-control(ng-init="n_pages=studentsMark.length", ng-model="n_pages",)
-                                      option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
-                                  strong pages
-                              .form-group.pull-right
-                                  input.form-control(type='text', ng-model='search', placeholder='Search')
-                            #student-report
-                              table.table.table-bordered
-                                thead
-                                  tr
-                                    th(rowspan='4')
-                                      | Student names
-
-                                    //Terms ______+___________+_______________
-                                    th.report-th(colspan='5'): strong Term I
-                                    th.report-th(colspan='5'): strong Term II
-                                    th.report-th(colspan='5'): strong Term III
-                                    th.report-th(colspan="3"): strong Year Total
-
-                                  //Assessment test and exam____+_______________+__
-                                  tr(align='center')
-                                    th.report-th: strong Test
-                                    th.report-th: strong Ex
-                                    th.report-th: strong Tot
-                                    th.report-th: strong %
-                                    th.report-th: strong Plc
-                                    th.report-th: strong Test
-                                    th.report-th: strong Ex
-                                    th.report-th: strong Tot
-                                    th.report-th: strong %
-                                    th.report-th: strong Plc
-                                    th.report-th: strong Test
-                                    th.report-th: strong Ex
-                                    th.report-th: strong Tot   
-                                    th.report-th: strong %
-                                    th.report-th: strong Plc
-                                    th.report-th: strong Total
-                                    th.report-th: strong %
-                                    th.report-th: strong Plc
-                                tbody(align='right')
-                                  tr(pagination-id='allsmarks', dir-paginate="mark in studentsMark|filter:search|itemsPerPage:n_pages|orderBy:name")
-                                    td.report-td: label.btn-simple.btn-link(ng-click="getOneStudentReport(mark)") {{mark.name|uppercase}}
-                                    td {{(mark.test_t1_mark).toFixed(1)}}
-                                    td {{(mark.exam_t1_mark).toFixed(1)}}
-                                    td {{(mark.total_t1_mark).toFixed(1)}}
-                                    td.report-td-pct
-                                      span(ng-if="mark.total_t1_pct<100/2")
-                                        u(style="color:red;") {{(mark.total_t1_pct).toFixed(1)}}%
-                                      span(ng-if="mark.total_t1_pct>=100/2") {{(mark.total_t1_pct).toFixed(1)}}%
-                                    td {{mark.place1}}
-                                    td {{(mark.test_t2_mark).toFixed(1)}}
-                                    td {{(mark.exam_t2_mark).toFixed(1)}}
-                                    td {{(mark.total_t2_mark).toFixed(1)}}
-                                    td.report-td-pct 
-                                      span(ng-if="mark.total_t2_pct<100/2")
-                                        u(style="color:red;") {{(mark.total_t2_pct).toFixed(1)}}%
-                                      span(ng-if="mark.total_t2_pct>=100/2") {{(mark.total_t2_pct).toFixed(1)}}%
-
-                                    td {{mark.place2}}
-                                    td {{(mark.test_t3_mark).toFixed(1)}}
-                                    td {{(mark.exam_t3_mark).toFixed(1)}}
-                                    td {{(mark.total_t3_mark).toFixed(1)}}
-                                    td.report-td-pct 
-                                      span(ng-if="mark.total_t3_pct<100/2")
-                                        u(style="color:red;") {{(mark.total_t3_pct).toFixed(1)}}%
-                                      span(ng-if="mark.total_t2_pct>=100/2") {{(mark.total_t3_pct).toFixed(1)}}%
-                                    td {{mark.place3}}
-                                    td.report-td-pct {{(mark.annual).toFixed(1)}}
-                                    td.report-td-pct 
-                                      span(ng-if="mark.annual_pct<100/2")
-                                        u(style="color:red;") {{(mark.annual_pct).toFixed(1)}}%
-                                      span(ng-if="mark.annual_pct>=100/2") {{(mark.annual_pct).toFixed(1)}}%
-                                    td.report-td-pct {{mark.year_place}}
-                              dir-pagination-controls(pagination-id='allsmarks', max-size='5', direction-links='true', boundary-links='true')
-                          .col-md-12        
-                            .col-md-6
-                              center
-                                h4
-                                  strong Courses
-                              .table-responsive.table-condensed.table-striped
-                                table.table.table-bordered
-                                  thead
-                                    tr
-                                      th #
-                                      th Name
-                                      th Test
-                                      th Exam
-                                      th Total
-                                  tbody
-                                    tr(ng-repeat="course in courses|orderBy:'name'")
-                                      th {{$index+1}}
-                                      th {{course.name|uppercase}}
-                                      th {{course.test_quota}}
-                                      th {{course.exam_quota}}
-                                      th {{course.weightOnReport}}
-                            
-            .col-md-10.center(ng-show="students_report")
-              .card
-                .card-header.card-header-icon(data-background-color="rose")
-                  i.material-icons report
-                .card-content
-                  button.btn.btn-label.pull-left(ng-click="showDivs()") Close
-                  button.btn.btn-label.btn-primary.pull-right(ng-click="printDiv('printReport')") Print
-                  //- button.btn.btn-simple.pull-right(ng-click="printRepo('printableArea')") Print RO {{userInfo.uurn}}
-                  .col-md-12
-                    .box
-                      .box-body
-                        div
-                        br
-                        br
-                        br
-                        h2.card-title.text-center.text-info(ng-show="!studentMark.length") <strong>Loading, please wait...</strong>
-                        //- #printReport#printableArea(ng-show="studentMark.length")
-                        //- #printableArea(ng-show="studentMark.length")
-                        #printReport(ng-show="studentMark.length")
-                          .table-responsive.table-condensed
-                            table.table.table-curved
-                              tr
-                                td(colspan='2')
-                                  table.table.table-curved(ng-repeat="user in userInfo")
-                                    tr
-                                      td(rowspan="3", width="20%")
-                                        img(src="/school.profile/"+school_id alt="Image")
-                                      td()
-                                        center: strong STUDENT'S PROGRESSIVE REPORT
-                                      td(rowspan="3", width="20%")
-                                        .center
-                                          img.img-rounded(src="/pp.view/{{user.upic}}")
-                                          | URN: <strong> {{user.uurn|uppercase}}</strong>
-                                          br
-                                          | Class: <strong> {{user.classe|uppercase}}</strong>
-                  
-                                    tr
-                                      td()
-                                        p: strong
-                                          | Ministry of Education
-                                          br
-                                          | {{school_district|toDistrict}}
-                                          br
-                                          | {{school_name|uppercase}}
-                                          br
-                                          | TeL : {{school_phone||'________________'}}
-                                          br
-                                          | {{school_pob||'POBox.:_____________'|uppercase}}
-                                    tr
-                                      td()
-                                        center
-                                          | Names: 
-                                          strong {{user.uname|uppercase}}
-                                        //- img(src="/pp.view/{{user.upic}}")
-                              tr
-                                td(colspan='2', style='text-align:left;')
-                                  .col-md-12
-                                    center
-                                      strong Academic Year 2017
-                              tr
-                                td(colspan='2', align='left',style="text-align:left;")
-                                  table.table.table-condensed.table-bordered
-                                    thead
-                                      tr(print-remove)
-                                        th(rowspan='3')
-                                          | Subject
-                                      tr(print-remove)
-                                        th(colspan='3', style='text-align:center;font-weight: bold;background: #CCC')
-                                          | MAX POINTS
-                                        th.report-th(colspan='3',style="border-right: 3px solid #cdd0d4; border-top: 2px solid #cdd0d4;")
-                                          strong FIRST TERM
-                                        th.report-th(colspan='3',style="border-right: 3px solid #cdd0d4; border-top: 2px solid #cdd0d4;")
-                                          strong SECOND TERM
-                                        th.report-th(colspan='3',style="border-right: 3px solid #cdd0d4; border-top: 2px solid #cdd0d4;")
-                                          strong THIRD TERM
-                                        th.report-th(colspan='3')
-                                          strong ANNUAL POINTS
-                                      tr(align='center')
-                                        th.report-td-pct: strong TEST
-                                        th.report-td-pct: strong EX
-                                        th.report-td-pct: strong TOT
-                                        th.report-th: strong TEST
-                                        th.report-th: strong EX
-                                        th.report-th(style="border-right: 3px solid #cdd0d4;"): strong TOT
-                                        th.report-th: strong TEST
-                                        th.report-th: strong EX
-                                        th.report-th(style="border-right: 3px solid #cdd0d4;"): strong TOT
-                                        th.report-th: strong TEST
-                                        th.report-th: strong EX
-                                        th.report-th(style="border-right: 3px solid #cdd0d4;"): strong TOT
-                                        th.report-th: strong MAX
-                                        th.report-th: strong TOTAL
-                                        th.report-th: strong %
-                                    tbody
-                                      tr
-                                        td(style='font-weight: bold; background: #e3e7ed; text-align:left;') CONDUCT
-                                        td(colspan='3', style='text-align:center;font-weight: bold;background: #CCC') 40
-                                        td(colspan='3', style="border-right: 3px solid #cdd0d4;") {{conduite_t1}}
-                                        td(colspan='3', style="border-right: 3px solid #cdd0d4;") {{conduite_t2}}
-                                        td(colspan='3', style="border-right: 3px solid #cdd0d4;") {{conduite_t3}}
-                                        td(colspan='3') {{conduite_t}}
-                                      tr(ng-repeat="mark in studentMark|orderBy:'-course_quota'")
-                                        td(style='font-weight: bold; background: #e3e7ed; text-align:left;')
-                                          | {{mark.name|uppercase}}
-                                        td.report-td-pct {{mark.test_quota}}
-                                        td.report-td-pct {{mark.exam_quota}}
-                                        td.report-td-pct {{mark.course_quota}}
-                                        td 
-                                          span(ng-if="mark.testTerm1<mark.test_quota/2")
-                                            u(style="color:red;") {{(mark.testTerm1).toFixed(1)}}
-                                          span(ng-if="mark.testTerm1>=mark.test_quota/2") {{(mark.testTerm1).toFixed(1)}}
-
-                                        td 
-                                          span(ng-if="mark.examTerm1<mark.exam_quota/2")
-                                            u(style="color:red;") {{(mark.examTerm1).toFixed(1)}}
-                                          span(ng-if="mark.examTerm1>=mark.exam_quota/2") {{(mark.examTerm1).toFixed(1)}}
-                                        td
-                                          span(ng-if="mark.totalTerm1<mark.course_quota/2")
-                                            u(style="color:red;") {{(mark.totalTerm1).toFixed(1)}}
-                                          span(ng-if="mark.totalTerm1>=mark.course_quota/2") {{(mark.totalTerm1).toFixed(1)}}
-                                        td
-                                          span(ng-if="mark.testTerm2<mark.test_quota/2")
-                                            u(style="color:red;") {{(mark.testTerm2).toFixed(1)}}
-                                          span(ng-if="mark.testTerm2>=mark.test_quota/2") {{(mark.testTerm2).toFixed(1)}}
-                                        td 
-                                          span(ng-if="mark.examTerm2<mark.exam_quota/2")
-                                            u(style="color:red;") {{(mark.examTerm2).toFixed(1)}}
-                                          span(ng-if="mark.examTerm2>=mark.exam_quota/2") {{(mark.examTerm2).toFixed(1)}}
-                                        td
-                                          span(ng-if="mark.totalTerm2<mark.course_quota/2")
-                                            u(style="color:red;") {{(mark.totalTerm2).toFixed(1)}}
-                                          span(ng-if="mark.totalTerm2>=mark.course_quota/2") {{(mark.totalTerm2).toFixed(1)}}
-                                        td 
-                                          span(ng-if="mark.testTerm3<mark.test_quota/2")
-                                            u(style="color:red;") {{(mark.testTerm3).toFixed(1)}}
-                                          span(ng-if="mark.testTerm3>=mark.test_quota/2") {{(mark.testTerm3).toFixed(1)}}
-                                        td 
-                                          span(ng-if="mark.examTerm3<mark.exam_quota/2")
-                                            u(style="color:red;") {{(mark.examTerm3).toFixed(1)}}
-                                          span(ng-if="mark.examTerm3>=mark.exam_quota/2") {{(mark.examTerm2).toFixed(1)}}
-                                        td
-                                          span(ng-if="mark.totalTerm3<mark.course_quota/2")
-                                            u(style="color:red;") {{(mark.totalTerm3).toFixed(1)}}
-                                          span(ng-if="mark.totalTerm3>=mark.course_quota/2") {{(mark.totalTerm3).toFixed(1)}}
-                                        td.report-td-pct
-                                          | {{mark.anualQuotaTotal}}
-                                        td
-                                          span(ng-if="mark.anualMarkTotal*100/mark.anualQuotaTotal<100/2")
-                                            u(style="color:red;") {{(mark.anualMarkTotal).toFixed(1)}}
-                                          span(ng-if="mark.anualMarkTotal*100/mark.anualQuotaTotal>=100/2") {{(mark.anualMarkTotal).toFixed(1)}} 
-                                        td 
-                                          span(ng-if="mark.anualMarkPct<100/2")
-                                            u(style="color:red;") {{(mark.anualMarkPct).toFixed(1)}}% 
-                                          span(ng-if="mark.anualMarkPct>=100/2") {{(mark.anualMarkPct).toFixed(1)}}%
-                                      
-                                    tfoot(align='right')
-                                      tr
-                                        td(align='left', style='font-weight: bold; ')
-                                          | Total
-                                        td.report-td-pct {{qTest}}
-                                        td.report-td-pct {{qExam}}
-                                        td.report-td-pct {{qtotal}}
-                                        td
-                                          span(ng-if="testT1<qTest/2")
-                                            u(style="color:red;")  {{testT1.toFixed(1)}}
-                                          span(ng-if="testT1>=qTest/2") {{testT1.toFixed(1)}}
-                                        td
-                                          span(ng-if="totalT1<qExam/2")
-                                            u(style="color:red;") {{totalT1.toFixed(1)}}
-                                          span(ng-if="totalT1>=qExam/2") {{totalT1.toFixed(1)}}
-                                        td
-                                          span(ng-if="totalT1<qExam/2")
-                                            u(style="color:red;") {{totalT1.toFixed(1)}}
-                                          span(ng-if="totalT1>=qExam/2") {{totalT1.toFixed(1)}} 
-                                        td
-                                          span(ng-if="testT2<qTest/2")
-                                            u(style="color:red;")  {{testT2.toFixed(1)}}
-                                          span(ng-if="testT2>=qTest/2") {{testT2.toFixed(1)}}
-                                        td
-                                          span(ng-if="ExamT2<qExam/2")
-                                            u(style="color:red;") {{ExamT2.toFixed(1)}}
-                                          span(ng-if="ExamT2>=qExam/2") {{ExamT2.toFixed(1)}}
-                                        td
-                                          span(ng-if="totalT2<qExam/2")
-                                            u(style="color:red;") {{totalT2.toFixed(1)}}
-                                          span(ng-if="totalT2>=qExam/2") {{totalT2.toFixed(1)}} 
-                                        td
-                                          span(ng-if="testT3<qTest/2")
-                                            u(style="color:red;")  {{testT3.toFixed(1)}}
-                                          span(ng-if="testT3>=qTest/2") {{testT3.toFixed(1)}} 
-                                        td
-                                          span(ng-if="ExamT3<qExam/2")
-                                            u(style="color:red;") {{ExamT3.toFixed(1)}}
-                                          span(ng-if="ExamT3>=qExam/2") {{ExamT3.toFixed(1)}}
-                                        td
-                                          span(ng-if="totalT3<qExam/2")
-                                            u(style="color:red;") {{totalT3.toFixed(1)}}
-                                          span(ng-if="totalT3>=qExam/2") {{totalT3.toFixed(1)}} 
-                                        td.report-td-pct {{yQuotaTotal}}
-                                        td 
-                                          span(ng-if="mQuotaTotal*100/yQuotaTotal<100/2")
-                                            u(style="color:red;") {{mQuotaTotal.toFixed(1)}}
-                                          span(ng-if="mQuotaTotal*100/yQuotaTotal>=100/2") {{mQuotaTotal.toFixed(1)}}
-
-                                        td
-                                          
-                                      tr
-                                        td(align='left', style='font-weight: bold;')
-                                          | %
-                                        td(colspan='3', style='font-weight: bold;')
-                                          | 
-                                        td(colspan='3', style='font-weight: bold;')
-                                          span(ng-if="totalT1Pct<100/2")
-                                            u(style="color:red;") {{totalT1Pct.toFixed(1)}}
-                                          span(ng-if="totalT1Pct>=100/2") {{totalT1Pct.toFixed(1)}}
-
-                                        td(colspan='3', style='font-weight: bold;')
-                                          span(ng-if="totalT2Pct<100/2")
-                                            u(style="color:red;") {{totalT2Pct.toFixed(1)}}
-                                          span(ng-if="totalT2Pct>=100/2") {{totalT2Pct.toFixed(1)}}
-                                          
-                                        td(colspan='3', style='font-weight: bold;')
-                                          span(ng-if="totalT3Pct<100/2")
-                                            u(style="color:red;")  {{totalT3Pct.toFixed(1)}}
-                                          span(ng-if="totalT3Pct>=100/2") {{totalT3Pct.toFixed(1)}}
-                                        td(colspan='3', style='font-weight: bold;')
-                                          span(ng-if="anualTotalT3Pct<100/2")
-                                            u(style="color:red;") {{anualTotalT3Pct.toFixed(1)}}%
-                                          span(ng-if="anualTotalT3Pct>=100/2") {{anualTotalT3Pct.toFixed(1)}}%
-                                      tr(ng-repeat="place in places")
-                                        td(align='left', style='font-weight: bold;text-align:left;')
-                                          | Position
-                                        td(colspan='3', style='font-weight: bold;')
-                                        td(colspan='3', style='font-weight: bold;')
-                                          | {{place.p1}}/{{studentsMark.length}}
-                                        td(colspan='3', style='font-weight: bold;')
-                                          | {{place.p2}}/{{studentsMark.length}}
-                                        td(colspan='3', style='font-weight: bold;')
-                                          | {{place.p3}}/{{studentsMark.length}}
-                                        td(colspan='3', style='font-weight: bold;')
-                                          | {{place.y_place}}/{{studentsMark.length}}
-                                      tr
-                                        td(align='left', style='font-weight: bold;text-align:left;')
-                                          | Teacher's Signature
-                                        td(colspan='6')
-                                        td(colspan='3')
-                                        td(colspan='3')
-                                        td(colspan='3')
-                                      tr
-                                        td(align='left', style='font-weight: bold;text-align:left;')
-                                          | Parent's Signature
-                                        td(colspan='6')
-                                        td(colspan='3')
-                                        td(colspan='3')
-                                        td(colspan='3')
-                              tr
-                                td
-                                  strong Pass
-                                  br
-                                  strong Repeat
-                                  br
-                                  strong Discontinued
-                                td
-                                  | Done at 
-                                  strong {{school_district|toDistrict}}
-                                  br
-                                  br
-                                  | HeadMistress:
-                                  br
-                                  | (Signature and stamps)
-                          .pull.pull-right
-                            | MADE BY: 
-                            label(style="color:red")
-                              | e-Shuri.rw
-                            br
+            include partials/mid_term
+            include partials/view_one
+            include partials/view_all
 block append scripts
   script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
   //script(src="../js/Controlers/markCtlr.js", type="text/javascript")
@@ -479,6 +104,11 @@ block append scripts
         return input=='S'?'Semester':'Term'
       }
     })
+    .filter('toClasseName', function() {
+      return function(input, term){
+        return term=='S'?'Y'+input:'S'+input
+      }
+    })
     .controller('reportCtrl', ['$scope', '$http','$window',function($scope, $http,$window){
       function fixPlaces(array, attr, value){
         for (var i=0;i<array.length;i++){
@@ -523,21 +153,42 @@ block append scripts
           Notifier.danger(erreur.data);
         });        
       };
-      $scope.getClassStudents = function(){
-        
+      $scope.getListTerms = function(){
         $http
-        .post('/school.students.list',{class_id:$scope.selectClass})
+        .get("/student.get.terms/"+$scope.choosen_year)
         .then(function(response){
-          //console.log(response.data);
-          $scope.students = response.data;
+          $scope.list_terms= response.data;
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data)
+        }); 
+      }
+      $scope.getAllStudentsReport = function(){
+        if($scope.report_type="is_midterm"){
+          $scope.midTermMarks();
+        }
+        else if($scope.report_type="is_yearly"){
+          $scope.students_list = true;
+          $scope.students_report = false;
+          $scope.yearlyClassMarks();
+        }
+        else Notifier.danger("Select report type");      
+      }
+      $scope.midTermMarks = function(){
+        $scope.mid_t_marks = []
+        $http
+        .post('/report.midterm',{academic_year:$scope.choosen_year,class_id:$scope.selectClass,term:$scope.choosen_term})
+        .then(function(res){
+          var response = res.data;
+          $scope.mid_total_marks = response[0].total;
+          $scope.courses = response[0].courses;
+          $scope.midMarks = response;
         })
         .catch(function(err){
           Notifier.danger(err.data);
         })
       }
-      $scope.getAllStudentsReport = function(){
-        $scope.students_list = true;
-        $scope.students_report = false;
+      $scope.yearlyClassMarks = function(){
         $scope.studentsMark = [];
         $scope.pages=[3];
         $http
