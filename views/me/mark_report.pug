@@ -1,8 +1,11 @@
 extends ../layout
 block append scripts
   script(src="../js/MIT/jquery.select-bootstrap.js",type="application/javascript")
+  script(src="../js/kendo.all.min.js",type="application/javascript")
 block append css_code
   link(rel="stylesheet", type="text/css", href="../css/report_table.css")
+  link(rel="stylesheet", type="text/css", href="http://kendo.cdn.telerik.com/2018.1.221/styles/kendo.common.min.css")
+  link(rel="stylesheet", type="text/css", href="http://kendo.cdn.telerik.com/2018.1.221/styles/kendo.blueopal.min.css")
 block append content 
   //- .main-panel
     include ../partials/header 
@@ -46,6 +49,7 @@ block append content
                         input(type="radio",ng-model="report_type", value="is_yearly")
                         | Is yearly
                       button.btn.btn-rose.center(ng-click="getAllStudentsReport()") Get report
+                      button.btn.btn-info.center(ng-click="getPrintedReport(classename)") Save pdf
             include partials/mid_term
             include partials/view_one
             include partials/view_all
@@ -175,18 +179,37 @@ block append scripts
         else Notifier.danger("Select report type");      
       }
       $scope.midTermMarks = function(){
-        $scope.mid_t_marks = []
+        $scope.loading = true;
         $http
         .post('/report.midterm',{academic_year:$scope.choosen_year,class_id:$scope.selectClass,term:$scope.choosen_term})
         .then(function(res){
+          $scope.loading = false;
           var response = res.data;
-          $scope.mid_total_marks = response[0].total;
-          $scope.courses = response[0].courses;
-          $scope.midMarks = response;
+          $scope.classename = response.classe_name;
+          $scope.midMarks = response.students;
+          /*This will flatten the JSON structure and creates the data for the pivot table that is required for HTML table*/
+          $scope.midMarks.forEach(function(sheet){
+            sheet.courses.forEach(function(course) {
+              sheet[course.name] = course.points.toFixed(1);
+            });
+          });
+
+          /*This forms the header for the table - to be used in <th>*/
+          $scope.keys = Object.keys($scope.midMarks[0]);
         })
         .catch(function(err){
           Notifier.danger(err.data);
         })
+      }
+      $scope.getPrintedReport = function(name){
+        if(!$scope.midMarks.length) Notifier.danger("There is no content to save")
+        else{
+          var c_name = $scope.term_name=='S'?'Y'+name:'S'+name
+          kendo.drawing.drawDOM($("#mid-term-report"))
+          .then(function(group) {
+            kendo.drawing.pdf.saveAs(group, c_name.toUpperCase()+".pdf");
+          });
+        }
       }
       $scope.yearlyClassMarks = function(){
         $scope.studentsMark = [];
@@ -353,14 +376,17 @@ block append scripts
       $scope.districts =[
       "Eastern-Bugesera","Eastern-Gatsibo","Eastern-Kayonza","Eastern-Kirehe","Eastern-Ngoma","Eastern-Nyagatare","Eastern-Rwamagana","Kigali-Gasabo","Kigali-Kicukiro","Kigali-Nyarugenge","Northen-Burera","Northen-Gakenke","Northen-Gicumbi","Northen-Musanze","Northen-Rulindo","Northen-Nyabihu","Southern-Gisagara","Southern-Huye","Southern-Kamonyi","Southern-Muhanga","Southern-Nyamagabe","Southern-Nyanza","Southern-Nyaruguru","Southern-Ruhango","Western-Karongi","Western-Ngororero","Western-Nyabihu","Western-Nyamasheke","Western-Rubavu","Western-Rusizi","Western-Rutsiro",];
       //$scope.pages=[3,5,10,15,20,25,30,35,40];
+      $scope.left_algn = {
+        "text-align":"left",
+      }
       $scope.school_id="#{school_id}";
       $scope.school_name="#{school_name}";
       $scope.school_district="#{school_district}";
       $scope.term_name="#{term_name}";
       $scope.school_phone="#{school_phone}";
       $scope.school_pob="#{school_pob}";
-      //- $scope.user_name ="Lionel Ngendakuriyo";
-      //- $scope.user_class= "S4MCE";
+      $scope.loading = false;
+      $scope.midMarks = [];
       $scope.students_report = false;
       $scope.getClassList();
     }])

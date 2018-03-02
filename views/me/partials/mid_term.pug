@@ -2,23 +2,21 @@
   .card
     .card-header.card-header-icon(data-background-color="rose")
       i.material-icons report
-    .card-content
-      h2.card-title.text-center.text-info(ng-show="midMarks.students.length")
+    .card-content#mid-term-report
+      h2.card-title.text-center.text-info(ng-show="midMarks.length")
         strong Mid-term report for {{classename|uppercase|toClasseName}}
-      h2.card-title.text-center.text-info(ng-show="!midMarks.students.length") <strong>Loading, please wait...</strong>
+      h2.card-title.text-center.text-info(ng-show="loading")
+        strong Loading, please wait...
+      h4.card-title.text-center.text-info(ng-show="!midMarks.length&&!loading")
+        strong Select the info above to generate report
       .box
         .box-body
-          .surround.surround-perfect
+          .table-responsive(ng-show="midMarks.length")
             table.table.table-condensed.table-striped.table-bordered
-              thead
-                tr
-                  th Places
-                  th Student names
-                  th(ng-repeat="course in courses") {{course.name|uppercase}} / {{course.outof}}
-                  th Marks/{{mid_total_marks}}
-              tbody
-                tr(ng-repeat="m in midMarks track by $index")
-                  td {{$index + 1}}
-                  td(style='font-weight: bold; text-align:left;') {{m.name|uppercase}}
-                  td(ng-repeat="cour in m.courses") {{(cour.points).toFixed(1)}}
-                  td {{(m.marks).toFixed(1)}}
+              tr
+                th Places
+                //- This will put all the required columns for the table
+                th(ng-repeat='key in keys', ng-if="key !== 'courses'" ng-bind="key|uppercase")
+              tr(ng-repeat='sheet in midMarks')
+                td {{$index + 1}}
+                td(ng-repeat='key in keys', ng-if="key !== 'courses'", ng-bind='sheet[key]|uppercase', ng-style="'sheet[key]==name'?left_algn:''")

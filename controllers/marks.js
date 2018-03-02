@@ -354,90 +354,96 @@ exports.getMidTermMarks = (req, res, next)=>{
 	var async = require("async");
 	var students = [],marks = {}, mixed = [], ordered = [];
 	var outMarks = 0, total=0;
-	async.series([(callBack_getStudentList)=>{
-		User.find({class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT},{_id:1,name:1,class_id:1, URN:1},(err, this_class_students)=>{
-			if(err) return callBack_getStudentList(err);
-			students = this_class_students;
-			return callBack_getStudentList(null);
-		})
-	},(callBack_treatEachStudents)=>{
-		async.each(students, (thisStudent, studentCb)=>{
-			var listAssessmts = [],listCourses=[];			async.series([(Cb_getCourses)=>{
-				Course.find({class_id:req.body.class_id, currentTerm:req.body.term},(err, clsCourses)=>{
-					if(err) return Cb_getCourses(err);
-					listCourses = clsCourses;
-					return Cb_getCourses(null);
-				})
-			},(Cb_eachCourses)=>{
-				async.each(listCourses, (thisCourse, courseCb)=>{
-					async.series([(Cb_getAssessments)=>{
-						Marks.find().distinct("content_id", {class_id:req.body.class_id,course_id:thisCourse._id,student_id:thisStudent._id,isQuoted:true,academic_year:req.body.academic_year},(err, student_assmnts)=>{
-							if(err) return Cb_getAssessments(err);
-							listAssessmts = student_assmnts;
-							return Cb_getAssessments(null);
-						})
-					},(Cb_getMarksFromAssmnts)=>{
-						var totalAssmnts = 0, totalMarks = 0;
-						async.each(listAssessmts, (thisList, list_callBack)=>{
-							Content.findOne({_id:thisList}, (err, assmntMarks)=>{
-								if(err) return list_callBack(err);
-								Marks.findOne({content_id:thisList, student_id:thisStudent._id},(err, mark)=>{
-									if(err) return list_callBack(err);
-									var overMarks = (mark.percentage*assmntMarks.marks)/100;
-									totalAssmnts += (overMarks>0)?overMarks:0;
-									totalMarks += assmntMarks.marks>0?assmntMarks.marks:0;
-									return list_callBack(null)
-								})
-							})
-						},(err)=>{
-							if(err) Cb_getMarksFromAssmnts(err);
-							mixed.push({name:thisStudent.name, 
-								urn:thisStudent.URN, 
-								course:thisCourse.name, 
-								courses:[], 
-								marks:totalAssmnts, 
-								outof:totalMarks,
-								total:total
-							});
-							outMarks = totalMarks
-							return Cb_getMarksFromAssmnts(null);
-						})
-					}],(err)=>{
-						if(err) courseCb(err)
-						return courseCb(null);
-					})
-				},(err)=>{
-					if(err) Cb_eachCourses(err)
-					return Cb_eachCourses(null);
-				})
-			}],(err)=>{
-				if(err) return studentCb(err)
-				return studentCb(null);
-			})
-		},(err)=>{
-			if(err) return callBack_treatEachStudents(err)
-			return callBack_treatEachStudents(null)
-		})
-	}],(err)=>{
+	Classe.findOne({_id:req.body.class_id},(err, classe_info)=>{
 		if(err) return log_err(err,false,req,res);
-		mixed.forEach((marksObject)=>{
-			var existing = ordered.filter((i)=>{
-			return i.urn === marksObject.urn 
-		 })[0];
-			if (!existing){
-				marksObject.total += marksObject.outof
-				marksObject.courses.push({name:marksObject.course,points:marksObject.marks, outof:marksObject.outof});
-				ordered.push({name:marksObject.name,urn:marksObject.urn,courses:marksObject.courses,marks:marksObject.marks,total:marksObject.total});
-			}
-			else{
-				existing.marks += marksObject.marks;
-				existing.total += marksObject.outof
-				existing.courses.push({name:marksObject.course,points:marksObject.marks, outof:marksObject.outof})
-			}
-		});
-		marks = ordered.sort(midTermPlaces)
-		// console.log('Students:===>'+JSON.stringify(marks))
-		return res.json(marks);
+		else if(!classe_info) return log_err(err,false,req,res);
+		marks.classe_name = classe_info.name;
+		marks.students = [];
+		async.series([(callBack_getStudentList)=>{
+			User.find({class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT},{_id:1,name:1,class_id:1, URN:1},(err, this_class_students)=>{
+				if(err) return callBack_getStudentList(err);
+				students = this_class_students;
+				return callBack_getStudentList(null);
+			})
+		},(callBack_treatEachStudents)=>{
+			async.each(students, (thisStudent, studentCb)=>{
+				var listAssessmts = [],listCourses=[];			async.series([(Cb_getCourses)=>{
+					Course.find({class_id:req.body.class_id, currentTerm:req.body.term},(err, clsCourses)=>{
+						if(err) return Cb_getCourses(err);
+						listCourses = clsCourses;
+						return Cb_getCourses(null);
+					})
+				},(Cb_eachCourses)=>{
+					async.each(listCourses, (thisCourse, courseCb)=>{
+						async.series([(Cb_getAssessments)=>{
+							Marks.find().distinct("content_id", {class_id:req.body.class_id,course_id:thisCourse._id,student_id:thisStudent._id,isQuoted:true,academic_year:req.body.academic_year},(err, student_assmnts)=>{
+								if(err) return Cb_getAssessments(err);
+								listAssessmts = student_assmnts;
+								return Cb_getAssessments(null);
+							})
+						},(Cb_getMarksFromAssmnts)=>{
+							var totalAssmnts = 0, totalMarks = 0;
+							async.each(listAssessmts, (thisList, list_callBack)=>{
+								Content.findOne({_id:thisList}, (err, assmntMarks)=>{
+									if(err) return list_callBack(err);
+									Marks.findOne({content_id:thisList, student_id:thisStudent._id},(err, mark)=>{
+										if(err) return list_callBack(err);
+										var overMarks = (mark.percentage*assmntMarks.marks)/100;
+										totalAssmnts += (overMarks>0)?overMarks:0;
+										totalMarks += assmntMarks.marks>0?assmntMarks.marks:0;
+										return list_callBack(null)
+									})
+								})
+							},(err)=>{
+								if(err) Cb_getMarksFromAssmnts(err);
+								mixed.push({name:thisStudent.name, 
+									urn:thisStudent.URN, 
+									course:thisCourse.name, 
+									courses:[], 
+									marks:totalAssmnts, 
+									outof:totalMarks,
+									total:total
+								});
+								outMarks = totalMarks
+								return Cb_getMarksFromAssmnts(null);
+							})
+						}],(err)=>{
+							if(err) courseCb(err)
+							return courseCb(null);
+						})
+					},(err)=>{
+						if(err) Cb_eachCourses(err)
+						return Cb_eachCourses(null);
+					})
+				}],(err)=>{
+					if(err) return studentCb(err)
+					return studentCb(null);
+				})
+			},(err)=>{
+				if(err) return callBack_treatEachStudents(err)
+				return callBack_treatEachStudents(null)
+			})
+		}],(err)=>{
+			if(err) return log_err(err,false,req,res);
+			mixed.forEach((marksObject)=>{
+				var existing = ordered.filter((i)=>{
+				return i.urn === marksObject.urn 
+			 })[0];
+				if (!existing){
+					marksObject.total += marksObject.outof
+					marksObject.courses.push({name:marksObject.course+' /'+marksObject.outof,points:marksObject.marks, outof:marksObject.outof});
+					ordered.push({name:marksObject.name,urn:marksObject.urn,courses:marksObject.courses,marks:marksObject.marks,total:marksObject.total});
+				}
+				else{
+					existing.marks += marksObject.marks;
+					existing.total += marksObject.outof
+					existing.courses.push({name:marksObject.course+' /'+marksObject.outof,points:marksObject.marks, outof:marksObject.outof})
+				}
+			});
+			marks.students = ordered.sort(midTermPlaces)
+			// console.log('Students:===>'+JSON.stringify(marks))
+			return res.json(marks);
+		})
 	})
 }
 exports.getReport_JSON =(req,res,next)=>{
