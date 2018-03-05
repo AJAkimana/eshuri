@@ -5,6 +5,7 @@ const Content =require('../models/Content'),
 	  School =require('../models/School'),
 	  Classe =require('../models/Classe'),
 	  Course =require('../models/Course'),
+	  Util=require('../utils'),
 	  log_err=require('./manage/errorLogger');
 
 exports.getPageReport = function(req,res,next){
@@ -352,8 +353,9 @@ exports.getMidTermMarks = (req, res, next)=>{
 	const errors = req.validationErrors();
 	if (errors) return res.status(400).send(errors[0].msg);
 	var async = require("async");
-	var students = [],marks = {}, mixed = [], ordered = [];
+	var students = [],marks = {}, mixed = [], ordered = [],objectMark = {};
 	var outMarks = 0, total=0;
+	var marksKey='marks',urnKey='urn',courseKey='course',nameKey='name',coursesKey='courses',totalKey='total',ofKey='outof';
 	Classe.findOne({_id:req.body.class_id},(err, classe_info)=>{
 		if(err) return log_err(err,false,req,res);
 		else if(!classe_info) return log_err(err,false,req,res);
@@ -398,7 +400,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 								if(err) Cb_getMarksFromAssmnts(err);
 								mixed.push({name:thisStudent.name, 
 									urn:thisStudent.URN, 
-									course:thisCourse.name, 
+									course:Util.getShort(thisCourse.name,3), 
 									courses:[], 
 									marks:totalAssmnts, 
 									outof:totalMarks,
@@ -441,7 +443,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 				}
 			});
 			marks.students = ordered.sort(midTermPlaces)
-			// console.log('Students:===>'+JSON.stringify(marks))
+			console.log('Students:===>'+JSON.stringify(marks))
 			return res.json(marks);
 		})
 	})
