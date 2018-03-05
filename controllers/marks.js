@@ -147,7 +147,7 @@ exports.getClassAcademicYears =function(req,res,next){
 	Marks.find({class_id:req.params.class_id}).distinct("academic_year",
 		(err,listYears)=>{
 		if(err) return log_err(err,false,req,res);
-		else if(listYears.length==0) return res.status(400).send("This class does not have enough contents");
+		else if(!listYears.length) return res.status(400).send("This class does not have enough contents");
 		return res.json(listYears);
 	})
 }
@@ -443,7 +443,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 				}
 			});
 			marks.students = ordered.sort(midTermPlaces)
-			console.log('Students:===>'+JSON.stringify(marks))
+			// console.log('Students:===>'+JSON.stringify(marks))
 			return res.json(marks);
 		})
 	})
