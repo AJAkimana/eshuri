@@ -370,7 +370,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 		},(callBack_treatEachStudents)=>{
 			async.each(students, (thisStudent, studentCb)=>{
 				var listAssessmts = [],listCourses=[];			async.series([(Cb_getCourses)=>{
-					Course.find({class_id:req.body.class_id, currentTerm:req.body.term},(err, clsCourses)=>{
+					Course.find({class_id:req.body.class_id, currentTerm:req.body.term, name:{$ne:'conduite'}},(err, clsCourses)=>{
 						if(err) return Cb_getCourses(err);
 						listCourses = clsCourses;
 						return Cb_getCourses(null);
