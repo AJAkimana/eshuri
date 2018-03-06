@@ -275,7 +275,7 @@ module.exports = function(app) {
 	app .post('/school.update.profile',isSuperAdmin, schoolController.changeSchoolProfile);
 	app .post('/add.school.info',isSuperAdmin, schoolController.addSchoolInfo);
 	app .get('/school/:id_school',isAuthenticated, schoolController.homepageSchool);
-	app.post('/school.delete',isSuperAdmin, schoolController.removeSchool);
+	app.post('/school.delete',isSuperAdmin, schoolController.deleteWholeSchool);
 	app.get('/school.content.list/:school_id',isAuthenticated, schoolController.getSchoolData);
 	// Get user classes from past to now.
 	app.get('/school.get.userClasses/:school_id', isAuthenticated, schoolController.getUserClasses);

@@ -484,6 +484,49 @@ exports.getOptions_JSON = function(req,res,next){
   })
 }
 // Supprimer un school 
+exports.deleteWholeSchool = (req, res, next)=>{
+  req.assert('school_id', 'Invalid data').isMongoId();
+  req.assert('confirmPass', 'Super admin password is required to do this action').notEmpty();
+
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+
+  var async = require('async');
+  User.findOne({_id:req.user._id},(err,user_exists)=>{
+    if(err) return log_err(err,false,req,res);
+    else if(!user_exists) return res.status(400).send("Invalid data");
+    user_exists.comparePassword(req.body.confirmPass,req.user.email, (err, isMatch) => {
+      if(err) return log_err(err,false,req,res);
+      else if(!isMatch)   return res.status(400).send("Password is incorrect");
+      School.findOne({_id:req.body.school_id}, (err, school_exists)=>{
+        if(err) return log_err(err,false,req,res);
+        else if(!school_exists) return res.status(400).send("Invalid data");
+        async.parallel([(cb_classes)=>{
+          Classe.remove({school_id:school_exists._id},(err)=>{
+            if(err) return cb_classes("Classes did not deleted");
+            cb_classes(null);
+          })
+        },(cb_courses)=>{
+          Course.remove({school_id:school_exists._id},(err)=>{
+            if(err) return cb_courses("Courses did not deleted");
+            cb_courses(null);
+          })
+        },(cb_users)=>{
+          User.remove({school_id:school_exists._id},(err)=>{
+            if(err) return cb_users("Users did not deleted");
+            cb_users(null);
+          })
+        }],(err)=>{
+          if(err) return log_err(err,false,req,res);
+          school_exists.remove((err)=>{
+            if(err) return res.status(500).send("Deletion failed but all school's content deleted"); 
+            return res.end();
+          })
+        })
+      })
+    })
+  })
+}
 exports.removeSchool = function(req,res,next){ 
   req.assert('school_id', 'Invalid data').isMongoId();
   req.assert('confirmPass', 'Super admin password is required to do this action').notEmpty();
