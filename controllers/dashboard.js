@@ -130,9 +130,9 @@ exports.getSchoolRedirection = (req, res, next)=>{
 }
 exports.getDashboardPage=(req,res,next)=>{
   var superAdmin = req.app.locals.access_level.SUPERADMIN;
-      hod = req.app.locals.access_level.HOD;
+      school_dir = req.app.locals.access_level.SA_SCHOOL;
       accLvl = req.user.access_level;
-  if(accLvl == hod) return res.redirect('/school.dashboard.home/'+req.user.school_id);
+  if(accLvl == school_dir) return res.redirect('/school.dashboard.home/'+req.user.school_id);
   else return res.redirect("back");
 }
 exports.viewPageUserDetails=(req,res,next)=>{

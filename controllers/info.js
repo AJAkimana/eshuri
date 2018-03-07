@@ -9,8 +9,10 @@ exports.getMainPage = function(req,res,next){
 exports.getWelcomePage =(req,res,next)=>{
   if(!req.isAuthenticated()) return res.redirect('/user.signin');
   var link ="";
+  console.log('Access:'+req.user.access_level)
   switch(req.user.access_level){
     case req.app.locals.access_level.SUPERADMIN: link="/dashboard"; break;
+    case req.app.locals.access_level.SA_SCHOOL: link="/dashboard.director";break;
     // those guys will be redirected to their dashboard
     case req.app.locals.access_level.HOD:
     case req.app.locals.access_level.ADMIN:
@@ -18,7 +20,6 @@ exports.getWelcomePage =(req,res,next)=>{
     // Those guys wil be reidrected to the timeline
     case req.app.locals.access_level.TEACHER:
     case req.app.locals.access_level.STUDENT: link="/timeline";break;
-    case req.app.locals.access_level.SA_SCHOOL: link="/dashboard.director";break;
     case req.app.locals.access_level.PARENT: link="/parent";break;
     case req.app.locals.access_level.GUEST: link="/application";break;
     default: break;
