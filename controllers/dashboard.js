@@ -61,13 +61,13 @@ exports.getSchoolRedirection = (req, res, next)=>{
         studentFemCb();
       })
     },(adminMaleCb)=>{
-      User.count({school_id:school_id,isEnabled:true,$or:[{access_level:admin},{access_level:admin_teacher}],gender:1},(err, admins)=>{
+      User.count({school_id:school_id,isEnabled:true,access_level:{$lte:req.app.locals.access_level.ADMIN_TEACHER},gender:1},(err, admins)=>{
         if(err) adminMaleCb(err);
         response.admins_male=admins;
         adminMaleCb();
       })
     },(adminFemCb)=>{
-      User.count({school_id:school_id,isEnabled:true,$or:[{access_level:admin},{access_level:admin_teacher}],gender:2},(err, admins)=>{
+      User.count({school_id:school_id,isEnabled:true,access_level:{$lte:req.app.locals.access_level.ADMIN_TEACHER},gender:2},(err, admins)=>{
         if(err) adminFemCb(err);
         response.admins_fem=admins;
         adminFemCb();

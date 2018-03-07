@@ -484,49 +484,6 @@ exports.getOptions_JSON = function(req,res,next){
   })
 }
 // Supprimer un school 
-exports.deleteWholeSchool = (req, res, next)=>{
-  req.assert('school_id', 'Invalid data').isMongoId();
-  req.assert('confirmPass', 'Super admin password is required to do this action').notEmpty();
-
-  const errors = req.validationErrors();
-  if (errors) return res.status(400).send(errors[0].msg);
-
-  var async = require('async');
-  User.findOne({_id:req.user._id},(err,user_exists)=>{
-    if(err) return log_err(err,false,req,res);
-    else if(!user_exists) return res.status(400).send("Invalid data");
-    user_exists.comparePassword(req.body.confirmPass,req.user.email, (err, isMatch) => {
-      if(err) return log_err(err,false,req,res);
-      else if(!isMatch)   return res.status(400).send("Password is incorrect");
-      School.findOne({_id:req.body.school_id}, (err, school_exists)=>{
-        if(err) return log_err(err,false,req,res);
-        else if(!school_exists) return res.status(400).send("Invalid data");
-        async.parallel([(cb_classes)=>{
-          Classe.remove({school_id:school_exists._id},(err)=>{
-            if(err) return cb_classes("Classes did not deleted");
-            cb_classes(null);
-          })
-        },(cb_courses)=>{
-          Course.remove({school_id:school_exists._id},(err)=>{
-            if(err) return cb_courses("Courses did not deleted");
-            cb_courses(null);
-          })
-        },(cb_users)=>{
-          User.remove({school_id:school_exists._id},(err)=>{
-            if(err) return cb_users("Users did not deleted");
-            cb_users(null);
-          })
-        }],(err)=>{
-          if(err) return log_err(err,false,req,res);
-          school_exists.remove((err)=>{
-            if(err) return res.status(500).send("Deletion failed but all school's content deleted"); 
-            return res.end();
-          })
-        })
-      })
-    })
-  })
-}
 exports.removeSchool = function(req,res,next){ 
   req.assert('school_id', 'Invalid data').isMongoId();
   req.assert('confirmPass', 'Super admin password is required to do this action').notEmpty();
@@ -731,17 +688,20 @@ exports.getStudents_JSON = (req, res, next)=>{
     else if(!school) return res.status(400).send('Invalid data');
     else if(String(school._id)!= String(req.user.school_id))
       return res.status(400).send('This is not your school');
-    var class_prefix = school.term_name=='T'?'S':'Y';
-    // async.series([(callBack_Prel)=>{
-    //   async.
-    // }])
-    User.find({school_id:req.body.school_id,access_level:req.app.locals.access_level.STUDENT, class_id:{$ne:null}},{__v:0,password:0,gender:0,isValidated:0,upload_time:0,updatedAt:0}).sort({name:1}).lean().exec((err, students_list)=>{
+    var class_prefix = school.term_name=='T'?'S':'Y'
+    User.find({school_id:req.body.school_id,access_level:req.app.locals.access_level.STUDENT},{__v:0,password:0,gender:0,isValidated:0,upload_time:0,updatedAt:0}).sort({name:1}).lean().exec((err, students_list)=>{
       if(err) return log_err(err,false,req,res);
-
       async.each(students_list, (thisStudent, callBack)=>{
         Classe.findOne({_id:thisStudent.class_id}, (err, classe)=>{
           if(err) callBack(err);
           if(classe) thisStudent.classe=class_prefix+classe.name.toUpperCase();
+          else if(thisStudent.prev_classes.length){
+            Finalist.findOne({student_id:thisStudent._id},(err, isFinalist)=>{
+              if(err) callBack(err);
+              // console.log(JSON.stringify(isFinalist))
+              thisStudent.classe='Finalist in '+isFinalist.academic_year
+            })
+          }
           else thisStudent.classe='No class assigned'
           console.log('Classe name: '+thisStudent.classe)
           callBack(null);
@@ -1147,6 +1107,7 @@ exports.setAdminAsTeacher = function(req,res,next){
       if(err) return log_err(err,false,req,res);
       return res.end();  
     })
+    
   })
 }
 exports.updateSuperAdmin = (req,res,next)=>{

@@ -44,12 +44,14 @@ block append content
 													th.text-center #
 													th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b")  Name
 													th: a.btn-simple.btn.label.btn-rose(ng-click="a='email';b=!b")  E-mail
+													th: a.btn-simple.btn.label.btn-rose(ng-click="a='access_level';b=!b")  Access Level
 													th Actions
 												tbody
 													tr(pagination-id="alladmins", dir-paginate="admin in admins |orderBy:a:b|filter:search|itemsPerPage:n_pages")
 														td(width="1%" height="1%") {{$index + 1}}
 														td: a(href="/dashboard.course/{{classe._id}}") {{admin.name | uppercase}}
 														td {{admin.email }}
+														td {{admin.access_level|toAccessLevel}}
 														td.td-actions.text-right
 															button.btn.btn-danger(type='button',ng-click="removeAdmin(admin._id,admin.name)")
 																i.material-icons close
@@ -60,6 +62,17 @@ block append scripts
 	script.
 		var app =angular.module('eshuri_App', ['ngRoute', 'angularUtils.directives.dirPagination']);
 		app
+		.filter('toAccessLevel', function() {
+			return function(input){
+				switch(input){
+					case 1.1: input ="School director";break;
+					case 2: input ="DOS";break;
+					case 2.1: input ="DOS & Teacher";break;
+					default: input="-";break;
+				}
+				return input;
+			}
+		})
 		.controller('adminCtrl', function($scope,$http){
 			$scope.setAsAdmin = function(){
 				$http

@@ -1,0 +1,715 @@
+extends ../layout
+block append scripts
+  script(src="../js/MIT/jquery.select-bootstrap.js",type="application/javascript")
+block append css_code
+  link(rel="stylesheet", type="text/css", href="../css/report_table.css")
+block append content 
+  //- .main-panel
+    include ../partials/header 
+  .wrapper.wrapper-full-page.full-page-background(ng-controller="reportCtrl",style="background-image: url('../imgs/register.jpeg')")
+    .full-page.login-page
+      .content
+        .container-fluid
+          .row
+            .col-md-6.center
+              .card
+                .card-header.card-header-icon(data-background-color="rose")
+                  i.material-icons school
+                .card-content
+                  h4.card-title.text-center.text-info
+                    strong This report is designed to generate yearly marks.
+                  h4.card-title Complete the parameters to generate the report
+                  .row
+                    .col-md-5
+                      .form-group.label-floating
+                        label.control-label Choose the class
+                        select.form-control(required="true",ng-model="selectClass",ng-change="getAcademicYearsList()")
+                          option(value="", disabled selected)
+                          option(value="{{class._id}}", ng-repeat="class in ClassList") {{class.name|uppercase}}
+                    .col-md-4
+                      .form-group.label-floating
+                        label.control-label Choose the academic year
+                        select.form-control(required="true",ng-model="choosen_year",ng-change="getAllStudentsReport()")
+                          option(value="", disabled selected)
+                          option(value="{{umwaka}}", ng-repeat="umwaka in academic_years") {{umwaka|toNormal}}
+
+                    .col-md-3
+                      button.btn.btn-rose.center(ng-click="getAllStudentsReport()") Get report
+            .col-md-12.center(ng-show="students_list")
+              .card
+                .card-header.card-header-icon(data-background-color="rose")
+                  i.material-icons report
+                .card-content
+                  h4.card-title.text-center.text-info <strong>Click on student NAME to get the full report</strong>
+                  .col-md-12
+                    .box
+                      .box-body
+                        h2.card-title.text-center.text-info(ng-show="!studentsMark.length") <strong>Loading, please wait...</strong>
+                        .col-md-12(ng-show="studentsMark.length")
+                          .table-responsive.table-condensed.table-striped
+                            center(ng-repeat="classinfo in classInfo")
+                              h3
+                                strong Students progress for class {{classinfo.name|uppercase}} in {{classinfo.a_year|toNormal}}
+                              strong {{classinfo.a_year|toNormal}} ANNUAL REPORT
+                              button.btn.btn-label.btn-primary.pull-right(ng-click="printDiv('student-report')") Print
+                            form.form-inline
+                              .form-group.pull-left
+                                  select.form-control(ng-init="n_pages=studentsMark.length", ng-model="n_pages",)
+                                      option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
+                                  strong pages
+                              .form-group.pull-right
+                                  input.form-control(type='text', ng-model='search', placeholder='Search')
+                            #student-report
+                              table.table.table-bordered
+                                thead
+                                  tr
+                                    th(rowspan='4')
+                                      | Student names
+
+                                    //Terms ______+___________+_______________
+                                    th.report-th(colspan='5'): strong Term I
+                                    th.report-th(colspan='5'): strong Term II
+                                    th.report-th(colspan='5'): strong Term III
+                                    th.report-th(colspan="3"): strong Year Total
+
+                                  //Assessment test and exam____+_______________+__
+                                  tr(align='center')
+                                    th.report-th: strong Test
+                                    th.report-th: strong Ex
+                                    th.report-th: strong Tot
+                                    th.report-th: strong %
+                                    th.report-th: strong Plc
+                                    th.report-th: strong Test
+                                    th.report-th: strong Ex
+                                    th.report-th: strong Tot
+                                    th.report-th: strong %
+                                    th.report-th: strong Plc
+                                    th.report-th: strong Test
+                                    th.report-th: strong Ex
+                                    th.report-th: strong Tot   
+                                    th.report-th: strong %
+                                    th.report-th: strong Plc
+                                    th.report-th: strong Total
+                                    th.report-th: strong %
+                                    th.report-th: strong Plc
+                                tbody(align='right')
+                                  tr(pagination-id='allsmarks', dir-paginate="mark in studentsMark|filter:search|itemsPerPage:n_pages|orderBy:name")
+                                    td.report-td: label.btn-simple.btn-link(ng-click="getOneStudentReport(mark)") {{mark.name|uppercase}}
+                                    td {{(mark.test_t1_mark).toFixed(1)}}
+                                    td {{(mark.exam_t1_mark).toFixed(1)}}
+                                    td {{(mark.total_t1_mark).toFixed(1)}}
+                                    td.report-td-pct
+                                      span(ng-if="mark.total_t1_pct<100/2")
+                                        u(style="color:red;") {{(mark.total_t1_pct).toFixed(1)}}%
+                                      span(ng-if="mark.total_t1_pct>=100/2") {{(mark.total_t1_pct).toFixed(1)}}%
+                                    td {{mark.place1}}
+                                    td {{(mark.test_t2_mark).toFixed(1)}}
+                                    td {{(mark.exam_t2_mark).toFixed(1)}}
+                                    td {{(mark.total_t2_mark).toFixed(1)}}
+                                    td.report-td-pct 
+                                      span(ng-if="mark.total_t2_pct<100/2")
+                                        u(style="color:red;") {{(mark.total_t2_pct).toFixed(1)}}%
+                                      span(ng-if="mark.total_t2_pct>=100/2") {{(mark.total_t2_pct).toFixed(1)}}%
+
+                                    td {{mark.place2}}
+                                    td {{(mark.test_t3_mark).toFixed(1)}}
+                                    td {{(mark.exam_t3_mark).toFixed(1)}}
+                                    td {{(mark.total_t3_mark).toFixed(1)}}
+                                    td.report-td-pct 
+                                      span(ng-if="mark.total_t3_pct<100/2")
+                                        u(style="color:red;") {{(mark.total_t3_pct).toFixed(1)}}%
+                                      span(ng-if="mark.total_t2_pct>=100/2") {{(mark.total_t3_pct).toFixed(1)}}%
+                                    td {{mark.place3}}
+                                    td.report-td-pct {{(mark.annual).toFixed(1)}}
+                                    td.report-td-pct 
+                                      span(ng-if="mark.annual_pct<100/2")
+                                        u(style="color:red;") {{(mark.annual_pct).toFixed(1)}}%
+                                      span(ng-if="mark.annual_pct>=100/2") {{(mark.annual_pct).toFixed(1)}}%
+                                    td.report-td-pct {{mark.year_place}}
+                              dir-pagination-controls(pagination-id='allsmarks', max-size='5', direction-links='true', boundary-links='true')
+                          .col-md-12        
+                            .col-md-6
+                              center
+                                h4
+                                  strong Courses
+                              .table-responsive.table-condensed.table-striped
+                                table.table.table-bordered
+                                  thead
+                                    tr
+                                      th #
+                                      th Name
+                                      th Test
+                                      th Exam
+                                      th Total
+                                  tbody
+                                    tr(ng-repeat="course in courses|orderBy:'name'")
+                                      th {{$index+1}}
+                                      th {{course.name|uppercase}}
+                                      th {{course.test_quota}}
+                                      th {{course.exam_quota}}
+                                      th {{course.weightOnReport}}
+                            
+            .col-md-10.center(ng-show="students_report")
+              .card
+                .card-header.card-header-icon(data-background-color="rose")
+                  i.material-icons report
+                .card-content
+                  button.btn.btn-label.pull-left(ng-click="showDivs()") Close
+                  button.btn.btn-label.btn-primary.pull-right(ng-click="printDiv('printReport')") Print
+                  //- button.btn.btn-simple.pull-right(ng-click="printRepo('printableArea')") Print RO {{userInfo.uurn}}
+                  .col-md-12
+                    .box
+                      .box-body
+                        div
+                        br
+                        br
+                        br
+                        h2.card-title.text-center.text-info(ng-show="!studentMark.length") <strong>Loading, please wait...</strong>
+                        //- #printReport#printableArea(ng-show="studentMark.length")
+                        //- #printableArea(ng-show="studentMark.length")
+                        #printReport(ng-show="studentMark.length")
+                          .table-responsive.table-condensed
+                            table.table.table-curved
+                              tr
+                                td(colspan='2')
+                                  table.table.table-curved(ng-repeat="user in userInfo")
+                                    tr
+                                      td(rowspan="3", width="20%")
+                                        img(src="/school.profile/"+school_id alt="Image")
+                                      td()
+                                        center: strong STUDENT'S PROGRESSIVE REPORT
+                                      td(rowspan="3", width="20%")
+                                        .center
+                                          img.img-rounded(src="/pp.view/{{user.upic}}")
+                                          | URN: <strong> {{user.uurn|uppercase}}</strong>
+                                          br
+                                          | Class: <strong> {{user.classe|uppercase}}</strong>
+                  
+                                    tr
+                                      td()
+                                        p: strong
+                                          | Ministry of Education
+                                          br
+                                          | {{school_district|toDistrict}}
+                                          br
+                                          | {{school_name|uppercase}}
+                                          br
+                                          | TeL : {{school_phone||'________________'}}
+                                          br
+                                          | {{school_pob||'POBox.:_____________'|uppercase}}
+                                    tr
+                                      td()
+                                        center
+                                          | Names: 
+                                          strong {{user.uname|uppercase}}
+                                        //- img(src="/pp.view/{{user.upic}}")
+                              tr
+                                td(colspan='2', style='text-align:left;')
+                                  .col-md-12
+                                    center
+                                      strong Academic Year 2017
+                              tr
+                                td(colspan='2', align='left',style="text-align:left;")
+                                  table.table.table-condensed.table-bordered
+                                    thead
+                                      tr(print-remove)
+                                        th(rowspan='3')
+                                          | Subject
+                                      tr(print-remove)
+                                        th(colspan='3', style='text-align:center;font-weight: bold;background: #CCC')
+                                          | MAX POINTS
+                                        th.report-th(colspan='3',style="border-right: 3px solid #cdd0d4; border-top: 2px solid #cdd0d4;")
+                                          strong FIRST TERM
+                                        th.report-th(colspan='3',style="border-right: 3px solid #cdd0d4; border-top: 2px solid #cdd0d4;")
+                                          strong SECOND TERM
+                                        th.report-th(colspan='3',style="border-right: 3px solid #cdd0d4; border-top: 2px solid #cdd0d4;")
+                                          strong THIRD TERM
+                                        th.report-th(colspan='3')
+                                          strong ANNUAL POINTS
+                                      tr(align='center')
+                                        th.report-td-pct: strong TEST
+                                        th.report-td-pct: strong EX
+                                        th.report-td-pct: strong TOT
+                                        th.report-th: strong TEST
+                                        th.report-th: strong EX
+                                        th.report-th(style="border-right: 3px solid #cdd0d4;"): strong TOT
+                                        th.report-th: strong TEST
+                                        th.report-th: strong EX
+                                        th.report-th(style="border-right: 3px solid #cdd0d4;"): strong TOT
+                                        th.report-th: strong TEST
+                                        th.report-th: strong EX
+                                        th.report-th(style="border-right: 3px solid #cdd0d4;"): strong TOT
+                                        th.report-th: strong MAX
+                                        th.report-th: strong TOTAL
+                                        th.report-th: strong %
+                                    tbody
+                                      tr
+                                        td(style='font-weight: bold; background: #e3e7ed; text-align:left;') CONDUCT
+                                        td(colspan='3', style='text-align:center;font-weight: bold;background: #CCC') 40
+                                        td(colspan='3', style="border-right: 3px solid #cdd0d4;") {{conduite_t1}}
+                                        td(colspan='3', style="border-right: 3px solid #cdd0d4;") {{conduite_t2}}
+                                        td(colspan='3', style="border-right: 3px solid #cdd0d4;") {{conduite_t3}}
+                                        td(colspan='3') {{conduite_t}}
+                                      tr(ng-repeat="mark in studentMark|orderBy:'-course_quota'")
+                                        td(style='font-weight: bold; background: #e3e7ed; text-align:left;')
+                                          | {{mark.name|uppercase}}
+                                        td.report-td-pct {{mark.test_quota}}
+                                        td.report-td-pct {{mark.exam_quota}}
+                                        td.report-td-pct {{mark.course_quota}}
+                                        td 
+                                          span(ng-if="mark.testTerm1<mark.test_quota/2")
+                                            u(style="color:red;") {{(mark.testTerm1).toFixed(1)}}
+                                          span(ng-if="mark.testTerm1>=mark.test_quota/2") {{(mark.testTerm1).toFixed(1)}}
+
+                                        td 
+                                          span(ng-if="mark.examTerm1<mark.exam_quota/2")
+                                            u(style="color:red;") {{(mark.examTerm1).toFixed(1)}}
+                                          span(ng-if="mark.examTerm1>=mark.exam_quota/2") {{(mark.examTerm1).toFixed(1)}}
+                                        td
+                                          span(ng-if="mark.totalTerm1<mark.course_quota/2")
+                                            u(style="color:red;") {{(mark.totalTerm1).toFixed(1)}}
+                                          span(ng-if="mark.totalTerm1>=mark.course_quota/2") {{(mark.totalTerm1).toFixed(1)}}
+                                        td
+                                          span(ng-if="mark.testTerm2<mark.test_quota/2")
+                                            u(style="color:red;") {{(mark.testTerm2).toFixed(1)}}
+                                          span(ng-if="mark.testTerm2>=mark.test_quota/2") {{(mark.testTerm2).toFixed(1)}}
+                                        td 
+                                          span(ng-if="mark.examTerm2<mark.exam_quota/2")
+                                            u(style="color:red;") {{(mark.examTerm2).toFixed(1)}}
+                                          span(ng-if="mark.examTerm2>=mark.exam_quota/2") {{(mark.examTerm2).toFixed(1)}}
+                                        td
+                                          span(ng-if="mark.totalTerm2<mark.course_quota/2")
+                                            u(style="color:red;") {{(mark.totalTerm2).toFixed(1)}}
+                                          span(ng-if="mark.totalTerm2>=mark.course_quota/2") {{(mark.totalTerm2).toFixed(1)}}
+                                        td 
+                                          span(ng-if="mark.testTerm3<mark.test_quota/2")
+                                            u(style="color:red;") {{(mark.testTerm3).toFixed(1)}}
+                                          span(ng-if="mark.testTerm3>=mark.test_quota/2") {{(mark.testTerm3).toFixed(1)}}
+                                        td 
+                                          span(ng-if="mark.examTerm3<mark.exam_quota/2")
+                                            u(style="color:red;") {{(mark.examTerm3).toFixed(1)}}
+                                          span(ng-if="mark.examTerm3>=mark.exam_quota/2") {{(mark.examTerm2).toFixed(1)}}
+                                        td
+                                          span(ng-if="mark.totalTerm3<mark.course_quota/2")
+                                            u(style="color:red;") {{(mark.totalTerm3).toFixed(1)}}
+                                          span(ng-if="mark.totalTerm3>=mark.course_quota/2") {{(mark.totalTerm3).toFixed(1)}}
+                                        td.report-td-pct
+                                          | {{mark.anualQuotaTotal}}
+                                        td
+                                          span(ng-if="mark.anualMarkTotal*100/mark.anualQuotaTotal<100/2")
+                                            u(style="color:red;") {{(mark.anualMarkTotal).toFixed(1)}}
+                                          span(ng-if="mark.anualMarkTotal*100/mark.anualQuotaTotal>=100/2") {{(mark.anualMarkTotal).toFixed(1)}} 
+                                        td 
+                                          span(ng-if="mark.anualMarkPct<100/2")
+                                            u(style="color:red;") {{(mark.anualMarkPct).toFixed(1)}}% 
+                                          span(ng-if="mark.anualMarkPct>=100/2") {{(mark.anualMarkPct).toFixed(1)}}%
+                                      
+                                    tfoot(align='right')
+                                      tr
+                                        td(align='left', style='font-weight: bold; ')
+                                          | Total
+                                        td.report-td-pct {{qTest}}
+                                        td.report-td-pct {{qExam}}
+                                        td.report-td-pct {{qtotal}}
+                                        td
+                                          span(ng-if="testT1<qTest/2")
+                                            u(style="color:red;")  {{testT1.toFixed(1)}}
+                                          span(ng-if="testT1>=qTest/2") {{testT1.toFixed(1)}}
+                                        td
+                                          span(ng-if="totalT1<qExam/2")
+                                            u(style="color:red;") {{totalT1.toFixed(1)}}
+                                          span(ng-if="totalT1>=qExam/2") {{totalT1.toFixed(1)}}
+                                        td
+                                          span(ng-if="totalT1<qExam/2")
+                                            u(style="color:red;") {{totalT1.toFixed(1)}}
+                                          span(ng-if="totalT1>=qExam/2") {{totalT1.toFixed(1)}} 
+                                        td
+                                          span(ng-if="testT2<qTest/2")
+                                            u(style="color:red;")  {{testT2.toFixed(1)}}
+                                          span(ng-if="testT2>=qTest/2") {{testT2.toFixed(1)}}
+                                        td
+                                          span(ng-if="ExamT2<qExam/2")
+                                            u(style="color:red;") {{ExamT2.toFixed(1)}}
+                                          span(ng-if="ExamT2>=qExam/2") {{ExamT2.toFixed(1)}}
+                                        td
+                                          span(ng-if="totalT2<qExam/2")
+                                            u(style="color:red;") {{totalT2.toFixed(1)}}
+                                          span(ng-if="totalT2>=qExam/2") {{totalT2.toFixed(1)}} 
+                                        td
+                                          span(ng-if="testT3<qTest/2")
+                                            u(style="color:red;")  {{testT3.toFixed(1)}}
+                                          span(ng-if="testT3>=qTest/2") {{testT3.toFixed(1)}} 
+                                        td
+                                          span(ng-if="ExamT3<qExam/2")
+                                            u(style="color:red;") {{ExamT3.toFixed(1)}}
+                                          span(ng-if="ExamT3>=qExam/2") {{ExamT3.toFixed(1)}}
+                                        td
+                                          span(ng-if="totalT3<qExam/2")
+                                            u(style="color:red;") {{totalT3.toFixed(1)}}
+                                          span(ng-if="totalT3>=qExam/2") {{totalT3.toFixed(1)}} 
+                                        td.report-td-pct {{yQuotaTotal}}
+                                        td 
+                                          span(ng-if="mQuotaTotal*100/yQuotaTotal<100/2")
+                                            u(style="color:red;") {{mQuotaTotal.toFixed(1)}}
+                                          span(ng-if="mQuotaTotal*100/yQuotaTotal>=100/2") {{mQuotaTotal.toFixed(1)}}
+
+                                        td
+                                          
+                                      tr
+                                        td(align='left', style='font-weight: bold;')
+                                          | %
+                                        td(colspan='3', style='font-weight: bold;')
+                                          | 
+                                        td(colspan='3', style='font-weight: bold;')
+                                          span(ng-if="totalT1Pct<100/2")
+                                            u(style="color:red;") {{totalT1Pct.toFixed(1)}}
+                                          span(ng-if="totalT1Pct>=100/2") {{totalT1Pct.toFixed(1)}}
+
+                                        td(colspan='3', style='font-weight: bold;')
+                                          span(ng-if="totalT2Pct<100/2")
+                                            u(style="color:red;") {{totalT2Pct.toFixed(1)}}
+                                          span(ng-if="totalT2Pct>=100/2") {{totalT2Pct.toFixed(1)}}
+                                          
+                                        td(colspan='3', style='font-weight: bold;')
+                                          span(ng-if="totalT3Pct<100/2")
+                                            u(style="color:red;")  {{totalT3Pct.toFixed(1)}}
+                                          span(ng-if="totalT3Pct>=100/2") {{totalT3Pct.toFixed(1)}}
+                                        td(colspan='3', style='font-weight: bold;')
+                                          span(ng-if="anualTotalT3Pct<100/2")
+                                            u(style="color:red;") {{anualTotalT3Pct.toFixed(1)}}%
+                                          span(ng-if="anualTotalT3Pct>=100/2") {{anualTotalT3Pct.toFixed(1)}}%
+                                      tr(ng-repeat="place in places")
+                                        td(align='left', style='font-weight: bold;text-align:left;')
+                                          | Position
+                                        td(colspan='3', style='font-weight: bold;')
+                                        td(colspan='3', style='font-weight: bold;')
+                                          | {{place.p1}}/{{studentsMark.length}}
+                                        td(colspan='3', style='font-weight: bold;')
+                                          | {{place.p2}}/{{studentsMark.length}}
+                                        td(colspan='3', style='font-weight: bold;')
+                                          | {{place.p3}}/{{studentsMark.length}}
+                                        td(colspan='3', style='font-weight: bold;')
+                                          | {{place.y_place}}/{{studentsMark.length}}
+                                      tr
+                                        td(align='left', style='font-weight: bold;text-align:left;')
+                                          | Teacher's Signature
+                                        td(colspan='6')
+                                        td(colspan='3')
+                                        td(colspan='3')
+                                        td(colspan='3')
+                                      tr
+                                        td(align='left', style='font-weight: bold;text-align:left;')
+                                          | Parent's Signature
+                                        td(colspan='6')
+                                        td(colspan='3')
+                                        td(colspan='3')
+                                        td(colspan='3')
+                              tr
+                                td
+                                  strong Pass
+                                  br
+                                  strong Repeat
+                                  br
+                                  strong Discontinued
+                                td
+                                  | Done at 
+                                  strong {{school_district|toDistrict}}
+                                  br
+                                  br
+                                  | HeadMistress:
+                                  br
+                                  | (Signature and stamps)
+                          .pull.pull-right
+                            | MADE BY: 
+                            label(style="color:red")
+                              | e-Shuri.rw
+                            br
+block append scripts
+  script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+  //script(src="../js/Controlers/markCtlr.js", type="text/javascript")
+  script.
+    var app =angular.module('eshuri_App', ['ngRoute', 'angularUtils.directives.dirPagination']);
+    app
+    .filter('toNormal', function() {    
+      return function(input){       
+        return Number(input)+Number(2000)
+      }
+    })
+    .filter('toDistrict', function() {    
+      return function(input){
+        if(isNaN(input)) return input;
+        switch(input){
+          case '1': input ="Eastern-Bugesera";break;
+          case '2': input ="Eastern-Gatsibo";break;
+          case '3': input ="Eastern-Kayonza";break;
+          case '4': input ="Eastern-Kirehe";break;
+          case '5': input ="Eastern-Ngoma";break;
+          case '6': input ="Eastern-Nyagatare";break;
+          case '7': input ="Eastern-Rwamagana";break;
+          case '8': input ="Kigali-Gasabo";break;
+          case '9': input ="Kigali-Kicukiro";break;
+          case '10': input ="Kigali-Nyarugenge";break;
+          case '11': input ="Northen-Burera";break;
+          case '12': input ="Northen-Gakenke";break;
+          case '13': input ="Northen-Gicumbi";break;
+          case '14': input ="Northen-Musanze";break;
+          case '15': input ="Northen-Rulindo";break;
+          case '16': input ="Southern-Gisagara";break;
+          case '17': input ="Southern-Huye";break;
+          case '18': input ="Southern-Kamonyi";break;
+          case '19': input ="Southern-Muhanga";break;
+          case '20': input ="Southern-Nyamagabe";break;
+          case '21': input ="Southern-Nyanza";break;
+          case '22': input ="Southern-Nyaruguru";break;
+          case '23': input ="Southern-Ruhango";break;
+          case '24': input ="Western-Karongi";break;
+          case '25': input ="Western-Ngororero";break;
+          case '26': input ="Western-Nyabihu";break;
+          case '27': input ="Western-Nyamasheke";break;
+          case '28': input ="Western-Rubavu";break;
+          case '29': input ="Western-Rusizi";break;
+          case '30': input ="Western-Rutsiro";break;
+          default: input="_____________________";break;
+        }
+        return input;
+      }
+    })
+    .filter('toTermName', function() {    
+      return function(input){       
+        return input=='S'?'Semester':'Term'
+      }
+    })
+    .controller('reportCtrl', ['$scope', '$http','$window',function($scope, $http,$window){
+      function fixPlaces(array, attr, value){
+        for (var i=0;i<array.length;i++){
+          if(array[i][attr]===value){
+            return i+1;
+          }
+        } 
+        return -1;
+      }
+      $scope.studentMark = [];
+      $scope.qTest=0,$scope.qExam=0,$scope.qtotal=0,$scope.testT1=0,$scope.ExamT1=0,$scope.totalT1=0,$scope.testT2=0,$scope.ExamT2=0,$scope.totalT2=0,$scope.testT3=0,$scope.ExamT3=0,$scope.totalT3=0,$scope.yQuotaTotal=0,$scope.mQuotaTotal=0;
+      $scope.getAcademicYearsList = function(){
+        $http
+        .get("/class.academic_years/"+$scope.selectClass)
+        .then(function(response){
+          $scope.academic_years= response.data;
+          //console.log($scope.academic_years)
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data)
+        });        
+      }
+      $scope.showDivs=function(){
+        $scope.students_list=true;
+        $scope.students_report=false;
+      }
+      $scope.printRepo = function (divName) {
+        var printContents = document.getElementById(divName).innerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+      }
+      $scope.getClassList = function(){
+        $http
+        .get("/classe.list.for.report/"+$scope.school_id)
+        .then(function(response){
+          $scope.ClassList= response.data;
+          //console.log("Classes: "+$scope.ClassList)
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data);
+        });        
+      };
+      $scope.getClassStudents = function(){
+        
+        $http
+        .post('/school.students.list',{class_id:$scope.selectClass})
+        .then(function(response){
+          //console.log(response.data);
+          $scope.students = response.data;
+        })
+        .catch(function(err){
+          Notifier.danger(err.data);
+        })
+      }
+      $scope.getAllStudentsReport = function(){
+        $scope.students_list = true;
+        $scope.students_report = false;
+        $scope.studentsMark = [];
+        $scope.pages=[3];
+        $http
+        .post('/report.all', {academic_year:$scope.choosen_year,class_id:$scope.selectClass})
+        .then(function(response){
+          var dataTerm1 = response.data[0].term1;
+          var dataTerm2 = response.data[0].term2;
+          var dataTerm3 = response.data[0].term3;
+          var dataTotal = response.data[0].total;
+          $scope.classInfo = response.data[0].class_info;
+          $scope.courses = response.data[0].courses;
+          var place1='',place2='',place3='';
+          var test=0;
+          for(var i=0; i<dataTerm1.length; i++){
+            for(var j=0; j<dataTerm2.length; j++){
+              for(var k=0; k<dataTerm3.length; k++){
+                for(var p=0; p<dataTotal.length; p++){
+                  if(dataTerm1[i].urn == dataTerm2[j].urn && dataTerm2[j].urn == dataTerm3[k].urn && dataTerm3[k].urn == dataTotal[p].urn){
+                    var term1Pct = Number(dataTerm1[i].total_mark)*100/Number(dataTerm1[i].total_quota);
+                    var term2Pct = Number(dataTerm2[j].total_mark)*100/Number(dataTerm1[i].total_quota);
+                    var term3Pct = Number(dataTerm3[k].total_mark)*100/Number(dataTerm1[i].total_quota);
+                    var annualPct = (term1Pct+term2Pct+term3Pct)/3;
+                    var annual = Number(dataTerm1[i].total_mark)+Number(dataTerm2[j].total_mark)+Number(dataTerm3[k].total_mark);
+
+                    place1 = fixPlaces(dataTerm1, 'total_mark', dataTerm1[i].total_mark);
+                    place2 = fixPlaces(dataTerm2, 'total_mark', dataTerm2[j].total_mark);
+                    place3 = fixPlaces(dataTerm3, 'total_mark', dataTerm3[k].total_mark);
+                    place_t = fixPlaces(dataTotal, 'total_mark', dataTotal[p].total_mark);
+                    $scope.studentsMark.push({
+                    name:dataTerm1[i].name,
+                    urn:dataTerm1[i].urn,
+                    test_t1_mark:dataTerm1[i].test_mark,
+                    exam_t1_mark:dataTerm1[i].exam_mark,
+                    total_t1_mark:dataTerm1[i].total_mark,
+                    place1:place1,
+                    total_t1_pct:term1Pct,
+                    test_t2_mark:dataTerm2[j].test_mark,
+                    exam_t2_mark:dataTerm2[j].exam_mark,
+                    total_t2_mark:dataTerm2[j].total_mark,
+                    place2:place2,
+                    total_t2_pct:term2Pct,
+                    test_t3_mark:dataTerm3[k].test_mark,
+                    exam_t3_mark:dataTerm3[k].exam_mark,
+                    total_t3_mark:dataTerm3[k].total_mark,
+                    place3:place3,
+                    total_t3_pct:term3Pct,
+                    annual_pct:annualPct,
+                    year_place:place_t,
+                    annual:annual,
+                    });
+                  }
+                }
+              }
+            }
+          }
+          for(var i=1;i<=$scope.studentsMark.length;i++){
+            if(i%7==0) $scope.pages.push(i);
+            else if(i==$scope.studentsMark.length) $scope.pages.push(i);
+          }    
+          console.log('All st:'+$scope.studentsMark.length)
+        }).catch(function(err){
+          Notifier.danger(err.data);
+          $scope.students_list = false;
+          $scope.choosen_year='';
+          $scope.selectClass='';
+        })
+      }
+      $scope.getOneStudentReport = function(student){
+        //- console.log('Student info:'+JSON.stringify(student))
+        $scope.students_report = true;
+        $scope.students_list = false;
+        $scope.studentMark = [], $scope.places = [];
+        $scope.qTest=0,$scope.qExam=0,$scope.qtotal=0,$scope.testT1=0,$scope.ExamT1=0,$scope.totalT1=0,$scope.testT2=0,$scope.ExamT2=0,$scope.totalT2=0,$scope.testT3=0,$scope.ExamT3=0,$scope.totalT3=0,$scope.yQuotaTotal=0,$scope.mQuotaTotal=0;
+        $http
+        .post("/report.one",{
+          academic_year:$scope.choosen_year,
+          class_id:$scope.selectClass,
+          student_id:student.urn,
+          school_id:$scope.school_id})
+        .then(function(response){
+          //$scope.allRecords= response.data;
+          var dataTerm1 = response.data[0].term1;
+          var dataTerm2 = response.data[0].term2;
+          var dataTerm3 = response.data[0].term3;
+          $scope.userInfo = response.data[0].userInfo;
+          $scope.places.push({p1:student.place1,p2:student.place2,p3:student.place3,y_place:student.year_place});
+          for(var i=0; i<dataTerm1.length; i++){
+            for(var j=0; j<dataTerm2.length; j++){
+              for(var k=0; k<dataTerm3.length; k++){
+                if(dataTerm1[i].name == dataTerm2[j].name && dataTerm2[j].name == dataTerm3[k].name){
+                  if(dataTerm1[i].name!='conduite'){
+                    var anualQuota = Number(dataTerm1[i].course_q)+Number(dataTerm2[j].course_q)+Number(dataTerm3[k].course_q);
+                    var anualMark = Number(dataTerm1[i].total)+Number(dataTerm2[j].total)+Number(dataTerm3[k].total);
+                    var anualPct = (anualMark*100)/anualQuota;
+                    $scope.studentMark.push({
+                      name:dataTerm1[i].name,
+                      test_quota:dataTerm1[i].test_q,
+                      exam_quota:dataTerm1[i].exam_q,
+                      course_quota:dataTerm1[i].course_q,
+                      testTerm1:dataTerm1[i].test,
+                      examTerm1:dataTerm1[i].exam,
+                      totalTerm1:dataTerm1[i].total,
+                      testTerm2:dataTerm2[j].test,
+                      examTerm2:dataTerm2[j].exam,
+                      totalTerm2:dataTerm2[j].total,
+                      testTerm3:dataTerm3[k].test,
+                      examTerm3:dataTerm3[k].exam,
+                      totalTerm3:dataTerm3[k].total,
+                      anualQuotaTotal:anualQuota,
+                      anualMarkTotal:anualMark,
+                      anualMarkPct:anualPct,
+                    });
+                    $scope.qTest+=dataTerm1[i].test_q;
+                    $scope.qExam+=dataTerm1[i].exam_q;
+                    $scope.qtotal+=dataTerm1[i].course_q;
+                    $scope.testT1+=dataTerm1[i].test;
+                    $scope.ExamT1+=dataTerm1[i].exam;
+                    $scope.totalT1+=dataTerm1[i].total;
+                    $scope.testT2+=dataTerm2[j].test;
+                    $scope.ExamT2+=dataTerm2[j].exam;
+                    $scope.totalT2+=dataTerm2[j].total;
+                    $scope.testT3+=dataTerm3[k].test;
+                    $scope.ExamT3+=dataTerm3[k].exam;
+                    $scope.totalT3+=dataTerm3[k].total;
+                    $scope.yQuotaTotal+=anualQuota;
+                    $scope.mQuotaTotal+=anualMark;
+                  }
+                  if(dataTerm1[i].name=='conduite'){
+                    $scope.conduite_t1=dataTerm1[i].total
+                    $scope.conduite_t2=dataTerm2[j].total
+                    $scope.conduite_t3=dataTerm3[k].total
+                    $scope.conduite_t=Number(dataTerm1[i].total)+Number(dataTerm2[j].total)+Number(dataTerm3[k].total)
+                  }
+                }
+              }
+            }
+          }
+          $scope.totalT1Pct = ($scope.totalT1*100)/$scope.qtotal;
+          $scope.totalT2Pct = ($scope.totalT2*100)/$scope.qtotal;
+          $scope.totalT3Pct = ($scope.totalT3*100)/$scope.qtotal;
+          $scope.anualTotalT3Pct = ($scope.mQuotaTotal*100)/$scope.yQuotaTotal;
+          //console.log($scope.termTwo)
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data)
+        }); 
+      }
+      $scope.printDiv = function (div) {
+        //- $scope.n_pages = 100;
+        //- console.log('All pages: '+$scope.n_pages)
+        var docHead = document.head.outerHTML;
+        var printContents = document.getElementById(div).outerHTML;
+        var winAttr = "location=yes, statusbar=no, menubar=no, titlebar=no, toolbar=no,dependent=no, width=865, height=600, resizable=yes, screenX=200, screenY=200, personalbar=no, scrollbars=yes";
+
+        var newWin = window.open("", "_blank", winAttr);
+        var writeDoc = newWin.document;
+        writeDoc.open();
+        writeDoc.write('<!doctype html><html>' + docHead + '<body onLoad="window.print()" class="col-md-10 center"' + printContents + '</body></html>');
+        writeDoc.close();
+        newWin.focus();
+      }
+      $scope.districts =[
+      "Eastern-Bugesera","Eastern-Gatsibo","Eastern-Kayonza","Eastern-Kirehe","Eastern-Ngoma","Eastern-Nyagatare","Eastern-Rwamagana","Kigali-Gasabo","Kigali-Kicukiro","Kigali-Nyarugenge","Northen-Burera","Northen-Gakenke","Northen-Gicumbi","Northen-Musanze","Northen-Rulindo","Northen-Nyabihu","Southern-Gisagara","Southern-Huye","Southern-Kamonyi","Southern-Muhanga","Southern-Nyamagabe","Southern-Nyanza","Southern-Nyaruguru","Southern-Ruhango","Western-Karongi","Western-Ngororero","Western-Nyabihu","Western-Nyamasheke","Western-Rubavu","Western-Rusizi","Western-Rutsiro",];
+      //$scope.pages=[3,5,10,15,20,25,30,35,40];
+      $scope.school_id="#{school_id}";
+      $scope.school_name="#{school_name}";
+      $scope.school_district="#{school_district}";
+      $scope.term_name="#{term_name}";
+      $scope.school_phone="#{school_phone}";
+      $scope.school_pob="#{school_pob}";
+      //- $scope.user_name ="Lionel Ngendakuriyo";
+      //- $scope.user_class= "S4MCE";
+      $scope.students_report = false;
+      $scope.getClassList();
+    }])

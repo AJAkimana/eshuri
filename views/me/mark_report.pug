@@ -180,20 +180,32 @@ block append scripts
       }
       $scope.midTermMarks = function(){
         $scope.loading = true;
+        var av_pct = 0
+        $scope.midMarks = [];
         $http
         .post('/report.midterm',{academic_year:$scope.choosen_year,class_id:$scope.selectClass,term:$scope.choosen_term})
         .then(function(res){
           $scope.loading = false;
           var response = res.data;
           $scope.classename = response.classe_name;
-          $scope.midMarks = response.students;
+          //- $scope.midMarks = response.students;
+          for (var i=0; i<response.students.length; i++){
+            av_pct = (response.students[i].marks*100)/response.students[i].total;
+            $scope.midMarks.push({
+              name:response.students[i].name,
+              urn:response.students[i].urn,
+              courses:response.students[i].courses,
+              marks:response.students[i].marks,
+              pct:av_pct.toFixed(1)+'%',
+              total:response.students[i].total
+            })
+          }
           /*This will flatten the JSON structure and creates the data for the pivot table that is required for HTML table*/
           $scope.midMarks.forEach(function(sheet){
             sheet.courses.forEach(function(course) {
               sheet[course.name] = course.points.toFixed(1);
             });
           });
-
           /*This forms the header for the table - to be used in <th>*/
           $scope.keys = Object.keys($scope.midMarks[0]);
         })
