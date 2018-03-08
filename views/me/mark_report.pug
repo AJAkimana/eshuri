@@ -197,7 +197,7 @@ block append scripts
             $scope.midMarks.push({
               name:response.students[i].name,
               courses:response.students[i].courses,
-              marks:response.students[i].marks,
+              marks:response.students[i].marks.toFixed(1),
               pct:av_pct.toFixed(1)+'%',
               total:response.students[i].total
             })
