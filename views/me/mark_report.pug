@@ -44,10 +44,13 @@ block append content
                     .col-md-6
                       label.radio-inline
                         input(type="radio",ng-model="report_type", value="is_midterm")
-                        | Is Mid-term 
+                        | Mid-Term 
+                      //- label.radio-inline
+                        input(type="radio",ng-model="report_type", value="is_term")
+                        | End of Term
                       label.radio-inline
                         input(type="radio",ng-model="report_type", value="is_yearly")
-                        | Is yearly
+                        | Whole year
                       button.btn.btn-rose.center(ng-click="getAllStudentsReport()") Get report
                       button.btn.btn-info.center(ng-click="getPrintedReport(classename, 'mid-term-report')") Save pdf
             include partials/mid_term
@@ -168,15 +171,15 @@ block append scripts
         }); 
       }
       $scope.getAllStudentsReport = function(){
-        if($scope.report_type="is_midterm"){
-          $scope.midTermMarks();
-        }
-        else if($scope.report_type="is_yearly"){
-          $scope.students_list = true;
-          $scope.students_report = false;
-          $scope.yearlyClassMarks();
-        }
-        else Notifier.danger("Select report type");      
+        switch($scope.report_type){
+          case "is_midterm": $scope.midTermMarks(); break;
+          //- case "is_term": $scope.termClassMarks(); break;
+          case "is_yearly":
+            $scope.students_list = true;
+            $scope.students_report = false;
+            $scope.yearlyClassMarks(); break;
+          default: Notifier.danger("Select report type");
+        }      
       }
       $scope.midTermMarks = function(){
         $scope.loading = true;
@@ -209,6 +212,20 @@ block append scripts
           $scope.keys = Object.keys($scope.midMarks[0]);
         })
         .catch(function(err){
+          Notifier.danger(err.data);
+        })
+      }
+      $scope.termClassMarks = function(){
+        $http
+        .post('/report.endterm',{academic_year:$scope.choosen_year,class_id:$scope.selectClass,term:$scope.choosen_term})
+        .then(function(res){
+          $scope.test_q = res.test_q;
+          $scope.exam_q = res.exam_q;
+          $scope.total_q = res.total_q;
+          $scope.term = res.term;
+          $scope.termMarks = res.students;
+        })
+        .catch(function(error){
           Notifier.danger(err.data);
         })
       }
