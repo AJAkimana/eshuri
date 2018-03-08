@@ -979,6 +979,7 @@ exports.getAllFinalists=(req,res,next)=>{
         if(err) return finalistCb(err);
         var gender=(user_details.gender==1)?'Male':'Female';
         thisfinalist.name=user_details.name;
+        thisfinalist.user_id=user_details._id;
         thisfinalist.classes=user_details.prev_classes;
         thisfinalist.phone=user_details.phone_number;
         thisfinalist.urn=user_details.URN;
@@ -1009,7 +1010,7 @@ exports.getAdminsList = (req,res,next)=>{
   const errors = req.validationErrors();
   if(errors) return res.status(400).send(errors[0].msg);
   User.find({school_id:req.body.school_id,access_level:{$lte:req.app.locals.access_level.ADMIN_TEACHER}},
-    {__v:0,password:0,gender:0,phone_number:0,
+    {__v:0,password:0,gender:0,
       class_id:0,school_id:0,isEnabled:0,isValidated:0,upload_time:0,updatedAt:0},
     (err,admins_list)=>{
     if(err) return log_err(err,false,req,res);

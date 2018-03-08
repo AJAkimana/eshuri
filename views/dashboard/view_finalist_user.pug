@@ -46,7 +46,7 @@ block append content
                             td
                               h5(ng-if="student.classes.length==0") No class
                               ul(ng-if="student.classes.length!=0")
-                                li(type="1" ng-repeat="classe in student.classes"): a.btn-simple.btn.label.btn-rose(ng-click="revertStudent(classe, student.name, student._id)") {{classe|toPreClasseName:classes|toClasseName:term_name|uppercase}}
+                                li(type="1" ng-repeat="classe in student.classes"): a.btn-simple.btn.label.btn-rose(ng-click="revertStudent(classe, student.name, student.user_id)") {{classe|toPreClasseName:classes|toClasseName:term_name|uppercase}}
                       dir-pagination-controls.pull-right(pagination-id='allstudents', max-size='5', direction-links='true', boundary-links='true')
 
 block append scripts
@@ -101,6 +101,37 @@ block append scripts
         .catch(function(erreur){
           Notifier.danger(erreur.data);
         });
+      }
+      $scope.revertStudent = function(classe, name, id){
+        console.log('nexts:'+classe+' name: '+name)
+        var body={student_id:id,new_class:classe}
+        var classeName='';
+        for(var i=0;i<$scope.classes.length;i++){
+          if($scope.classes[i]._id==classe){
+            if($scope.term_name=="T") classeName='S'+$scope.classes[i].name.toUpperCase();
+            else classeName='Y'+$scope.classes[i].name.toUpperCase();
+          } 
+        }
+        swal({
+          title: 'Revert Change classe action',
+          text: "Are sure you want to revert <i style='color:green'>"+name.toUpperCase()+"</i> to <i style='color:red'>"+classeName+"</i>?",
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonClass: 'btn btn-success',
+          cancelButtonClass: 'btn btn-warning',
+          confirmButtonText: 'Yes I am sure!',
+          buttonsStyling: false
+        }).then(function(){
+          $http
+          .post('/school.change.to.previous',body)
+          .then(function(response){
+            $scope.loadFinalistsList();
+            Notifier.success("Classe of "+name.toUpperCase()+" has successfully reverted");
+          })
+          .catch(function(error){
+            Notifier.danger(error.data)
+          })
+        }).catch(swal.noop)
       }
       $scope.pages=[3,5,10,15,20,25];
       $scope.anti_csrf ="#{csrf_token}";

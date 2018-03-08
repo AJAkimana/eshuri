@@ -49,7 +49,7 @@ block append content
                         input(type="radio",ng-model="report_type", value="is_yearly")
                         | Is yearly
                       button.btn.btn-rose.center(ng-click="getAllStudentsReport()") Get report
-                      button.btn.btn-info.center(ng-click="getPrintedReport(classename)") Save pdf
+                      button.btn.btn-info.center(ng-click="getPrintedReport(classename, 'mid-term-report')") Save pdf
             include partials/mid_term
             include partials/view_one
             include partials/view_all
@@ -193,7 +193,6 @@ block append scripts
             av_pct = (response.students[i].marks*100)/response.students[i].total;
             $scope.midMarks.push({
               name:response.students[i].name,
-              urn:response.students[i].urn,
               courses:response.students[i].courses,
               marks:response.students[i].marks,
               pct:av_pct.toFixed(1)+'%',
@@ -213,11 +212,11 @@ block append scripts
           Notifier.danger(err.data);
         })
       }
-      $scope.getPrintedReport = function(name){
+      $scope.getPrintedReport = function(name_to_save, field_to_print){
         if(!$scope.midMarks.length) Notifier.danger("There is no content to save")
         else{
-          var c_name = $scope.term_name=='S'?'Y'+name:'S'+name
-          kendo.drawing.drawDOM($("#mid-term-report"))
+          var c_name = $scope.term_name=='S'?'Y'+name_to_save:'S'+name_to_save
+          kendo.drawing.drawDOM($("#"+field_to_print))
           .then(function(group) {
             kendo.drawing.pdf.saveAs(group, c_name.toUpperCase()+".pdf");
           });

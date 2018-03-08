@@ -43,6 +43,7 @@ block append content
 												thead
 													th.text-center #
 													th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b")  Name
+													th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b")  Phone number
 													th: a.btn-simple.btn.label.btn-rose(ng-click="a='email';b=!b")  E-mail
 													th: a.btn-simple.btn.label.btn-rose(ng-click="a='access_level';b=!b")  Access Level
 													th Actions
@@ -50,6 +51,7 @@ block append content
 													tr(pagination-id="alladmins", dir-paginate="admin in admins |orderBy:a:b|filter:search|itemsPerPage:n_pages")
 														td(width="1%" height="1%") {{$index + 1}}
 														td: a(href="/dashboard.course/{{classe._id}}") {{admin.name | uppercase}}
+														td {{admin.phone_number }}
 														td {{admin.email }}
 														td {{admin.access_level|toAccessLevel}}
 														td.td-actions.text-right

@@ -333,26 +333,28 @@ exports.getToNextClass = (req,res,next)=>{
   })
 }
 exports.returnToPreviousClass = (req,res,next)=>{
-  req.assert('class_id', 'Invalid data').isMongoId();
-  req.assert('student_id', 'Invalid data').isMongoId();
-  req.assert('level', 'Invalid data').isIn([1,2,3,4,5,6]);
+  req.assert('student_id', 'Invalid data st').isMongoId();
+  // req.assert('level', 'Invalid data lv').isIn([1,2,3,4,5,6]);
   req.assert('new_class', 'Invalid data new class').isMongoId();
-  var async=require('async');
+  if(req.body.class_id) req.assert('class_id', 'Invalid data cl').isMongoId();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
   var new_class = req.body.new_class;
-  var level = req.body.level,
-      previous_level = Number(level)-1;
-   School.findOne({_id:req.user.school_id},(err, school_exists)=>{
+  var async=require('async');
+  var parametters = {}
+  if(req.body.class_id) parametters={_id:req.body.student_id,school_id:req.user.school_id,class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT};
+  else parametters={_id:req.body.student_id,school_id:req.user.school_id,class_id:null,access_level:req.app.locals.access_level.STUDENT}
+  // var level = req.body.level,
+  //     previous_level = Number(level)-1;
+  console.log(parametters)
+  School.findOne({_id:req.user.school_id},(err, school_exists)=>{
     if(err) return log_err(err,false,req,res);
     else if(!school_exists)  return res.status(400).send("This school doesn't exists ");
     Classe.findOne({_id:new_class,school_id:school_exists._id}, (err, class_exists)=>{
       if(err) return log_err(err,false,req,res);
       else if(!class_exists)  return log_err(err,false,req,res);
-      // else if(class_exists.level!=level||class_exists.level!=previous_level)
-      //   console.log('pppp:'+class_exists.level+' jkjjj:'+level)
-      //   return res.status(400).send("Invalid reverting class");
-      User.findOne({_id:req.body.student_id,school_id:school_exists._id,class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT},(err, student_exists)=>{
+
+      User.findOne(parametters,(err, student_exists)=>{
         if(err) return log_err(err,false,req,res);
         else if(!student_exists) return res.status(400).send("Unkown student");
         else if(student_exists.prev_classes.indexOf(new_class)==-1) return res.status(400).send("Service is'nt available");
@@ -366,7 +368,15 @@ exports.returnToPreviousClass = (req,res,next)=>{
           student_exists.prev_classes = newClasses;
           student_exists.save((err)=>{
             if(err) return log_err(err,false,req,res);
-            return res.end();
+            if(!req.body.class_id){
+              Finalist.findOne({student_id:req.body.student_id},(err, finalist)=>{
+                if(err) return log_err(err,false,req,res);
+                finalist.remove((err)=>{
+                  if(err) return log_err(err,false,req,res);
+                  return res.end();
+                })
+              })
+            } else return res.end();
           })
         })
       })
