@@ -225,22 +225,22 @@ block append scripts
       }
       $scope.termClassMarks = function(){
         $scope.termMarks = [];
-        //- $scope.loading = true;
-        //- $http
-        //- .post('/report.endterm',{academic_year:$scope.choosen_year,class_id:$scope.selectClass,term:$scope.choosen_term})
-        //- .then(function(res){
-        //-   $scope.loading = false;
-        //-   $scope.test_q = res.data.test_q;
-        //-   $scope.exam_q = res.data.exam_q;
-        //-   $scope.total_q = res.data.total_q;
-        //-   $scope.term = res.data.term;
-        //-   $scope.name_class = res.data.classe_name;
-        //-   $scope.termMarks = res.data.students;
-        //- })
-        //- .catch(function(error){
-        //-   Notifier.danger(error.data);
-        //-   $scope.term_report_all=false;
-        //- })
+        $scope.loading = true;
+        $http
+        .post('/report.endterm',{academic_year:$scope.choosen_year,class_id:$scope.selectClass,term:$scope.choosen_term})
+        .then(function(res){
+          $scope.loading = false;
+          $scope.test_q = res.data.test_q;
+          $scope.exam_q = res.data.exam_q;
+          $scope.total_q = res.data.total_q;
+          $scope.term = res.data.term;
+          $scope.name_class = res.data.classe_name;
+          $scope.termMarks = res.data.students;
+        })
+        .catch(function(error){
+          Notifier.danger(error.data);
+          $scope.term_report_all=false;
+        })
       }
       $scope.getPrintedReport = function(name_to_save){
         var c_name = $scope.term_name=='S'?'Y'+name_to_save:'S'+name_to_save;
