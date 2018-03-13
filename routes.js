@@ -491,6 +491,7 @@ module.exports = function(app) {
 	app.post('/report.one',isAuthenticated,marksController.getFullReportOneStudent);
 	app.post('/report.all',isAuthenticated,marksController.getFullReportAllStudent);
 	app.post('/report.midterm', isAtLeastAdmin, marksController.getMidTermMarks);
+	app.post('/report.endterm', isAtLeastAdmin, marksController.getEndTermMarks);
 	app.post('/get.general.class.marks',isAuthenticated,marksController.getClassMarks);
 	//new administration report
 	app.get('/printable.report',isAuthenticated,marksController.printableReport);

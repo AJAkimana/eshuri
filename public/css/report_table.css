@@ -197,3 +197,19 @@ body * { visibility: hidden; }
 [ng\:cloak], [ng-cloak], .ng-cloak {
     display: none;
 }
+.verticalTableHeader {
+    text-align:center;
+    transform-origin:50% 50%;
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+    
+}
+.verticalTableHeader:before {
+    content:'';
+    padding-top:110%;/* takes width as reference, + 10% for faking some extra padding */
+    display:inline-block;
+    vertical-align:middle;
+}

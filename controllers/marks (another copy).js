@@ -346,156 +346,7 @@ exports.getClassMarks =function(req,res,next){
 
 	})
 }
-exports.getEndTermMarks=(req,res,next)=>{
-	req.assert('class_id', 'Invalid data').isMongoId();
-	req.assert('academic_year', 'Invalid data').isInt();
-	req.assert('term', 'Invalid data').isInt();
-	const errors = req.validationErrors();
-	if (errors) return res.status(400).send(errors[0].msg);
-	var async = require("async");
-	var students = [],marks = {}, mixed = [], ordered = [],objectMark = {}, parametters={};
-	var outTextMarks=0, outExamMarks=0, outTotal=0;
-	// Get class infomation
-	Classe.findOne({_id:req.body.class_id},(err, classe_info)=>{
-		if(err) return log_err(err,false,req,res);
-		else if(!classe_info) return log_err(err,false,req,res);
-		marks.classe_name = classe_info.name;
-		marks.students = [];
-		if(req.body.academic_year==classe_info.academic_year) parametters={class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT};
-		else parametters={prev_classes:req.body.class_id, access_level:req.app.locals.access_level.STUDENT};
-	//""""""""""""""""""//
-	//"""""" STart """""//
-	//""""""""""""""""""//
-	// 1--Get all students
-		async.series([(getClassStudents_Cb)=>{
-			User.find(parametters, {_id:1,name:1,class_id:1, URN:1},(err, this_class_students)=>{
-				if(err) return getClassStudents_Cb(err);
-				students = this_class_students;
-				return getClassStudents_Cb(null);
-			})
-		},(eachStudent_Cb=>{
-	// 2--Get courses for every students
-			async.each(students, (thisStudent, student_Cb)=>{
-				var markCat=0,markExam=0,markCatOutOf=0,markExamOutOf=0;
-				async.series([(getStudentCourses_Cb)=>{
-					Course.find({class_id:req.body.class_id,currentTerm:req.body.term},(err,list_Courses)=>{
-						if(err) return getStudentCourses_Cb(err);
-						listCourses =list_Courses;
-						getStudentCourses_Cb(null);
-					})
-				},(treatEachCoaurse_Cb)=>{
-					async.each(listCourses, (thisCourse, course_Cb)=>{
-						var listCATs=[],listExams=[];
-	// 3-- Get quizzes and Exams for every courses
-						async.series([(catAndExamContents_Cb)=>{
-							async.parallel([(cat_Cb)=>{
-								Marks.find().distinct("content_id",{class_id:req.body.class_id, student_id:thisStudent._id,isQuoted:true, academic_year:req.body.academic_year,course_id:thisCourse._id,isCAT:true},
-								(err,list_CAT)=>{
-									 if(err) return cat_Cb(err);
-									 listCATs=list_CAT;
-									 return cat_Cb(null);
-								}) 
-							},(exam_Cb)=>{
-								Marks.find().distinct("content_id",{class_id:req.body.class_id, student_id:thisStudent._id,isQuoted:true, academic_year:req.body.academic_year,course_id:thisCourse._id,isCAT:false},
-								(err,list_exams)=>{
-									 if(err) return exam_Cb(err);
-									 listExams=list_exams;
-									 return exam_Cb(null);
-								}) 
-							}],(err)=>{
-								if(err) return catAndExamContents_Cb(err);
-								return catAndExamContents_Cb(null)
-							})
-						},(catAndExamMarks)=>{
-							var studentCATMarks =0,studentExamMarks=0,totalCAT=0,totalExam=0;
-							async.parallel([(catMarks_Cb)=>{
-								async.each(listCATs, (thisCat, cat__Cb)=>{
-									Content.findOne({_id:thisCat},(err,currentMark)=>{
-										if(err) return cat__Cb(err);
-										Marks.findOne({content_id:thisCat,student_id:thisStudent._id},(err,marksCAT)=>{
-											if(err) return cat__Cb(err);
-	//--- Calculate test marks from percent to actual marks ---//
-											var amanota =(marksCAT.percentage*currentMark.marks)/100;
-											studentCATMarks+= amanota>0? amanota:0;
-											totalCAT+= currentMark.marks>0?currentMark.marks:0;
-											cat__Cb(null);
-										})
-									})
-								},(err)=>{
-									if(err) return catMarks_Cb(err);
-									return catMarks_Cb(null);
-								})
-							},(examMarks_Cb)=>{
-								async.each(listExams, (thisExam, exam__Cb)=>{
-									Content.findOne({_id:thisExam},(err,currentMark)=>{
-										if(err) return exam__Cb(err);
-										Marks.findOne({content_id:thisExam,student_id:thisStudent._id}
-											,(err,marksExam)=>{
-											if(err) return exam__Cb(err);
-	//--- Calculate Exam marks from percent to actual marks ---//
-											var amanota =(marksExam.percentage*currentMark.marks)/100;
-											studentExamMarks+= amanota>0? amanota:0;
-											totalExam+= currentMark.marks>0?currentMark.marks:0;
-											exam__Cb(null);
-										});
-									})
-								},(err)=>{
-									return examMarks_Cb(null);
-								})
-							}],(err)=>{
-								if(err) return catAndExamMarks(err);
-	// 4--Sum up marks from tests and quizzes of every courses
-								var testWeight = thisCourse.test_quota>0?thisCourse.test_quota:0;
-								var examWeight = thisCourse.exam_quota>0?thisCourse.exam_quota:0;
-								var courseWeight = !thisCourse.weightOnReport ? testWeight+examWeight : thisCourse.weightOnReport;
 
-								var noteCat=(studentCATMarks*testWeight)/totalCAT;
-								var noteExam =(studentExamMarks*examWeight)/totalExam;
-								noteCat =noteCat>0?noteCat:0;
-								noteExam =noteExam>0?noteExam:0;
-								markCat += noteCat;
-								markExam += noteExam;
-								markCatOutOf += testWeight;
-								markExamOutOf += examWeight;
-								return catAndExamMarks(null);
-							})
-						}],(err)=>{
-							if(err) return course_Cb(err);
-							return course_Cb(null);
-						})
-					},(err)=>{
-						if(err) return treatEachCoaurse_Cb(err);
-						return treatEachCoaurse_Cb(null);
-					})
-				}],(err)=>{
-					if(err) return student_Cb(err);
-	// 5--Save every students marks into array
-					var totalMarks = markCat + markExam;
-					var totalQuota = markCatOutOf + markExamOutOf;
-					var perctg = totalMarks*100/totalQuota;
-					outTextMarks = markCatOutOf;
-					outExamMarks = markExamOutOf;
-					outTotal = totalQuota;
-					mixed.push({name:thisStudent.name.toUpperCase(), id:thisStudent._id, urn:thisStudent.URN,test:markCat,exam:markExam,percent:perctg,total:totalMarks})
-					return student_Cb(null)
-				})
-			},(err)=>{
-				if(err) return eachStudent_Cb(err);
-				return eachStudent_Cb(null)
-			})
-		})],(err)=>{
-			if(err) return log_err(err,false,req,res);
-			marks.students = mixed.sort(endTermPlaces) // Sort by 1 to n
-			marks.test_q = outTextMarks; 
-			marks.exam_q = outExamMarks;
-			marks.total_q = outTotal;
-			marks.term = req.body.term;
-	// 6-- Return marks json
-			// console.log(JSON.stringify(marks))
-			return res.json(marks);
-		})
-	})
-}
 exports.getMidTermMarks = (req, res, next)=>{
 	req.assert('class_id', 'Invalid data').isMongoId();
 	req.assert('academic_year', 'Invalid data').isInt();
@@ -503,10 +354,9 @@ exports.getMidTermMarks = (req, res, next)=>{
 	const errors = req.validationErrors();
 	if (errors) return res.status(400).send(errors[0].msg);
 	var async = require("async");
-	var students = [],marks = {}, mixed = [], ordered = [],objectMark = {}, parametters={}, stdt_courses=[];
+	var students = [],marks = {}, mixed = [], ordered = [],objectMark = {};
 	var outMarks = 0, total=0;
-	var index_user;
-
+	var marksKey='marks',urnKey='urn',courseKey='course',nameKey='name',coursesKey='courses',totalKey='total',ofKey='outof';
 	Classe.findOne({_id:req.body.class_id},(err, classe_info)=>{
 		if(err) return log_err(err,false,req,res);
 		else if(!classe_info) return log_err(err,false,req,res);
@@ -522,8 +372,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 			})
 		},(callBack_treatEachStudents)=>{
 			async.each(students, (thisStudent, studentCb)=>{
-				mixed.push({name:thisStudent.name, urn:thisStudent.URN, courses:[]})
-				var listAssessmts = [],listCourses=[];
+				var listAssessmts = [],listCourses=[];			
 				async.series([(Cb_getCourses)=>{
 					Course.find({class_id:req.body.class_id, currentTerm:req.body.term, name:{$ne:'conduite'}},(err, clsCourses)=>{
 						if(err) return Cb_getCourses(err);
@@ -531,7 +380,6 @@ exports.getMidTermMarks = (req, res, next)=>{
 						return Cb_getCourses(null);
 					})
 				},(Cb_eachCourses)=>{
-					var courseMrks=0, courseWgt=0, echecs=0, avg_marks=0;
 					async.each(listCourses, (thisCourse, courseCb)=>{
 						async.series([(Cb_getAssessments)=>{
 							Marks.find().distinct("content_id", {class_id:req.body.class_id,course_id:thisCourse._id,student_id:thisStudent._id,isQuoted:true,academic_year:req.body.academic_year},(err, student_assmnts)=>{
@@ -554,29 +402,23 @@ exports.getMidTermMarks = (req, res, next)=>{
 								})
 							},(err)=>{
 								if(err) Cb_getMarksFromAssmnts(err);
-								index_user=mixed.findIndex(x=>x.urn==thisStudent.URN);
-								mixed[index_user].courses.push({name:Util.getShort(thisCourse.name,3)+' /'+totalMarks,points:totalAssmnts,outof:totalMarks})
-								courseMrks+=totalAssmnts;
-								courseWgt+=totalMarks
+								mixed.push({name:thisStudent.name, 
+									urn:thisStudent.URN, 
+									course:Util.getShort(thisCourse.name,3), 
+									courses:[], 
+									marks:totalAssmnts, 
+									outof:totalMarks,
+									total:total
+								});
+								outMarks = totalMarks
 								return Cb_getMarksFromAssmnts(null);
 							})
 						}],(err)=>{
 							if(err) courseCb(err)
-							avg_marks = (courseMrks*100)/courseWgt;
-							if(avg_marks<50){
-								echecs++
-							}
-							// console.log(thisStudent.name+'=====In==:'+thisCourse.name+'==>Marks:'+courseMrks+'/'+courseWgt+'. ---->Avg:'+avg_marks.toFixed(1))
 							return courseCb(null);
 						})
 					},(err)=>{
 						if(err) Cb_eachCourses(err)
-						var pct = courseMrks*100/courseWgt;
-						mixed[index_user].marks=courseMrks;
-						mixed[index_user].total=courseWgt;
-						mixed[index_user].pct=pct.toFixed(1);
-						mixed[index_user].echecs=echecs
-						// console.log('Marks:'+courseMrks+'/'+courseWgt)
 						return Cb_eachCourses(null);
 					})
 				}],(err)=>{
@@ -589,7 +431,22 @@ exports.getMidTermMarks = (req, res, next)=>{
 			})
 		}],(err)=>{
 			if(err) return log_err(err,false,req,res);
-			marks.students = mixed.sort(midTermPlaces)
+			mixed.forEach((marksObject)=>{
+				var existing = ordered.filter((i)=>{
+				return i.urn === marksObject.urn 
+			 })[0];
+				if (!existing){
+					marksObject.total += marksObject.outof
+					marksObject.courses.push({name:marksObject.course+' /'+marksObject.outof,points:marksObject.marks, outof:marksObject.outof});
+					ordered.push({name:marksObject.name,urn:marksObject.urn,courses:marksObject.courses,marks:marksObject.marks,total:marksObject.total});
+				}
+				else{
+					existing.marks += marksObject.marks;
+					existing.total += marksObject.outof
+					existing.courses.push({name:marksObject.course+' /'+marksObject.outof,points:marksObject.marks, outof:marksObject.outof})
+				}
+			});
+			marks.students = ordered.sort(midTermPlaces)
 			// console.log('Students:===>'+JSON.stringify(marks))
 			return res.json(marks);
 		})
@@ -598,6 +455,8 @@ exports.getMidTermMarks = (req, res, next)=>{
 exports.getReport_JSON =(req,res,next)=>{
 	req.assert('currentTerm', 'Choose the term').isInt();
 	req.assert('academic_year', 'Choose the academic year please').isInt();
+	const errors = req.validationErrors();
+	if (errors) return res.status(400).send(errors[0].msg);
 	var accLvl=req.user.access_level;
 	var teacher=req.app.locals.access_level.TEACHER;
 	var adminteacher=req.app.locals.access_level.ADMIN_TEACHER;
@@ -606,31 +465,23 @@ exports.getReport_JSON =(req,res,next)=>{
 
 	var listCourses=[],listContent_id=[];
 	var reportData =[];
-	var theUser, theStudent, theClass;
+	var theUser
 	if(req.session.student){
-		theUser=req.session.student._id;
-		theClass=req.session.student.class_id;
+		theUser=req.session.student
 	}
 	else if(accLvl==teacher||accLvl==adminteacher){
-		req.assert('student', 'Invalid data').isMongoId();
-		req.assert('class_id', 'Invalid data').isMongoId();
-		req.assert('place', 'Invalid data').isInt();
-		theUser=req.body.student;
-		theClass=req.body.class_id;
+		theUser=req.body.student
 	}
 	else{
-		theUser=req.user._id;
-		theClass=req.user.class_id;
+		theUser=req.user
 	}
-	const errors = req.validationErrors();
-	if (errors) return res.status(400).send(errors[0].msg);
 	var async = require('async');
 	/* GET IN FIRST PLACE THE CONTENT LIST for this course,academic year and this student and this class*/
 
 	async.series([
 		// 1.
 		(callback_getCoursesList)=>{
-			Course.find({class_id:theClass,currentTerm:req.body.currentTerm},
+			Course.find({class_id:theUser.class_id,currentTerm:req.body.currentTerm},
 				{school_id:0,teacher_list:0,level:0,attendance_limit:0},
 				(err,list_Courses)=>{
 					if(err) return callback_getCoursesList(err);
@@ -653,7 +504,7 @@ exports.getReport_JSON =(req,res,next)=>{
 						async.parallel([
 							(callback__CAT)=>{
 								Marks.find().distinct("content_id",
-								{class_id:theClass,student_id:theUser,isQuoted:true,
+								{class_id:theUser.class_id,student_id:theUser._id,isQuoted:true,
 									academic_year:currentAcademicYear,course_id:currentCourse._id,isCAT:true},
 								(err,list_CAT)=>{
 									 if(err) return callback__CAT(err);
@@ -664,7 +515,7 @@ exports.getReport_JSON =(req,res,next)=>{
 							},
 							(callback__Exam)=>{
 								Marks.find().distinct("content_id",
-								{class_id:theClass,student_id:theUser,isQuoted:true,
+								{class_id:theUser.class_id,student_id:theUser._id,isQuoted:true,
 									academic_year:currentAcademicYear,course_id:currentCourse._id,isCAT:false},
 								(err,list_exams)=>{
 									 if(err) return callback__Exam(err);
@@ -687,7 +538,7 @@ exports.getReport_JSON =(req,res,next)=>{
 								async.each(listCATs,(oneCAT,callbackCAT)=>{
 									Content.findOne({_id:oneCAT},(err,currentMark)=>{
 										if(err) return callbackCAT(err);
-										Marks.findOne({content_id:oneCAT,student_id:theUser}
+										Marks.findOne({content_id:oneCAT,student_id:theUser._id}
 											,(err,marksCAT)=>{
 												if(err) return callbackCAT(err);
 												var amanota =(marksCAT.percentage*currentMark.marks)/100;
@@ -704,7 +555,7 @@ exports.getReport_JSON =(req,res,next)=>{
 							  async.each(listExams,(oneExam,callbackExam)=>{
 									Content.findOne({_id:oneExam},(err,currentMark)=>{
 										if(err) return callbackExam(err);
-										Marks.findOne({content_id:oneExam,student_id:theUser}
+										Marks.findOne({content_id:oneExam,student_id:theUser._id}
 											,(err,marksExam)=>{
 											if(err) return callbackExam(err);
 											var amanota =(marksExam.percentage*currentMark.marks)/100;
@@ -730,10 +581,6 @@ exports.getReport_JSON =(req,res,next)=>{
 							noteExam =noteExam>0?noteExam:0;
 							var totalCourse = noteCat + noteExam;
 							var percent = (totalCourse*100)/courseWeight;
-							// if(percent<50) return percent.underline();
-							//console.log("  CAT marks "+studentCATMarks+"/"+totalCAT);
-							//console.log("  Exam marks "+studentExamMarks+"/"+totalExam);
-							//console.log(" TOTAL "+currentCourse.name+" "+totalCourse);
 							reportData[0].marks.push({
 										 name:currentCourse.name,
 										 code:currentCourse.code,
@@ -744,8 +591,6 @@ exports.getReport_JSON =(req,res,next)=>{
 										 test_quota:currentCourse.test_quota,
 										 exam_quota:currentCourse.exam_quota,
 										 course_weight:currentCourse.weightOnReport,
-										// totalTest:totalCAT,
-										// totalExam:totalExam
 									})
 							return callback_Marks(err);
 						})
@@ -761,8 +606,6 @@ exports.getReport_JSON =(req,res,next)=>{
 	],(err)=>{
 		if(err) return log_err(err,false,req,res);
 		reportData[0].term_num =req.body.currentTerm;
-		//console.log()
-		console.log('all Marks==>'+JSON.stringify(reportData))
 		return res.json(reportData)
 	})
 }
@@ -922,6 +765,7 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 							return marksCallback(err);
 						})
 					}],(err)=>{
+						//console.log("-----------------------"+thisCourse.name+"---------------------")
 						return coursesCallback(err);
 					})
 				},(err)=>{
@@ -929,7 +773,10 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 				})
 			}],(err)=>{
 				if(err) return log_err(err,false,req,res);
+
+				//console.log("------------------------Term "+thisTerm+"--------------------")
 				return termsCallback(err)
+				
 			})
 		},(err)=>{
 			return coursesOfEveryTerm(err)
@@ -945,6 +792,9 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 		//console.log('_________________-----_____________________________');
 		return res.json(reportData)
 	})
+}
+exports.getEndTermMarks=(req,res,next)=>{
+	
 }
 exports.getFullReportAllStudent=(req, res, next)=>{
 	req.assert('class_id', 'Invalid data').isMongoId();
@@ -1197,7 +1047,4 @@ function studentPlaces(a, b) {
 }
 function midTermPlaces(a, b) {
 	return b.marks - a.marks;
-}
-function endTermPlaces(a, b) {
-	return b.total - a.total;
 }
