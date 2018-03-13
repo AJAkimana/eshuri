@@ -180,7 +180,7 @@ block append scripts
             $scope.term_report_all=true;$scope.mt_report=false;$scope.y_report_one=false;$scope.y_report_all=false;$scope.term_report_one=false;
             $scope.termClassMarks(); break;
           case "is_yearly":
-            $scope.y_report_all=true;$scope.term_report_all=true;$scope.mt_report=false;$scope.y_report_one=false;$scope.term_report_one=false;
+            $scope.y_report_all=true;$scope.term_report_all=false;$scope.mt_report=false;$scope.y_report_one=false;$scope.term_report_one=false;
             $scope.yearlyClassMarks(); break;
           default: Notifier.danger("Select report type");
         }      

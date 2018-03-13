@@ -894,7 +894,7 @@ exports.getSchoolData = (req,res,next)=>{
             })
         },
         (cb3)=>{
-          User.count({school_id:req.params.school_id,access_level:req.app.locals.access_level.TEACHER},(err,num_teachers)=>{
+          User.count({school_id:req.params.school_id,$or:[{access_level:req.app.locals.access_level.TEACHER},{access_level:req.app.locals.access_level.ADMIN_TEACHER}]},(err,num_teachers)=>{
             if(err) return cb3(err);
             theData[0].list.push({type:'Teachers',number:num_teachers,url:'/dashboard.teachers/'+req.user.school_id,icon:'person'})
             response.teachers =num_teachers
