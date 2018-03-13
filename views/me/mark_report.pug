@@ -5,8 +5,8 @@ block append scripts
   script(src="../js/kendo.all.min.js",type="application/javascript")
 block append css_code
   link(rel="stylesheet", type="text/css", href="../css/report_table.css")
-  link(rel="stylesheet", type="text/css", href="http://kendo.cdn.telerik.com/2018.1.221/styles/kendo.common.min.css")
-  link(rel="stylesheet", type="text/css", href="http://kendo.cdn.telerik.com/2018.1.221/styles/kendo.blueopal.min.css")
+  link(rel="stylesheet", type="text/css", href="https://kendo.cdn.telerik.com/2018.1.221/styles/kendo.common.min.css")
+  link(rel="stylesheet", type="text/css", href="https://kendo.cdn.telerik.com/2018.1.221/styles/kendo.blueopal.min.css")
 block append content 
   //- .main-panel
     include ../partials/header 
@@ -29,19 +29,20 @@ block append content
                         label.control-label Choose the class
                         select.form-control(required="true",ng-model="selectClass",ng-change="getAcademicYearsList()")
                           option(value="", disabled selected)
-                          option(value="{{class._id}}", ng-repeat="class in ClassList") {{class.name|uppercase|toClasseName}}
+                          option(value="{{class._id}}", ng-repeat="class in ClassList", ng-bind="class.name|uppercase|toClasseName")
                     .col-md-2
                       .form-group.label-floating
                         label.control-label Choose the academic year
                         select.form-control(required="true",ng-model="choosen_year",ng-change="getListTerms()")
                           option(value="", disabled selected)
-                          option(value="{{umwaka}}", ng-repeat="umwaka in academic_years") {{umwaka|toNormal}}
+                          option(value="{{umwaka}}", ng-repeat="umwaka in academic_years", ng-bind="umwaka|toNormal") 
                     .col-md-2
                       .form-group.label-floating
-                        label.control-label Choose the {{term_name|toTermName}}
+                        label.control-label Choose the 
+                          span(ng-bind="term_name|toTermName")
                         select.form-control(required="true",ng-model="choosen_term")
                           option(value="", disabled selected)
-                          option(value="{{term}}", ng-repeat="term in list_terms") {{term_name|toTermName}} {{term}}
+                          option(value="{{term}}", ng-repeat="term in list_terms" ng-bind="(term_name|toTermName)+(term)")
                     .col-md-6
                       label.radio-inline
                         input(type="radio",ng-model="report_type", value="is_midterm")
