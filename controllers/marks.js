@@ -614,7 +614,7 @@ exports.getReport_JSON =(req,res,next)=>{
 	else if(accLvl==teacher||accLvl==adminteacher){
 		req.assert('student', 'Invalid data').isMongoId();
 		req.assert('class_id', 'Invalid data').isMongoId();
-		req.assert('place', 'Invalid data').isInt();
+		// req.assert('place', 'Invalid data').isInt();
 		theUser=req.body.student;
 		theClass=req.body.class_id;
 	}
@@ -762,7 +762,7 @@ exports.getReport_JSON =(req,res,next)=>{
 		if(err) return log_err(err,false,req,res);
 		reportData[0].term_num =req.body.currentTerm;
 		//console.log()
-		console.log('all Marks==>'+JSON.stringify(reportData))
+		// console.log('all Marks==>'+JSON.stringify(reportData))
 		return res.json(reportData)
 	})
 }

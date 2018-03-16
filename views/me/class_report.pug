@@ -85,7 +85,7 @@ block append content
                         table.table.table-condensed.table-striped.table-bordered
                           thead
                             tr
-                              th(rowspan='3') CODE
+                              th(rowspan='3') COURSES
                             tr
                               th(colspan='3',style='text-align:center;font-weight: bold;').cell-report MAX POINTS
                               th(colspan='4').cell-report {{term_name|toTermName}} {{report.term_num}}
@@ -99,33 +99,27 @@ block append content
                               th PERCENT
                           tbody(ng-repeat="note in report.marks|orderBy:name")
                             tr
-                              td(style='text-align:left;') {{note.name|uppercase}}
-                              td(style='text-align:center;font-weight: bold;') {{note.test_quota}}
-                              td(style='text-align:center;font-weight: bold;') {{note.exam_quota}}
-                              td(style='text-align:center;font-weight: bold;') {{note.course_weight}}
+                              td(style='text-align:left;' ng-bind="note.name|uppercase")
+                              td(style='text-align:center;font-weight: bold;' ng-bind="note.test_quota")
+                              td(style='text-align:center;font-weight: bold;' ng-bind="note.exam_quota")
+                              td(style='text-align:center;font-weight: bold;' ng-bind="note.course_weight")
 
                               td 
                                 span(ng-if="note.test<note.test_quota/2")
-                                  u(style="color:red;") {{(note.test).toFixed(1)}}
-                                span(ng-if="note.test>=note.test_quota/2") {{(note.test).toFixed(1)}}
+                                  u(style="color:red;" ng-bind="(note.test).toFixed(1)")
+                                span(ng-if="note.test>=note.test_quota/2" ng-bind="(note.test).toFixed(1)")
                               td 
                                 span(ng-if="note.exam<note.exam_quota/2")
-                                  u(style="color:red;") {{(note.exam).toFixed(1)}}
-                                span(ng-if="note.exam>=note.exam_quota/2") {{(note.exam).toFixed(1)}}
+                                  u(style="color:red;" ng-bind="note.exam.toFixed(1)")
+                                span(ng-if="note.exam>=note.exam_quota/2" ng-bind="note.exam.toFixed(1)")
                               td 
                                 span(ng-if="note.total<note.course_weight/2")
-                                  u(style="color:red;") {{(note.total).toFixed(1)}}
-                                span(ng-if="note.total>=note.course_weight/2") {{(note.total.toFixed(1))}}
+                                  u(style="color:red;" ng-bind="note.total.toFixed(1)")
+                                span(ng-if="note.total>=note.course_weight/2" ng-bind="note.total.toFixed(1)")
                               td
                                 span(ng-if="note.percent<50")
-                                  u(style="color:red;") {{(note.percent).toFixed(1)}}
-                                span(ng-if="note.percent>=50") {{(note.percent).toFixed(1)}}
-
-
-                              td {{(note.test).toFixed(1)}}
-                              td {{(note.exam).toFixed(1)}}
-                              td {{(note.total).toFixed(1)}}
-
+                                  u(style="color:red;" ng-bind="note.percent.toFixed(1)+'%'")
+                                span(ng-if="note.percent>=50" ng-bind="note.percent.toFixed(1)+'%'")
                           tfoot
                             tr
                               th(style='text-align:center;font-weight: bold;') Total
@@ -135,6 +129,7 @@ block append content
                               th(style='text-align:center;font-weight: bold;') {{tottest.toFixed(1)}}
                               th(style='text-align:center;font-weight: bold;') {{totexam.toFixed(1)}}
                               th(style='text-align:center;font-weight: bold;') {{tottotal.toFixed(1)}}
+                              th(style='text-align:center;font-weight: bold;', ng-bind="tot_percent.toFixed(1)+'%'")
                     .col-md-12
                       .col-md-6
                         .ct-chart.ct-octave(id="{{'term_'+$index}}")
@@ -204,7 +199,7 @@ block append scripts
         $scope.show_student=false;
         $scope.show_report=true;
         $http
-        .post("/report.university/",{student:student,currentTerm:term,academic_year:year})
+        .post("/report.university",{student:student._id,currentTerm:term,academic_year:year,class_id:'#{classe}'})
         .then(function(response){
           $scope.user_name=student.name;
           $scope.reports= response.data;
@@ -228,7 +223,7 @@ block append scripts
               $scope.tottotal+=$scope.reports[i].marks[j].total;
             }
           }
-          console.log(" Test: "+$scope.qtest+" Exam: "+$scope.qexam+" Total: "+$scope.qtotal)
+          $scope.tot_percent=$scope.tottotal*100/$scope.qtotal
           setTimeout(function(){
             for(var x =0;x<labels.length;x++){
               new Chartist.Bar('#term_0', {
@@ -246,7 +241,9 @@ block append scripts
 
         })
         .catch(function(erreur){
-          Notifier.danger(erreur.data)
+          Notifier.danger(erreur.data);
+          $scope.show_student=true;
+          $scope.show_report=false;
         }); 
       }
       $scope.getstudentList = function(){
@@ -257,7 +254,7 @@ block append scripts
           //- console.log("______________Students:"+JSON.stringify($scope.students))
         })
         .catch(function(erreur){
-          Notifier.danger(erreur.data)
+          Notifier.danger(erreur.data);
         }); 
       } 
       $scope.getstudentList();
