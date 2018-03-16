@@ -12,6 +12,7 @@ var CourseSchema =new Schema({
 	teacher_list:{type:[Schema.Types.ObjectId],required:true,unique:false},
 	currentTerm:{type:Number,required:true, min:0,unique:false},
   level:{type:Number,required:true, min:0,unique:false},
+  isConsidered:{type:Boolean,required:false, default:true, unique:false},
         /* Useful for the report */
   exam_quota:{type:Number,required:false,default:50, unique:false}, // default 50 % of the final marks
   test_quota:{type:Number,required:false,default:50, unique:false}, // default 50 % of the final marks

@@ -54,7 +54,7 @@ block append content
                         input(type="radio",ng-model="report_type", value="is_yearly")
                         | Whole year
                       button.btn.btn-rose.center(ng-click="getAllStudentsReport()") Get report
-                      button.btn.btn-info.center(ng-click="getPrintedReport(classename)") Save pdf
+                      button.btn.btn-info.center(ng-click="getPrintedReport(print_name)") Save pdf
             include partials/end_term_all
             include partials/end_term_one
             include partials/mid_term
@@ -145,6 +145,9 @@ block append scripts
       $scope.showDivs=function(){
         $scope.y_report_all=true;$scope.y_report_one=false;
       }
+      $scope.showTermDivs=function(){
+        $scope.term_report_all=true;$scope.term_report_one=false;
+      }
       $scope.printRepo = function (divName) {
         var printContents = document.getElementById(divName).innerHTML;
         var originalContents = document.body.innerHTML;
@@ -197,6 +200,7 @@ block append scripts
           $scope.loading = false;
           var response = res.data;
           $scope.classename = response.classe_name;
+          $scope.print_name = response.classe_name;
           //- $scope.midMarks = response.students;
           for (var i=0; i<response.students.length; i++){
             av_pct = (response.students[i].marks*100)/response.students[0].total;
@@ -238,6 +242,7 @@ block append scripts
           $scope.term = res.data.term;
           $scope.name_class = res.data.classe_name;
           $scope.termMarks = res.data.students;
+          $scope.print_name = $scope.name_class;
         })
         .catch(function(error){
           Notifier.danger(error.data);
@@ -347,14 +352,41 @@ block append scripts
         })
       }
       $scope.getTermReportOne = function(student, student_place){
-        //- $http
-        //- .post('report.university',{student:student,place:student_place, class_id:$scope.selectClass, currentTerm:$scope.choosen_term, academic_year:$scope.choosen_year})
-        //- .then(function(res){
-
-        //- })
-        //- .catch(function(err){
-        //-   Notifier.danger(err.data);
-        //- })
+        $scope.studentMark = [];
+        $scope.total_test=0,$scope.total_exam=0,$scope.total_tot=0;
+        $scope.tot_test_wgt=0,$scope.tot_exam_wgt=0,$scope.tot_total_wgt=0;
+        $scope.term_report_one=true;$scope.term_report_all=false;$scope.mt_report=false;$scope.y_report_one=false;$scope.y_report_all=false;
+        $http
+        .post('report.university',{student:student,place:student_place, class_id:$scope.selectClass, currentTerm:$scope.choosen_term, academic_year:$scope.choosen_year})
+        .then(function(res){
+          var all_marks=res.data[0].marks;
+          for(var i=0; i<all_marks.length; i++){
+            if(all_marks[i].name!=="conduite"){
+              $scope.studentMark.push({
+                name:all_marks[i].name,
+                code:all_marks[i].code,
+                test:all_marks[i].test,
+                exam:all_marks[i].exam,
+                total:all_marks[i].total,
+                test_wgt:all_marks[i].test_quota,
+                exam_wgt:all_marks[i].exam_quota,
+                total_wgt:all_marks[i].course_weight,
+              });
+              $scope.total_test+=all_marks[i].test;
+              $scope.total_exam+=all_marks[i].exam;
+              $scope.total_tot+=all_marks[i].total;
+              $scope.tot_test_wgt+=all_marks[i].test_quota;
+              $scope.tot_exam_wgt+=all_marks[i].exam_quota;
+              $scope.tot_total_wgt+=all_marks[i].course_weight;
+            }
+          }
+          $scope.percent=$scope.total_tot*100/$scope.tot_total_wgt;
+          //- console.log('Marks: '+JSON.stringify(all_marks))
+        })
+        .catch(function(err){
+          Notifier.danger(err.data);
+          $scope.term_report_one=false;
+        })
       }
       $scope.getOneStudentReport = function(student){
         //- console.log('Student info:'+JSON.stringify(student))

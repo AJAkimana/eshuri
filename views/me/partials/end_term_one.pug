@@ -1,10 +1,9 @@
-.col-md-10.center(ng-show="term_report_one")
+.col-md-8.center(ng-show="term_report_one")
   .card
     .card-header.card-header-icon(data-background-color="rose")
       i.material-icons report
     .card-content
-      button.btn.btn-label.pull-left(ng-click="showDivs()") Close
-      button.btn.btn-label.btn-primary.pull-right(ng-click="printDiv('printReport')") Print
+      button.btn.btn-label.pull-left(ng-click="showTermDivs()") Close
       .col-md-12
         .box
           .box-body
@@ -13,15 +12,32 @@
             br
             br
             h2.card-title.text-center.text-info(ng-show="!studentMark.length") <strong>Loading, please wait...</strong>
-            #printReport(ng-show="studentMark.length")
+            #term-student-report(ng-show="studentMark.length")
               .table-responsive.table-condensed
                 table.table.table-curved
                   tr
                     td(colspan='2')
-                      table.table.table-curved(ng-repeat="user in userInfo")
+                      .col-md-2
+                        img(src="/school.profile/"+school_id, alt="Image")
+                      .col-md-8
+                        p: strong
+                          | Ministry of Education
+                          br
+                          | School district
+                          br
+                          | School name
+                          br
+                          | TeL : 0988998787
+                          br
+                          | POB.: sddhjsdfs
+                      .col-md-2
+                        img(src="/school.profile/"+school_id, alt="Image")
+                        | Names: 
+                        strong User name
+                      //- table.table.table-curved
                         tr
                           td(rowspan="3", width="20%")
-                            img(src="/school.profile/"+school_id alt="Image")
+                            img(src="/school.profile/"+school_id, alt="Image")
                           td()
                             center: strong STUDENT'S PROGRESSIVE REPORT
                           td(rowspan="3", width="20%")
@@ -78,58 +94,62 @@
                             td(style='font-weight: bold; background: #e3e7ed; text-align:left;') CONDUCT
                             td(colspan='3', style='text-align:center;font-weight: bold;background: #CCC') 40
                             td(colspan='3', style="border-right: 3px solid #cdd0d4;") {{conduite_t1}}
-                          tr(ng-repeat="mark in studentMark|orderBy:'-course_quota'")
+                          tr(ng-repeat="mark in studentMark|orderBy:'-total_wgt'")
                             td(style='font-weight: bold; background: #e3e7ed; text-align:left;')
                               | {{mark.name|uppercase}}
-                            td.report-td-pct {{mark.test_quota}}
-                            td.report-td-pct {{mark.exam_quota}}
-                            td.report-td-pct {{mark.course_quota}}
+                            td.report-td-pct(ng-bind="mark.test_wgt")
+                            td.report-td-pct(ng-bind="mark.exam_wgt")
+                            td.report-td-pct(ng-bind="mark.total_wgt")
                             td 
-                              span(ng-if="mark.testTerm1<mark.test_quota/2")
-                                u(style="color:red;") {{(mark.testTerm1).toFixed(1)}}
-                              span(ng-if="mark.testTerm1>=mark.test_quota/2") {{(mark.testTerm1).toFixed(1)}}
-
+                              span(ng-if="mark.test<mark.test_wgt/2")
+                                u(style="color:red;" ng-bind="(mark.test).toFixed(1)")
+                              span(ng-if="mark.test>=mark.test_wgt/2" ng-bind="(mark.test).toFixed(1)")
                             td 
-                              span(ng-if="mark.examTerm1<mark.exam_quota/2")
-                                u(style="color:red;") {{(mark.examTerm1).toFixed(1)}}
-                              span(ng-if="mark.examTerm1>=mark.exam_quota/2") {{(mark.examTerm1).toFixed(1)}}
+                              span(ng-if="mark.exam<mark.exam_wgt/2")
+                                u(style="color:red;" ng-bind="(mark.exam).toFixed(1)")
+                              span(ng-if="mark.exam>=mark.exam_wgt/2" ng-bind="(mark.exam).toFixed(1)")
                             td
-                              span(ng-if="mark.totalTerm1<mark.course_quota/2")
-                                u(style="color:red;") {{(mark.totalTerm1).toFixed(1)}}
-                              span(ng-if="mark.totalTerm1>=mark.course_quota/2") {{(mark.totalTerm1).toFixed(1)}}
+                              span(ng-if="mark.total<mark.total_wgt/2")
+                                u(style="color:red;" ng-bind="(mark.total).toFixed(1)")
+                              span(ng-if="mark.total>=mark.total_wgt/2" ng-bind="(mark.total).toFixed(1)")
                         tfoot(align='right')
                           tr
                             td(align='left', style='font-weight: bold; ')
                               | Total
-                            td.report-td-pct {{qTest}}
-                            td.report-td-pct {{qExam}}
-                            td.report-td-pct {{qtotal}}
+                            td.report-td-pct(ng-bind="tot_test_wgt")
+                            td.report-td-pct(ng-bind="tot_exam_wgt")
+                            td.report-td-pct(ng-bind="tot_total_wgt")
                             td
-                              span(ng-if="testT1<qTest/2")
-                                u(style="color:red;")  {{testT1.toFixed(1)}}
-                              span(ng-if="testT1>=qTest/2") {{testT1.toFixed(1)}}
+                              span(ng-if="total_test<(tot_test_wgt/2)")
+                                u(style="color:red;" ng-bind="total_test.toFixed(1)")
+                              span(ng-if="total_test>=(tot_test_wgt/2)" ng-bind="total_test.toFixed(1)")
                             td
-                              span(ng-if="totalT1<qExam/2")
-                                u(style="color:red;") {{totalT1.toFixed(1)}}
-                              span(ng-if="totalT1>=qExam/2") {{totalT1.toFixed(1)}}
+                              span(ng-if="total_exam<(tot_exam_wgt/2)")
+                                u(style="color:red;" ng-bind="total_exam.toFixed(1)")
+                              span(ng-if="total_exam>=(tot_exam_wgt/2)" ng-bind="total_exam.toFixed(1)")
                             td
-                              span(ng-if="totalT1<qExam/2")
-                                u(style="color:red;") {{totalT1.toFixed(1)}}
-                              span(ng-if="totalT1>=qExam/2") {{totalT1.toFixed(1)}} 
-                          tr(ng-repeat="place in places")
+                              span(ng-if="total_tot<(tot_total_wgt/2)")
+                                u(style="color:red;" ng-bind="total_tot.toFixed(1)")
+                              span(ng-if="total_tot>=(tot_total_wgt/2)" ng-bind="total_tot.toFixed(1)") 
+                          tr
+                            td(align='left', style='font-weight: bold;text-align:left;') Percent %
+                            td(colspan='6', style='font-weight: bold;text-align:right;' ng-bind="percent.toFixed(1)+'%'")
+                          tr
                             td(align='left', style='font-weight: bold;text-align:left;')
                               | Position
                             td(colspan='3', style='font-weight: bold;')
                             td(colspan='3', style='font-weight: bold;')
-                              | {{place.p1}}/{{studentsMark.length}}
+                              | /{{termMarks.length}}
                           tr
                             td(align='left', style='font-weight: bold;text-align:left;')
                               | Teacher's Signature
-                            td(colspan='6')
+                            td(colspan='3')
+                            td(colspan='3')
                           tr
                             td(align='left', style='font-weight: bold;text-align:left;')
                               | Parent's Signature
-                            td(colspan='6')
+                            td(colspan='3')
+                            td(colspan='3')
                   tr
                     td
                       strong Pass
@@ -139,7 +159,7 @@
                       strong Discontinued
                     td
                       | Done at 
-                      strong {{school_district|toDistrict}}
+                      strong
                       br
                       br
                       | HeadMistress:
