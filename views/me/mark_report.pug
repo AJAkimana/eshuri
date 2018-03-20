@@ -21,8 +21,7 @@ block append content
                   i.material-icons school
                 .card-content
                   h4.card-title.text-center.text-info
-                    strong This report is designed to generate yearly marks.
-                  h4.card-title Complete the parameters to generate the report
+                    strong Complete the required parameters to generate the report
                   .row
                     .col-md-2
                       .form-group.label-floating
@@ -50,7 +49,7 @@ block append content
                       label.radio-inline
                         input(type="radio",ng-model="report_type", value="is_term")
                         | End of Term
-                      label.radio-inline
+                      //- label.radio-inline
                         input(type="radio",ng-model="report_type", value="is_yearly")
                         | Whole year
                       button.btn.btn-rose.center(ng-click="getAllStudentsReport()") Get report
