@@ -6,6 +6,8 @@ const Content =require('../models/Content'),
 	  Classe =require('../models/Classe'),
 	  Course =require('../models/Course'),
 	  Util=require('../utils'),
+	  fs=require('fs'),
+    path=require('path'),
 	  log_err=require('./manage/errorLogger');
 
 exports.getPageReport = function(req,res,next){
@@ -32,8 +34,9 @@ exports.getPageReport = function(req,res,next){
 				title:"General marks",
 				school_id:req.user.school_id,
 				school_name:school_exists.name,
-				school_district:school_exists.district_name,
-				school_phone:school_exists.contact.telephone,
+				district:school_exists.district_name,
+				telephone:school_exists.contact.telephone,
+				po_code:school_exists.contact.postal_code,
 				school_pob:school_exists.contact.postal_code,
 				pic_id:req.user._id,pic_name:req.user.name,access_lvl:req.user.access_level,
 				csrf_token:res.locals.csrftoken, // always set this buddy
@@ -98,6 +101,10 @@ exports.getPageReportUniversity = function(req,res,next){
 					term_name:school_exists.term_name,
 					student_name:student_exists.name,
 					student_URN:student_exists.URN, 
+					school_name:school_exists.name,
+					district:school_exists.school_district,
+					telephone:school_exists.contact.telephone,
+					po_code:school_exists.contact.postal_code,
 					term_name:school_exists.term_name,    
 					academic_year:new Date().getFullYear(),
 					pic_id:student_exists._id,pic_name:student_exists.name,access_lvl:student_exists.access_level,
@@ -109,12 +116,11 @@ exports.getPageReportUniversity = function(req,res,next){
 }
 exports.printableReport = (req,res)=>{
 	school_id = req.user.school_id;
-	var school_name='', school_district='';
+	var school_name, school_district, area_name;
 	School.findOne({_id:school_id},{name:1,cover_photo:1,district_name:1},(err, school_exists)=>{
 		if(err) return log_err(err,false,req,res);
-      	else if(!school_exists) return res.render("./lost",{msg:"This school was not recognized"});
-
-	    return 	res.render('me/mark_report',{
+    else if(!school_exists) return res.render("./lost",{msg:"This school was not recognized"});
+	  return res.render('me/mark_report',{
 			title:"General marks",
 			school_id:req.user.school_id,
 			school_name:school_exists.name,
@@ -350,8 +356,10 @@ exports.getEndTermMarks=(req,res,next)=>{
 	req.assert('class_id', 'Invalid data').isMongoId();
 	req.assert('academic_year', 'Invalid data').isInt();
 	req.assert('term', 'Invalid data').isInt();
+
 	const errors = req.validationErrors();
 	if (errors) return res.status(400).send(errors[0].msg);
+
 	var async = require("async");
 	var students = [],marks = {}, mixed = [], ordered = [],objectMark = {}, parametters={};
 	var outTextMarks=0, outExamMarks=0, outTotal=0;
@@ -378,7 +386,7 @@ exports.getEndTermMarks=(req,res,next)=>{
 			async.each(students, (thisStudent, student_Cb)=>{
 				var markCat=0,markExam=0,markCatOutOf=0,markExamOutOf=0;
 				async.series([(getStudentCourses_Cb)=>{
-					Course.find({class_id:req.body.class_id,currentTerm:req.body.term},(err,list_Courses)=>{
+					Course.find({class_id:req.body.class_id,currentTerm:req.body.term,name:{$ne:'conduite'}},(err,list_Courses)=>{
 						if(err) return getStudentCourses_Cb(err);
 						listCourses =list_Courses;
 						getStudentCourses_Cb(null);

@@ -104,6 +104,11 @@ block append content
 																	label.control-label Website
 																	input.form-control(type="text", name="w",ng-model="school_site",style="text-transform:lowercase")
 																	span.material-input
+															.col-sm-6
+																.form-group.label-floating
+																	label.control-label Telephone
+																	input.form-control(type="text", name="w",ng-model="school_phone",style="text-transform:lowercase")
+																	span.material-input
 														.row
 															.col-sm-6
 																.form-group.label-floating.is-empty
@@ -146,6 +151,7 @@ block append scripts
 				$scope.nvUser.school_prog = $scope.school_prog;
 				$scope.nvUser.school_requ = $scope.school_requ;
 				$scope.nvUser.school_years = $scope.school_years;
+				$scope.nvUser.school_tel = $scope.school_phone;
 				$scope.nvUser.school_stor = $scope.school_stor;
 				$scope.nvUser.school_peop = $scope.school_peop;
 				$scope.nvUser.school_site = $scope.school_site;
@@ -216,6 +222,7 @@ block append scripts
 			$scope.school_site = "#{school.contact.website}";
 			$scope.school_addr = ["#{school.contact.address}"];
 			$scope.school_code = "#{school.contact.postal_code}";
+			$scope.school_phone = "#{school.contact.telephone}"
 			$scope.school_info__ = $scope.convertToHtml();
 			$scope.curr_list = ["WDA Curriculum","Cambridge Curriculum","Competence Based Curriculum"];
 			$scope.anti_csrf = "#{csrf_token}";

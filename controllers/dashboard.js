@@ -97,13 +97,13 @@ exports.getSchoolRedirection = (req, res, next)=>{
         programsCb();
       })
     },(OlevelCb)=>{
-      Class.count({school_id:school_id, option:null},(err, ol_levels)=>{
+      Class.count({school_id:school_id, $or:[{option:{$exists:false}},{option:""}]},(err, ol_levels)=>{
         if(err) OlevelCb(err);
         response.classes_ol=ol_levels;
         OlevelCb();
       })
     },(AlevelCb)=>{
-      Class.count({school_id:school_id, option:{$ne:null}},(err, a_levels)=>{
+      Class.count({school_id:school_id, option:{$exists:true,$ne:""}},(err, a_levels)=>{
         if(err) AlevelCb(err);
         response.classes_al=a_levels;
         AlevelCb();

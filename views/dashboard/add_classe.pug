@@ -106,7 +106,7 @@ block append content
                           tbody
                             tr(style='color:#3d4958;',pagination-id="allclasses", dir-paginate="classe in classes |orderBy:a:b|filter:search|itemsPerPage:n_pages")
                               td(width="1%" height="1%") {{$index + 1}}
-                              td: a(style='color:#3d4958;',href="/dashboard.course/{{classe._id}}")
+                              td: a.btn.btn-simple.btn-primary(href="/dashboard.course/{{classe._id}}")
                                 strong {{classe.name | uppercase|toClasseName:term_name}}
                               td {{classe.level }}
                               td 

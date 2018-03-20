@@ -1,3 +1,6 @@
+const fs=require('fs'),
+      path=require('path'),
+      async=require('async');
 /**
  * Return a unique identifier with the given `len`.
  *
@@ -72,7 +75,26 @@ exports.getShort = (name, length)=>{
  * @return {Number}
  * @api private
  */
-
+// Get district 
+/**
+id: Province_ID or District_ID or Sector_ID
+type: 1.Province, 2:District, 3:Sector
+*/
+exports.getLocalName = (id)=>{
+  var filePath = path.join(__dirname,'./public/locals.json');
+  var area_name="";
+  fs.readFile(filePath, 'utf8', (err, json_data)=>{
+    if(err) throw err;
+    var object = JSON.parse(json_data)
+    for(var i=0;i<object.provinces.length;i++){
+      if(object.provinces[i].Province_ID==id){
+        area_name=object.provinces[i].Province_NAME;
+      }
+    }
+    // console.log('JSON: '+JSON.stringify(object.provinces));
+  })
+  return 'Akimana:'+area_name;
+}
 function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }

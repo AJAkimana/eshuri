@@ -396,6 +396,7 @@ block append scripts
               for(var i =0;i<$scope.currentTeachers.length;i++)
                 if($scope.currentTeachers[i] ==teacher_id)
                   $scope.currentTeachers.splice(i,1);
+              $('#add_teacher_Modal').modal('hide');
               swal({
                 title: 'Dissociated!',
                 text: 'Teacher dissociated ',
@@ -435,11 +436,12 @@ block append scripts
           }
         )
         .then(function(response){
-          Notifier.success("A new teacher has been affected to this course");
           //$scope.setCurrentCourse(null);
           $scope.currentTeachers.push(_teacher_id)
           $scope.teacher_choosen =null;
           $scope.getListCourses();
+          $('#add_teacher_Modal').modal('hide');
+          Notifier.success("A new teacher has been affected to this course");
         })
         .catch(function(erreur){
           Notifier.danger(erreur.data);

@@ -69,7 +69,7 @@ block append content
                     -var all_teachers=info.teachers_male+info.teachers_fem
                     -var all_admins=info.admins_male+info.admins_fem
                     -var all_users=all_students+all_teachers+all_admins
-                    a(href="/dashboard.classe/"+school_id) 
+                    a(href="/school.students/"+school_id) 
                       | #{all_students} students
                       .text-center
                         | #{info.students_male} M,
@@ -86,7 +86,8 @@ block append content
                   .text-center
                     | M: Male,
                     | F:Female
-                    h3.pull-right #{all_users} users
+                    a(href="/dashboard.classe/"+school_id)
+                      h3.pull-right #{all_users} users
 block append scripts
   script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
   script.
