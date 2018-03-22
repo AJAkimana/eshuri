@@ -298,7 +298,7 @@ exports.getToNextClass = (req,res,next)=>{
       })
     }
     else{
-      if(!finalist) return res.status(400).send("This student must not be a finalist");
+      // if(!finalist) return res.status(400).send("This student must not be a finalist");
       User.findOne({_id:req.body.student_id,school_id:school_exists._id,class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT},(err, student_exists)=>{
         if(err) return log_err(err,false,req,res);
         else if(!student_exists) return res.status(400).send("Unkown student");
@@ -317,7 +317,7 @@ exports.getToNextClass = (req,res,next)=>{
             new Notification({
               user_id:req.user._id,
               user_name:req.user.name,
-              content:"you are finalist at "+school_exists.name.toUpperCase()+". SUCCESS!!!",
+              content:"You are finalist at "+school_exists.name.toUpperCase()+". SUCCESS!!!",
               school_id:school_exists._id,
               // class_id:class_exists._id,
               dest_id:student_exists._id,

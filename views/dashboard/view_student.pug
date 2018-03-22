@@ -74,7 +74,7 @@ block append content
                             td.td-actions.text-right
                               select(ng-model="new_class",ng-change="changeClass(student, new_class)")
                                 option(value="{{classe._id}}" ng-repeat="classe in nextClasses") {{classe.name|uppercase|toClasseName:term_name}}
-                                option(value="fin" ng-show="level==3||level==6") Finalist
+                                option(value="fin") Finalist
                               button.btn.btn-danger(ng-click="studentRepeatModel(student._id,student.name)",data-target='#student_rpt_Model', data-toggle='modal') Repeat
                               button.btn.btn-danger(ng-click="deleteStudent(student._id,student.name)")
                                 i.material-icons close
@@ -253,7 +253,7 @@ block append scripts
             $scope.reload();
             swal({
               title: 'Deleted!',
-              text: student_name+' and all of its content \n has been successfully deleted.',
+              text: student_name.toUpperCase()+' and all of h/her content \n has been successfully deleted.',
               type: 'success',
               confirmButtonClass: "btn btn-success",
               buttonsStyling: false

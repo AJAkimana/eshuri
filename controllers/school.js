@@ -664,14 +664,18 @@ exports.removeStudent = function(req,res,next){
         // We delete also his PROFIL PIC
         var profile_pic = process.env.PROFILE_PIC_PATH+"/"+studentExists.profile_pic;
         var hasProfilPic =studentExists.profile_pic;
-        studentExists.remove((err)=>{
+        Marks.remove({student_id:req.body.student_id},(err)=>{
           if(err) return log_err(err,false,req,res);
-          if(hasProfilPic)
-          require('fs').unlink(profile_pic,function(err){
-            //console.log('File '+profile_pic+'deleted with err'+err);
-          });
-          return res.end();
-        })  
+          studentExists.remove((err)=>{
+            if(err) return log_err(err,false,req,res);
+            if(hasProfilPic){
+              require('fs').unlink(profile_pic,(err)=>{
+                //console.log('File '+profile_pic+'deleted with err'+err);
+              });
+            }
+            return res.end();
+          }) 
+        })
       })
     })
   })
@@ -1203,42 +1207,41 @@ exports.setHeadOfDepartment = (req,res,next)=>{
       var oldHOD_mail =depart_exists.admin_mail;
 
       User.findOne({email:req.body.admin_mail},(err,user_exists)=>{
-          if(err) return log_err(err,false,req,res);
-          else if(!user_exists) return res.status(400).send("This email is not yet registered");
-          else if(user_exists.access_level < req.user.access_level)
-            return res.status(400).send("Impossible to use this email"+req.user.access_level);
-          user_exists.access_level =req.app.locals.access_level.HOD;
-          user_exists.isEnabled =true;
-          user_exists.isValidated=true;
-          user_exists.department_id =req.body.department_id;
-          user_exists.save((err)=>{          
-            // Now each school in department will have admin_mail like you
-            School.update({department_id:req.body.department_id},{$set:{admin_mail:req.body.admin_mail}},{multi:true},(err,allSchooUpdated)=>{
-               if(err) return log_err(err,false,req,res);
-               depart_exists.admin_mail =req.body.admin_mail;
-               depart_exists.save((err)=>{
-                  if(err) return log_err(err,false,req,res);
-                  // Now i am going to set back to teacher the old HOD
-                  // Here you ave to notice that depart has already updated his admin_mail / ! \
-                  User.findOne({email:oldHOD_mail},(err,user_exists)=>{
-                    // console.log('USER is '+JSON.stringify(user_exists));
+        if(err) return log_err(err,false,req,res);
+        else if(!user_exists) return res.status(400).send("This email is not yet registered");
+        else if(user_exists.access_level < req.user.access_level)
+          return res.status(400).send("Impossible to use this email"+req.user.access_level);
+        user_exists.access_level =req.app.locals.access_level.HOD;
+        user_exists.isEnabled =true;
+        user_exists.isValidated=true;
+        user_exists.department_id =req.body.department_id;
+        user_exists.save((err)=>{ 
+          if(err) log_err(err,false,req,res);      
+          // Now each school in department will have admin_mail like you
+          School.update({department_id:req.body.department_id},{$set:{admin_mail:req.body.admin_mail}},{multi:true},(err,allSchooUpdated)=>{
+            if(err) return log_err(err,false,req,res);
+            depart_exists.admin_mail =req.body.admin_mail;
+            depart_exists.save((err)=>{
+              if(err) return log_err(err,false,req,res);
+              // Now i am going to set back to teacher the old HOD
+              // Here you ave to notice that depart has already updated his admin_mail / ! \
+              User.findOne({email:oldHOD_mail},(err,user_exists)=>{
+                // console.log('USER is '+JSON.stringify(user_exists));
+                if(err) return log_err(err,false,req,res);
+                else if(user_exists){
+                  user_exists.access_level =req.app.locals.access_level.TEACHER;
+                  // console.log(' THE USER EXISTS '+user_exists.access_level);
+                  user_exists.save((err)=>{
                     if(err) return log_err(err,false,req,res);
-                    else if(user_exists){
-                      user_exists.access_level =req.app.locals.access_level.TEACHER;
-                      // console.log(' THE USER EXISTS '+user_exists.access_level);
-                      user_exists.save((err)=>{
-                        if(err) return log_err(err,false,req,res);
-                        return res.end();      
-                      }) 
-                    }
-                    else return res.end();
-                  })
-               });
-            })
+                    return res.end();      
+                  }) 
+                }
+                else return res.end();
+              })
+            });
           })
-
         })
+      })
     })
-
   })
 }

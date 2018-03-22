@@ -533,9 +533,7 @@ exports.getPageUpdateSchool = function(req,res,next){
       pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
       csrf_token:res.locals.csrftoken, // always set this buddy
     })
-  })
-
-  
+  })  
 };
 
 exports.getPageClasse = (req,res,next)=>{
@@ -843,9 +841,9 @@ exports.confirmStudentAccount = function(req,res,next){
   const errors = req.validationErrors();
   if (errors) return res.status(500).send(errors[0].msg);
   User.update(
-      {_id:req.body.student_id,school_id:req.user.school_id,access_level:req.app.locals.access_level.STUDENT},
-      {$set:{isEnabled:true}},(err,ok)=>{
-      if(err) return log_err(err,false,req,res);
-      return res.end();
-    })  
+    {_id:req.body.student_id,school_id:req.user.school_id,access_level:req.app.locals.access_level.STUDENT},
+    {$set:{isEnabled:true}},(err,ok)=>{
+    if(err) return log_err(err,false,req,res);
+    return res.end();
+  })  
 }
