@@ -240,6 +240,7 @@ module.exports = function(app) {
 	
 	app.post('/user.renew_password',isAuthenticated,userController.renewPassword);
 	app.post('/user.change_email',isAuthenticated,userController.changeEmail);
+	app.post('/user.edit.teacheremail',isAtLeastAdmin, userController.changeTeacherEmail);
 	app .get('/user.logout',userController.logout);
 	// app.post('/user.teachers.list',isAuthenticated, userController.loadTeachers);
 	app .get('/user.get.id',isAuthenticated, userController.get_IDUser);

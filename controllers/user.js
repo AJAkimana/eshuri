@@ -348,6 +348,50 @@ exports.renewPassword = (req,res)=>{
      }
   })
 }
+exports.changeTeacherEmail = (req, res)=>{
+  req.assert('id', 'Invalid data').isMongoId();
+  req.assert('old_email', 'The old email is not valid').isEmail().len(1,100).notEmpty();
+  req.assert('new_email', 'The new email is not valid').isEmail().len(1,100).notEmpty();
+  req.assert('teacher_pass', 'Choose a minimum length of 6 characters for the password').len(6,20);
+  req.assert('admin_pass', 'Choose a minimum length of 6 characters for the password').len(6,20);
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  User.findOne({_id:req.user._id},(err,user_exists)=>{
+    if(err) return log_err(err,false,req,res);
+    else if(!user_exists) return res.status(400).send("Invalid data");
+    user_exists.comparePassword(req.body.admin_pass,req.user.email, (err, isMatch) => {
+      if(err) return log_err(err,false,req,res);
+      else if(!isMatch)   return res.status(400).send("Your password is incorrect");
+      User.findOne({_id:req.body.id},(err,userExists)=>{
+        if(err) return log_err(err,false,req,res);
+        else if(!userExists) return res.status(400).send("User is unknown!");
+        userExists.comparePassword(req.body.teacher_pass,req.body.old_email, (err, isMatch) => {
+          if(err) return log_err(err,false,req,res);
+          else if(!isMatch) return res.status(400).send("Password given by teacher is incorrect!");
+          User.findOne({email:req.body.new_email},(err, found)=>{
+            if(err) return log_err(err,false,req,res);
+            else if(found) return res.status(500).send("Sorry! Email exists")
+            new Notification({
+              user_id:req.body.id,
+              user_name:userExists.name,
+              content: req.user.name.toUpperCase()+" has changed your email",
+              school_id:req.user.school_id,
+              isAuto:false,            
+            }).save((err)=>{
+              if(err) console.log(" You have to log "+err)
+            })
+            userExists.email = req.body.new_email;
+            userExists.password = req.body.teacher_pass;
+            userExists.save((err)=>{
+              if(err) return res.status(500).send("Sorry! Service not available")
+              return res.end();
+            });
+          })
+        })
+      })
+    })
+  })
+}
 exports.changeEmail = (req,res)=>{
   req.assert('oldEmail', 'The old password is not valid').isEmail().len(1,100).notEmpty();
   req.assert('email', 'The new email is not valid').isEmail().len(1,100).notEmpty();
@@ -359,7 +403,7 @@ exports.changeEmail = (req,res)=>{
   User.findOne({_id:req.user._id},(err,userExists)=>{
     if(err) return log_err(err,false,req,res);
     else if(!userExists){// If the pass is not correct 
-        return res.status(400).send("User is unknown!");
+      return res.status(400).send("User is unknown!");
     }
     else{
        userExists.comparePassword(req.body.password,req.body.oldEmail, (err, isMatch) => {
