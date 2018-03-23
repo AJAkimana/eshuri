@@ -19,9 +19,11 @@ block append content
 									.col-md-12
 										h3.text-center List of students at 
 											strong {{'#{school_name}'|uppercase}}
-											p.pull-right
-												strong {{students.length}}
-												| students
+											p
+												strong(ng-bind="current_students")
+												| Current students, 
+												strong(ng-bind="finalists")
+												| Finalists
 										.table-responsive(ng-show="students.length")
 											form.form-inline
 												.form-group.pull-left
@@ -64,6 +66,12 @@ block append scripts
 				.post("/school.students.json",{_csrf:$scope.anti_csrf,school_id:$scope.school_id })
 				.then(function(response){
 					$scope.students = response.data;
+					$scope.finalists=0;
+					$scope.current_students=0;
+					for(var i=0; i<$scope.students.length; i++){
+						if($scope.students[i].classe==="Finalist") $scope.finalists++;
+						else $scope.current_students++;
+					}
 				})
 				.catch(function(erreur){
 					Notifier.danger(erreur.data);

@@ -2,8 +2,8 @@
   .card
     .card-header.card-header-icon(data-background-color="rose")
       i.material-icons report
-    .card-content#term-student-report
       button.btn.btn-label.pull-left(ng-click="showTermDivs()") Close
+    .card-content#student-report-one
       .col-md-12
         .box
           .box-body
@@ -30,12 +30,13 @@
                         span {{'#{po_code}'|uppercase}}
                     .col-xs-2.col-sm-2.col-md-2.col-lg-2
                       img.pull-right(src="/pp.view/"+student_name, alt="Image")
-                  .col-md-6.center
-                    | Names: 
-                    strong(ng-bind="student_name|toStudentName:termMarks")
-                    br
-                    | Classe: 
-                    strong(ng-bind="student_class|toClasse:ClassList|toClasseName|uppercase")
+                  .col-md-12
+                    .pull-right
+                      | Names: 
+                      strong(ng-bind="student_name|toStudentName:termMarks")
+                      br
+                      | Classe: 
+                      strong(ng-bind="student_class|toClasse:ClassList|toClasseName|uppercase")
               tr
                 td(colspan='2', style='text-align:left;')
                   .col-md-12
@@ -50,9 +51,8 @@
                         th(rowspan='3')
                           | Subject
                       tr
-                        th(colspan='3', style='text-align:center;font-weight: bold;background: #CCC')
-                          | MAX POINTS
-                        th.report-th(colspan='3',style="border-right: 3px solid #cdd0d4; border-top: 2px solid #cdd0d4;")
+                        th.report-td-pct(colspan='3'): strong MAX POINTS
+                        th.report-th.report-border(colspan='3')
                           strong(ng-bind="choosen_term|toTerm|uppercase")
                       tr(align='center')
                         th.report-td-pct: strong TEST
@@ -60,64 +60,60 @@
                         th.report-td-pct: strong TOT
                         th.report-th: strong TEST
                         th.report-th: strong EX
-                        th.report-th(style="border-right: 3px solid #cdd0d4;"): strong TOT
+                        th.report-th.report-brd-right: strong TOT
                     tbody
                       tr
-                        td(style='font-weight: bold; background: #e3e7ed; text-align:left;') CONDUCT
-                        td(colspan='3', style='text-align:center;font-weight: bold;background: #CCC' ng-bind="conduct_wgt")
-                        td(colspan='3', style="border-right: 3px solid #cdd0d4;" ng-bind="mark_conduct")
+                        td(style="font-weight: bold;background: #e3e7ed;text-align:left;") CONDUCT
+                        td.report-td-cond(colspan='3', ng-bind="conduct_wgt")
+                        td.report-brd-right(colspan='3' ng-bind="mark_conduct")
                       tr(ng-repeat="mark in studentMark|orderBy:'-total_wgt'")
-                        td(style='font-weight: bold; background: #e3e7ed; text-align:left;' ng-bind="mark.name|uppercase")
+                        td(style="font-weight: bold;background: #e3e7ed;text-align:left;" ng-bind="mark.name|uppercase")
                         td.report-td-pct(ng-bind="mark.test_wgt")
                         td.report-td-pct(ng-bind="mark.exam_wgt")
                         td.report-td-pct(ng-bind="mark.total_wgt")
                         td 
                           span(ng-if="mark.test<mark.test_wgt/2")
-                            u(style="color:red;" ng-bind="(mark.test).toFixed(1)")
+                            u.u-echec(ng-bind="(mark.test).toFixed(1)")
                           span(ng-if="mark.test>=mark.test_wgt/2" ng-bind="(mark.test).toFixed(1)")
                         td 
                           span(ng-if="mark.exam<mark.exam_wgt/2")
-                            u(style="color:red;" ng-bind="(mark.exam).toFixed(1)")
+                            u.u-echec(ng-bind="(mark.exam).toFixed(1)")
                           span(ng-if="mark.exam>=mark.exam_wgt/2" ng-bind="(mark.exam).toFixed(1)")
                         td
                           span(ng-if="mark.total<mark.total_wgt/2")
-                            u(style="color:red;" ng-bind="(mark.total).toFixed(1)")
+                            u.u-echec(ng-bind="(mark.total).toFixed(1)")
                           span(ng-if="mark.total>=mark.total_wgt/2" ng-bind="(mark.total).toFixed(1)")
                     tfoot(align='right')
                       tr
-                        td(align='left', style='font-weight: bold; ')
-                          | Total
+                        td.report-bord Total
                         td.report-td-pct(ng-bind="tot_test_wgt")
                         td.report-td-pct(ng-bind="tot_exam_wgt")
                         td.report-td-pct(ng-bind="tot_total_wgt")
                         td
                           span(ng-if="total_test<(tot_test_wgt/2)")
-                            u(style="color:red;" ng-bind="total_test.toFixed(1)")
+                            u.u-echec(ng-bind="total_test.toFixed(1)")
                           span(ng-if="total_test>=(tot_test_wgt/2)" ng-bind="total_test.toFixed(1)")
                         td
                           span(ng-if="total_exam<(tot_exam_wgt/2)")
-                            u(style="color:red;" ng-bind="total_exam.toFixed(1)")
+                            u.u-echec(ng-bind="total_exam.toFixed(1)")
                           span(ng-if="total_exam>=(tot_exam_wgt/2)" ng-bind="total_exam.toFixed(1)")
                         td
                           span(ng-if="total_tot<(tot_total_wgt/2)")
-                            u(style="color:red;" ng-bind="total_tot.toFixed(1)")
+                            u.u-echec(ng-bind="total_tot.toFixed(1)")
                           span(ng-if="total_tot>=(tot_total_wgt/2)" ng-bind="total_tot.toFixed(1)") 
                       tr
-                        td(align='left', style='font-weight: bold;text-align:left;') Percent %
-                        td(colspan='6', style='font-weight: bold;text-align:right;' ng-bind="percent.toFixed(1)+'%'")
+                        td(style="font-weight: bold;text-align:left;") Percent (%)
+                        td(style="font-weight: bold;text-align:right;",colspan='6' ng-bind="percent.toFixed(1)+'%'")
                       tr
-                        td(align='left', style='font-weight: bold;text-align:left;')
-                          | Position
-                        td(colspan='3', style='font-weight: bold;')
-                        td(colspan='3', style='font-weight: bold;' ng-bind="stud_place+' / '+termMarks.length")
+                        td(style="font-weight: bold;text-align:left;") Position
+                        td.report-bord(colspan='3')
+                        td(colspan='3', ng-bind="stud_place+' / '+termMarks.length")
                       tr
-                        td(align='left', style='font-weight: bold;text-align:left;')
-                          | Teacher's Signature
+                        td(style="font-weight: bold;text-align:left;") Teacher's Signature
                         td(colspan='3')
                         td(colspan='3')
                       tr
-                        td(align='left', style='font-weight: bold;text-align:left;')
-                          | Parent's Signature
+                        td(style="font-weight: bold;text-align:left;") Parent's Signature
                         td(colspan='3')
                         td(colspan='3')
               tr
@@ -136,7 +132,7 @@
                   br
                   | (Signature and stamps)
             .pull.pull-right
-              | MADE BY: 
-              label(style="color:red")
-                | e-Shuri.rw
+              h6 MADE BY: 
+                span(style="color:red")
+                  | e-Shuri.rw
               br

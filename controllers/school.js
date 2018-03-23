@@ -737,15 +737,15 @@ exports.getStudents_JSON = (req, res, next)=>{
     else if(String(school._id)!= String(req.user.school_id))
       return res.status(400).send('This is not your school');
     var class_prefix = school.term_name=='T'?'S':'Y';
-    User.find({school_id:req.body.school_id,access_level:req.app.locals.access_level.STUDENT, class_id:{$ne:null}},{__v:0,password:0,gender:0,isValidated:0,upload_time:0,updatedAt:0}).sort({name:1}).lean().exec((err, students_list)=>{
+    User.find({school_id:req.body.school_id,access_level:req.app.locals.access_level.STUDENT},{__v:0,password:0,gender:0,isValidated:0,upload_time:0,updatedAt:0}).sort({name:1}).lean().exec((err, students_list)=>{
       if(err) return log_err(err,false,req,res);
 
       async.each(students_list, (thisStudent, callBack)=>{
         Classe.findOne({_id:thisStudent.class_id}, (err, classe)=>{
           if(err) callBack(err);
           if(classe) thisStudent.classe=class_prefix+classe.name.toUpperCase();
-          else thisStudent.classe='No class assigned'
-          console.log('Classe name: '+thisStudent.classe)
+          else thisStudent.classe='Finalist'
+          // console.log('Classe name: '+thisStudent.classe)
           callBack(null);
         })
       },(err)=>{
@@ -911,7 +911,7 @@ exports.getSchoolData = (req,res,next)=>{
         cb4(null);
       })
     },(cb5)=>{
-      User.count({school_id:req.params.school_id,access_level:req.app.locals.access_level.STUDENT},(err,num_students)=>{
+      User.count({school_id:req.params.school_id,access_level:req.app.locals.access_level.STUDENT, class_id:{$ne:null}},(err,num_students)=>{
         if(err) return cb5(err);
         theData[0].list.push({type:'Students',number:num_students,url:'/school.students/'+req.user.school_id,icon:'person'})
         response.num_students =num_students;

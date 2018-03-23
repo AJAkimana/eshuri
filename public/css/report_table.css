@@ -4,28 +4,42 @@
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
 }
+.report-border{
+  border-right: 3px solid #cdd0d4;
+  border-top: 2px solid #cdd0d4;
+}
+.report-brd-right{
+  border-right: 3px solid #cdd0d4;
+}
 .report-th{
   font-weight: bold;
   text-align:center;
 }
+/*It was as the same as this one .report-td-name .report-td*/
 .align-lft{
   font-weight: bold; 
   background: #e3e7ed; 
   text-align:left;
 }
-.report-td{
-  font-weight: bold; 
-  background: #e3e7ed; 
+.report-bord{
+  font-weight: bold;
+}
+/**/
+.align-lft-no-bg{
+  font-weight: bold;
   text-align:left;
+}
+.report-td-cond{
+  text-align:center;
+  font-weight: bold;
+  background: #CCC
+}
+.u-echec{
+  color:red;
 }
 .report-td-pct{
   font-weight: bold;
   background: #CCC
-}
-.report-td-name{
-  font-weight: bold; 
-  background: #e3e7ed; 
-  text-align:left;
 }
 .set-height td {
   position: relative;

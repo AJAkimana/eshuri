@@ -23,12 +23,17 @@ block append content
                   h4.card-title.text-center.text-info
                     strong Complete the required parameters to generate the report
                   .row
-                    .col-md-2
-                      .form-group.label-floating
-                        label.control-label Choose the class
-                        select.form-control(required="true",ng-model="selectClass",ng-change="getAcademicYearsList()")
-                          option(value="", disabled selected)
-                          option(value="{{class._id}}", ng-repeat="class in ClassList", ng-bind="class.name|uppercase|toClasseName")
+                    if (access==3)
+                      .col-md-12
+                        h3.card-title.text-center.text-danger(ng-show="error")
+                          strong Sorry, your class does not have marks to present on report
+                    if access!==3
+                      .col-md-2
+                        .form-group.label-floating
+                          label.control-label Choose the class
+                          select.form-control(required="true",ng-model="selectClass",ng-change="getAcademicYearsList()")
+                            option(value="", disabled selected)
+                            option(value="{{class._id}}", ng-repeat="class in ClassList", ng-bind="class.name|uppercase|toClasseName")
                     .col-md-2
                       .form-group.label-floating
                         label.control-label Choose the academic year
@@ -160,6 +165,7 @@ block append scripts
       $scope.studentMark = [];
       $scope.qTest=0,$scope.qExam=0,$scope.qtotal=0,$scope.testT1=0,$scope.ExamT1=0,$scope.totalT1=0,$scope.testT2=0,$scope.ExamT2=0,$scope.totalT2=0,$scope.testT3=0,$scope.ExamT3=0,$scope.totalT3=0,$scope.yQuotaTotal=0,$scope.mQuotaTotal=0;
       $scope.getAcademicYearsList = function(){
+        if('#{access}'==='3') $scope.selectClass='#{teacher_class}';
         $http
         .get("/class.academic_years/"+$scope.selectClass)
         .then(function(response){
@@ -167,6 +173,9 @@ block append scripts
           //console.log($scope.academic_years)
         })
         .catch(function(erreur){
+          if('#{access}'==='3'){ 
+            $scope.error=true;
+          }
           Notifier.danger(erreur.data)
         });        
       }
@@ -294,12 +303,12 @@ block append scripts
             if(!$scope.termMarks.length)
               return Notifier.danger("There is no END OF TERM marks to save");
             else if($scope.print_student_report){
-              return Notifier.danger("Report is not complete");
+              //- return Notifier.danger("Report is not complete");
               for(var i=0;i<$scope.termMarks.length;i++){
                 if($scope.termMarks[i].id==$scope.student_name)
                   file_name=$scope.termMarks[i].name;
               }
-              field_to_print="term-student-report";
+              field_to_print="student-report-one";break;
             }
             else
               file_name=c_name+"("+name_term+$scope.choosen_term+")";
@@ -548,6 +557,10 @@ block append scripts
       $scope.school_pob="#{school_pob}";
       $scope.loading = false;
       $scope.midMarks = [];$scope.studentsMark = [];$scope.termMarks = [];
-      $scope.y_report_one=false;$scope.y_report_all=false;$scope.mt_report=false;$scope.term_report_all=false;$scope.term_report_one=false,$scope.print_student_report=false;
+      $scope.y_report_one=false;$scope.y_report_all=false;$scope.mt_report=false;$scope.term_report_all=false;$scope.term_report_one=false,$scope.print_student_report=false;$scope.error;
+      if('#{access}'==='3'){
+        $scope.getAcademicYearsList();
+        $scope.selectClass='#{teacher_class}';
+      }
       $scope.getClassList();
     }])

@@ -11,15 +11,16 @@ const Content =require('../models/Content'),
 	  log_err=require('./manage/errorLogger');
 
 exports.getPageReport = function(req,res,next){
-	var accLvl = req.user.access_level;
-	var student=req.app.locals.access_level.STUDENT;
-	var admin=req.app.locals.access_level.ADMIN;
-	var adminteacher=req.app.locals.access_level.ADMIN_TEACHER;
+	var accLvl = req.user.access_level,
+		student=req.app.locals.access_level.STUDENT,
+		admin=req.app.locals.access_level.ADMIN,
+		adminteacher=req.app.locals.access_level.ADMIN_TEACHER;
+		teacher=req.app.locals.access_level.TEACHER;
 
 	//var thisUser='';
 
 	School.findOne({_id:req.user.school_id},(err,school_exists)=>{
-		if(err)return log_err(err,false,req,res);
+		if(err) return res.render("./lost",{msg:"Invalid data"});
 		else if(!school_exists) return res.render("./lost",{msg:"Invalid data"})
 		if(accLvl==student){
 			return res.render('me/report2',{
@@ -29,18 +30,23 @@ exports.getPageReport = function(req,res,next){
 				csrf_token:res.locals.csrftoken, // always set this buddy
 			});
 		}
-		if(accLvl>=admin||accLvl<=adminteacher){
-			return 	res.render('me/mark_report',{
-				title:"General marks",
-				school_id:req.user.school_id,
-				school_name:school_exists.name,
-				district:school_exists.district_name,
-				telephone:school_exists.contact.telephone,
-				po_code:school_exists.contact.postal_code,
-				school_pob:school_exists.contact.postal_code,
-				pic_id:req.user._id,pic_name:req.user.name,access_lvl:req.user.access_level,
-				csrf_token:res.locals.csrftoken, // always set this buddy
-			});
+		if(accLvl<=teacher){
+			Classe.findOne({school_id:school_exists._id, class_teacher:req.user._id}, (err, classinfo)=>{
+				if(err) return res.render("./lost",{msg:"Invalid data"});
+				else if(accLvl===teacher&&!classinfo) return res.render("./lost",{msg:"Sorry, It seems like you don't have any class as CLASSTEACHER. Please contact you admin to assign to it"});
+				return res.render('me/mark_report',{
+					title:"General marks",
+					school_id:req.user.school_id,
+					school_name:school_exists.name,
+					district:school_exists.district_name,
+					teacher_class:classinfo._id,
+					telephone:school_exists.contact.telephone,
+					po_code:school_exists.contact.postal_code,
+					school_pob:school_exists.contact.postal_code,
+					pic_id:req.user._id,pic_name:req.user.name,access_lvl:req.user.access_level,
+					csrf_token:res.locals.csrftoken, // always set this buddy
+				});
+			})
 		}
 	})
 }
