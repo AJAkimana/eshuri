@@ -33,13 +33,16 @@ exports.getPageReport = function(req,res,next){
 		if(accLvl<=teacher){
 			Classe.findOne({school_id:school_exists._id, class_teacher:req.user._id}, (err, classinfo)=>{
 				if(err) return res.render("./lost",{msg:"Invalid data"});
-				else if(accLvl===teacher&&!classinfo) return res.render("./lost",{msg:"Sorry, It seems like you don't have any class as CLASSTEACHER. Please contact you admin to assign to it"});
+				else if(accLvl===teacher) {
+					if(!classinfo) return res.render("./lost",{msg:"Sorry, It seems like you don't have any class as CLASSTEACHER. Please contact you admin to assign to it"});
+				}
+				var classId=classinfo?classinfo._id:null;
 				return res.render('me/mark_report',{
 					title:"General marks",
 					school_id:req.user.school_id,
 					school_name:school_exists.name,
 					district:school_exists.district_name,
-					teacher_class:classinfo._id,
+					teacher_class:classId,
 					telephone:school_exists.contact.telephone,
 					po_code:school_exists.contact.postal_code,
 					school_pob:school_exists.contact.postal_code,
