@@ -73,6 +73,7 @@ block append content
                             th.text-center #
                             th Tests 
                             th Type
+                            th Ac year
                             th Is Considered
                             th Student average
                             th Total marks
@@ -82,6 +83,7 @@ block append content
                               td(width="1%" height="1%") {{$index + 1}}
                               td: a(href="/content.do.{{test.type|toLink}}/{{test._id}}") {{test.title | uppercase}}
                               td {{test.type|toTypeName}}
+                              td {{test.academic_year}}
                               td.text-center: a.btn-simple.btn.label.btn-rose(ng-click="setQuoted(test._id)")
                                 i.material-icons {{test.isQuoted|toQuote}}
                               td.text-center: a.btn-simple.btn.label.btn-rose {{(test.__v* test.marks/100).toFixed(1)}}
@@ -113,6 +115,7 @@ block append content
                           th.text-center #
                           th Exams
                           th Type
+                          th Ac year
                           th Is considered
                           th Student average
                           th Total Marks
@@ -122,6 +125,7 @@ block append content
                             td(width="1%" height="1%") {{$index + 1}}
                             td: a(href="/content.do.{{exam.type|toLink}}/{{exam._id}}") {{exam.title | uppercase}}
                             td {{exam.type|toTypeName}}
+                            td {{exam.academic_year}}
                             td.text-center: a.btn-simple.btn.label.btn-rose(ng-click="setQuoted(exam._id)")
                               i.material-icons {{exam.isQuoted|toQuote}}
                             td.text-center: a.btn-simple.btn.label.btn-rose {{(exam.__v*exam.marks/100).toFixed(1)}}
