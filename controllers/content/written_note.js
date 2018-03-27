@@ -86,7 +86,7 @@ exports.get_Content_JSON = (req,res,next)=>{
   if(req.user.access_level >= req.app.locals.access_level.STUDENT){
     Content
     .find({unit_id:req.body.unit_id,school_id:req.user.school_id,isPublished:true},
-      {__v:0,isCAT:0,source_question:0,course_id:0,school_id:0,unit_id:0,owner_URN:0,answers:0,time:0,academic_year:0})
+      {__v:0,source_question:0,course_id:0,school_id:0,unit_id:0,owner_URN:0,answers:0,time:0,academic_year:0})
     .sort({upload_time:1})
     .exec((err,content_list)=>{
       if(err) return log_err(err,false,req,res);
@@ -96,7 +96,7 @@ exports.get_Content_JSON = (req,res,next)=>{
   else{
     Content
       .find({unit_id:req.body.unit_id,school_id:req.user.school_id,},
-        {__v:0,isCAT:0,source_question:0,course_id:0,school_id:0,unit_id:0,owner_URN:0,answers:0,time:0,academic_year:0})
+        {__v:0,source_question:0,course_id:0,school_id:0,unit_id:0,owner_URN:0,answers:0,time:0,academic_year:0})
       .sort({upload_time:1})
       .exec((err,content_list)=>{
         if(err) return log_err(err,false,req,res);
