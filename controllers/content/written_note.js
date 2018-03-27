@@ -286,7 +286,7 @@ exports.getListContentPerCourse = (req,res,next)=>{
             (callback)=>{
               Content
               .find({course_id:req.params.course_id,type:{$gte:3,$lte:6}},
-                {source_question:0,course_id:0,school_id:0,unit_id:0,owner_URN:0,answers:0,time:0,academic_year:0,
+                {source_question:0,course_id:0,school_id:0,unit_id:0,owner_URN:0,answers:0,time:0,
                   isPublished:0,updatedAt:0,q_solution:0,q_info:0
                 })
               .sort({isQuoted:-1})
