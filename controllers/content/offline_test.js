@@ -178,7 +178,7 @@ exports.getPageOfflineStudents = (req,res,next)=>{
               ,(err,listStudents)=>{
               if(err) return callback("Service not available");
               completeList = listStudents;
-              console.log(" I have list "+JSON.stringify(listStudents))
+              // console.log(" I have list "+JSON.stringify(listStudents))
               return callback(null);
             }).sort({name:1})
           },
@@ -191,7 +191,7 @@ exports.getPageOfflineStudents = (req,res,next)=>{
               (err,list2)=>{
                 if(err) return callback("Service not available");
                 studentsAlready = list2;
-                console.log("BUT ----_______________"+JSON.stringify(list2))
+                // console.log("BUT ----_______________"+JSON.stringify(list2))
                 return callback(null);
             })
           },
@@ -208,9 +208,6 @@ exports.getPageOfflineStudents = (req,res,next)=>{
   })
 }
 exports.setMarksStudent = (req,res,next)=>{
-	/*content_id:$scope.content_id
-					student_id:student_id,student_marks:student_marks
-				})*/
   req.assert('content_id', 'Invalid data').isMongoId();
   req.assert('student_id', 'Invalid data').isMongoId();
   req.assert('student_marks', 'Invalid marks').isFloat();

@@ -3,6 +3,7 @@
     .card-header
       //- i.material-icons report
       button.btn.btn-label.pull-left(ng-click="showTermDivs()") Go back
+      //- button.btn.btn-simple.btn-primary.pull-right(ng-click="printRepo('student-report-one')") Print report
     .card-content#student-report-one
       .col-md-12
         .box
@@ -23,10 +24,10 @@
                         br
                         span {{'#{school_name}'|uppercase}}
                         br
-                        | Tel: 
+                        | Tel:&nbsp
                         span #{telephone}
                         br
-                        | POB.:
+                        | POB.:&nbsp
                         span {{'#{po_code}'|uppercase}}
                     .col-xs-2.col-sm-2.col-md-2.col-lg-2
                       img.pull-right(src="/pp.view/"+student_name, alt="Image")
@@ -41,7 +42,7 @@
                 td(colspan='2', style='text-align:left;')
                   .col-md-12
                     center
-                      strong Academic Year 
+                      strong Academic Year&nbsp 
                         span(ng-bind="choosen_year|toNormal")
               tr
                 td(colspan='2', align='left',style="text-align:left;")

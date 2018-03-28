@@ -182,38 +182,37 @@ block append scripts
       $scope.changeQuota = function(){
         if(!$scope.exam_quota ||!$scope.test_quota ||!$scope.course_weight) return;
         swal({
-            title: 'Exams on <span class="text-success">'+$scope.exam_quota+'</span>, CATs on <span class="text-success">'+$scope.test_quota+'</span> then <span class="text-info">'+angular.uppercase(course_name)+'</span> is weigthed <span class="text-success">'+$scope.course_weight+'</span>?',
-            //text: "This will impact marks!",
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonClass: 'btn btn-success',
-            cancelButtonClass: 'btn btn-danger',
-            confirmButtonText: 'Yes, i approve it!',
-            buttonsStyling: false
-          }).then(function(){
-              $http
-            .post("/course.update.quota",{
-              _csrf:$scope.anti_csrf,
-              course_id :$scope.course_id,
-              test_quota:$scope.test_quota,
-              exam_quota:$scope.exam_quota,
-              course_weight:$scope.course_weight,
-            })
-            .then(function(response){
-              $scope.test_quota_old =response.data.test_quota;
-              $scope.exam_quota_old =response.data.exam_quota;
-              $scope.course_weight_old =response.data.course_weight;
-              $scope.edit_show=false;
-              $scope.test_quota=null;
-              $scope.exam_quota=null;
-              $scope.course_weight=null;
-              Notifier.success("Quotas has been updated."+$scope.test_quota_old)
-            })
-            .catch(function(erreur){
-              Notifier.danger(erreur.data)
-            });
+          title: 'Exams on <span class="text-success">'+$scope.exam_quota+'</span>, CATs on <span class="text-success">'+$scope.test_quota+'</span> then <span class="text-info">'+angular.uppercase(course_name)+'</span> is weigthed <span class="text-success">'+$scope.course_weight+'</span>?',
+          //text: "This will impact marks!",
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonClass: 'btn btn-success',
+          cancelButtonClass: 'btn btn-danger',
+          confirmButtonText: 'Yes, i approve it!',
+          buttonsStyling: false
+        }).then(function(){
+            $http
+          .post("/course.update.quota",{
+            _csrf:$scope.anti_csrf,
+            course_id :$scope.course_id,
+            test_quota:$scope.test_quota,
+            exam_quota:$scope.exam_quota,
+            course_weight:$scope.course_weight,
+          })
+          .then(function(response){
+            $scope.test_quota_old =response.data.test_quota;
+            $scope.exam_quota_old =response.data.exam_quota;
+            $scope.course_weight_old =response.data.course_weight;
+            $scope.edit_show=false;
+            $scope.test_quota=null;
+            $scope.exam_quota=null;
+            $scope.course_weight=null;
+            Notifier.success("Quotas has been updated."+$scope.test_quota_old)
+          })
+          .catch(function(erreur){
+            Notifier.danger(erreur.data)
           });
-             
+        });      
       }
       $scope.updateListTests = function(){
         $http

@@ -52,6 +52,9 @@ block append content
                         input(type="radio",ng-model="report_type", value="is_midterm")
                         | Mid-Term 
                       label.radio-inline
+                        input(type="radio",ng-model="report_type", value="is_term_sum")
+                        | Term Summary
+                      label.radio-inline
                         input(type="radio",ng-model="report_type", value="is_term")
                         | End of Term
                       //- label.radio-inline
@@ -61,6 +64,7 @@ block append content
                       button.btn.btn-info.center(ng-click="getPrintedReport(print_name)") Save pdf
             include partials/end_term_all
             include partials/end_term_one
+            include partials/term_sumary
             include partials/mid_term
             include partials/view_yearly_one
             include partials/view_yearly_all
@@ -187,11 +191,43 @@ block append scripts
         $scope.print_student_report=false;
       }
       $scope.printRepo = function (divName) {
-        var printContents = document.getElementById(divName).innerHTML;
-        var originalContents = document.body.innerHTML;
-        document.body.innerHTML = printContents;
-        window.print();
-        document.body.innerHTML = originalContents;
+        // Opera 8.0+
+        var isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+        // Firefox 1.0+
+        var isFirefox = typeof InstallTrigger !== 'undefined';
+        // Safari 3.0+ "[object HTMLElementConstructor]" 
+        var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
+        // Internet Explorer 6-11
+        var isIE = /*@cc_on!@*/false || !!document.documentMode;
+        // Edge 20+
+        var isEdge = !isIE && !!window.StyleMedia;
+        // Chrome 1+
+        var isChrome = !!window.chrome && !!window.chrome.webstore;
+        // Blink engine detection
+        var isBlink = (isChrome || isOpera) && !!window.CSS;
+        if(isChrome||isBlink){
+          var printContents = document.getElementById(divName).innerHTML;
+          var originalContents = document.body.innerHTML;
+          document.body.innerHTML = printContents;
+          window.print();
+          //- document.body.innerHTML = originalContents;
+        }
+        else{
+         swal({
+            title: 'Save As PDF',
+            html: 'Sorry the browser you are using is not supporting BROWSER PRINT<br>'+
+                  'Change the browser or <i style="color:green">Save as pdf</i>',
+            showCancelButton: true,
+            confirmButtonClass: 'btn btn-success',
+            cancelButtonClass: 'btn btn-danger',
+            confirmButtonText: 'Yes, Save as pdf!',
+            buttonsStyling: false
+          }).then(function(result) {          
+            $scope.getPrintedReport($scope.print_name);
+          }).catch(swal.noop)
+        } 
+
+          //- Notifier.danger('Sorry, this print is for Google Chrome. Save as pdf instead')
       }
       $scope.getClassList = function(){
         $http
@@ -217,16 +253,53 @@ block append scripts
       $scope.getAllStudentsReport = function(){
         switch($scope.report_type){
           case "is_midterm":
-            $scope.mt_report=true;$scope.y_report_one=false;$scope.y_report_all=false;$scope.term_report_all=false;$scope.term_report_one=false;
+            $scope.mt_report=true;$scope.y_report_one=false;$scope.y_report_all=false;$scope.term_report_all=false;$scope.term_report_one=false;$scope.term_sumary=false;
             $scope.midTermMarks(); break;
+          case "is_term_sum":
+            $scope.term_sumary=true;$scope.term_report_all=false;$scope.mt_report=false;$scope.y_report_one=false;$scope.y_report_all=false;$scope.term_report_one=false;
+            $scope.termSumaryMarks();break;
           case "is_term":
-            $scope.term_report_all=true;$scope.mt_report=false;$scope.y_report_one=false;$scope.y_report_all=false;$scope.term_report_one=false;
+            $scope.term_report_all=true;$scope.mt_report=false;$scope.y_report_one=false;$scope.y_report_all=false;$scope.term_report_one=false;$scope.term_sumary=false;
             $scope.termClassMarks(); break;
           case "is_yearly":
-            $scope.y_report_all=true;$scope.term_report_all=false;$scope.mt_report=false;$scope.y_report_one=false;$scope.term_report_one=false;
+            $scope.y_report_all=true;$scope.term_report_all=false;$scope.mt_report=false;$scope.y_report_one=false;$scope.term_report_one=false;$scope.term_sumary=false;
             $scope.yearlyClassMarks(); break;
           default: Notifier.danger("Select report type");
         }      
+      }
+      $scope.termSumaryMarks = function(){
+        $scope.loading = true;
+        $scope.termSumary = [];$scope.keys=[];
+        $http
+        .post('/report.termSum',{academic_year:$scope.choosen_year,class_id:$scope.selectClass,term:$scope.choosen_term})
+        .then(function(res){
+          $scope.loading = false;
+          var response = res.data;
+          $scope.classename = response.classe_name;
+          $scope.print_name = response.classe_name;
+          $scope.termSumary = response.students;
+          //- for (var i=0; i<response.students.length; i++){
+          //-   av_pct = (response.students[i].marks*100)/response.students[0].total;
+          //-   $scope.midMarks.push({
+          //-     name:response.students[i].name,
+          //-     courses:response.students[i].courses,
+          //-     marks:response.students[i].marks.toFixed(1),
+          //-     pct:av_pct.toFixed(1)+'%',
+          //-     echecs:response.students[i].echecs,
+          //-     total:response.students[i].total
+          //-   })
+          //- }
+          /*This will flatten the JSON structure and creates the data for the pivot table that is required for HTML table*/
+          $scope.termSumary.forEach(function(sheet){
+            sheet.courses.forEach(function(course) {
+              //- var is_echec=(course.points>=(course.outof/2))?false:true
+              //- is_echec?'<u style="color:red;">'+course.points.toFixed(1)+'</u>':
+              sheet[course.name] =course.points.toFixed(1);
+            });
+          });
+          /*This forms the header for the table - to be used in <th>*/
+          $scope.keys = Object.keys($scope.termSumary[0]);
+        })
       }
       $scope.midTermMarks = function(){
         $scope.loading = true;
@@ -313,6 +386,13 @@ block append scripts
             else
               file_name=c_name+"("+name_term+$scope.choosen_term+")";
               field_to_print="endof-term-report";
+              break;
+          case "is_term_sum":
+            if(!$scope.termSumary.length)
+              return Notifier.danger("There is no class marks to save");
+            else
+              file_name=c_name+"(Term"+$scope.choosen_term+")";
+              field_to_print = "term-report";
               break;
           case "is_yearly": 
             if(!$scope.studentsMark.length) 
@@ -556,8 +636,8 @@ block append scripts
       $scope.school_phone="#{school_phone}";
       $scope.school_pob="#{school_pob}";
       $scope.loading = false;
-      $scope.midMarks = [];$scope.studentsMark = [];$scope.termMarks = [];
-      $scope.y_report_one=false;$scope.y_report_all=false;$scope.mt_report=false;$scope.term_report_all=false;$scope.term_report_one=false,$scope.print_student_report=false;$scope.error;
+      $scope.midMarks = [];$scope.studentsMark = [];$scope.termMarks = [];$scope.termSumary = [];
+      $scope.term_sumary=false;$scope.y_report_one=false;$scope.y_report_all=false;$scope.mt_report=false;$scope.term_report_all=false;$scope.term_report_one=false,$scope.print_student_report=false;$scope.error;
       if('#{access}'==='3'){
         $scope.getAcademicYearsList();
         $scope.selectClass='#{teacher_class}';

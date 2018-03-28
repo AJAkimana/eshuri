@@ -517,166 +517,97 @@ exports.getSumTermMarks = (req, res, next)=>{
 	req.assert('class_id', 'Invalid data').isMongoId();
 	req.assert('academic_year', 'Invalid data').isInt();
 	req.assert('term', 'Invalid data').isInt();
-
 	const errors = req.validationErrors();
 	if (errors) return res.status(400).send(errors[0].msg);
-
 	var async = require("async");
-	var students = [],marks = {}, mixed = [], ordered = [],objectMark = {}, parametters={};
-	var outTextMarks=0, outExamMarks=0, outTotal=0;
+	var students = [],marks = {}, mixed = [], ordered = [],objectMark = {}, parametters={}, stdt_courses=[];
+	var outMarks = 0, total=0;
 	var index_user;
-	// Get class infomation
+
 	Classe.findOne({_id:req.body.class_id},(err, classe_info)=>{
 		if(err) return log_err(err,false,req,res);
 		else if(!classe_info) return log_err(err,false,req,res);
 		marks.classe_name = classe_info.name;
 		marks.students = [];
 		if(req.body.academic_year==classe_info.academic_year) parametters={class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT};
-		else parametters={prev_classes:req.body.class_id, access_level:req.app.locals.access_level.STUDENT};
-	//""""""""""""""""""//
-	//"""""" STart """""//
-	//""""""""""""""""""//
-	// 1--Get all students
-		async.series([(getClassStudents_Cb)=>{
+		else parametters={prev_classes:req.body.class_id, access_level:req.app.locals.access_level.STUDENT}
+		async.series([(callBack_getStudentList)=>{
 			User.find(parametters, {_id:1,name:1,class_id:1, URN:1},(err, this_class_students)=>{
-				if(err) return getClassStudents_Cb(err);
+				if(err) return callBack_getStudentList(err);
 				students = this_class_students;
-				return getClassStudents_Cb(null);
+				return callBack_getStudentList(null);
 			})
-		},(eachStudent_Cb=>{
-	// 2--Get courses for every students
-			async.each(students, (thisStudent, student_Cb)=>{
-				var markCat=0,markExam=0,markCatOutOf=0,markExamOutOf=0;
+		},(callBack_treatEachStudents)=>{
+			async.each(students, (thisStudent, studentCb)=>{
 				mixed.push({name:thisStudent.name, urn:thisStudent.URN, courses:[]})
-				async.series([(getStudentCourses_Cb)=>{
-					Course.find({class_id:req.body.class_id,currentTerm:req.body.term,name:{$ne:'conduite'}},(err,list_Courses)=>{
-						if(err) return getStudentCourses_Cb(err);
-						listCourses =list_Courses;
-						getStudentCourses_Cb(null);
+				var listAssessmts = [],listCourses=[];
+				async.series([(Cb_getCourses)=>{
+					Course.find({class_id:req.body.class_id, currentTerm:req.body.term, name:{$ne:'conduite'}},(err, clsCourses)=>{
+						if(err) return Cb_getCourses(err);
+						listCourses = clsCourses;
+						return Cb_getCourses(null);
 					})
-				},(treatEachCoaurse_Cb)=>{
+				},(Cb_eachCourses)=>{
 					var courseMrks=0, courseWgt=0, echecs=0, avg_marks=0;
-					async.each(listCourses, (thisCourse, course_Cb)=>{
-						var listCATs=[],listExams=[];
-	// 3-- Get quizzes and Exams for every courses
-						async.series([(catAndExamContents_Cb)=>{
-							async.parallel([(cat_Cb)=>{
-								Marks.find().distinct("content_id",{class_id:req.body.class_id, student_id:thisStudent._id,isQuoted:true, academic_year:req.body.academic_year,course_id:thisCourse._id,isCAT:true},
-								(err,list_CAT)=>{
-									 if(err) return cat_Cb(err);
-									 listCATs=list_CAT;
-									 return cat_Cb(null);
-								}) 
-							},(exam_Cb)=>{
-								Marks.find().distinct("content_id",{class_id:req.body.class_id, student_id:thisStudent._id,isQuoted:true, academic_year:req.body.academic_year,course_id:thisCourse._id,isCAT:false},
-								(err,list_exams)=>{
-									 if(err) return exam_Cb(err);
-									 listExams=list_exams;
-									 return exam_Cb(null);
-								}) 
-							}],(err)=>{
-								if(err) return catAndExamContents_Cb(err);
-								return catAndExamContents_Cb(null)
+					async.each(listCourses, (thisCourse, courseCb)=>{
+						async.series([(Cb_getAssessments)=>{
+							Marks.find().distinct("content_id", {class_id:req.body.class_id,course_id:thisCourse._id,student_id:thisStudent._id,isQuoted:true,academic_year:req.body.academic_year},(err, student_assmnts)=>{
+								if(err) return Cb_getAssessments(err);
+								listAssessmts = student_assmnts;
+								return Cb_getAssessments(null);
 							})
-						},(catAndExamMarks)=>{
-							var studentCATMarks =0,studentExamMarks=0,totalCAT=0,totalExam=0;
-							async.parallel([(catMarks_Cb)=>{
-								async.each(listCATs, (thisCat, cat__Cb)=>{
-									Content.findOne({_id:thisCat},(err,currentMark)=>{
-										if(err) return cat__Cb(err);
-										Marks.findOne({content_id:thisCat,student_id:thisStudent._id},(err,marksCAT)=>{
-											if(err) return cat__Cb(err);
-	//--- Calculate test marks from percent to actual marks ---//
-											var amanota =(marksCAT.percentage*currentMark.marks)/100;
-											studentCATMarks+= amanota>0? amanota:0;
-											totalCAT+= currentMark.marks>0?currentMark.marks:0;
-											cat__Cb(null);
-										})
+						},(Cb_getMarksFromAssmnts)=>{
+							var totalAssmnts = 0, totalMarks = 0;
+							async.each(listAssessmts, (thisList, list_callBack)=>{
+								Content.findOne({_id:thisList}, (err, assmntMarks)=>{
+									if(err) return list_callBack(err);
+									Marks.findOne({content_id:thisList, student_id:thisStudent._id},(err, mark)=>{
+										if(err) return list_callBack(err);
+										var overMarks = (mark.percentage*assmntMarks.marks)/100;
+										totalAssmnts += (overMarks>0)?overMarks:0;
+										totalMarks += assmntMarks.marks>0?assmntMarks.marks:0;
+										return list_callBack(null)
 									})
-								},(err)=>{
-									if(err) return catMarks_Cb(err);
-									return catMarks_Cb(null);
 								})
-							},(examMarks_Cb)=>{
-								async.each(listExams, (thisExam, exam__Cb)=>{
-									Content.findOne({_id:thisExam},(err,currentMark)=>{
-										if(err) return exam__Cb(err);
-										Marks.findOne({content_id:thisExam,student_id:thisStudent._id}
-											,(err,marksExam)=>{
-											if(err) return exam__Cb(err);
-	//--- Calculate Exam marks from percent to actual marks ---//
-											var amanota =(marksExam.percentage*currentMark.marks)/100;
-											studentExamMarks+= amanota>0? amanota:0;
-											totalExam+= currentMark.marks>0?currentMark.marks:0;
-											exam__Cb(null);
-										});
-									})
-								},(err)=>{
-									return examMarks_Cb(null);
-								})
-							}],(err)=>{
-								if(err) return catAndExamMarks(err);
-	// 4--Sum up marks from tests and quizzes of every courses
-								var testWeight = thisCourse.test_quota>0?thisCourse.test_quota:0;
-								var examWeight = thisCourse.exam_quota>0?thisCourse.exam_quota:0;
-								var courseWeight = !thisCourse.weightOnReport ? testWeight+examWeight : thisCourse.weightOnReport;
-
-								var noteCat=(studentCATMarks*testWeight)/totalCAT;
-								var noteExam =(studentExamMarks*examWeight)/totalExam;
-								noteCat =noteCat>0?noteCat:0;
-								noteExam =noteExam>0?noteExam:0;
-								var cat_exam = noteCat+noteExam;
-								markCat += noteCat;
-								markExam += noteExam;
-								markCatOutOf += testWeight;
-								markExamOutOf += examWeight;
-
+							},(err)=>{
+								if(err) Cb_getMarksFromAssmnts(err);
 								index_user=mixed.findIndex(x=>x.urn==thisStudent.URN);
-								mixed[index_user].courses.push({name:Util.getShort(thisCourse.name,3)+' /'+courseWeight,points:cat_exam,outof:courseWeight})
-								courseMrks+=cat_exam;
-								courseWgt+=courseWeight;
-
-								return catAndExamMarks(null);
+								mixed[index_user].courses.push({name:Util.getShort(thisCourse.name,3)+' /'+totalMarks,points:totalAssmnts,outof:totalMarks})
+								courseMrks+=totalAssmnts;
+								courseWgt+=totalMarks
+								return Cb_getMarksFromAssmnts(null);
 							})
 						}],(err)=>{
-							if(err) return course_Cb(err);
-							return course_Cb(null);
+							if(err) courseCb(err)
+							avg_marks = (courseMrks*100)/courseWgt;
+							if(avg_marks<50){
+								echecs++
+							}
+							// console.log(thisStudent.name+'=====In==:'+thisCourse.name+'==>Marks:'+courseMrks+'/'+courseWgt+'. ---->Avg:'+avg_marks.toFixed(1))
+							return courseCb(null);
 						})
 					},(err)=>{
-						if(err) return treatEachCoaurse_Cb(err);
-						return treatEachCoaurse_Cb(null);
+						if(err) Cb_eachCourses(err)
+						var pct = courseMrks*100/courseWgt;
+						mixed[index_user].marks=courseMrks;
+						mixed[index_user].total=courseWgt;
+						mixed[index_user].pct=pct.toFixed(1);
+						mixed[index_user].echecs=echecs
+						// console.log('Marks:'+courseMrks+'/'+courseWgt)
+						return Cb_eachCourses(null);
 					})
 				}],(err)=>{
-					if(err) return student_Cb(err);
-	// 5--Save every students marks into array
-					var totalMarks = markCat + markExam;
-					var totalQuota = markCatOutOf + markExamOutOf;
-					var perctg = totalMarks*100/totalQuota;
-					outTextMarks = markCatOutOf;
-					outExamMarks = markExamOutOf;
-					outTotal = totalQuota;
-
-					var marksTot = 'marks /'+totalQuota;
-					mixed[index_user][marksTot]=totalMarks.toFixed(1);
-					mixed[index_user].pct=perctg.toFixed(1);
-
-					return student_Cb(null)
+					if(err) return studentCb(err)
+					return studentCb(null);
 				})
 			},(err)=>{
-				if(err) return eachStudent_Cb(err);
-				return eachStudent_Cb(null)
+				if(err) return callBack_treatEachStudents(err)
+				return callBack_treatEachStudents(null)
 			})
-		})],(err)=>{
+		}],(err)=>{
 			if(err) return log_err(err,false,req,res);
-			// console.log('Marks----->'+JSON.stringify(mixed));
-			// marks.students = mixed.sort(endTermPlaces) // Sort by 1 to n
-			marks.students = mixed.sort(termPlaces);
-			marks.test_q = outTextMarks; 
-			marks.exam_q = outExamMarks;
-			marks.total_q = outTotal;
-			marks.term = req.body.term;
-	// 6-- Return marks json
-			// console.log(JSON.stringify(marks))
+			marks.students = mixed.sort(midTermPlaces)
+			// console.log('Students:===>'+JSON.stringify(marks))
 			return res.json(marks);
 		})
 	})
@@ -1385,7 +1316,4 @@ function midTermPlaces(a, b) {
 }
 function endTermPlaces(a, b) {
 	return b.total - a.total;
-}
-function termPlaces(a, b) {
-	return b.pct - a.pct;
 }

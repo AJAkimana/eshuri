@@ -1070,8 +1070,7 @@ exports.getUsersSchool = (req,res,next)=>{
           thisUser.unReads = msg_number;
           if(msg_number>0) thisUser.hasMsg = true;
           else thisUser.hasMsg = false;
-
-          console.log(msg_number+'<------------NAME: '+thisUser.name+'--UN-READ: '+thisUser.unReads+'--HAS MSG: '+thisUser.hasMsg)
+          // console.log(msg_number+'<------------NAME: '+thisUser.name+'--UN-READ: '+thisUser.unReads+'--HAS MSG: '+thisUser.hasMsg)
           userCallBack();
         })
       }, (err)=>{

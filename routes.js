@@ -488,10 +488,11 @@ module.exports = function(app) {
 	app .get('/chart',isAuthenticated, marksController.getPageChart);
 	app .get('/report/:student_id',isAuthenticated, marksController.getPageReportUniversity);
 	app.post('/report.university',isAuthenticated,marksController.getReport_JSON);
-	//Akimanaprint report
+	//Akimanaprint report report.termSum getSumTermMarks
 	app.post('/report.one',isAuthenticated,marksController.getFullReportOneStudent);
 	app.post('/report.all',isAuthenticated,marksController.getFullReportAllStudent);
 	app.post('/report.midterm', isAtLeastTeacher, marksController.getMidTermMarks);
+	app.post('/report.termSum', isAtLeastTeacher, marksController.getSumTermMarks);
 	app.post('/report.endterm', isAtLeastTeacher, marksController.getEndTermMarks);
 	app.post('/get.general.class.marks',isAuthenticated,marksController.getClassMarks);
 	//new administration report

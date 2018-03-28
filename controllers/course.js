@@ -238,7 +238,7 @@ exports.getPageEditQuota = (req,res,next)=>{
   const errors = req.validationErrors();
   if (errors)  return res.render("./lost",{msg:errors[0].msg})
   Course.findOne({_id:req.params.course_id},(err,course_exists)=>{
-    if(err) return log_err(err,true,req,res);
+    if(err) return res.render("./lost",{msg:"Oops! Service not available"})
     else if(!course_exists) return res.render("./lost",{msg:"Sorry this course doesn't exists"});
     else if(course_exists.teacher_list.indexOf(String(req.user._id)) ==-1)// the course not yours
         return res.render("./lost",{msg:"Sorry, this course doesn't belong to you"})
