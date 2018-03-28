@@ -80,7 +80,6 @@ exports.getReportPageToTeacher=(req, res, next)=>{
 			csrf_token:res.locals.csrftoken, // always set this buddy
 		});
 		})
-		
 	})
 }
 exports.getPageReportUniversity = function(req,res,next){
@@ -658,7 +657,8 @@ exports.getSumTermMarks = (req, res, next)=>{
 
 					var marksTot = 'marks /'+totalQuota;
 					mixed[index_user][marksTot]=totalMarks.toFixed(1);
-					mixed[index_user].pct=perctg.toFixed(1);
+					mixed[index_user].pct=perctg.toFixed(1)+'%';
+					mixed[index_user].pctage=perctg.toFixed(1);
 
 					return student_Cb(null)
 				})
@@ -1387,5 +1387,5 @@ function endTermPlaces(a, b) {
 	return b.total - a.total;
 }
 function termPlaces(a, b) {
-	return b.pct - a.pct;
+	return b.pctage - a.pctage;
 }
