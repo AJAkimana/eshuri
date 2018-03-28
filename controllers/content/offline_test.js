@@ -298,8 +298,8 @@ exports.undoMarksStudent = (req,res,next)=>{
   Content.findOne({_id:req.body.content_id},(err,content_exists)=>{
   	if(err) return log_err(err,false,req,res);
   	else if(!content_exists) return res.status(400).send("Invalid input");
-    else if(req.user.URN != content_exists.owner_URN)
-      return res.status(400).send("This is not your course");
+    // else if(req.user.URN != content_exists.owner_URN)
+    //   return res.status(400).send("This is not your course");
   	// now remove it 
   	Marks.remove({content_id:req.body.content_id,student_id:req.body.student_id},
   		(err,ok)=>{
