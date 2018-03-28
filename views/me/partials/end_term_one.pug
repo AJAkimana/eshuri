@@ -67,7 +67,7 @@
                         td(style="font-weight: bold;background: #e3e7ed;text-align:left;") CONDUCT
                         td.report-td-cond(colspan='3', ng-bind="conduct_wgt")
                         td.report-brd-right(colspan='3' ng-bind="mark_conduct")
-                      tr(ng-repeat="mark in studentMark|orderBy:'-total_wgt'")
+                      tr(ng-repeat="mark in studentMark|orderBy:['-total_wgt','name']")
                         td(style="font-weight: bold;background: #e3e7ed;text-align:left;" ng-bind="mark.name|uppercase")
                         td.report-td-pct(ng-bind="mark.test_wgt")
                         td.report-td-pct(ng-bind="mark.exam_wgt")
@@ -132,8 +132,3 @@
                   | HeadMistress:
                   br
                   | (Signature and stamps)
-            .pull.pull-right
-              label MADE BY: 
-                span(style="color:red")
-                  | e-Shuri.rw
-              br
