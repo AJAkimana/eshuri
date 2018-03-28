@@ -657,8 +657,8 @@ exports.getSumTermMarks = (req, res, next)=>{
 
 					var marksTot = 'marks /'+totalQuota;
 					mixed[index_user][marksTot]=totalMarks.toFixed(1);
-					mixed[index_user].pct=perctg.toFixed(1)+'%';
-					mixed[index_user].pctage=perctg.toFixed(1);
+					mixed[index_user].pct=perctg.toFixed(1);
+					// mixed[index_user].pctage=perctg.toFixed(1);
 
 					return student_Cb(null)
 				})
@@ -1387,5 +1387,5 @@ function endTermPlaces(a, b) {
 	return b.total - a.total;
 }
 function termPlaces(a, b) {
-	return b.pctage - a.pctage;
+	return b.pct - a.pct;
 }
