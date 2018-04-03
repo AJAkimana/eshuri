@@ -62,9 +62,16 @@ exports.postNewClass =(req,res,next)=>{
 exports.getClasses_JSON = (req,res,next)=>{
   req.assert('school_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
+  var access_lvl = String(req.user.access_level);
+  var superadmin = String(req.app.locals.access_level.SUPERADMIN);
+  var school_id;
+  if(access_lvl===superadmin) school_id=req.params.school_id;
+  else{
+    if(String(req.params.school_id)!=String(req.user.school_id))return res.status(400).send("This is not your school")
+    school_id=req.user.school_id
+  }
   if (errors) return res.status(400).send(errors[0].msg);
-  else if(String(req.params.school_id)!=String(req.user.school_id))return res.status(400).send("This is not your school")
-  Classe.find({school_id:req.params.school_id},{__v:0}).sort({name:1})
+  Classe.find({school_id:school_id},{__v:0}).sort({name:1})
   .lean()
   .exec((err,classes)=>{
     if(err) return log_err(err,false,req,res);

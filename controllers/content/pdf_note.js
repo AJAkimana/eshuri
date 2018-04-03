@@ -38,7 +38,7 @@ exports.pageNew_Note = (req,res,next)=>{
 }
 
 exports.postNew_Note = (req,res,next)=>{
-  req.assert('title', 'A title is required').notEmpty().len(1,30);
+  req.assert('title', 'A title is required').notEmpty();
   const errors = req.validationErrors();
   if (errors) return res.render("./lost",{msg:errors[0].msg})
   else if(!req.file) return res.render("./lost",{msg:"File upload has failed"})

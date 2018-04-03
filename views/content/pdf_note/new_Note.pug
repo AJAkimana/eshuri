@@ -19,11 +19,11 @@ block append content
 											form(action="/content.add.note",method="POST",enctype="multipart/form-data")
 												.form-group.label-floating
 													label.control-label Title of this pdf note
-													input.form-control(type="text",required="true",name="title")
+													input.form-control(type="text",name="title" required)
 												.form-group.label-floating
 													button.btn.btn-success.btn-round Click to upload
 														i.material-icons attach_file
-													input(type="file",required="true",name="pdf_note",ng-model="noteName")
+													input(type="file",name="pdf_note",ng-model="noteName" required)
 													input(type="hidden",value="{{unit_id}}",name="unit_id")
 												button.btn.btn-fill.btn-rose(type="submit").pull-right Submit
 block append scripts

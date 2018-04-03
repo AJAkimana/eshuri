@@ -239,6 +239,7 @@ block append scripts
         $scope.thisClasse.option=$scope.option;
         $scope.thisClasse.sub_level=$scope.sub_level;
         $scope.thisClasse.classe_id=$scope.classe_id;
+        $scope.thisClasse.classe_id=$scope.school_id;
         $scope.thisClasse.name=$scope.name
         $http
           .post('/classe.edit', $scope.thisClasse)
@@ -257,7 +258,7 @@ block append scripts
         $scope.this_class=selectedClass._id;
       }
       $scope.setTeacher=function(classe, teacher){
-        $http.post('/set.class.teacher',{_csrf:$scope.anti_csrf,class_id:classe, teacher_id:teacher})
+        $http.post('/set.class.teacher',{_csrf:$scope.anti_csrf,class_id:classe, teacher_id:teacher,school_id:$scope.school_id})
           .then(function(response){
             $scope.getListClasses();
             $scope.teacher_choosen=null;
@@ -293,8 +294,7 @@ block append scripts
             buttonsStyling: false
           }).then(function(){
               $http
-            .post("/classe.delete",{_csrf:$scope.anti_csrf,classe_id:classe_id,
-              confirmPass:$("#confirmPass").val()
+            .post("/classe.delete",{_csrf:$scope.anti_csrf,classe_id:classe_id,confirmPass:$("#confirmPass").val(),school_id:$scope.school_id,
              })
             .then(function(response){
               $scope.getListClasses();
