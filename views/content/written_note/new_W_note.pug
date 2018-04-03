@@ -59,7 +59,7 @@ block append scripts
 						confirmButtonClass: 'btn btn-success',
 						buttonsStyling: false
 					})
-		 			setTimeout(function(){$window.location.href ="/courses/"+response.data;},2000)
+		 			setTimeout(function(){$window.history.back();},2000)
 				})
 				.catch(function(erreur){
 					Notifier.danger(erreur.data)

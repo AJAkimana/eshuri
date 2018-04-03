@@ -177,6 +177,14 @@ block append content
                         .modal-header
                           i.material-icons school
                           h5.card-title Edit {{course_name|uppercase}}
+                          h4.text-title.pull-right Exam:
+                            span(ng-bind="exam_quota")
+                            br
+                            |Test:
+                            span(ng-bind="test_quota")
+                            br
+                            | Total:
+                            span(ng-bind="course_weight")
                         .modal-body
                           .col-md-4
                             .form-group.label-floating
@@ -255,7 +263,40 @@ block append scripts
         var first_letter = function(x){ if (x) { return x[0]; } else { return ''; }};
         return words.split(' ').map(first_letter).join('');
       }
-
+      $scope.setCourseWeight =function(){
+        $scope.test_quota=scope.exam_quota=null;
+        $scope.course_weight = Number($scope.test_quota) + Number($scope.exam_quota) < 0 ? Number($scope.test_quota) + Number($scope.exam_quota) : 0 ;
+      }
+      $scope.setTestQuota =function(){
+        $scope.test_quota = Number($scope.course_weight)-Number($scope.exam_quota) > 0 ? Number($scope.course_weight)-Number($scope.exam_quota):0 ;
+      }
+      $scope.setExamQuota = function(){
+        $scope.exam_quota = Number($scope.course_weight) - Number($scope.test_quota) > 0 ? Number($scope.course_weight) - Number($scope.test_quota):0;
+      }
+      $scope.changeQuota = function(){
+        if(!$scope.exam_quota ||!$scope.test_quota ||!$scope.course_weight) return;
+        $http
+        .post("/course.update.quota",{
+          _csrf:$scope.anti_csrf,
+          course_id :$scope.course_id,
+          test_quota:$scope.test_quota,
+          exam_quota:$scope.exam_quota,
+          course_weight:$scope.course_weight,
+        })
+        .then(function(response){
+          $scope.test_quota_old =response.data.test_quota;
+          $scope.exam_quota_old =response.data.exam_quota;
+          $scope.course_weight_old =response.data.course_weight;
+          $scope.edit_show=false;
+          $scope.test_quota=null;
+          $scope.exam_quota=null;
+          $scope.course_weight=null;
+          Notifier.success("Quotas has been updated."+$scope.test_quota_old)
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data)
+        });     
+      }
       $scope.setCourseCode = function(){
         var schoolAbbr = getAbbreviation(schoolName);
         var coursename = $scope.newCourse.name?$scope.newCourse.name:'';
@@ -473,6 +514,9 @@ block append scripts
       $scope.setCurrentCourse = function(course){
         $scope.course_concerned =course._id;
         $scope.course_name =course.name;
+        $scope.test_quota=course.test_quota;
+        $scope.exam_quota=course.exam_quota;
+        $scope.course_weight=course.weightOnReport;
         $scope.currentTeachers =course? course.teacher_list:null;
         //$scope.teacher_add=!$scope.teacher_add;
       }

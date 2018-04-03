@@ -71,9 +71,7 @@ exports.getClasses_JSON = (req,res,next)=>{
     school_id=req.user.school_id
   }
   if (errors) return res.status(400).send(errors[0].msg);
-  Classe.find({school_id:school_id},{__v:0}).sort({name:1})
-  .lean()
-  .exec((err,classes)=>{
+  Classe.find({school_id:school_id},{__v:0}).sort({name:1}).lean().exec((err,classes)=>{
     if(err) return log_err(err,false,req,res);
     var listClasses=[];
     var async =require('async');
@@ -84,7 +82,6 @@ exports.getClasses_JSON = (req,res,next)=>{
         currentClass.students=num
         cb();
       })
-
     },(err)=>{
       if(err) return log_err(err,false,req,res);
       return res.json(classes);  
