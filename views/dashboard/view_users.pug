@@ -90,8 +90,8 @@ block append content
                         th.text-center #
                         th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Names
                         th: a.btn-simple.btn.label.btn-rose(ng-click="a='email';b=!b") E-mail
-                        th School
-                        th Class
+                        th: a.btn-simple.btn.label.btn-rose(ng-click="a='school_name';b=!b") School
+                        th: a.btn-simple.btn.label.btn-rose(ng-click="a='classe_name';b=!b") Class
                         th: a.btn-simple.btn.label.btn-rose(ng-click="a='access_level';b=!b") Access Lv
                         th Actions
                       tbody
@@ -99,8 +99,8 @@ block append content
                           td(width="1%" height="1%") {{$index + 1}}
                           td.text-primary(ng-bind="user.name|uppercase")
                           td(ng-bind="user.email")
-                          td
-                          td
+                          td(ng-bind="user.school_name|uppercase")
+                          td(ng-bind="user.classe_name|uppercase")
                           td.text-info: strong(ng-bind="user.access_level|toAccess")
                           td.td-actions
                             a.btn-simple.btn.label.btn-primary(ng-click="resetPwd(user)")
@@ -221,7 +221,7 @@ block append scripts
           title: 'Reset password for '+user.name.toUpperCase(),
           text: "Password will be MyEshuri!",
           html:'<div class="form-group"><label>Enter password</label>'+
-            '<input id="admin_pwd" type="text" class="form-control" placeholder="Enter you password to confirm"/>'+
+            '<input id="admin_pwd" type="password" class="form-control" placeholder="Enter you password to confirm"/>'+
           '</div> <span class="category"> To make sure you are allowed !</span>',
           type: 'warning',
           showCancelButton: true,

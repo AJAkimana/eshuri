@@ -9,6 +9,7 @@ const passport = require('passport'),
       Department =require('../models/Department'),
       Token =require('../models/Token'),
       Util=require('../utils.js'),
+      Classe=require('../models/Classe'),
       log_err=require('./manage/errorLogger');
 
 exports.getPageSignIn = (req, res) => {
@@ -298,10 +299,32 @@ exports.getViewUserPage=(req,res,next)=>{
 }
 exports.userList_JSON=(req,res,next)=>{
   var async = require('async');
-  User.find({access_level:{$gt:req.app.locals.access_level.SUPERADMIN}}).lean().exec((err, users_list)=>{
+  var users = [], list=[];
+  async.series([(userCallback)=>{
+    User.find({access_level:{$gt:req.app.locals.access_level.SUPERADMIN}},(err, users_list)=>{
+      if(err) return userCallback(err)
+      users = users_list;
+      userCallback(null);
+    })
+  },(treatEachUser)=>{
+    async.each(users, (thisUser, userCallback)=>{
+      School.findOne({_id:thisUser.school_id},(err,userSchool)=>{
+        if(err) return userCallback(err);
+        Classe.findOne({_id:thisUser.class_id},(err, userClass)=>{
+          if(err) return userCallback(err);
+          if(userClass&&userSchool) list.push({id:thisUser._id,name:thisUser.name,email:thisUser.email,access_level:thisUser.access_level,class_id:thisUser.class_id,classe_name:userClass.name,school_id:thisUser.school_id,school_name:userSchool.name});
+          else list.push({id:thisUser._id,name:thisUser.name,email:thisUser.email,access_level:thisUser.access_level,class_id:null,classe_name:'Not defined',school_id:thisUser.school_id,school_name:'Not defined'});
+          return userCallback(null);
+        })
+      })
+    },(err)=>{
+      if(err) return treatEachUser(err);
+      return treatEachUser(null);
+    })
+  }],(err)=>{
     if(err) return log_err(err, false, req, res);
-    // console.log(JSON.stringify(users_list))
-    res.json(users_list);
+    // console.log(JSON.stringify(list))
+    res.json(list);
   })
 }
 exports.resetUserPwd=(req,res,next)=>{
