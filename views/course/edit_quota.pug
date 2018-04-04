@@ -89,7 +89,7 @@ block append content
                               td.text-center: a.btn-simple.btn.label.btn-rose {{(test.__v* test.marks/100).toFixed(1)}}
                               //____For total marks
                               //ng-click="updateTotalMarks(test)"
-                              td.text-center: a.btn-simple.btn.label.btn-rose() / {{test.marks}}
+                              td.text-center: a.btn-simple.btn.label.btn-rose(ng-click="updateTotalMarks(test)") / {{test.marks}}
                                 i.material-icons edit
                               td: a(href="#",ng-click="setCAT(test._id)") Send to Exams
                         dir-pagination-controls.pull-right(pagination-id='alltests', max-size='5', direction-links='true', boundary-links='true')
@@ -131,7 +131,7 @@ block append content
                             td.text-center: a.btn-simple.btn.label.btn-rose {{(exam.__v*exam.marks/100).toFixed(1)}}
                             //____For total marks
                             //ng-click="updateTotalMarks(exam)"
-                            td.text-center: a.btn-simple.btn.label.btn-rose() / {{exam.marks}}   
+                            td.text-center: a.btn-simple.btn.label.btn-rose(ng-click="updateTotalMarks(exam)") / {{exam.marks}}   
                               i.material-icons edit
                             td: a(href="#", ng-click="setCAT(exam._id)") Send to CATs
                       dir-pagination-controls.pull-right(pagination-id='allexams', max-size='5', direction-links='true', boundary-links='true')
