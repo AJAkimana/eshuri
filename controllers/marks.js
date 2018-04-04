@@ -7,7 +7,7 @@ const Content =require('../models/Content'),
 	  Course =require('../models/Course'),
 	  Util=require('../utils'),
 	  fs=require('fs'),
-    path=require('path'),
+      path=require('path'),
 	  log_err=require('./manage/errorLogger');
 
 exports.getPageReport = function(req,res,next){

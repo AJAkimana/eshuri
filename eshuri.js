@@ -23,12 +23,10 @@ const flash = require('express-flash');
  * API keys and Passport configuration.
  */
 require('./config/passport')(passport);
-
 /**
  * Create Express server.
  */
 const app = express();
-
 /**
  * Connect to MongoDB.
  */
@@ -96,4 +94,4 @@ module.exports = app;
 // admin email: teacher2@demo.rw
 //
 // Both Password: eshuri123
-
+// Reset pwd: MyEshuri

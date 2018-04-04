@@ -305,6 +305,9 @@ module.exports = function(app) {
 	/*				DASHBOARD THINGS
 		Concerning adding new school, classe, course -- > For SA and A, Only*/
 			// FOR SUPER ADMIN ONLY
+	app.get('/user.view',isSuperAdmin, userController.getViewUserPage);
+	app.post('/user.reset.pwd',isSuperAdmin,userController.resetUserPwd)
+	app.get('/user.general.list',isSuperAdmin,userController.userList_JSON)
 	app .get('/dashboard',isAtLeastAdmin, dashboardController.getHomePageDashboard);
 	app .get('/dashboard.school',isSuperAdmin, dashboardController.getPageSchools);	
 	app .get('/dashboard.university',isSuperAdmin, dashboardController.getPageUniversities);
@@ -507,7 +510,7 @@ module.exports = function(app) {
 	app.post('/student.set.retake',isAtLeastTeacher,coursesController.setStudentRetake);
 	app.post('/student.delete.retake',isAtLeastTeacher,coursesController.removeRetakeCourse);
 	app.get('/student.marks.page/:course_id',isAuthenticated,coursesController.getPageMyMarks)
-	app.get('/user/:user_id',isAtLeastAdmin,dashboardController.viewPageUserDetails)
+	app.get('/user/:user_id',isAtLeastAdmin,userController.viewPageUserDetails)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// app.get('/teacher.student.marks.page/:course_id',isTeacherOrAdmin,coursesController.getStudentPageMyMarks)

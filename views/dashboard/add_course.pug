@@ -199,6 +199,7 @@ block append content
                               label Exam quota
                               input.form-control(type="text",autocomplete="off",ng-model="exam_quota",ng-change="setTestQuota()")
                         .modal-footer
+                          button.btn.btn-sm.btn-primary.pull-left(ng-click="changeQuota()") Save quota
                           button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
 block append scripts
   script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
@@ -278,20 +279,19 @@ block append scripts
         $http
         .post("/course.update.quota",{
           _csrf:$scope.anti_csrf,
-          course_id :$scope.course_id,
+          course_id:$scope.course_concerned,
+          course_name:$scope.course_name,
+          classe_id:$scope.classe_id,
           test_quota:$scope.test_quota,
           exam_quota:$scope.exam_quota,
           course_weight:$scope.course_weight,
         })
         .then(function(response){
-          $scope.test_quota_old =response.data.test_quota;
-          $scope.exam_quota_old =response.data.exam_quota;
-          $scope.course_weight_old =response.data.course_weight;
-          $scope.edit_show=false;
+          $('#edit_course_Modal').model('hide');
           $scope.test_quota=null;
           $scope.exam_quota=null;
           $scope.course_weight=null;
-          Notifier.success("Quotas has been updated."+$scope.test_quota_old)
+          $scope.getListCourses();
         })
         .catch(function(erreur){
           Notifier.danger(erreur.data)
@@ -349,7 +349,6 @@ block append scripts
         .then(function(response){
           $scope.courses = response.data;
           $scope.c_add =false;
-
         })
         .catch(function(erreur){
           Notifier.danger(erreur.data);

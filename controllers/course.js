@@ -45,7 +45,7 @@ exports.getPageOneCourse = function(req,res,next){
     //    return res.render("./lost",{msg:"You are not authorized"});
     // }
     if(!temoin) // cad si il n est ni teacher ni student ni inferieur.. then just reject
-     return res.render("./lost",{msg:"You are not authorized to view this content"}); 
+      return res.render("./lost",{msg:"You are not authorized to view this content"}); 
     //Get the school Info
     School.findOne({_id:course_exists.school_id},(err,school_exists)=>{
       if(err) return log_err(err,false,req,res);
@@ -255,6 +255,8 @@ exports.getPageEditQuota = (req,res,next)=>{
 exports.updateQuota =(req,res,next)=>{
   var maxWeight = req.body.test_quota + req.body.exam_quota;
   req.assert('course_id', 'Invalid data').isMongoId();
+  req.assert('course_name', 'Invalid data').notEmpty();
+  req.assert('classe_id', 'Invalid data').isMongoId();
   req.assert('test_quota', 'Test quota must be a number').isFloat();
   req.assert('exam_quota', 'Exam quota must be a number').isFloat();
   req.assert('course_weight', 'Course weight must be a number').isFloat();
@@ -262,22 +264,16 @@ exports.updateQuota =(req,res,next)=>{
   if(errors) return res.status(400).send(errors[0].msg);
   else if(Number(req.body.test_quota)+Number(req.body.exam_quota)!= Number(req.body.course_weight))
     return res.status(400).send("Course weight must be the sum of test and exam");
-   Course.findOne({_id:req.body.course_id},(err,course_exists)=>{
+  Course.update({
+      class_id:req.body.classe_id,
+      name:req.body.course_name,
+    },{$set:{
+      test_quota:req.body.test_quota,
+      exam_quota:req.body.exam_quota,
+      weightOnReport:req.body.course_weight
+    }},{multi:true},(err, ok)=>{
     if(err) return log_err(err,true,req,res);
-    else if(!course_exists) return res.render("./lost",{msg:"Sorry this course doesn't exists"});
-    else if(course_exists.teacher_list.indexOf(String(req.user._id)) ==-1) return res.render("./lost",{msg:"Sorry, this course doesn't belong to you"});
-    course_exists.test_quota=req.body.test_quota;
-    course_exists.exam_quota=req.body.exam_quota;
-    course_exists.weightOnReport=req.body.course_weight;
-    course_exists.save((err)=>{
-      if(err) return log_err(err,false,req,res);
-      var reponse = {
-        test_quota:course_exists.test_quota,
-        exam_quota:course_exists.exam_quota,
-        course_weight:course_exists.weightOnReport,
-      };
-      return res.json(reponse);  
-    })
+    return res.end();
   })
 }
 exports.getListStudentsCourse = (req,res,next)=>{
@@ -319,8 +315,6 @@ exports.getListStudentsCourse = (req,res,next)=>{
         if(err) return log_err(err,false,req,res);
         return res.json(reponse);
       })
-
-    
   })
 }
 exports.getPageStudentsOneCourse = (req,res,next)=>{

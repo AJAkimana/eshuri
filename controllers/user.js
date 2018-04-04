@@ -289,6 +289,165 @@ exports.postSignUp = (req, res, next) => {
     })
   }
 };
+exports.getViewUserPage=(req,res,next)=>{
+  return res.render('dashboard/view_users',{
+    title:'Users',
+    pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
+    csrf_token:res.locals.csrftoken, // always set this buddy
+  })
+}
+exports.userList_JSON=(req,res,next)=>{
+  var async = require('async');
+  User.find({access_level:{$gt:req.app.locals.access_level.SUPERADMIN}}).lean().exec((err, users_list)=>{
+    if(err) return log_err(err, false, req, res);
+    // console.log(JSON.stringify(users_list))
+    res.json(users_list);
+  })
+}
+exports.resetUserPwd=(req,res,next)=>{
+  req.assert('user_id', 'Invalid data').isMongoId();
+  req.assert('password', 'Enter your password').notEmpty();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  User.findOne({email:req.user.email},(err, userExists)=>{
+    if(err) return log_err(err, false, req, res);
+    else if(!userExists) return res.status(400).send("System dont know you");
+    userExists.comparePassword(req.body.password, req.user.email, (err, isMatch)=>{
+      if(err) return log_err(err, false, req, res);
+      else if(!isMatch) return res.status(400).send("Password given is incorrect !");
+      User.findOne({_id:req.body.user_id},(err, userDetails)=>{
+        if(err) return log_err(err, false, req, res);
+        else if(!userDetails) return res.status(400).send("Unkown user");
+        else if(userDetails.email===req.user.email) return res.status(400).send("Change your password using platform seting");
+        else if(userDetails.access_level<=req.user.access_level) return res.status(400).send("User password has not reset");
+        new Notification({
+          user_id:req.body.user_id,
+          user_name:userDetails.name,
+          content: "EShuri has reset to MyEshuri. Please change it as long as you access the platform",
+          school_id:userDetails.school_id,
+          isAuto:false,            
+        }).save((err)=>{
+          if(err) console.log(" You have to log "+err)
+        })
+        userDetails.email = userDetails.email;
+        userDetails.password = "MyEshuri";
+        userDetails.save((err)=>{
+          if(err) return log_err(err, false, req, res);
+          return res.end();
+        });
+      })
+    })
+  })
+}
+exports.viewPageUserDetails=(req,res,next)=>{
+  req.assert('user_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.render("./lost",{msg:errors[0].msg});
+  var listClasses=[],allclasses=[],classes=[];
+  var student = req.app.locals.access_level.STUDENT,
+      teacher = req.app.locals.access_level.TEACHER,
+      admin_teacher = req.app.locals.access_level.ADMIN_TEACHER,
+      hMaster = req.app.locals.access_level.SA_SCHOOL;
+  var parametters={};
+  School.findOne({_id:req.user.school_id},(err, school)=>{
+    if(err) return res.render("./lost",{msg:"Invalid data"});
+    if(!school) return res.render("./lost",{msg:"Unkown school"});
+    User.findOne({_id:req.params.user_id,school_id:req.user.school_id},(err, userExists)=>{
+      if(err) return res.render("./lost",{msg:"Invalid data"});
+      if(!userExists) return res.render("./lost",{msg:"Unkown student"});
+      if(userExists.access_level==student){
+        listClasses.push(userExists.class_id);
+        async.each(userExists.prev_classes, (thisClass, classCallBack)=>{
+          listClasses.push(thisClass);
+          classCallBack(null);
+        },(err)=>{
+          if(err) return log_err(err,false,req,res);
+          allclasses=listClasses;
+          async.eachSeries(allclasses, (thisClass, callBack)=>{
+            Classe.findOne({_id:thisClass},(err, class_details)=>{
+              if (err) return callBack(err);
+              classes.push({class_id:thisClass,name:class_details.name})
+              callBack();
+            })
+          },(err)=>{
+            if(err) return log_err(err,false,req,res);
+            // append every class number of courses
+            async.eachSeries(classes, (thisClass, callBack)=>{
+              parametters = {class_id:thisClass.class_id};
+              Course.count(parametters,(err, number)=>{
+                if (err) return callBack(err);
+                thisClass.number=number;
+                callBack();
+              })
+            },(err)=>{
+              if(err) return log_err(err,false,req,res);
+              console.log('Classes:'+JSON.stringify(classes))
+              // if everything are in place return data to front
+              return res.render('dashboard/one_student_view',{
+                title:userExists.name.toUpperCase(),
+                school_id: req.user.school_id,
+                school_name: school.name,
+                username:userExists.name,
+                userid:userExists._id,
+                lastSeen:userExists.lastSeen,
+                classes:classes,
+                term_name: school.term_name,
+                pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,student_class:req.user.class_id,
+                csrf_token:res.locals.csrftoken, // always set this buddy
+              })
+            })
+          })
+        })
+      }else if(userExists.access_level==teacher){
+        Course.find().distinct("class_id",{school_id:school._id, teacher_list:req.params.user_id},(err, class_courses)=>{
+          if (err) return log_err(err,false,req,res);
+          async.each(class_courses, (thisList, listCallback)=>{
+            listClasses.push(thisList);
+            listCallback(null);
+          },(err)=>{
+            if (err) return log_err(err,false,req,res);
+            allclasses=listClasses;
+            // console.log('Courses:'+allclasses)
+            async.eachSeries(allclasses, (thisClass, callBack)=>{
+              Classe.findOne({_id:thisClass},(err, class_details)=>{
+                if (err) return callBack(err);
+                classes.push({class_id:thisClass,name:class_details.name})
+                callBack();
+              })
+            },(err)=>{
+              if(err) return log_err(err,false,req,res);
+              // append every class number of courses
+              async.eachSeries(classes, (thisClass, callBack)=>{
+                parametters = {class_id:thisClass.class_id, teacher_list:req.params.user_id};
+                Course.count(parametters,(err, number)=>{
+                  if (err) return callBack(err);
+                  thisClass.number=number;
+                  callBack();
+                })
+              },(err)=>{
+                if(err) return log_err(err,false,req,res);
+                // console.log('Classes:'+JSON.stringify(classes))
+                // if everything are in place return data to front
+                return res.render('dashboard/one_student_view',{
+                  title:userExists.name.toUpperCase(),
+                  school_id: req.user.school_id,
+                  school_name: school.name,
+                  username:userExists.name,
+                  userid:userExists._id,
+                  lastSeen:userExists.lastSeen,
+                  classes:classes,
+                  term_name: school.term_name,
+                  pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,student_class:req.user.class_id,
+                  csrf_token:res.locals.csrftoken, // always set this buddy
+                })
+              })
+            })
+          })
+        })
+      }
+    })
+  })
+}
 exports.logout = (req, res) => {
   req.session.destroy()
   req.logout();

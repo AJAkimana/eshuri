@@ -34,8 +34,9 @@ block append content
 								.card-header.card-header-icon(data-background-color="rose")
 									i.material-icons person
 								.card-content
-									p.category Total number of users registered
-									h3.card-title {{num_users}} users
+									a(href="/user.view")
+										p.category Total number of users registered
+										h3.card-title {{num_users}} users
 								.card-footer
 									.stats
 										i.material-icons local_offer </i> Click to view details
