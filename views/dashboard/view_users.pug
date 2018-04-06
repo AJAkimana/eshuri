@@ -230,9 +230,9 @@ block append scripts
           confirmButtonText: 'Yes, i am sure!',
           buttonsStyling: false
         }).then(function(){
-            $http
-          .post("/user.reset.pwd",{_csrf:$scope.anti_csrf,
-          user_id:user._id,password:$("#admin_pwd").val() })
+          var user_data = {_csrf:$scope.anti_csrf,user_id:user.id,password:$("#admin_pwd").val()};
+          $http
+          .post("/user.reset.pwd", user_data)
           .then(function(response){
             Notifier.success("Password has reset");
             //- $scope.getUsersList();
