@@ -301,7 +301,7 @@ exports.userList_JSON=(req,res,next)=>{
   var async = require('async');
   var users = [], list=[];
   async.series([(userCallback)=>{
-    User.find({},(err, users_list)=>{
+    User.find({access_level:{$gt:req.app.locals.access_level.SUPERADMIN}},(err, users_list)=>{
       if(err) return userCallback(err)
       users = users_list;
       userCallback(null);
@@ -337,12 +337,12 @@ exports.resetUserPwd=(req,res,next)=>{
     else if(!userExists) return res.status(400).send("System dont know you");
     userExists.comparePassword(req.body.password, req.user.email, (err, isMatch)=>{
       if(err) return log_err(err, false, req, res);
-      // else if(!isMatch) return res.status(400).send("Password given is incorrect !");
+      else if(!isMatch) return res.status(400).send("Password given is incorrect !");
       User.findOne({_id:req.body.user_id},(err, userDetails)=>{
         if(err) return log_err(err, false, req, res);
         else if(!userDetails) return res.status(400).send("Unkown user");
-        // else if(userDetails.email===req.user.email) return res.status(400).send("Change your password using platform seting");
-        // else if(userDetails.access_level<=req.user.access_level) return res.status(400).send("User password has not reset");
+        else if(userDetails.email===req.user.email) return res.status(400).send("Change your password using platform seting");
+        else if(userDetails.access_level<=req.user.access_level) return res.status(400).send("User password has not reset");
         new Notification({
           user_id:req.body.user_id,
           user_name:userDetails.name,
