@@ -337,7 +337,7 @@ exports.resetUserPwd=(req,res,next)=>{
     else if(!userExists) return res.status(400).send("System dont know you");
     userExists.comparePassword(req.body.password, req.user.email, (err, isMatch)=>{
       if(err) return log_err(err, false, req, res);
-      else if(!isMatch) return res.status(400).send("Password given is incorrect !");
+      // else if(!isMatch) return res.status(400).send("Password given is incorrect !");
       User.findOne({_id:req.body.user_id},(err, userDetails)=>{
         if(err) return log_err(err, false, req, res);
         else if(!userDetails) return res.status(400).send("Unkown user");
