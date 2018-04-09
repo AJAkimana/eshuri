@@ -3,6 +3,7 @@
  * API keys and Passport configuration.
  */
 const passport = require('passport'),
+      async = require('async'),
       User =require('../models/User'),
       School =require('../models/School'),
       Notification= require('../models/Notification'),
