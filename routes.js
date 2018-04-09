@@ -501,12 +501,12 @@ module.exports = function(app) {
 	//new administration report
 	app.get('/printable.report',isAuthenticated,marksController.printableReport);
 
-	app .get('/class.academic_years',isAuthenticated,marksController.getListAcademicYears);
-	app .get('/class.academic_years/:class_id',isAuthenticated,marksController.getClassAcademicYears);
-	app .get('/student.get.terms/:academic_year',isAuthenticated,marksController.getListTerms);
-	app .post('/get.Class.terms/',isAuthenticated,marksController.getClassListTerms);
-	app .get('/students/:course_id',isAuthenticated,coursesController.getPageStudentsOneCourse);
-	app .get('/student.list/:course_id',isAuthenticated,coursesController.getListStudentsCourse);
+	app.get('/class.academic_years',isAuthenticated,marksController.getListAcademicYears);
+	app.get('/class.academic_years/:class_id',isAuthenticated,marksController.getClassAcademicYears);
+	app.get('/student.get.terms/:academic_year',isAuthenticated,marksController.getListTerms);
+	app.post('/get.Class.terms/',isAuthenticated,marksController.getClassListTerms);
+	app.get('/students/:course_id',isAuthenticated,coursesController.getPageStudentsOneCourse);
+	app.get('/student.list/:course_id',isAuthenticated,coursesController.getListStudentsCourse);
 	app.post('/student.set.retake',isAtLeastTeacher,coursesController.setStudentRetake);
 	app.post('/student.delete.retake',isAtLeastTeacher,coursesController.removeRetakeCourse);
 	app.get('/student.marks.page/:course_id',isAuthenticated,coursesController.getPageMyMarks)

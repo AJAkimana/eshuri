@@ -86,7 +86,7 @@ block append content
                         form.form-inline
                           .form-group.pull-left
                             label Show
-                            select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
+                            select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="25")
                               option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
                             label /page
                           .form-group.pull-right

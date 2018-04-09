@@ -246,6 +246,7 @@ exports.getPageEditQuota = (req,res,next)=>{
       title:course_exists.name.toUpperCase()+" editing ...",
       course_id:req.params.course_id,
       course_name:course_exists.name,
+      class_id:course_exists.class_id,
       course_weight:course_exists.weightOnReport,
       pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
       csrf_token:res.locals.csrftoken, // always set this buddy
@@ -253,7 +254,6 @@ exports.getPageEditQuota = (req,res,next)=>{
   })
 };
 exports.updateQuota =(req,res,next)=>{
-  var maxWeight = req.body.test_quota + req.body.exam_quota;
   req.assert('course_id', 'Invalid data').isMongoId();
   req.assert('course_name', 'Invalid data').notEmpty();
   req.assert('classe_id', 'Invalid data').isMongoId();
@@ -262,19 +262,47 @@ exports.updateQuota =(req,res,next)=>{
   req.assert('course_weight', 'Course weight must be a number').isFloat();
   const errors = req.validationErrors();
   if(errors) return res.status(400).send(errors[0].msg);
-  else if(Number(req.body.test_quota)+Number(req.body.exam_quota)!= Number(req.body.course_weight))
+  var async = require('async');
+  var courses = [];
+  if(Number(req.body.test_quota)+Number(req.body.exam_quota)!= Number(req.body.course_weight))
     return res.status(400).send("Course weight must be the sum of test and exam");
-  Course.update({
-      class_id:req.body.classe_id,
-      name:req.body.course_name,
-    },{$set:{
-      test_quota:req.body.test_quota,
-      exam_quota:req.body.exam_quota,
-      weightOnReport:req.body.course_weight
-    }},{multi:true},(err, ok)=>{
+  async.series([(courseCb)=>{
+    Course.find({class_id:req.body.classe_id,name:req.body.course_name,},(err, courses_list)=>{
+      if(err) return courseCb(err);
+      courses = courses_list;
+      return courseCb();
+    })
+  },(treatCourse)=>{
+    async.each(courses, (thisCourse, callBack)=>{
+      Course.findOne({_id:thisCourse._id},(err, crs_details)=>{
+        if(err) return callBack(err);
+        crs_details.test_quota=req.body.test_quota,
+        crs_details.exam_quota=req.body.exam_quota,
+        crs_details.weightOnReport=req.body.course_weight
+        crs_details.save((err)=>{
+          if(err) return callBack(err);
+          return callBack(null);
+        })
+      })
+    },(err)=>{
+      if(err) return treatCourse(err);
+      return treatCourse(null);
+    })
+  }],(err)=>{
     if(err) return log_err(err,true,req,res);
     return res.end();
   })
+  // Course.update({
+  //     class_id:req.body.classe_id,
+  //     name:req.body.course_name,
+  //   },{$set:{
+  //     test_quota:req.body.test_quota,
+  //     exam_quota:req.body.exam_quota,
+  //     weightOnReport:req.body.course_weight
+  //   }},{multi:true},(err)=>{
+  //   if(err) return log_err(err,true,req,res);
+  //   return res.end();
+  // })
 }
 exports.getListStudentsCourse = (req,res,next)=>{
   req.assert('course_id', 'Invalid data').isMongoId();

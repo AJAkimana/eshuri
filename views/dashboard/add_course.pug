@@ -276,24 +276,21 @@ block append scripts
       }
       $scope.changeQuota = function(){
         if(!$scope.exam_quota ||!$scope.test_quota ||!$scope.course_weight) return;
-        $http
-        .post("/course.update.quota",{
-          _csrf:$scope.anti_csrf,
+        $scope.course_details={_csrf:$scope.anti_csrf,
           course_id:$scope.course_concerned,
           course_name:$scope.course_name,
           classe_id:$scope.classe_id,
           test_quota:$scope.test_quota,
           exam_quota:$scope.exam_quota,
-          course_weight:$scope.course_weight,
-        })
+          course_weight:$scope.course_weight,}
+        $http
+        .post("/course.update.quota",$scope.course_details)
         .then(function(response){
-          $('#edit_course_Modal').model('hide');
-          $scope.test_quota=null;
-          $scope.exam_quota=null;
-          $scope.course_weight=null;
+          $('#edit_course_Modal').modal('hide');
           $scope.getListCourses();
         })
         .catch(function(erreur){
+          console.log('Who:'+JSON.stringify(erreur));
           Notifier.danger(erreur.data)
         });     
       }
