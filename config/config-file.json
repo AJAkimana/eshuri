@@ -1,0 +1,17 @@
+{
+    "web":{
+        "client_id":"725196560738-vge46vvdh5cvmt26idpg5cndlbqmum4f.apps.googleusercontent.com",
+        "project_id":"eshuri-74",
+        "auth_uri":"https://accounts.google.com/o/oauth2/auth",
+        "token_uri":"https://accounts.google.com/o/oauth2/token",
+        "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
+        "client_secret":"PTg6ozGvSDx6LwnvukQcQ6kC",
+        "redirect_uris":[
+            "http://localhost:6700/auth/google/callback",
+            "http://eshuri-74.appspot.com/auth/google/callback",
+            "https://eshuri74.appspot.com/auth/google/callback",
+            "http://eshuri-74.appspot-preview.com/auth/google/callback",
+            "https://eshuri-74.appspot-preview.com/auth/google/callback"
+        ]
+    }
+}

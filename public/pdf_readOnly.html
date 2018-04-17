@@ -1,0 +1,27 @@
+
+<nav ng-class="getNavStyle(scroll)", class="card">
+  <h1></h1>
+  <a ng-click="goPrevious()" class="btn-simple btn label btn-rose">Previous
+  <i class="material-icons">skip_previous</i></a>
+  <a ng-click="goNext()" class="btn-simple btn label btn-rose"> Next
+  <i class="material-icons">skip_next</i></a>
+
+  <a ng-click="zoomIn()" class="btn-simple btn label btn-rose">Zoom in
+  <i class="material-icons">zoom_in</i></a>
+
+  <a ng-click="fit()" class="btn-simple btn label btn-rose"> Fit page
+  <i class="material-icons">fullscreen</i></a>
+
+  <a ng-click="zoomOut()" class="btn-simple btn label btn-rose">Zoom out
+  <i class="material-icons">zoom_out</i></a>
+  <span>Page: </span>
+  <input type="text" min=1 ng-model="pageNum">
+  <span> / {{pageCount}}</span>
+<!--   <a ng-click="download()" class="btn-simple btn label btn-rose pull-right">Download PDF
+  <i class="material-icons">file_download</i></a> -->
+
+
+</nav>
+
+<h1 class="center category"> {{loading}}</h1>
+<canvas id="pdf" class="rotate0 center", ng-click="goNext()"></canvas>

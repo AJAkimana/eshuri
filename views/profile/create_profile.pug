@@ -1,0 +1,242 @@
+extends ../layout
+block append content 
+	//- .main-panel
+		include ../partials/header 
+	.wrapper.wrapper-full-page.fullff-page-background(ng-controller="ProfileCtrl",style="")
+		.full-page.register-page(filter-color="white")
+			.content
+				.container
+					.col-md-8.col-md-offset-2
+						// Wizard container
+						.wizard-container.contProfile
+							.card.wizard-card(data-color="red")#wizardProfile
+								form(action="", method="", name="registrationForm")
+									// You can switch " data-color="purple" "  with one of the next bright colors: "green", "orange", "red", "blue"
+									.wizard-header
+										h3.wizard-title Build School Profile       
+										h5 This information lets Parents/Students identify you
+										h2(style='font-weight: 400;') #{school.name}                    
+									.wizard-navs
+										ul(style="background: #00bcd4;")
+											li: a(href="#basic_info", data-toggle="tab") About School
+											li: a(href="#account", data-toggle="tab") Academic Profile
+											li: a(href="#informations", data-toggle="tab") Contacts
+									.tab-content.wizard-navs-ii
+										.tab-pane#basic_info
+											- school
+											.row
+												h4.info-text  Let's start with the basic information
+												.col-lg-10.col-lg-offset-1
+													.row
+														.col-sm-6
+															.form-group.label-floating
+																label.control-label A Small School Description
+																input.form-control(type="text", name="d",ng-model="school_desc",autocomplete="on" required)
+																span.text-muted(style="font-size: 80%;")
+														.col-sm-6
+															.input-group
+																.form-group.label-floating
+																	label.control-label Average Annual Fees
+																	input.form-control(type="number", name="d",ng-model="school_fees",autocomplete="on")
+																	span.text-muted(style="font-size: 80%;") Number in RwF
+													label.control-label Additional Information
+													summernote(ng-model="school_info__")
+													textarea(type="text", ng-model="school_info__",name="ai", style="width:100%;display: none")
+										.tab-pane#account
+											h4.info-text Academic Information Regarding the School
+											.row
+												.col-lg-10.col-lg-offset-1
+													.row
+														.col-sm-6
+																.form-group.label-floating
+																	label.control-label Curriculum
+																	select.form-control(ng-model="school_curr__", required)
+																		option(value="{{$index + 1}}", ng-repeat="curr in curr_list") {{curr}}
+
+														.col-sm-6      
+																.form-group.label-floating
+																	label.control-label Extra-curricular Activities
+																	input.form-control(type="text", name="cu", ng-list,ng-model="school_prog",autocomplete="on")
+																	span.text-muted(style="font-size: 80%;") Comma separated(Football, Debate clubs, Tennis)
+
+
+													.row
+														.col-sm-6
+																.form-group.label-floating
+																	label.control-label Admission Requirements
+																	input.form-control(type="text", name="r",ng-model="school_requ", ng-list,autocomplete="on")
+																	span.text-muted(style="font-size: 80%;") Comma separated
+
+														.col-sm-6
+																.form-group.label-floating
+																	label.control-label Years to graduation
+																	input.form-control(type="number", name="r",ng-model="school_years",autocomplete="on")
+																	span.text-muted(style="font-size: 80%;")
+													.input-group      
+															.form-group.label-floating
+																label.control-label Faculties/Combinations
+																input.form-control(ng-model="school_faculties",
+																ng-list, 
+																style="width:300px",auto-complete="on")
+										.tab-pane#informations
+											.row
+												h4.info-text Additional Information
+												.row
+													.col-lg-10.col-lg-offset-1
+														.row
+															.col-sm-6
+																.form-group.label-floating
+																	label.control-label Success Stories
+																	input.form-control(type="text", name="cu",ng-model="school_stor", ng-list,autocomplete="on")
+																	span.text-muted(style="font-size: 80%;") Comma separated
+															.col-sm-6      
+																.form-group.label-floating
+																	label.control-label People who Attended
+																	input.form-control(type="text", name="p",ng-model="school_peop", ng-list,autocomplete="on")
+																	span.text-muted(style="font-size: 80%;") Comma separated
+
+												.row
+													h2.info-text Address 
+													.col-sm-10.center
+														.row
+															.col-sm-6
+																.form-group.label-floating
+																	label.control-label Website
+																	input.form-control(type="text", name="w",ng-model="school_site",style="text-transform:lowercase")
+																	span.material-input
+															.col-sm-6
+																.form-group.label-floating
+																	label.control-label Telephone
+																	input.form-control(type="text", name="w",ng-model="school_phone",style="text-transform:lowercase")
+																	span.material-input
+														.row
+															.col-sm-6
+																.form-group.label-floating.is-empty
+																		input.form-control(type="text", name="ad", ng-model="school_addr", ng-list, placeholder="Rwanda, Kigali, kicukiro, ngoma, kk8ave 5")
+																		span.material-input
+																		span.text-muted(style="font-size: 80%;") Comma separated Address
+															.col-sm-6
+																.form-group.label-floating.is-empty
+																		label.control-label Postal Code
+																		input.form-control(type="text", name="po", ng-model="school_code")
+																		span.material-input
+									.wizard-footer
+										.pull-right
+											input.btn.btn-next.btn-fill.btn-rose.btn-wd(type="button", value="Next")
+											input.btn.btn-finish.btn-fill.btn-rose.btn-wd(type="button", ng-click="createProfile()" value="Finish")
+										.pull-left
+											input.btn.btn-previous.btn-fill.btn-default.btn-wd(type="button", value="Previous")
+										.clearfix
+
+block append scripts
+	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+	script(src="../js/MIT/jquery.bootstrap-wizard.js", type="text/javascript")
+	script(src="../js/MIT/init_wizard.js", type="text/javascript")
+	script(src="../js/MIT/jquery.validate.min.js", type="text/javascript")
+	script(src="https://code.angularjs.org/1.2.28/angular-resource.min.js", type="text/javascript")
+	script(src="../js/ng-tags-input.min.js", type="text/javascript")
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute', 'summernote', 'ngTagsInput', 'ngResource']);
+		app.controller('ProfileCtrl', function($scope, $resource, $http, $window){
+
+			$scope.createProfile = function(){
+				$scope.nvUser = {}
+				$scope.nvUser_csrf = $scope.anti_csrf;
+				$scope.nvUser.school_faculties = $scope.school_faculties;
+				$scope.nvUser.school_name = $scope.school_name;
+				$scope.nvUser.school_desc = $scope.school_desc;
+				$scope.nvUser.school_fees = $scope.school_fees;
+				$scope.nvUser.school_info = $scope.school_info__;
+				$scope.nvUser.school_curr = $scope.school_curr__;
+				$scope.nvUser.school_prog = $scope.school_prog;
+				$scope.nvUser.school_requ = $scope.school_requ;
+				$scope.nvUser.school_years = $scope.school_years;
+				$scope.nvUser.school_tel = $scope.school_phone;
+				$scope.nvUser.school_stor = $scope.school_stor;
+				$scope.nvUser.school_peop = $scope.school_peop;
+				$scope.nvUser.school_site = $scope.school_site;
+				$scope.nvUser.school_addr = $scope.school_addr;
+				$scope.nvUser.school_code = $scope.school_code;
+				$http
+					.post("/profile.create",$scope.nvUser)
+					.then(function(response){
+						swal({
+							type: 'success',
+							html: 'School Profile Updated succesfuly',
+							confirmButtonClass: 'btn btn-success',
+							buttonsStyling: false
+						})
+						$scope.nvUser = null;
+						//- setTimeout(function(){$window.location.href="/profile/#{school._id}"},5000)
+					})
+					.catch(function(erreur){
+						Notifier.danger(erreur.data);
+					});
+			}
+			//$scope.schoolInfo = [school];
+			$scope.convertToHtml = function() {
+				var inputText = $scope.school_info;
+				var returnText = "" + inputText;
+
+				//-- remove BR tags and replace them with line break
+				returnText=returnText.replace(/<br>/gi, "\n");
+				returnText=returnText.replace(/<br\s\/>/gi, "\n");
+				returnText=returnText.replace(/<br\/>/gi, "\n");
+
+				//-- remove P and A tags but preserve what's inside of them
+				returnText=returnText.replace(/<p.*>/gi, "\n");
+				returnText=returnText.replace(/<a.*href="(.*?)".*>(.*?)<\/a>/gi, " $2 ($1)");
+
+				//-- remove all inside SCRIPT and STYLE tags
+				returnText=returnText.replace(/<script.*>[\w\W]{1,}(.*?)[\w\W]{1,}<\/script>/gi, "");
+				returnText=returnText.replace(/<style.*>[\w\W]{1,}(.*?)[\w\W]{1,}<\/style>/gi, "");
+				//-- remove all else
+				returnText=returnText.replace(/<(?:.|\s)*?>/g, "");
+
+				//-- get rid of more than 2 multiple line breaks:
+				returnText=returnText.replace(/(?:(?:\r\n|\r|\n)\s*){2,}/gim, "\n\n");
+
+				//-- get rid of more than 2 spaces:
+				returnText = returnText.replace(/ +(?= )/g,'');
+
+				//-- get rid of html-encoded characters:
+				returnText=returnText.replace(/&nbsp;/gi," ");
+				returnText=returnText.replace(/&amp;/gi,"&");
+				returnText=returnText.replace(/&quot;/gi,'"');
+				returnText=returnText.replace(/&lt;/gi,'<');
+				returnText=returnText.replace(/&gt;/gi,'>');
+
+				//-- return
+				return returnText;
+			}
+			$scope.school_name = "#{school.name}";
+			$scope.school_desc = "#{school.description}";
+			$scope.school_fees = Number("#{school.average_school_fees}");
+			$scope.school_info = "#{school.additional_information}";
+			$scope.school_curr__ = "#{school.curriculum}";
+			$scope.school_prog = ["#{school.other_programs}"];
+			$scope.school_requ = ["#{school.student_requirements}"];
+			$scope.school_years = Number("#{school.years}");
+			$scope.school_stor = ["#{school.stories.success_stories}"];
+			$scope.school_peop = ["#{school.stories.icons}"];
+			$scope.school_site = "#{school.contact.website}";
+			$scope.school_addr = ["#{school.contact.address}"];
+			$scope.school_code = "#{school.contact.postal_code}";
+			$scope.school_phone = "#{school.contact.telephone}"
+			$scope.school_info__ = $scope.convertToHtml();
+			$scope.curr_list = ["WDA Curriculum","Cambridge Curriculum","Competence Based Curriculum"];
+			$scope.anti_csrf = "#{csrf_token}";
+			// Make combination/faculty field tag-like
+			var faculties = $resource('/js/faculties.json');
+			$scope.school_faculties = "#{school.combinations}".split(',');
+			$scope.loadFaculties = function(query) {
+			return faculties.query().$promise;
+			};
+			$().ready(function() {
+				wizard.initMaterialWizard();				
+			});
+			});
+	script.
+		// To be enhanced to add tags as extra Extra-curricular activities
+		$('#tokenfield').tokenfield()
+	//- script.

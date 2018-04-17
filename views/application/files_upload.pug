@@ -1,0 +1,24 @@
+extends ../layout
+block append content 
+  .wrapper.wrapper-full-page.full-page-background(ng-controller="formCtrl",style="background-image: url('../imgs/register.jpeg')")
+    .full-page.login-page(filter-color="white")
+      .content
+        .container-fluid(ng-show="upload_files")
+          .row 
+            h3.info-text User Documents
+            .col-md-10.center
+              .col-md-6
+                h4 Attach your Identification Document, ID or Passport
+                input(type='file', ngf-select='', ng-model='id_file')
+                hr
+                h4 Attach a latest certificate/Diploma
+                input(type='file', ngf-select='', ng-model='diploma_file')
+                hr
+                h4 Attach a Transcript
+                input(type='file', ngf-select='', ng-model='transcript_file')
+                button.btn-primary(ng-click='saveFiles()') Save
+              .col-md-6
+                div(ng-show='progressVisible')
+                  .percent {{progress}}%
+                  .progress-bar
+                    .uploaded(ng-style="{'width': progress+'%'}")

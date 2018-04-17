@@ -1,0 +1,134 @@
+.col-md-8.center(ng-show="term_report_one")
+  .card
+    .card-header
+      //- i.material-icons report
+      button.btn.btn-label.pull-left(ng-click="showTermDivs()") Go back
+      //- button.btn.btn-simple.btn-primary.pull-right(ng-click="printRepo('student-report-one')") Print report
+    .card-content#student-report-one
+      .col-md-12
+        .box
+          .box-body
+            h2.card-title.text-center.text-info(ng-show="!studentMark.length") 
+              strong Loading, please wait...</strong>
+            table.table.table-curved(ng-show="studentMark.length")
+              tr
+                td(colspan='2')
+                  .row
+                    .col-xs-2.col-sm-2.col-md-2.col-lg-2
+                      img.pull-left(src="/school.profile/"+school_id, alt="Image")
+                    .col-xs-8.col-sm-8.col-md-8.col-lg-8
+                      p: strong
+                        | Ministry of Education
+                        br
+                        span {{'#{district}'|toDistrict}}
+                        br
+                        span {{'#{school_name}'|uppercase}}
+                        br
+                        | Tel:&nbsp
+                        span #{telephone}
+                        br
+                        | POB.:&nbsp
+                        span {{'#{po_code}'|uppercase}}
+                    .col-xs-2.col-sm-2.col-md-2.col-lg-2
+                      img.pull-right(src="/pp.view/"+student_name, alt="Image")
+                  .col-md-12
+                    .pull-right
+                      | Names: 
+                      strong(ng-bind="student_name|toStudentName:termMarks")
+                      br
+                      | Classe: 
+                      strong(ng-bind="student_class|toClasse:ClassList|toClasseName|uppercase")
+              tr
+                td(colspan='2', style='text-align:left;')
+                  .col-md-12
+                    center
+                      strong Academic Year&nbsp 
+                        span(ng-bind="choosen_year|toNormal")
+              tr
+                td(colspan='2', align='left',style="text-align:left;")
+                  table.table.table-condensed.table-bordered
+                    thead
+                      tr
+                        th(rowspan='3')
+                          | Subject
+                      tr
+                        th.report-td-pct(colspan='3'): strong MAX POINTS
+                        th.report-th.report-border(colspan='3')
+                          strong(ng-bind="choosen_term|toTerm|uppercase")
+                      tr(align='center')
+                        th.report-td-pct: strong TEST
+                        th.report-td-pct: strong EX
+                        th.report-td-pct: strong TOT
+                        th.report-th: strong TEST
+                        th.report-th: strong EX
+                        th.report-th.report-brd-right: strong TOT
+                    tbody
+                      tr
+                        td(style="font-weight: bold;background: #e3e7ed;text-align:left;") CONDUCT
+                        td.report-td-cond(colspan='3', ng-bind="conduct_wgt")
+                        td.report-brd-right(colspan='3' ng-bind="mark_conduct")
+                      tr(ng-repeat="mark in studentMark|orderBy:['-total_wgt','name']")
+                        td(style="font-weight: bold;background: #e3e7ed;text-align:left;" ng-bind="mark.name|uppercase")
+                        td.report-td-pct(ng-bind="mark.test_wgt")
+                        td.report-td-pct(ng-bind="mark.exam_wgt")
+                        td.report-td-pct(ng-bind="mark.total_wgt")
+                        td 
+                          span(ng-if="mark.test<mark.test_wgt/2")
+                            u.u-echec(ng-bind="(mark.test).toFixed(1)")
+                          span(ng-if="mark.test>=mark.test_wgt/2" ng-bind="(mark.test).toFixed(1)")
+                        td 
+                          span(ng-if="mark.exam<mark.exam_wgt/2")
+                            u.u-echec(ng-bind="(mark.exam).toFixed(1)")
+                          span(ng-if="mark.exam>=mark.exam_wgt/2" ng-bind="(mark.exam).toFixed(1)")
+                        td
+                          span(ng-if="mark.total<mark.total_wgt/2")
+                            u.u-echec(ng-bind="(mark.total).toFixed(1)")
+                          span(ng-if="mark.total>=mark.total_wgt/2" ng-bind="(mark.total).toFixed(1)")
+                    tfoot(align='right')
+                      tr
+                        td.report-bord Total
+                        td.report-td-pct(ng-bind="tot_test_wgt")
+                        td.report-td-pct(ng-bind="tot_exam_wgt")
+                        td.report-td-pct(ng-bind="tot_total_wgt")
+                        td
+                          span(ng-if="total_test<(tot_test_wgt/2)")
+                            u.u-echec(ng-bind="total_test.toFixed(1)")
+                          span(ng-if="total_test>=(tot_test_wgt/2)" ng-bind="total_test.toFixed(1)")
+                        td
+                          span(ng-if="total_exam<(tot_exam_wgt/2)")
+                            u.u-echec(ng-bind="total_exam.toFixed(1)")
+                          span(ng-if="total_exam>=(tot_exam_wgt/2)" ng-bind="total_exam.toFixed(1)")
+                        td
+                          span(ng-if="total_tot<(tot_total_wgt/2)")
+                            u.u-echec(ng-bind="total_tot.toFixed(1)")
+                          span(ng-if="total_tot>=(tot_total_wgt/2)" ng-bind="total_tot.toFixed(1)") 
+                      tr
+                        td(style="font-weight: bold;text-align:left;") Percent (%)
+                        td(style="font-weight: bold;text-align:right;",colspan='6' ng-bind="percent.toFixed(1)+'%'")
+                      tr
+                        td(style="font-weight: bold;text-align:left;") Position
+                        td.report-bord(colspan='3')
+                        td(colspan='3', ng-bind="stud_place+' / '+termMarks.length")
+                      tr
+                        td(style="font-weight: bold;text-align:left;") Teacher's Signature
+                        td(colspan='3')
+                        td(colspan='3')
+                      tr
+                        td(style="font-weight: bold;text-align:left;") Parent's Signature
+                        td(colspan='3')
+                        td(colspan='3')
+              tr
+                td
+                  strong Pass
+                  br
+                  strong Repeat
+                  br
+                  strong Discontinued
+                td
+                  | Done at 
+                  strong
+                  br
+                  br
+                  | HeadMistress:
+                  br
+                  | (Signature and stamps)

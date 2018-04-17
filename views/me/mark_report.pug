@@ -1,0 +1,646 @@
+extends ../layout
+block append scripts
+  //- script(src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular-resource.min.js")
+  script(src="../js/MIT/jquery.select-bootstrap.js",type="application/javascript")
+  script(src="../js/kendo.all.min.js",type="application/javascript")
+block append css_code
+  link(rel="stylesheet", type="text/css", href="../css/report_table.css")
+  link(rel="stylesheet", type="text/css", href="https://kendo.cdn.telerik.com/2018.1.221/styles/kendo.common.min.css")
+  link(rel="stylesheet", type="text/css", href="https://kendo.cdn.telerik.com/2018.1.221/styles/kendo.blueopal.min.css")
+block append content 
+  //- .main-panel
+    include ../partials/header 
+  .wrapper.wrapper-full-page.full-page-background(ng-controller="reportCtrl",style="background-image: url('../imgs/register.jpeg')")
+    .full-page.login-page
+      .content
+        .container-fluid
+          .row
+            .col-md-12.center
+              .card
+                .card-header.card-header-icon(data-background-color="rose")
+                  i.material-icons school
+                .card-content
+                  h4.card-title.text-center.text-info
+                    strong Complete the required parameters to generate the report
+                  .row
+                    if (access==3)
+                      .col-md-12
+                        h3.card-title.text-center.text-danger(ng-show="error")
+                          strong Sorry, your class does not have marks to present on report
+                    if access!==3
+                      .col-md-2
+                        .form-group.label-floating
+                          label.control-label Choose the class
+                          select.form-control(required="true",ng-model="selectClass",ng-change="getAcademicYearsList()")
+                            option(value="", disabled selected)
+                            option(value="{{class._id}}", ng-repeat="class in ClassList", ng-bind="class.name|uppercase|toClasseName")
+                    .col-md-2
+                      .form-group.label-floating
+                        label.control-label Choose the academic year
+                        select.form-control(required="true",ng-model="choosen_year",ng-change="getListTerms()")
+                          option(value="", disabled selected)
+                          option(value="{{umwaka}}", ng-repeat="umwaka in academic_years", ng-bind="umwaka|toNormal") 
+                    .col-md-2
+                      .form-group.label-floating
+                        label.control-label Choose the 
+                          span(ng-bind="term_name|toTermName")
+                        select.form-control(required="true",ng-model="choosen_term")
+                          option(value="", disabled selected)
+                          option(value="{{term}}", ng-repeat="term in list_terms" ng-bind="(term_name|toTermName)+(term)")
+                    .col-md-6
+                      label.radio-inline
+                        input(type="radio",ng-model="report_type", value="is_midterm")
+                        | Mid-Term 
+                      label.radio-inline
+                        input(type="radio",ng-model="report_type", value="is_term_sum")
+                        | Term Summary
+                      label.radio-inline
+                        input(type="radio",ng-model="report_type", value="is_term")
+                        | End of Term
+                      //- label.radio-inline
+                        input(type="radio",ng-model="report_type", value="is_yearly")
+                        | Whole year
+                      button.btn.btn-rose.center(ng-click="getAllStudentsReport()") Get report
+                      button.btn.btn-info.center(ng-click="getPrintedReport(print_name)") Save pdf
+            include partials/end_term_all
+            include partials/end_term_one
+            include partials/term_sumary
+            include partials/mid_term
+            include partials/view_yearly_one
+            include partials/view_yearly_all
+block append scripts
+  script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+  //script(src="../js/Controlers/markCtlr.js", type="text/javascript")
+  script.
+    var app =angular.module('eshuri_App', ['ngRoute', 'angularUtils.directives.dirPagination']);
+    app
+    .filter('toNormal', function() {    
+      return function(input){       
+        return Number(input)+Number(2000)
+      }
+    })
+    .filter('toStudentName', function() {    
+      return function(input, student_list){
+        if(input==''||!input) return 'Student name';
+        for(var i =0;i < student_list.length;i++){
+          if(student_list[i].id == input) return student_list[i].name.toUpperCase();
+        }
+      }
+    })
+    .filter('toDistrict', function() {    
+      return function(input){
+        if(isNaN(input)) return input;
+        switch(input){
+          case '1': input ="Eastern-Bugesera";break;
+          case '2': input ="Eastern-Gatsibo";break;
+          case '3': input ="Eastern-Kayonza";break;
+          case '4': input ="Eastern-Kirehe";break;
+          case '5': input ="Eastern-Ngoma";break;
+          case '6': input ="Eastern-Nyagatare";break;
+          case '7': input ="Eastern-Rwamagana";break;
+          case '8': input ="Kigali-Gasabo";break;
+          case '9': input ="Kigali-Kicukiro";break;
+          case '10': input ="Kigali-Nyarugenge";break;
+          case '11': input ="Northen-Burera";break;
+          case '12': input ="Northen-Gakenke";break;
+          case '13': input ="Northen-Gicumbi";break;
+          case '14': input ="Northen-Musanze";break;
+          case '15': input ="Northen-Rulindo";break;
+          case '16': input ="Southern-Gisagara";break;
+          case '17': input ="Southern-Huye";break;
+          case '18': input ="Southern-Kamonyi";break;
+          case '19': input ="Southern-Muhanga";break;
+          case '20': input ="Southern-Nyamagabe";break;
+          case '21': input ="Southern-Nyanza";break;
+          case '22': input ="Southern-Nyaruguru";break;
+          case '23': input ="Southern-Ruhango";break;
+          case '24': input ="Western-Karongi";break;
+          case '25': input ="Western-Ngororero";break;
+          case '26': input ="Western-Nyabihu";break;
+          case '27': input ="Western-Nyamasheke";break;
+          case '28': input ="Western-Rubavu";break;
+          case '29': input ="Western-Rusizi";break;
+          case '30': input ="Western-Rutsiro";break;
+          default: input="_____________________";break;
+        }
+        return input;
+      }
+    })
+    .filter('toTermName', function() {    
+      return function(input){       
+        return input=='S'?'Semester':'Term'
+      }
+    })
+    .filter('toTerm', function() {    
+      return function(input){
+        var name='';
+        switch(input){
+          case '1': name='first'; break;
+          case '2': name='second'; break;
+          case '3': name='third'; break;
+          default: name='-'; break;
+        }     
+        return input=='S'?name+' Semester':name+' Term';
+      }
+    })
+    .filter('toClasseName', function() {
+      return function(input, term){
+        return term=='S'?'Y'+input:'S'+input
+      }
+    })
+    .filter('toClasse', function() {
+      return function(input, classes_list){
+        if(input==''||!input) return 'Class name';
+        for(var i =0;i < classes_list.length;i++){
+          if(classes_list[i]._id == input) return classes_list[i].name;
+        }
+        //- return term=='S'?'Y'+input:'S'+input
+      }
+    })
+    .controller('reportCtrl', ['$scope', '$http','$window',function($scope, $http,$window){
+      function fixPlaces(array, attr, value){
+        for (var i=0;i<array.length;i++){
+          if(array[i][attr]===value){
+            return i+1;
+          }
+        } 
+        return -1;
+      }
+      $scope.studentMark = [];
+      $scope.qTest=0,$scope.qExam=0,$scope.qtotal=0,$scope.testT1=0,$scope.ExamT1=0,$scope.totalT1=0,$scope.testT2=0,$scope.ExamT2=0,$scope.totalT2=0,$scope.testT3=0,$scope.ExamT3=0,$scope.totalT3=0,$scope.yQuotaTotal=0,$scope.mQuotaTotal=0;
+      $scope.getAcademicYearsList = function(){
+        if('#{access}'==='3') $scope.selectClass='#{teacher_class}';
+        $http
+        .get("/class.academic_years/"+$scope.selectClass)
+        .then(function(response){
+          $scope.academic_years= response.data;
+          //console.log($scope.academic_years)
+        })
+        .catch(function(erreur){
+          if('#{access}'==='3'){ 
+            $scope.error=true;
+          }
+          Notifier.danger(erreur.data)
+        });        
+      }
+      $scope.showDivs=function(){
+        $scope.y_report_all=true;$scope.y_report_one=false;
+      }
+      $scope.showTermDivs=function(){
+        $scope.term_report_all=true;$scope.term_report_one=false;
+        $scope.print_student_report=false;
+      }
+      $scope.printRepo = function (divName) {
+        // Opera 8.0+
+        var isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+        // Firefox 1.0+
+        var isFirefox = typeof InstallTrigger !== 'undefined';
+        // Safari 3.0+ "[object HTMLElementConstructor]" 
+        var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
+        // Internet Explorer 6-11
+        var isIE = /*@cc_on!@*/false || !!document.documentMode;
+        // Edge 20+
+        var isEdge = !isIE && !!window.StyleMedia;
+        // Chrome 1+
+        var isChrome = !!window.chrome && !!window.chrome.webstore;
+        // Blink engine detection
+        var isBlink = (isChrome || isOpera) && !!window.CSS;
+        if(isChrome||isBlink){
+          var printContents = document.getElementById(divName).innerHTML;
+          var originalContents = document.body.innerHTML;
+          document.body.innerHTML = printContents;
+          window.print();
+          //- document.body.innerHTML = originalContents;
+        }
+        else{
+         swal({
+            title: 'Save As PDF',
+            html: 'Sorry the browser you are using is not supporting BROWSER PRINT<br>'+
+                  'Change the browser or <i style="color:green">Save as pdf</i>',
+            showCancelButton: true,
+            confirmButtonClass: 'btn btn-success',
+            cancelButtonClass: 'btn btn-danger',
+            confirmButtonText: 'Yes, Save as pdf!',
+            buttonsStyling: false
+          }).then(function(result) {          
+            $scope.getPrintedReport($scope.print_name);
+          }).catch(swal.noop)
+        } 
+
+          //- Notifier.danger('Sorry, this print is for Google Chrome. Save as pdf instead')
+      }
+      $scope.getClassList = function(){
+        $http
+        .get("/classe.list.for.report/"+$scope.school_id)
+        .then(function(response){
+          $scope.ClassList= response.data;
+          //console.log("Classes: "+$scope.ClassList)
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data);
+        });        
+      };
+      $scope.getListTerms = function(){
+        $http
+        .get("/student.get.terms/"+$scope.choosen_year)
+        .then(function(response){
+          $scope.list_terms= response.data;
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data)
+        }); 
+      }
+      $scope.getAllStudentsReport = function(){
+        switch($scope.report_type){
+          case "is_midterm":
+            $scope.mt_report=true;$scope.y_report_one=false;$scope.y_report_all=false;$scope.term_report_all=false;$scope.term_report_one=false;$scope.term_sumary=false;
+            $scope.midTermMarks(); break;
+          case "is_term_sum":
+            $scope.term_sumary=true;$scope.term_report_all=false;$scope.mt_report=false;$scope.y_report_one=false;$scope.y_report_all=false;$scope.term_report_one=false;
+            $scope.termSumaryMarks();break;
+          case "is_term":
+            $scope.term_report_all=true;$scope.mt_report=false;$scope.y_report_one=false;$scope.y_report_all=false;$scope.term_report_one=false;$scope.term_sumary=false;
+            $scope.termClassMarks(); break;
+          case "is_yearly":
+            $scope.y_report_all=true;$scope.term_report_all=false;$scope.mt_report=false;$scope.y_report_one=false;$scope.term_report_one=false;$scope.term_sumary=false;
+            $scope.yearlyClassMarks(); break;
+          default: Notifier.danger("Select report type");
+        }      
+      }
+      $scope.termSumaryMarks = function(){
+        $scope.loading = true;
+        $scope.termSumary = [];$scope.keys=[];
+        $http
+        .post('/report.termSum',{academic_year:$scope.choosen_year,class_id:$scope.selectClass,term:$scope.choosen_term})
+        .then(function(res){
+          $scope.loading = false;
+          var response = res.data;
+          $scope.classename = response.classe_name;
+          $scope.print_name = response.classe_name;
+          $scope.termSumary = response.students;
+          //- for (var i=0; i<response.students.length; i++){
+          //-   av_pct = (response.students[i].marks*100)/response.students[0].total;
+          //-   $scope.midMarks.push({
+          //-     name:response.students[i].name,
+          //-     courses:response.students[i].courses,
+          //-     marks:response.students[i].marks.toFixed(1),
+          //-     pct:av_pct.toFixed(1)+'%',
+          //-     echecs:response.students[i].echecs,
+          //-     total:response.students[i].total
+          //-   })
+          //- }
+          /*This will flatten the JSON structure and creates the data for the pivot table that is required for HTML table*/
+          $scope.termSumary.forEach(function(sheet){
+            sheet.courses.forEach(function(course) {
+              //- var is_echec=(course.points>=(course.outof/2))?false:true
+              //- is_echec?'<u style="color:red;">'+course.points.toFixed(1)+'</u>':
+              sheet[course.name] =course.points.toFixed(1);
+            });
+          });
+          /*This forms the header for the table - to be used in <th>*/
+          $scope.keys = Object.keys($scope.termSumary[0]);
+        })
+      }
+      $scope.midTermMarks = function(){
+        $scope.loading = true;
+        $scope.midMarks = [];
+        var av_pct = 0
+        $http
+        .post('/report.midterm',{academic_year:$scope.choosen_year,class_id:$scope.selectClass,term:$scope.choosen_term})
+        .then(function(res){
+          $scope.loading = false;
+          var response = res.data;
+          $scope.classename = response.classe_name;
+          $scope.print_name = response.classe_name;
+          //- $scope.midMarks = response.students;
+          for (var i=0; i<response.students.length; i++){
+            av_pct = (response.students[i].marks*100)/response.students[0].total;
+            $scope.midMarks.push({
+              name:response.students[i].name,
+              courses:response.students[i].courses,
+              marks:response.students[i].marks.toFixed(1),
+              pct:av_pct.toFixed(1)+'%',
+              echecs:response.students[i].echecs,
+              total:response.students[i].total
+            })
+          }
+          /*This will flatten the JSON structure and creates the data for the pivot table that is required for HTML table*/
+          $scope.midMarks.forEach(function(sheet){
+            sheet.courses.forEach(function(course) {
+              var is_echec=(course.points>=(course.outof/2))?false:true
+              //- is_echec?'<u style="color:red;">'+course.points.toFixed(1)+'</u>':
+              sheet[course.name] =course.points.toFixed(1);
+            });
+          });
+          /*This forms the header for the table - to be used in <th>*/
+          $scope.keys = Object.keys($scope.midMarks[0]);
+        })
+        .catch(function(err){
+          Notifier.danger(err.data);
+          $scope.mt_report = false;
+        })
+      }
+      $scope.termClassMarks = function(){
+        $scope.termMarks = [];
+        $scope.loading = true;
+        $http
+        .post('/report.endterm',{academic_year:$scope.choosen_year,class_id:$scope.selectClass,term:$scope.choosen_term})
+        .then(function(res){
+          $scope.loading = false;
+          $scope.test_q = res.data.test_q;
+          $scope.exam_q = res.data.exam_q;
+          $scope.total_q = res.data.total_q;
+          $scope.term = res.data.term;
+          $scope.name_class = res.data.classe_name;
+          $scope.termMarks = res.data.students;
+          $scope.print_name = $scope.name_class;
+        })
+        .catch(function(error){
+          Notifier.danger(error.data);
+          $scope.term_report_all=false;
+        })
+      }
+      $scope.getPrintedReport = function(name_to_save){
+        var c_name = $scope.term_name=='S'?'Y'+name_to_save:'S'+name_to_save;
+        var name_term =  $scope.term_name=='S'?'Semester':'Term';
+        var file_name="",field_to_print="";
+        switch($scope.report_type){
+          case "is_midterm": 
+            if(!$scope.midMarks.length)
+              return Notifier.danger("There is no MID-TERM marks to save");
+            else
+              file_name=c_name+"(Mid-Term)";
+              field_to_print = "mid-term-report";
+              break;
+          case "is_term": 
+            if(!$scope.termMarks.length)
+              return Notifier.danger("There is no END OF TERM marks to save");
+            else if($scope.print_student_report){
+              //- return Notifier.danger("Report is not complete");
+              for(var i=0;i<$scope.termMarks.length;i++){
+                if($scope.termMarks[i].id==$scope.student_name)
+                  file_name=$scope.termMarks[i].name;
+              }
+              field_to_print="student-report-one";break;
+            }
+            else
+              file_name=c_name+"("+name_term+$scope.choosen_term+")";
+              field_to_print="endof-term-report";
+              break;
+          case "is_term_sum":
+            if(!$scope.termSumary.length)
+              return Notifier.danger("There is no class marks to save");
+            else
+              file_name=c_name+"(Term"+$scope.choosen_term+")";
+              field_to_print = "term-report";
+              break;
+          case "is_yearly": 
+            if(!$scope.studentsMark.length) 
+              return Notifier.danger("There is no FULL YEAR marks to save");
+            else
+              file_name=c_name;
+              field_to_print="student-report";
+              break;
+          default: break;
+        }
+        if(file_name!=""&&field_to_print!=""){
+          kendo.drawing.drawDOM($("#"+field_to_print))
+          .then(function(group) {
+            kendo.drawing.pdf.saveAs(group, file_name.toUpperCase()+".pdf");
+          });
+        }else Notifier.danger("There is no name to save")
+      }
+      $scope.yearlyClassMarks = function(){
+        $scope.pages=[3];$scope.studentsMark = [];
+        $http
+        .post('/report.all', {academic_year:$scope.choosen_year,class_id:$scope.selectClass})
+        .then(function(response){
+          var dataTerm1 = response.data[0].term1;
+          var dataTerm2 = response.data[0].term2;
+          var dataTerm3 = response.data[0].term3;
+          var dataTotal = response.data[0].total;
+          $scope.classInfo = response.data[0].class_info;
+          $scope.courses = response.data[0].courses;
+          var place1='',place2='',place3='';
+          var test=0;
+          for(var i=0; i<dataTerm1.length; i++){
+            for(var j=0; j<dataTerm2.length; j++){
+              for(var k=0; k<dataTerm3.length; k++){
+                for(var p=0; p<dataTotal.length; p++){
+                  if(dataTerm1[i].urn == dataTerm2[j].urn && dataTerm2[j].urn == dataTerm3[k].urn && dataTerm3[k].urn == dataTotal[p].urn){
+                    var term1Pct = Number(dataTerm1[i].total_mark)*100/Number(dataTerm1[i].total_quota);
+                    var term2Pct = Number(dataTerm2[j].total_mark)*100/Number(dataTerm1[i].total_quota);
+                    var term3Pct = Number(dataTerm3[k].total_mark)*100/Number(dataTerm1[i].total_quota);
+                    var annualPct = (term1Pct+term2Pct+term3Pct)/3;
+                    var annual = Number(dataTerm1[i].total_mark)+Number(dataTerm2[j].total_mark)+Number(dataTerm3[k].total_mark);
+
+                    place1 = fixPlaces(dataTerm1, 'total_mark', dataTerm1[i].total_mark);
+                    place2 = fixPlaces(dataTerm2, 'total_mark', dataTerm2[j].total_mark);
+                    place3 = fixPlaces(dataTerm3, 'total_mark', dataTerm3[k].total_mark);
+                    place_t = fixPlaces(dataTotal, 'total_mark', dataTotal[p].total_mark);
+                    $scope.studentsMark.push({
+                      name:dataTerm1[i].name,
+                      urn:dataTerm1[i].urn,
+                      test_t1_mark:dataTerm1[i].test_mark,
+                      exam_t1_mark:dataTerm1[i].exam_mark,
+                      total_t1_mark:dataTerm1[i].total_mark,
+                      place1:place1,
+                      total_t1_pct:term1Pct,
+                      test_t2_mark:dataTerm2[j].test_mark,
+                      exam_t2_mark:dataTerm2[j].exam_mark,
+                      total_t2_mark:dataTerm2[j].total_mark,
+                      place2:place2,
+                      total_t2_pct:term2Pct,
+                      test_t3_mark:dataTerm3[k].test_mark,
+                      exam_t3_mark:dataTerm3[k].exam_mark,
+                      total_t3_mark:dataTerm3[k].total_mark,
+                      place3:place3,
+                      total_t3_pct:term3Pct,
+                      annual_pct:annualPct,
+                      year_place:place_t,
+                      annual:annual,
+                    });
+                  }
+                }
+              }
+            }
+          }
+          for(var i=1;i<=$scope.studentsMark.length;i++){
+            if(i%7==0) $scope.pages.push(i);
+            else if(i==$scope.studentsMark.length) $scope.pages.push(i);
+          }    
+          console.log('All st:'+$scope.studentsMark.length)
+        }).catch(function(err){
+          Notifier.danger(err.data);
+          $scope.y_report_all = false;
+          $scope.choosen_year='';
+          $scope.selectClass='';
+        })
+      }
+      $scope.getTermReportOne = function(student, student_place){
+        //- console.log('term:'+$scope.choosen_term)
+        $scope.studentMark = [];
+        $scope.student_name = student;
+        $scope.student_class = $scope.selectClass;
+        $scope.stud_place = student_place;
+        $scope.total_test=0,$scope.total_exam=0,$scope.total_tot=0;
+        $scope.tot_test_wgt=0,$scope.tot_exam_wgt=0,$scope.tot_total_wgt=0;
+        $scope.term_report_one=true;$scope.term_report_all=false;$scope.mt_report=false;$scope.y_report_one=false;$scope.y_report_all=false;
+        $http
+        .post('report.university',{student:student,place:student_place, class_id:$scope.selectClass, currentTerm:$scope.choosen_term, academic_year:$scope.choosen_year})
+        .then(function(res){
+          $scope.print_student_report=true;
+          var all_marks=res.data[0].marks;
+          for(var i=0; i<all_marks.length; i++){
+            if(all_marks[i].name!=="conduite"){
+              $scope.studentMark.push({
+                name:all_marks[i].name,
+                code:all_marks[i].code,
+                test:all_marks[i].test,
+                exam:all_marks[i].exam,
+                total:all_marks[i].total,
+                test_wgt:all_marks[i].test_quota,
+                exam_wgt:all_marks[i].exam_quota,
+                total_wgt:all_marks[i].course_weight,
+              });
+              $scope.total_test+=all_marks[i].test;
+              $scope.total_exam+=all_marks[i].exam;
+              $scope.total_tot+=all_marks[i].total;
+              $scope.tot_test_wgt+=all_marks[i].test_quota;
+              $scope.tot_exam_wgt+=all_marks[i].exam_quota;
+              $scope.tot_total_wgt+=all_marks[i].course_weight;
+            }
+            else if(all_marks[i].name==="conduite"){
+              if(all_marks[i].test!==0&&all_marks[i].exam!==0)
+                $scope.mark_conduct=all_marks[i].total;
+              else $scope.mark_conduct=(all_marks[i].total)*2;
+              $scope.conduct_wgt=all_marks[i].course_weight;
+            }
+            else{
+              $scope.mark_conduct=0;
+              $scope.conduct_wgt=0;
+            }
+          }
+          $scope.percent=$scope.total_tot*100/$scope.tot_total_wgt;
+          //- console.log('Marks: '+JSON.stringify(all_marks))
+        })
+        .catch(function(err){
+          Notifier.danger(err.data);
+          $scope.term_report_one=false;
+        })
+      }
+      $scope.getOneStudentReport = function(student){
+        //- console.log('Student info:'+JSON.stringify(student))
+        $scope.y_report_one = true;
+        $scope.y_report_all = false;
+        $scope.studentMark = [], $scope.places = [];
+        $scope.qTest=0,$scope.qExam=0,$scope.qtotal=0,$scope.testT1=0,$scope.ExamT1=0,$scope.totalT1=0,$scope.testT2=0,$scope.ExamT2=0,$scope.totalT2=0,$scope.testT3=0,$scope.ExamT3=0,$scope.totalT3=0,$scope.yQuotaTotal=0,$scope.mQuotaTotal=0;
+        $http
+        .post("/report.one",{
+          academic_year:$scope.choosen_year,
+          class_id:$scope.selectClass,
+          student_id:student.urn,
+          school_id:$scope.school_id})
+        .then(function(response){
+          //$scope.allRecords= response.data;
+          var dataTerm1 = response.data[0].term1;
+          var dataTerm2 = response.data[0].term2;
+          var dataTerm3 = response.data[0].term3;
+          $scope.userInfo = response.data[0].userInfo;
+          $scope.places.push({p1:student.place1,p2:student.place2,p3:student.place3,y_place:student.year_place});
+          for(var i=0; i<dataTerm1.length; i++){
+            for(var j=0; j<dataTerm2.length; j++){
+              for(var k=0; k<dataTerm3.length; k++){
+                if(dataTerm1[i].name == dataTerm2[j].name && dataTerm2[j].name == dataTerm3[k].name){
+                  if(dataTerm1[i].name!='conduite'){
+                    var anualQuota = Number(dataTerm1[i].course_q)+Number(dataTerm2[j].course_q)+Number(dataTerm3[k].course_q);
+                    var anualMark = Number(dataTerm1[i].total)+Number(dataTerm2[j].total)+Number(dataTerm3[k].total);
+                    var anualPct = (anualMark*100)/anualQuota;
+                    $scope.studentMark.push({
+                      name:dataTerm1[i].name,
+                      test_quota:dataTerm1[i].test_q,
+                      exam_quota:dataTerm1[i].exam_q,
+                      course_quota:dataTerm1[i].course_q,
+                      testTerm1:dataTerm1[i].test,
+                      examTerm1:dataTerm1[i].exam,
+                      totalTerm1:dataTerm1[i].total,
+                      testTerm2:dataTerm2[j].test,
+                      examTerm2:dataTerm2[j].exam,
+                      totalTerm2:dataTerm2[j].total,
+                      testTerm3:dataTerm3[k].test,
+                      examTerm3:dataTerm3[k].exam,
+                      totalTerm3:dataTerm3[k].total,
+                      anualQuotaTotal:anualQuota,
+                      anualMarkTotal:anualMark,
+                      anualMarkPct:anualPct,
+                    });
+                    $scope.qTest+=dataTerm1[i].test_q;
+                    $scope.qExam+=dataTerm1[i].exam_q;
+                    $scope.qtotal+=dataTerm1[i].course_q;
+                    $scope.testT1+=dataTerm1[i].test;
+                    $scope.ExamT1+=dataTerm1[i].exam;
+                    $scope.totalT1+=dataTerm1[i].total;
+                    $scope.testT2+=dataTerm2[j].test;
+                    $scope.ExamT2+=dataTerm2[j].exam;
+                    $scope.totalT2+=dataTerm2[j].total;
+                    $scope.testT3+=dataTerm3[k].test;
+                    $scope.ExamT3+=dataTerm3[k].exam;
+                    $scope.totalT3+=dataTerm3[k].total;
+                    $scope.yQuotaTotal+=anualQuota;
+                    $scope.mQuotaTotal+=anualMark;
+                  }
+                  if(dataTerm1[i].name=='conduite'){
+                    $scope.conduite_t1=dataTerm1[i].total
+                    $scope.conduite_t2=dataTerm2[j].total
+                    $scope.conduite_t3=dataTerm3[k].total
+                    $scope.conduite_t=Number(dataTerm1[i].total)+Number(dataTerm2[j].total)+Number(dataTerm3[k].total)
+                  }
+                }
+              }
+            }
+          }
+          $scope.totalT1Pct = ($scope.totalT1*100)/$scope.qtotal;
+          $scope.totalT2Pct = ($scope.totalT2*100)/$scope.qtotal;
+          $scope.totalT3Pct = ($scope.totalT3*100)/$scope.qtotal;
+          $scope.anualTotalT3Pct = ($scope.mQuotaTotal*100)/$scope.yQuotaTotal;
+          //console.log($scope.termTwo)
+        })
+        .catch(function(erreur){
+          Notifier.danger(erreur.data)
+        }); 
+      }
+      $scope.printDiv = function (div) {
+        //- $scope.n_pages = 100;
+        //- console.log('All pages: '+$scope.n_pages)
+        var docHead = document.head.outerHTML;
+        var printContents = document.getElementById(div).outerHTML;
+        var winAttr = "location=yes, statusbar=no, menubar=no, titlebar=no, toolbar=no,dependent=no, width=865, height=600, resizable=yes, screenX=200, screenY=200, personalbar=no, scrollbars=yes";
+
+        var newWin = window.open("", "_blank", winAttr);
+        var writeDoc = newWin.document;
+        writeDoc.open();
+        writeDoc.write('<!doctype html><html>' + docHead + '<body onLoad="window.print()" class="col-md-10 center"' + printContents + '</body></html>');
+        writeDoc.close();
+        newWin.focus();
+      }
+      $scope.districts =[
+      "Eastern-Bugesera","Eastern-Gatsibo","Eastern-Kayonza","Eastern-Kirehe","Eastern-Ngoma","Eastern-Nyagatare","Eastern-Rwamagana","Kigali-Gasabo","Kigali-Kicukiro","Kigali-Nyarugenge","Northen-Burera","Northen-Gakenke","Northen-Gicumbi","Northen-Musanze","Northen-Rulindo","Northen-Nyabihu","Southern-Gisagara","Southern-Huye","Southern-Kamonyi","Southern-Muhanga","Southern-Nyamagabe","Southern-Nyanza","Southern-Nyaruguru","Southern-Ruhango","Western-Karongi","Western-Ngororero","Western-Nyabihu","Western-Nyamasheke","Western-Rubavu","Western-Rusizi","Western-Rutsiro",];
+      //$scope.pages=[3,5,10,15,20,25,30,35,40];
+      $scope.left_algn = {
+        "text-align":"left",
+      }
+      $scope.school_id="#{school_id}";
+      $scope.school_name="#{school_name}";
+      $scope.school_district="#{school_district}";
+      $scope.term_name="#{term_name}";
+      $scope.school_phone="#{school_phone}";
+      $scope.school_pob="#{school_pob}";
+      $scope.loading = false;
+      $scope.midMarks = [];$scope.studentsMark = [];$scope.termMarks = [];$scope.termSumary = [];
+      $scope.term_sumary=false;$scope.y_report_one=false;$scope.y_report_all=false;$scope.mt_report=false;$scope.term_report_all=false;$scope.term_report_one=false,$scope.print_student_report=false;$scope.error;
+      if('#{access}'==='3'){
+        $scope.getAcademicYearsList();
+        $scope.selectClass='#{teacher_class}';
+      }
+      $scope.getClassList();
+    }])

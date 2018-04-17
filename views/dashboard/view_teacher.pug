@@ -1,0 +1,168 @@
+extends ../layout
+block append scripts
+	script(src="../js/MIT/jquery.select-bootstrap.js",type="application/javascript")
+block append content
+	//.main-panel
+		include ../partials/header
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="teacherCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page
+			.content
+				.container-fluid
+					.row
+						.col-md-10.center
+							.card
+								.card-header.card-header-icon(data-background-color="rose")
+									i.material-icons person
+								.card-content
+									h3.category.text-center(ng-show ="!teachers.length") No teacher registered yet
+									h3.text-center List of teachers for {{'#{school_name}'|uppercase}}
+									.table-responsive(ng-show ="teachers.length")
+										form.form-inline
+											.form-group.pull-left
+												strong Show
+												select.form-control(ng-init="n_pages=10", ng-model="n_pages", value="10")
+													option(value="{{pag}}", ng-repeat="pag in pages") {{pag}}
+												strong entries
+											.form-group.pull-right
+												input.form-control(type='text', ng-model='search', placeholder='Search')
+										table.table
+											thead
+												th.text-center #
+												th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Name
+												th: a.btn-simple.btn.label.btn-rose(ng-click="a='urn';b=!b") URN
+												th: a.btn-simple.btn.label.btn-rose(ng-click="a='email';b=!b") Email
+												th: a.btn-simple.btn.label.btn-rose(ng-click="") Phone Number
+												th: a.btn-simple.btn.label.btn-rose(ng-click="a='status';b=!b") Access to system
+												th Actions
+											tbody
+												tr(pagination-id="allteachers", dir-paginate="teacher in teachers| orderBy:a:b|filter:search|itemsPerPage:n_pages")
+													td(width="1%" height="1%") {{$index + 1}}
+													td: a(href="/user/{{teacher._id}}") {{teacher.name|uppercase}}
+													td {{teacher.URN|uppercase}}
+													td {{teacher.email}}
+													td {{teacher.phone_number}}
+													td: a.btn-simple.btn.label(ng-click='activateUser(teacher)',ng-class="teacher.isEnabled?'btn-success':'btn-danger'") {{teacher.isEnabled|toURL}}
+													td.td-actions
+														button.btn.btn-primary(type='button',ng-click="setTeacherModel(teacher)", data-target='#edit_teacher_Modal', data-toggle='modal')
+															i.material-icons edit
+														button.btn.btn-danger(type='button',ng-click="deleteTeacher(teacher._id,teacher.name)")
+															i.material-icons close
+										dir-pagination-controls.pull-right(pagination-id='allteachers', max-size='5', direction-links='true', boundary-links='true')
+			#edit_teacher_Modal.modal.fade(role='dialog')
+				.modal-dialog
+					.modal-content
+						.modal-header
+							h4.card-title 
+							| Edit email for 
+							strong(ng-bind="teacher_name")
+
+						.modal-body
+							input.form-control(type="text",ng-model="teacher_old_email",placeholder="Teacher old email",readonly)
+							input.form-control(type="text",ng-model="teacher_new_email",placeholder="Teacher new email")
+							input.form-control(type="password",ng-model="teacher_pass",placeholder="Teacher password")
+							input.form-control(type="password",ng-model="admin_pass",placeholder="Your password")
+						.modal-footer
+							button.btn.btn-sm.btn-primary(ng-click="updateTeacher()") Confirm
+							button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
+block append scripts
+	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+	script(src="../js/MIT/jasny-bootstrap.min.js", type="text/javascript")
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute', 'angularUtils.directives.dirPagination']);
+		app
+		.filter('toURL', function() {
+			return function(input){
+				return input?'Enabled':'Disabled'
+			}
+		})
+		.controller('teacherCtrl', function($scope, $http,$window){
+			$scope.view_teacher = function(id_teacher){
+				$window.location.href ="/teacher/"+id_teacher;
+			}
+			$scope.setTeacherModel = function(teacher_info){
+				$scope.teacher_name = teacher_info.name.toUpperCase();
+				$scope.teacher_old_email = teacher_info.email;
+				$scope.teacher_id = teacher_info._id;
+			}
+			$scope.updateTeacher = function(){
+				$scope.user = {};
+				$scope.user.old_email = $scope.teacher_old_email;
+				$scope.user.new_email = $scope.teacher_new_email;
+				$scope.user.teacher_pass = $scope.teacher_pass;
+				$scope.user.admin_pass = $scope.admin_pass;
+				$scope.user.id = $scope.teacher_id;
+				$http
+				.post('/user.edit.teacheremail',$scope.user)
+				.then(function(res){
+					$scope.teacher_old_email=$scope.teacher_new_email=$scope.teacher_pass=$scope.admin_pass=null;
+					$scope.reload();
+					$('#edit_teacher_Modal').modal('hide');
+					swal({
+						title: 'Email edit confirmed!',
+						text: $scope.teacher_name.toUpperCase()+'\'s email has changed',
+						type: 'success',
+						confirmButtonClass: "btn btn-success",
+						buttonsStyling: false
+					})
+				})
+				.catch(function(error){
+					Notifier.danger(error.data);
+				})
+			}
+			$scope.deleteTeacher = function(teacher_id,teacher_name){
+				swal({
+						title: 'Do you want to remove the teacher \n<i style="color:red">'+teacher_name.toUpperCase()+'</i>  \n from this school\n ?',
+						text: "He will no longer access to this school information",
+						type: 'warning',
+						showCancelButton: true,
+						confirmButtonClass: 'btn btn-success',
+						cancelButtonClass: 'btn btn-danger',
+						confirmButtonText: 'Yes, delete it!',
+						buttonsStyling: false
+					}).then(function(){
+					  	$http
+						.post("/school.teacher.delete",{_csrf:$scope.anti_csrf,teacher_id:teacher_id})
+						.then(function(response){
+							$scope.reload();
+							swal({
+								title: 'Removed!',
+								text: teacher_name+' and all of its content \n has been successfully removed.',
+								type: 'success',
+								confirmButtonClass: "btn btn-success",
+								buttonsStyling: false
+							})
+						})
+						.catch(function(erreur){
+							Notifier.danger(erreur.data);
+						});
+					});
+			}
+			$scope.activateUser = function(user){
+				$http
+		 		.get("/user.enable/"+user._id)
+		 		.then(function(response){
+		 			user.isEnabled =!user.isEnabled;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data)
+				});	
+			}
+			$scope.getTeacherList = function(){
+				$http
+		 		.get("/school.teachers.list/"+$scope.school_id)
+		 		.then(function(response){
+					$scope.teachers=response.data;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data)
+				});	
+			}
+			$scope.reload = function(){
+				$scope.getTeacherList();
+			}
+			$scope.pages=[3,5,10,15,20,25];
+			$scope.add_teacher=false;
+			$scope.school_id ="#{school_id}"
+			$scope.anti_csrf = "#{csrf_token}"
+			$scope.reload();
+		})
