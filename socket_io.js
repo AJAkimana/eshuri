@@ -36,27 +36,26 @@ module.exports = function(app) {
     console.log('______________________________________________')
   }));
   /* Get some information*/
-  io.use(function(socket, next) {
+  io.use((socket, next)=>{
     //console.log(" Socket info = "+JSON.stringify(socket.request.headers));
     console.log(" Check if the COOKIE IS a valid cookie !!");
     console.log(" This is where all the security is relying... !!");
     next(null, true);
   });
   console.log("```````````````````````````````````````````````")
-    io.on('connection', function(socket){
-    socket.on('connect', function(eventData){
-        clients.push(socket);
+  io.on('connection', (socket)=>{
+    socket.on('connect', (eventData)=>{
+      clients.push(socket);
     });
-    socket.on('join', function (data) {
+    socket.on('join', (data)=>{
       num_clients++;
-       socket.join(data.myID);// join his ID as room name 
+      socket.join(data.myID);// join his ID as room name 
     });
-    socket.on('leave', function (data) {
-       num_clients--;
-       socket.leave(data.myID);// join his ID as room name
-       
+    socket.on('leave', (data)=>{
+      num_clients--;
+      socket.leave(data.myID);// join his ID as room name
     });
-    socket.on('new_message', function(data) {
+    socket.on('new_message', (data)=>{
       // We receive, msg:$scope.newMsg,from:'#{pic_id}',dest:$scope.interlocutor._id})
       // Send to the guy that is inthe ROOM
       var async = require("async");
@@ -67,8 +66,7 @@ module.exports = function(app) {
             else if(!exists) return callback("Not exists");
             callback(null);
           })
-        },
-        (callback)=>{ //check detination exists
+        },(callback)=>{ //check detination exists
           User.findOne({_id:data.dest},(err,exists)=>{
             if(err) return callback(err);
             else if(!exists) return callback("Not exists");
@@ -91,8 +89,7 @@ module.exports = function(app) {
         })
       })
     });
-    
-    socket.on('disconnect', function() {
+    socket.on('disconnect', ()=>{
     });
   });
   console.log("```````````````````````````````````````````````")

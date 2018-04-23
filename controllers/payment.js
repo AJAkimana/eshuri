@@ -18,7 +18,7 @@ exports.postPayment = function(req, res, next) {
         email:req.body.email,
         phone_number:req.body.phone
     });
-    newPayment.save(function (err) {
+    newPayment.save((err)=>{
         if(err) return log_err(err, false, req, res);
         let migs_payload = {
             amount: parseInt(req.body.amount),

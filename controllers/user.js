@@ -601,9 +601,7 @@ exports.postForgotPassword = (req,res,next)=>{
         token: token,
        };
        // send the mail
-      email_sender
-      .send_password_reset_link(infos)
-      .then((info)=>{
+      email_sender.send_password_reset_link(infos).then((info)=>{
         console.log(" MAIL OK SENT !!!")
       })
       .catch((error)=>{
@@ -679,8 +677,7 @@ exports.getValidateYourAccount = (req,res,next)=>{
   if (errors) return res.status(400).send(errors[0].msg);
   // On verifie si ce token est encore valide
   Token.findOne({value:req.query.m+req.query.t},(err,token_exists)=>{
-    if(err)
-      return log_err(err,true,req,res);
+    if(err) return log_err(err,true,req,res);
     // if token not exists or token expired _> invalida link
     else if(!token_exists) return res.status(400).send(err_msg);
     else if( (Date.now() - new Date(token_exists.created_at).getTime())/1000 > 3* 60 *60 )     
@@ -712,8 +709,7 @@ exports.getValidateYourAccount = (req,res,next)=>{
           token_exists.remove((err)=>{
             if(err) console.log("Service not available")
           })
-        })
-          
+        })  
       })          
     }
   })

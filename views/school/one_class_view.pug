@@ -46,7 +46,7 @@ block append content
                         .col-xs-12.col-sm-6.col-md-4.col-lg-4(ng-repeat="classe in classes")
                           div(ng-class="'s'+classe.name==name?'btn-danger':''")
                             h3
-                              a(href='/classe/{{classe.academic_year}}{{classe.class_id}}')
+                              a(href='/classe/{{classe.class_id}}')
                                 b {{classe.name|uppercase|toClasseName}}
                             h3
                               strong {{classe.academic_year|yearToDate:term_name}}

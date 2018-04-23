@@ -72,7 +72,7 @@ block append scripts
   script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
   //script(src="../js/Controlers/markCtlr.js", type="text/javascript")
   script.
-    var app =angular.module('eshuri_App', ['ngRoute', 'angularUtils.directives.dirPagination']);
+    var app =angular.module('eshuri_App', ['ngRoute', 'angularUtils.directives.dirPagination', 'ngSanitize']);
     app
     .filter('toNormal', function() {    
       return function(input){       
@@ -157,7 +157,7 @@ block append scripts
         //- return term=='S'?'Y'+input:'S'+input
       }
     })
-    .controller('reportCtrl', ['$scope', '$http','$window',function($scope, $http,$window){
+    .controller('reportCtrl', ['$sce', '$scope', '$http','$window',function($sce, $scope, $http,$window){
       function fixPlaces(array, attr, value){
         for (var i=0;i<array.length;i++){
           if(array[i][attr]===value){
@@ -278,23 +278,12 @@ block append scripts
           $scope.classename = response.classe_name;
           $scope.print_name = response.classe_name;
           $scope.termSumary = response.students;
-          //- for (var i=0; i<response.students.length; i++){
-          //-   av_pct = (response.students[i].marks*100)/response.students[0].total;
-          //-   $scope.midMarks.push({
-          //-     name:response.students[i].name,
-          //-     courses:response.students[i].courses,
-          //-     marks:response.students[i].marks.toFixed(1),
-          //-     pct:av_pct.toFixed(1)+'%',
-          //-     echecs:response.students[i].echecs,
-          //-     total:response.students[i].total
-          //-   })
-          //- }
-          /*This will flatten the JSON structure and creates the data for the pivot table that is required for HTML table*/
           $scope.termSumary.forEach(function(sheet){
             sheet.courses.forEach(function(course) {
-              //- var is_echec=(course.points>=(course.outof/2))?false:true
-              //- is_echec?'<u style="color:red;">'+course.points.toFixed(1)+'</u>':
-              sheet[course.name] =course.points.toFixed(1);
+              var is_echec=(course.points>=(course.outof/2))?false:true
+              sheet[course.name]=is_echec?'<u style="color:red;">'+course.points.toFixed(1)+'</u>':course.points.toFixed(1);
+              sheet[course.name]=$sce.trustAsHtml(sheet[course.name]);
+              //- sheet[course.name]=course.points.toFixed(1)
             });
           });
           /*This forms the header for the table - to be used in <th>*/
@@ -304,7 +293,7 @@ block append scripts
       $scope.midTermMarks = function(){
         $scope.loading = true;
         $scope.midMarks = [];
-        var av_pct = 0
+        var av_pct = 0, is_echec=false;
         $http
         .post('/report.midterm',{academic_year:$scope.choosen_year,class_id:$scope.selectClass,term:$scope.choosen_term})
         .then(function(res){
@@ -312,24 +301,13 @@ block append scripts
           var response = res.data;
           $scope.classename = response.classe_name;
           $scope.print_name = response.classe_name;
-          //- $scope.midMarks = response.students;
-          for (var i=0; i<response.students.length; i++){
-            av_pct = (response.students[i].marks*100)/response.students[0].total;
-            $scope.midMarks.push({
-              name:response.students[i].name,
-              courses:response.students[i].courses,
-              marks:response.students[i].marks.toFixed(1),
-              pct:av_pct.toFixed(1)+'%',
-              echecs:response.students[i].echecs,
-              total:response.students[i].total
-            })
-          }
-          /*This will flatten the JSON structure and creates the data for the pivot table that is required for HTML table*/
+          $scope.midMarks = response.students;
+
           $scope.midMarks.forEach(function(sheet){
             sheet.courses.forEach(function(course) {
-              var is_echec=(course.points>=(course.outof/2))?false:true
-              //- is_echec?'<u style="color:red;">'+course.points.toFixed(1)+'</u>':
-              sheet[course.name] =course.points.toFixed(1);
+              is_echec=(course.points>=(course.outof/2))?false:true
+              sheet[course.name]=is_echec?'<u style="color:red;">'+course.points.toFixed(1)+'</u>':course.points.toFixed(1);
+              sheet[course.name]=$sce.trustAsHtml(sheet[course.name]);
             });
           });
           /*This forms the header for the table - to be used in <th>*/

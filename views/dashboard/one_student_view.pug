@@ -23,7 +23,7 @@ block append content
                         each classe in classes.length?classes:classes=['No classes']
                           .col-xs-12.col-sm-6.col-md-4.col-lg-4
                             h3
-                              a(href='/classe/'+classe.academic_year+classe.class_id) {{'#{classe.name}'|uppercase|toClasseName}}
+                              a(href='/classe/'+classe.class_id) {{'#{classe.name}'|uppercase|toClasseName}}
                             h4 #{classe.number} courses
                       .panel-footer
                         h4.text-center Number of class #{classes.length}
@@ -32,7 +32,7 @@ block append scripts
   script(src="../js/MIT/MIT_moment.min.js", type="text/javascript")
   script(src="../js/MIT/jasny-bootstrap.min.js", type="text/javascript")
   script.
-    var app =angular.module('eshuri_App', ['ngRoute']);
+    var app =angular.module('eshuri_App', ['ngRoute', 'ngStorage']);
     app
     .filter('toTermName', function() {
       return function(input){ 
@@ -54,16 +54,14 @@ block append scripts
       fromNowFilter.$stateful = true;
       return fromNowFilter;
     }])
-    .controller('homePageSchoolCtrl', function($scope, $http,$window){
-      $scope.getTerms_Limit = function() {
-          return Array.apply(null, {length: $scope.term_quantity}).map(Number.call, Number)
-      }
-      $scope.showCourse = function(cours){
-        //if($scope.teacher_id != cours.teacher_id)
-        //  Notifier.danger("This course is not yours")
-        //else
-         $window.location.href="/courses/"+cours._id
+    .controller('homePageSchoolCtrl',($scope, $http,$window, $localStorage)=>{
+      $scope.saveUserClasse = ()=>{
+        if (typeof(Storage) !== "undefined") {
+          $localStorage.classes="#{username}";
+          console.log($localStorage.classes);
+        }else console.log('It is not supported by browser')
       }
       $scope.anti_csrf ="#{csrf_token}";
       $scope.school_id ="#{school_id}";
+      $scope.saveUserClasse();
     })

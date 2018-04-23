@@ -89,20 +89,20 @@ exports.getClasses_JSON = (req,res,next)=>{
   })
 }
 exports.getPageOneClasse = (req,res,next)=>{
-  // req.assert('classe_id', 'Invalid data').isMongoId();
-  var ac_year = req.params.classe_id.slice(0,2);
-  var classe = req.params.classe_id.slice(2);
-  var num_ac = parseInt(ac_year)
-  if(num_ac<17) return res.render("./lost",{msg:"Invalid data"});
-  if(!ObjectID.isValid(classe)) return res.render("./lost",{msg:"Invalid data"});
-  var response ={},temoin=false;
+  req.assert('classe_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
-  if(errors) return res.render("./lost",{msg:"Invalid data"})
+  if(errors) return res.render("./lost",{msg:"Invalid data"});
   var class_name = '', first_letter='';
   var async=require('async');
-  var academic_year;
 
-  Classe.findOne({_id:classe},(err,classe_exists)=>{
+  // var ac_year = req.params.classe_id.slice(0,2);
+  // var classe = req.params.classe_id.slice(2);
+  // var num_ac = parseInt(ac_year)
+  // if(num_ac<17) return res.render("./lost",{msg:"Invalid data"});
+  // if(!ObjectID.isValid(classe)) return res.render("./lost",{msg:"Invalid data"});
+  // var response ={},temoin=false;
+
+  Classe.findOne({_id:req.params.classe_id},(err,classe_exists)=>{
     if(err) return log_err(err,false,req,res);
     else if(!classe_exists)  return res.render("./lost",{msg:"This class doesn't exists "});
     School.findOne({_id:classe_exists.school_id},(err,school_exists)=>{
@@ -110,14 +110,14 @@ exports.getPageOneClasse = (req,res,next)=>{
       else if(!school_exists)  return res.render("./lost",{msg:"This school doesn't exists "});
       first_letter=classe_exists.name.toLowerCase().charAt(0);
       class_name = first_letter==='s'?classe_exists.name:'s'+classe_exists.name;
-      return res.render('school/view_class_term',{
+      return res.render('school/one_class_view',{
         title:class_name.toUpperCase(),
         pic_id:req.user._id,
         school_name:school_exists.name,
         academic_year:classe_exists.academic_year,
         term_name:school_exists.term_name,
         term_quantity:school_exists.term_quantity,
-        class_id:classe,
+        class_id:req.params.classe_id,
         school_id:classe_exists.school_id,
         pic_name:req.user.name.replace('\'',"\\'"),
         access_lvl:req.user.access_level,

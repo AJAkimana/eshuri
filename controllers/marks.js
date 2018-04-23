@@ -523,7 +523,7 @@ exports.getSumTermMarks = (req, res, next)=>{
 	var async = require("async");
 	var students = [],marks = {}, mixed = [], ordered = [],objectMark = {}, parametters={};
 	var outTextMarks=0, outExamMarks=0, outTotal=0;
-	var index_user;
+	var index_user, cat_exam, courseWeight;
 	// Get class infomation
 	Classe.findOne({_id:req.body.class_id},(err, classe_info)=>{
 		if(err) return log_err(err,false,req,res);
@@ -543,10 +543,10 @@ exports.getSumTermMarks = (req, res, next)=>{
 				return getClassStudents_Cb(null);
 			})
 		},(eachStudent_Cb=>{
-	// 2--Get courses for every students
 			async.each(students, (thisStudent, student_Cb)=>{
-				var markCat=0,markExam=0,markCatOutOf=0,markExamOutOf=0;
+				var markCat=0,markExam=0,markCatOutOf=0,markExamOutOf=0,echecs=0;
 				mixed.push({name:thisStudent.name, urn:thisStudent.URN, courses:[]})
+	// 2--Get courses for every students
 				async.series([(getStudentCourses_Cb)=>{
 					Course.find({class_id:req.body.class_id,currentTerm:req.body.term,name:{$ne:'conduite'}},(err,list_Courses)=>{
 						if(err) return getStudentCourses_Cb(err);
@@ -554,7 +554,7 @@ exports.getSumTermMarks = (req, res, next)=>{
 						getStudentCourses_Cb(null);
 					})
 				},(treatEachCoaurse_Cb)=>{
-					var courseMrks=0, courseWgt=0, echecs=0, avg_marks=0;
+					var courseMrks=0, courseWgt=0, avg_marks=0;
 					async.each(listCourses, (thisCourse, course_Cb)=>{
 						var listCATs=[],listExams=[];
 	// 3-- Get quizzes and Exams for every courses
@@ -615,16 +615,16 @@ exports.getSumTermMarks = (req, res, next)=>{
 								})
 							}],(err)=>{
 								if(err) return catAndExamMarks(err);
-	// 4--Sum up marks from tests and quizzes of every courses
+	// 4--Sum up marks from tests, quizzes and exams of every courses
 								var testWeight = thisCourse.test_quota>0?thisCourse.test_quota:0;
 								var examWeight = thisCourse.exam_quota>0?thisCourse.exam_quota:0;
-								var courseWeight = !thisCourse.weightOnReport ? testWeight+examWeight : thisCourse.weightOnReport;
+								courseWeight = !thisCourse.weightOnReport ? testWeight+examWeight : thisCourse.weightOnReport;
 
 								var noteCat=(studentCATMarks*testWeight)/totalCAT;
 								var noteExam =(studentExamMarks*examWeight)/totalExam;
 								noteCat =noteCat>0?noteCat:0;
 								noteExam =noteExam>0?noteExam:0;
-								var cat_exam = noteCat+noteExam;
+								cat_exam = noteCat+noteExam;
 								markCat += noteCat;
 								markExam += noteExam;
 								markCatOutOf += testWeight;
@@ -639,6 +639,8 @@ exports.getSumTermMarks = (req, res, next)=>{
 							})
 						}],(err)=>{
 							if(err) return course_Cb(err);
+	// 5--Counting student fails
+							if(cat_exam<(courseWeight/2)) echecs++;
 							return course_Cb(null);
 						})
 					},(err)=>{
@@ -647,18 +649,17 @@ exports.getSumTermMarks = (req, res, next)=>{
 					})
 				}],(err)=>{
 					if(err) return student_Cb(err);
-	// 5--Save every students marks into array
+	// 6--Save every students marks into array
 					var totalMarks = markCat + markExam;
 					var totalQuota = markCatOutOf + markExamOutOf;
 					var perctg = totalMarks*100/totalQuota;
 					outTextMarks = markCatOutOf;
 					outExamMarks = markExamOutOf;
-					outTotal = totalQuota;
 
 					var marksTot = 'marks /'+totalQuota;
 					mixed[index_user][marksTot]=totalMarks.toFixed(1);
 					mixed[index_user].pct=perctg.toFixed(1);
-					// mixed[index_user].pctage=perctg.toFixed(1);
+					mixed[index_user].fails=echecs;
 
 					return student_Cb(null)
 				})
@@ -668,15 +669,14 @@ exports.getSumTermMarks = (req, res, next)=>{
 			})
 		})],(err)=>{
 			if(err) return log_err(err,false,req,res);
-			// console.log('Marks----->'+JSON.stringify(mixed));
-			// marks.students = mixed.sort(endTermPlaces) // Sort by 1 to n
+			// Sort by 1 to n
 			marks.students = mixed.sort(termPlaces);
 			marks.test_q = outTextMarks; 
 			marks.exam_q = outExamMarks;
 			marks.total_q = outTotal;
 			marks.term = req.body.term;
-	// 6-- Return marks json
-			// console.log(JSON.stringify(marks))
+	// 7-- Return marks json
+			console.log(JSON.stringify(marks))
 			return res.json(marks);
 		})
 	})
@@ -690,7 +690,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 	var async = require("async");
 	var students = [],marks = {}, mixed = [], ordered = [],objectMark = {}, parametters={}, stdt_courses=[];
 	var outMarks = 0, total=0;
-	var index_user;
+	var index_user, courseMark, courseWeight;
 
 	Classe.findOne({_id:req.body.class_id},(err, classe_info)=>{
 		if(err) return log_err(err,false,req,res);
@@ -709,6 +709,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 			async.each(students, (thisStudent, studentCb)=>{
 				mixed.push({name:thisStudent.name, urn:thisStudent.URN, courses:[]})
 				var listAssessmts = [],listCourses=[];
+				var echecs=0;
 				async.series([(Cb_getCourses)=>{
 					Course.find({class_id:req.body.class_id, currentTerm:req.body.term, name:{$ne:'conduite'}},(err, clsCourses)=>{
 						if(err) return Cb_getCourses(err);
@@ -716,7 +717,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 						return Cb_getCourses(null);
 					})
 				},(Cb_eachCourses)=>{
-					var courseMrks=0, courseWgt=0, echecs=0, avg_marks=0;
+					var courseMrks=0, courseWgt=0, avg_marks=0;
 					async.each(listCourses, (thisCourse, courseCb)=>{
 						async.series([(Cb_getAssessments)=>{
 							Marks.find().distinct("content_id", {class_id:req.body.class_id,course_id:thisCourse._id,student_id:thisStudent._id,isQuoted:true,academic_year:req.body.academic_year},(err, student_assmnts)=>{
@@ -740,6 +741,8 @@ exports.getMidTermMarks = (req, res, next)=>{
 							},(err)=>{
 								if(err) Cb_getMarksFromAssmnts(err);
 								index_user=mixed.findIndex(x=>x.urn==thisStudent.URN);
+								courseMark=totalAssmnts;
+								courseWeight=totalMarks
 								mixed[index_user].courses.push({name:Util.getShort(thisCourse.name,3)+' /'+totalMarks,points:totalAssmnts,outof:totalMarks})
 								courseMrks+=totalAssmnts;
 								courseWgt+=totalMarks
@@ -747,11 +750,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 							})
 						}],(err)=>{
 							if(err) courseCb(err)
-							avg_marks = (courseMrks*100)/courseWgt;
-							if(avg_marks<50){
-								echecs++
-							}
-							// console.log(thisStudent.name+'=====In==:'+thisCourse.name+'==>Marks:'+courseMrks+'/'+courseWgt+'. ---->Avg:'+avg_marks.toFixed(1))
+							if(courseMark<(courseWeight/2)) echecs++;
 							return courseCb(null);
 						})
 					},(err)=>{
@@ -759,8 +758,8 @@ exports.getMidTermMarks = (req, res, next)=>{
 						var pct = courseMrks*100/courseWgt;
 						mixed[index_user].marks=courseMrks;
 						mixed[index_user].total=courseWgt;
-						mixed[index_user].pct=pct.toFixed(1);
-						mixed[index_user].echecs=echecs
+						mixed[index_user].pct=pct.toFixed(1)+"%";
+						mixed[index_user].fails=echecs
 						// console.log('Marks:'+courseMrks+'/'+courseWgt)
 						return Cb_eachCourses(null);
 					})
