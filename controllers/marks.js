@@ -756,7 +756,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 					},(err)=>{
 						if(err) Cb_eachCourses(err)
 						var pct = courseMrks*100/courseWgt;
-						mixed[index_user].marks=courseMrks;
+						mixed[index_user].marks=courseMrks.toFixed(1);
 						mixed[index_user].total=courseWgt;
 						mixed[index_user].pct=pct.toFixed(1)+"%";
 						mixed[index_user].fails=echecs
