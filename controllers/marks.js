@@ -676,7 +676,7 @@ exports.getSumTermMarks = (req, res, next)=>{
 			marks.total_q = outTotal;
 			marks.term = req.body.term;
 	// 7-- Return marks json
-			console.log(JSON.stringify(marks))
+			// console.log(JSON.stringify(marks))
 			return res.json(marks);
 		})
 	})
