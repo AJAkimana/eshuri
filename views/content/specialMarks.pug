@@ -15,6 +15,7 @@ block append content
 									h3.card-title Students waiting for marks
 									h6.category {{StudentNotYet.length|| '0'}} students
 									.col-md-12
+										button.btn-primary.pull-right(ng-show="given_mark.length" ng-click="saveMarks()") Save marks
 										.table-responsive(ng-show ="StudentNotYet.length")
 											table.table
 												thead
@@ -28,14 +29,14 @@ block append content
 														td {{student.name|uppercase}}
 														td {{student.URN|uppercase}}
 														td
-															form(ng-submit="setMarks(student._id,student.given_mark)")
-																.input-group
-																	input.form-control(type="number",required="true",ng-model="student.given_mark",ng-init="student.given_mark? student.marks:0")
-																	span.input-group-addon 
-																		strong /{{totalMarks}}
-																	span.input-group-addon
-																		button.btn-primary(type="submit") Save
-										h4.category.text-center(ng-show="!StudentNotYet.length>0") No student to give marks here
+															.input-group
+																input.form-control(type="text",ng-model="given_mark[$index]",ng-change="tmpSave(student._id,student.name,$index)")
+																span.input-group-addon 
+																	strong /{{totalMarks}}
+																//- span.input-group-addon
+																	button.btn-primary(type="submit") Save
+																	h4.category.text-center(ng-show="!StudentNotYet.length>0") No student to give marks here
+											button.btn-primary.pull-right(ng-show="given_mark.length" ng-click="saveMarks()") Save marks
 						.col-md-6
 							.card
 								.card-header.card-header-icon(data-background-color='purple')
@@ -65,9 +66,31 @@ block append content
 block append scripts
 	script.
 		var app =angular.module('eshuri_App', ['ngRoute', 'angularUtils.directives.dirPagination']);
-		app	
+		app
 		.controller('setSpecialMarksCtrl', function($scope,$http){
-			
+			$scope.given_mark = [];
+			var tmpStudents = [];
+			$scope.tmpSave = (id, name, index)=>{
+				var index_user=tmpStudents.findIndex(x=>x.id==id);
+				if(index_user===-1) tmpStudents.push({id:id, name:name, marks:$scope.given_mark[index]})
+				else tmpStudents[index_user].marks=$scope.given_mark[index];
+			}
+			$scope.saveMarks=()=>{
+				if(!tmpStudents.length) return Notifier.danger("No marks entered");
+				$http
+				.post("/content.offline.set_marks",{
+					_csrf:$scope.anti_csrf,
+					content_id:$scope.content_id,
+					students:tmpStudents
+				})
+				.then(function(response){
+					$scope.getStudents();
+					$scope.given_mark = [];
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				});
+			}
 			$scope.getStudents = function(){
 				$http
 				.post("/content.list.students.offline",

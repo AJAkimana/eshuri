@@ -60,14 +60,11 @@ exports.postNew_Automated = (req,res,next)=>{
 	  var num =0,totalMarks =0,q_info=[],q_solutions=[];// correct  choices
 	  async.eachSeries(req.body.Q, function(currentItem, cb){  
 		num++;
-		console.log("Starting Q_"+num);
 		var item={};
 		item.c=[];// all choices
 		var num_Answers=0;
 		async.series([
 			(c_back)=>{ // Check informations
-				console.log("Checking informations for Q_"+num);
-				console.log(" ---------->"+currentItem.p)
 				currentItem.t=currentItem.t.trim().toLowerCase();
 				if(!currentItem.t) 
 					return c_back("A title is required for Q _"+num)
@@ -78,14 +75,11 @@ exports.postNew_Automated = (req,res,next)=>{
 				else if(!Array.isArray(currentItem.c))
 					return c_back("There is no choices for Q _"+num);
 				c_back(null);
-			},
-			(c_back)=>{// now let's check choices. 
-				console.log(" Will check choices for Q_"+num);
+			},(c_back)=>{// now let's check choices. 
 				if(currentItem.c.length < 2) return c_back(" At least 2 choices for Q _"+num)    		
 				var solutions =[];
 				async.eachSeries(currentItem.c,function(choice,cb_2){
 					choice.a =choice.a.trim().toLowerCase();
-					console.log(" Current Choice "+choice.a);
 					if(item.c.indexOf(choice.a)!=-1)
 						return cb_2("Duplicated choices for Q _"+num);
 					else if(!choice.a ||choice.a.length >100) 
@@ -97,7 +91,6 @@ exports.postNew_Automated = (req,res,next)=>{
 					item.c.push(choice.a);
 					return cb_2(null);
 				},(err)=>{
-					console.log(" End of choices for Q_"+num+" and err ="+err)
 					q_solutions.push(solutions);
 					if(num_Answers==0) return c_back("No answer selected at Q _"+num)
 					return c_back(err);
@@ -106,7 +99,6 @@ exports.postNew_Automated = (req,res,next)=>{
 		],
 		(err)=>{ 
 		// Fin d' une question
-			console.log("End question "+num+" and err="+err);
 			//We will append the DATA to FINALObject
 			item.t=currentItem.t; // TITLE of QUestion
 			item.m=Number(currentItem.m) ||0; // MARKS
@@ -121,12 +113,7 @@ exports.postNew_Automated = (req,res,next)=>{
 		if(err)  return res.status(400).send(err);
 		 // We will save in the DB now the result 
 		 /*content*/
-		 console.log("--------------------")
-		 console.log(JSON.stringify(q_info));
-		 console.log(JSON.stringify(q_solutions));
-		 console.log("--------------------NOW SAVE IT");
-
-		 Classe.findOne({_id:course_exists.class_id},(err,class_exists)=>{
+		Classe.findOne({_id:course_exists.class_id},(err,class_exists)=>{
 		 	if(err) return log_err(err,false,req,res);
 		 	else if(!class_exists) return res.status(400).send('Invalid data');
 		 	new Content({
@@ -148,7 +135,7 @@ exports.postNew_Automated = (req,res,next)=>{
 			 	if(err) return log_err(err,false,req,res);
 			 	return res.end();
 			 });
-		 })		 
+		})		 
 	  });
 	})
   })
@@ -182,14 +169,11 @@ exports.postUpdate_Automated = (req,res,next)=>{
 	  var num =0,totalMarks =0,q_info=[],q_solutions=[];// correct  choices
 	  async.eachSeries(req.body.Q, function(currentItem, cb){  
 		num++;
-		console.log("Starting Q_"+num);
 		var item={};
 		item.c=[];// all choices
 		var num_Answers=0;
 		async.series([
 			(c_back)=>{ // Check informations
-				console.log("Checking informations for Q_"+num);
-				console.log(" ---------->"+currentItem.p)
 				currentItem.t=currentItem.t.trim().toLowerCase();
 				if(!currentItem.t) 
 					return c_back("A title is required for Q _"+num)
@@ -202,12 +186,10 @@ exports.postUpdate_Automated = (req,res,next)=>{
 				c_back(null);
 			},
 			(c_back)=>{// now let's check choices. 
-				console.log(" Will check choices for Q_"+num);
 				if(currentItem.c.length < 2) return c_back(" At least 2 choices for Q _"+num)    		
 				var solutions =[];
 				async.eachSeries(currentItem.c,function(choice,cb_2){
 					choice.a =choice.a.trim().toLowerCase();
-					console.log(" Current Choice "+choice.a);
 					if(item.c.indexOf(choice.a)!=-1)
 						return cb_2("Duplicated choices for Q _"+num);
 					else if(!choice.a ||choice.a.length >100) 
@@ -219,7 +201,6 @@ exports.postUpdate_Automated = (req,res,next)=>{
 					item.c.push(choice.a);
 					return cb_2(null);
 				},(err)=>{
-					console.log(" End of choices for Q_"+num+" and err ="+err)
 					q_solutions.push(solutions);
 					if(num_Answers==0) return c_back("No answer selected at Q _"+num)
 					return c_back(err);
@@ -228,7 +209,6 @@ exports.postUpdate_Automated = (req,res,next)=>{
 		],
 		(err)=>{ 
 		// Fin d' une question
-			console.log("End question "+num+" and err="+err);
 			//We will append the DATA to FINALObject
 			item.t=currentItem.t; // TITLE of QUestion
 			item.m=Number(currentItem.m) ||0; // MARKS
@@ -239,15 +219,11 @@ exports.postUpdate_Automated = (req,res,next)=>{
 		})
 	  }, 
 	  (err)=>{ /* END OF LOOPING ALL Q array*/
-	  	console.log("End of all questions and err="+err);
 		if(err)  return res.status(400).send(err);
 		 // We will save in the DB now the result 
 		 /*content*/
-		 console.log("--------------------")
-		 console.log(" TIME  ="+new Date(req.body.deadline).getTime())
 		 // console.log(JSON.stringify(q_info));
 		 // console.log(JSON.stringify(q_solutions));
-		 console.log("--------------------NOW SAVE IT");
 		 content_exists.q_info=q_info;
 		 content_exists.q_solution =q_solutions;
 		 content_exists.marks =totalMarks;
