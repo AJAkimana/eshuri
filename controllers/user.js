@@ -328,6 +328,30 @@ exports.userList_JSON=(req,res,next)=>{
     res.json(list);
   })
 }
+exports.deleteCmply=(req, res,next)=>{
+  req.assert('user_id', 'Invalid data').isMongoId();
+  req.assert('password', 'Enter your password').notEmpty();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  User.findOne({email:req.user.email},(err, userExists)=>{
+    if(err) return log_err(err, false, req, res);
+    else if(!userExists) return res.status(400).send("System dont know you");
+    userExists.comparePassword(req.body.password, req.user.email, (err, isMatch)=>{
+      if(err) return log_err(err, false, req, res);
+      else if(!isMatch) return res.status(400).send("Password given is incorrect !");
+      User.findOne({_id:req.body.user_id},(err, userDetails)=>{
+        if(err) return log_err(err, false, req, res);
+        else if(!userDetails) return res.status(400).send("Unkown user");
+        else if(userDetails.email===req.user.email) return res.status(400).send("Change your password using platform seting");
+        else if(userDetails.access_level<=req.user.access_level) return res.status(400).send("User password has not reset");
+        userDetails.remove((err)=>{
+          if(err) return log_err(err, false, req, res);
+          return res.end();
+        });
+      })
+    })
+  })
+}
 exports.resetUserPwd=(req,res,next)=>{
   req.assert('user_id', 'Invalid data').isMongoId();
   req.assert('password', 'Enter your password').notEmpty();

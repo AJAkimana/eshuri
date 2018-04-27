@@ -227,8 +227,9 @@ exports.setMarksStudent = (req,res,next)=>{
         var currentAccademic_year= class_exists.academic_year;
         async.eachSeries(req.body.students, (thisStudent, studentCb)=>{
           async.series([(checkValidationCb)=>{
-            if(thisStudent.marks > content_exists.marks) return checkValidationCb("Marks for "+thisStudent.name.toUpperCase()+" ar greater than total");
-            if(thisStudent.marks < 0) return checkValidationCb("Marks for "+thisStudent.name.toUpperCase()+" are less than total");
+            if(!thisStudent.marks) return checkValidationCb(thisStudent.name.toUpperCase()+" has no marks");
+            else if(thisStudent.marks > content_exists.marks) return checkValidationCb("Marks for "+thisStudent.name.toUpperCase()+" are greater than total");
+            else if(thisStudent.marks < 0) return checkValidationCb("Marks for "+thisStudent.name.toUpperCase()+" are less than total");
             console.log("---"+JSON.stringify(thisStudent))
             return checkValidationCb(null);
           }],(err)=>{

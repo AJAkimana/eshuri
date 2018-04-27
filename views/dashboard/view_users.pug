@@ -106,6 +106,9 @@ block append content
                             a.btn-simple.btn.label.btn-primary(ng-click="resetPwd(user)")
                               i.material-icons people_outline
                               | Reset pwd
+                            a.btn-simple.btn.label.btn-danger(ng-click="deleteUser(user)")
+                              i.material-icons close
+                              | Delete
                     dir-pagination-controls.pull-right(pagination-id='allusers', max-size='5', direction-links='true', boundary-links='true')
 block append scripts
   script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
@@ -240,7 +243,7 @@ block append scripts
           .catch(function(erreur){
             Notifier.danger(erreur.data);
           });
-        });
+        }).catch(swal.noop);
       }
       $scope.getUsersList = function(){
         $http
@@ -252,6 +255,31 @@ block append scripts
         .catch(function(erreur){
           Notifier.danger(erreur.data)
         }); 
+      }
+      $scope.deleteUser=(user)=>{
+        swal({
+          title: 'Delete user: '+user.name.toUpperCase(),
+          html:'<div class="form-group"><label>Enter password</label>'+
+            '<input id="admin_pwd" type="password" class="form-control" placeholder="Enter you password to confirm"/>'+
+          '</div> <span class="category"> To make sure you are allowed !</span>',
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonClass: 'btn btn-success',
+          cancelButtonClass: 'btn btn-danger',
+          confirmButtonText: 'Yes, delete!',
+          buttonsStyling: false
+        }).then(()=>{
+          var user_data = {_csrf:$scope.anti_csrf,user_id:user.id,password:$("#admin_pwd").val()};
+          $http
+          .post("/user.delete_complete", user_data)
+          .then((response)=>{
+            Notifier.success("User has deleted");
+            $scope.getUsersList();
+          })
+          .catch((erreur)=>{
+            Notifier.danger(erreur.data);
+          });
+        }).catch(swal.noop);
       }
       $scope.add_school=false;
       $scope.anti_csrf = "#{csrf_token}"

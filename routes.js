@@ -306,7 +306,8 @@ module.exports = function(app) {
 		Concerning adding new school, classe, course -- > For SA and A, Only*/
 			// FOR SUPER ADMIN ONLY
 	app.get('/user.view',isSuperAdmin, userController.getViewUserPage);
-	app.post('/user.reset.pwd',isSuperAdmin,userController.resetUserPwd)
+	app.post('/user.reset.pwd',isSuperAdmin,userController.resetUserPwd);
+	app.post('/user.delete_complete',isSuperAdmin,userController.deleteCmply);
 	app.get('/user.general.list',isSuperAdmin,userController.userList_JSON)
 	app .get('/dashboard',isAtLeastAdmin, dashboardController.getHomePageDashboard);
 	app .get('/dashboard.school',isSuperAdmin, dashboardController.getPageSchools);	
