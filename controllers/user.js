@@ -191,18 +191,6 @@ exports.createSA = (req, res, next)=>{
 exports.postSignUp = (req, res, next) => {
   if(req.isAuthenticated() ) return res.status(400).send('You are connected, first disconnect');// check if the guy is not already authenticated
   // In the case it is a derpartement
-  // if(req.body.institution == 1){
-  //   req.assert('option_id', 'Please choose an option').isMongoId();
-  //   req.body.school_id =req.body.option_id; // On annule l autre au cas ou !!
-  // }
-  // else // in case a high school or primary
-  // {
-  //   req.assert('school_id', 'Select your school').isMongoId();
-  //   req.body.option_id =undefined; // on annule l autre au cas ou
-  // }
-  // if(req.body.type ==2){// if You are a student you must select the class
-  //   req.assert('class_id', 'Please choose a class in which you belong').isMongoId();
-  // }
   
   req.assert('name', 'Please provide your full name').len(1,100).notEmpty();
   req.assert('email', 'The email you gave, is not valid').isEmail().len(1,100).notEmpty();
@@ -215,7 +203,18 @@ exports.postSignUp = (req, res, next) => {
     req.assert('institution', 'Choose the type of the institution').isIn([1,2,3]);
   }
   req.assert('gender', 'Give us your gender').isIn([1,2]); 
-  
+  if(req.body.institution == 1){
+    req.assert('option_id', 'Please choose an option').isMongoId();
+    req.body.school_id =req.body.option_id; // On annule l autre au cas ou !!
+  }
+  else // in case a high school or primary
+  {
+    req.assert('school_id', 'Select your school').isMongoId();
+    req.body.option_id =undefined; // on annule l autre au cas ou
+  }
+  if(req.body.type ==2){// if You are a student you must select the class
+    req.assert('class_id', 'Please choose a class in which you belong').isMongoId();
+  }
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
   // let s check if the school exists or not
