@@ -377,7 +377,7 @@ exports.resetUserPwd=(req,res,next)=>{
           if(err) console.log(" You have to log "+err)
         })
         userDetails.email = userDetails.email;
-        userDetails.password = req.locals.defaultPwd;
+        userDetails.password = req.app.locals.defaultPwd;
         userDetails.save((err)=>{
           if(err) return log_err(err, false, req, res);
           return res.end();
