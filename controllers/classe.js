@@ -21,8 +21,8 @@ exports.postNewClass =(req,res,next)=>{
   req.assert('level', 'A level must be a number').isInt();
   req.assert('name', 'A name is required').notEmpty();
   req.assert('currentTerm', 'Sorry, specifiy a term').isInt();
-  if(classLevel<=3) 
-    req.assert('sub_level', 'Select sub level eg.:A,B...').isIn(['a','b','c','d']).notEmpty();
+  // if(classLevel<=3) 
+    // req.assert('sub_level', 'Select sub level eg.:A,B...').isIn(['a','b','c','d']).notEmpty();
   else req.assert('option', 'Select option').notEmpty();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
@@ -39,7 +39,7 @@ exports.postNewClass =(req,res,next)=>{
       //Now we will create the class
       req.body.option=req.body.option===null?'':req.body.option;
       req.body.sub_level=req.body.sub_level?req.body.sub_level:'';
-      console.log('Body: '+JSON.stringify(req.body));
+      // console.log('Body: '+JSON.stringify(req.body));
       var newClass = new Classe({
         school_id:req.body.school_id,
         level:req.body.level,
