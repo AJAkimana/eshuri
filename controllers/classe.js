@@ -23,7 +23,7 @@ exports.postNewClass =(req,res,next)=>{
   req.assert('currentTerm', 'Sorry, specifiy a term').isInt();
   // if(classLevel<=3) 
     // req.assert('sub_level', 'Select sub level eg.:A,B...').isIn(['a','b','c','d']).notEmpty();
-  else req.assert('option', 'Select option').notEmpty();
+  if(classLevel>3) req.assert('option', 'Select option').notEmpty();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
   // Test if shool exixts
