@@ -110,11 +110,12 @@ block append content
               h4.card-title.text-center 
                 | Edit <u>Name</u> and <u>reset password </u> for
                 br
+                br
                 strong(ng-bind="currStudent.name|uppercase")
             .modal-body
               input.form-control(type="text",ng-model="currStudent.email",placeholder="Student email",readonly)
               input.form-control(type="text",ng-model="currStudent.name",placeholder="Student name")
-              input.form-control(type="password",ng-model="admin_pass",placeholder="Enter your admin password")
+              input.form-control(type="password",ng-model="admin_pass",placeholder="Type your password")
             .modal-footer
               h4.pull-left
                 | Password will be set to 
