@@ -63,9 +63,9 @@ exports.getConv_id = function(id_a,id_b){
 // Return shortened course name
 
 exports.getShort = (name, length)=>{
-    var firstWord = name.substr(0, length);
-    var secondWord = name.split(" ")[1];
-    return secondWord==null?firstWord:firstWord+' '+secondWord.charAt(0);
+    var fWord = name.substr(0, length);
+    var sWord = name.split(" ")[1];
+    return sWord==null?fWord:fWord+' '+sWord.charAt(0);
 }
 /**
  * Return a random int, used by `utils.uid()`
@@ -96,7 +96,7 @@ exports.getLocalName = (id)=>{
   return 'Akimana:'+area_name;
 }
 exports.generatePws = ()=>{
-    
+  
 }
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;

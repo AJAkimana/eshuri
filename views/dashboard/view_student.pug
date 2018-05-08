@@ -75,11 +75,13 @@ block append content
                               select(ng-model="new_class",ng-change="changeClass(student, new_class)")
                                 option(value="{{classe._id}}" ng-repeat="classe in nextClasses") {{classe.name|uppercase|toClasseName:term_name}}
                                 option(value="fin") Alumnus
-                              button.btn.btn-danger(ng-click="studentRepeatModel(student._id,student.name)",data-target='#student_rpt_Model', data-toggle='modal') Repeat
-                              button.btn.btn-danger(ng-click="deleteStudent(student._id,student.name)")
+                              button.btn.btn-danger.btn-sm(ng-click="studentRepeatModel(student._id,student.name)",data-target='#student_rpt_Model', data-toggle='modal') Repeat
+                              button.btn.btn-danger.btn-sm(ng-click="deleteStudent(student._id,student.name)")
                                 i.material-icons close
-                              button.btn.btn-warning(ng-click="editStudent(student._id,student.name)")
+                                | Del
+                              button.btn.btn-primary.btn-sm(ng-click="setCurrent(student)" ,data-target='#student_edit_Model', data-toggle='modal')
                                 i.material-icons edit
+                                | Edit
                       dir-pagination-controls.pull-right(pagination-id='allstudents', max-size='5', direction-links='true', boundary-links='true')
       #student_rpt_Model.modal.fade(role='dialog')
         .modal-dialog
@@ -100,6 +102,25 @@ block append content
                       option(disabled) Pick a classe
                       option(value="{{c._id}}",ng-repeat="c in r_Classes") {{c.name|uppercase|toClasseName:term_name}}
             .modal-footer
+              button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
+      #student_edit_Model.modal.fade(role='dialog')
+        .modal-dialog
+          .modal-content
+            .modal-header
+              h4.card-title.text-center 
+                | Edit <u>Name</u> and <u>reset password </u> for
+                br
+                strong(ng-bind="currStudent.name|uppercase")
+            .modal-body
+              input.form-control(type="text",ng-model="currStudent.email",placeholder="Student email",readonly)
+              input.form-control(type="text",ng-model="currStudent.name",placeholder="Student name")
+              input.form-control(type="password",ng-model="admin_pass",placeholder="Enter your admin password")
+            .modal-footer
+              h4.pull-left
+                | Password will be set to 
+                u
+                  b.text-info MyEshuri
+              button.btn.btn-sm.btn-primary(ng-click="editStudent()") Confirm
               button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
 block append scripts
   script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
@@ -131,6 +152,9 @@ block append scripts
       }
     })
     .controller('studentCtrl', function($scope, $http,$window){
+      $scope.setCurrent=(student)=>{
+        $scope.currStudent=student;
+      }
       $scope.view_student = function(id_student){
         $window.location.href ="/student/"+id_student;
       }
@@ -200,38 +224,24 @@ block append scripts
           })
         }).catch(swal.noop)
       }
-      $scope.editStudent = function(sid, sname){
-        var newName='';
-        swal({
-          title: 'Edit student: <i style="color:green">'+sname.toUpperCase()+'</i>  ?',
-          text: "You will not be able to revert this!",
-          html:'<div class="form-group">'+
-            '<input id="newname" type="text" class="form-control" value="'+sname+'"/>'+
-          '</div> ',
-          type: 'warning',
-          showCancelButton: true,
-          confirmButtonClass: 'btn btn-success',
-          cancelButtonClass: 'btn btn-warning',
-          confirmButtonText: 'Edit!',
-          buttonsStyling: false
-        }).then(function(){
-          newName=$("#newname").val();
-            $http
-          .post("/school.student.edit",{_csrf:$scope.anti_csrf,student_id:sid,new_name:newName})
-          .then(function(response){
-            $scope.reload();
-            swal({
-              title: 'Edited success!',
-              text: sname.toUpperCase()+' has edited to '+newName.toUpperCase()+'.',
-              type: 'success',
-              confirmButtonClass: "btn btn-success",
-              buttonsStyling: false
-            })
+      $scope.editStudent=()=>{
+        $http
+        .post("/school.student.edit",{_csrf:$scope.anti_csrf,student_id:$scope.currStudent._id,name:$scope.currStudent.name,email:$scope.currStudent.email,admin_pass:$scope.admin_pass})
+        .then((response)=>{
+          $('#student_edit_Model').modal('hide');
+          $scope.reload();
+          swal({
+            title: 'Edited success!',
+            text: $scope.currStudent.name.toUpperCase()+' password was changed to <b><u>MyEshuri</u></b>. S/he is recommended to change it immediately through account: <b><i>Profile->Change setting->Credentials</i></b>',
+            type: 'success',
+            confirmButtonClass: "btn btn-success",
+            buttonsStyling: false
           })
-          .catch(function(erreur){
-            Notifier.danger(erreur.data);
-          });
-        }).catch(swal.noop);
+          $scope.admin_pass=null;
+        })
+        .catch((erreur)=>{
+          Notifier.danger(erreur.data);
+        });
       }
       $scope.deleteStudent = function(student_id,student_name){
         swal({

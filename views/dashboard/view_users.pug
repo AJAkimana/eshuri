@@ -90,7 +90,7 @@ block append content
                         th.text-center #
                         th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Names
                         th: a.btn-simple.btn.label.btn-rose(ng-click="a='email';b=!b") E-mail
-                        th: a.btn-simple.btn.label.btn-rose(ng-click="a='school_name';b=!b") School
+                        th: a.btn-simple.btn.label.btn-rose(ng-click="a='school_id';b=!b") School
                         th: a.btn-simple.btn.label.btn-rose(ng-click="a='classe_name';b=!b") Class
                         th: a.btn-simple.btn.label.btn-rose(ng-click="a='access_level';b=!b") Access Lv
                         th Actions
@@ -99,7 +99,7 @@ block append content
                           td(width="1%" height="1%") {{$index + 1}}
                           td: a.text-primary(ng-bind="user.name|uppercase" href="/user/{{user.id}}")
                           td(ng-bind="user.email")
-                          td(ng-bind="user.school_name|uppercase")
+                          td(ng-bind="user.school_id|to_school:schools")
                           td(ng-bind="user.classe_name|uppercase")
                           td.text-info: strong(ng-bind="user.access_level|toAccess")
                           td.td-actions
@@ -119,6 +119,15 @@ block append scripts
     .filter('to_Capital', function() {
       return function(input){
         return input.charAt(0).toUpperCase() + input.slice(1);
+      }
+    })
+    .filter('to_school', function(){
+      return function(input,schools){
+        if(!input) return 'Not defined';
+        for(var i =0;i < schools.length;i++){
+          if(schools[i]._id == input) return schools[i].name.toUpperCase();
+          else return 'Depmt'
+        }
       }
     })
     .filter('toAccess', function() {
@@ -245,6 +254,17 @@ block append scripts
           });
         }).catch(swal.noop);
       }
+      $scope.getSchools=()=>{
+        $http
+        .get("/school.list")
+        .then((response)=>{
+          $scope.schools=response.data;
+          //- console.log(JSON.stringify($scope.users))
+        })
+        .catch((erreur)=>{
+          Notifier.danger(erreur.data)
+        });
+      }
       $scope.getUsersList = function(){
         $http
         .get("/user.general.list")
@@ -285,5 +305,6 @@ block append scripts
       $scope.anti_csrf = "#{csrf_token}"
       $scope.pages=[3,5,10,15,20,25];
       $scope.getUsersList();
+      $scope.getSchools();
     })
 

@@ -8,6 +8,7 @@ const School =require('../models/School'),
       Content=require('../models/Content'),
       Marks =require('../models/MARKS'),
       Util =require("../utils"),
+      Notification=require('../models/Notification'),
       Classe =require('../models/Classe'),
       Finalist = require('../models/Finalist'),
       Message = require('../models/Message'),
@@ -682,27 +683,43 @@ exports.removeStudent = function(req,res,next){
 }
 exports.editStudent = (req, res, next)=>{
   req.assert('student_id', 'Invalid data').isMongoId();
-  req.assert('new_name', 'Enter name please').notEmpty();
+  req.assert('name', 'Enter name please').notEmpty();
+  req.assert('email', 'Enter email please').notEmpty();
+  req.assert('admin_pass', 'Enter your password').notEmpty();
   const errors = req.validationErrors();
   if(errors) return res.status(400).send(errors[0].msg);
 
-  User.findOne({_id:req.user._id},(err, user_exists)=>{
-    if(err) return log_err(err,false,req,res);
-    else if(!user_exists) return res.status(400).send("Invalid data");
-
-    User.findOne({_id:req.body.student_id,access_level:req.app.locals.access_level.STUDENT},(err, studentExists)=>{
-      if(err) return log_err(err,false,req,res);
-      else if(!studentExists) return res.status(400).send('Invalid data');
-
-      studentExists.name = req.body.new_name;
-      studentExists.save((err, done)=>{
-      if(err) return log_err(err,false,req,res);
-      return res.end();
+  User.findOne({email:req.user.email},(err, userExists)=>{
+    if(err) return log_err(err, false, req, res);
+    else if(!userExists) return res.status(400).send("System dont know you");
+    userExists.comparePassword(req.body.admin_pass, req.user.email, (err, isMatch)=>{
+      if(err) return log_err(err, false, req, res);
+      else if(!isMatch) return res.status(400).send("The password entered is incorrect!");
+      User.findOne({_id:req.body.student_id},(err, userDetails)=>{
+        if(err) return log_err(err, false, req, res);
+        else if(!userDetails) return res.status(400).send("Unkown user");
+        else if(userDetails.email===req.user.email) return res.status(400).send("Change your password using platform seting");
+        else if(userDetails.access_level<=req.user.access_level) return res.status(400).send("User password has not reset");
+        new Notification({
+          user_id:req.body.student_id,
+          user_name:userDetails.name,
+          content: "Your password has reset to "+req.app.locals.defaultPwd+". Please change it as long as you access the platform",
+          school_id:userDetails.school_id,
+          isAuto:false,            
+        }).save((err)=>{
+          if(err) console.log(" You have to log "+err)
+        })
+        userDetails.name=req.body.name;
+        userDetails.email = userDetails.email;
+        userDetails.password = req.app.locals.defaultPwd;
+        userDetails.save((err)=>{
+          if(err) return log_err(err, false, req, res);
+          return res.end();
+        });
       })
     })
   })
 }
-
 exports.getPageStudents = (req, res, next)=>{
   req.assert('school_id', 'Invalid Data').isMongoId();
   const errors = req.validationErrors();
