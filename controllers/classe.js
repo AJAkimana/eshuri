@@ -142,7 +142,7 @@ exports.getClassCourses = (req, res, next)=>{
   User.findOne({_id:req.body.user_id},(err, user_details)=>{
     if(err) return log_err(err,false,req,res);
     if(!user_details) return res.status(400).send("Invalid data");
-    console.log('==========='+user_details.name)
+    // console.log('==========='+user_details.name)
     var student = req.app.locals.access_level.STUDENT;
     if(user_details.access_level==student) parametters = {class_id:req.body.classe_id};
     else parametters = {class_id:req.body.classe_id, teacher_list:req.body.user_id};
