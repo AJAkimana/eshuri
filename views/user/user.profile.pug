@@ -1,0 +1,785 @@
+extends ../layout
+block append content 
+<<<<<<< HEAD
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="SignupCtrl",style="background-image: url('../imgs/register.jpeg')")
+		.full-page.register-page(filter-color="white")
+			.content
+				.col-md-8.col-md-offset-2
+					// Wizard container
+					.wizard-container
+						.card.wizard-card(data-color="rose")#wizardProfile
+							form(action="", method="", name="registrationForm")
+								// You can switch " data-color="purple" "  with one of the next bright colors: "green", "orange", "red", "blue"
+								br
+								br
+								br
+								.wizard-navigation
+									ul
+										li: a(href="#basic_info", data-toggle="tab") About
+										li: a(href="#academic", data-toggle="tab") Academic
+										li: a(href="#Residence", data-toggle="tab") Birth Information
+										li: a(href="#summary", data-toggle="tab") summary
+										//- li: a(href="#genderness", data-toggle="tab") Gender
+										//- li: a(href="#phoneNumber", data-toggle="tab") Contact
+								.tab-content
+									.tab-pane#basic_info
+										div(style='background-color:lightblue')
+											.row
+												
+												.col-md-12
+													.col-md-6
+														.card
+															h6
+																center(style="color:blue")
+																	strong
+																		| student name
+															.col-md-offset-0
+																.input-group
+																	span.input-group-addon
+																		i.material-icons person
+																	.form-group.label-floating
+																		label.control-label First Name eg: Kabano(required)
+																		input.form-control(type="text",ng-model="")
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Last Name (required)
+																		input.form-control(ng-model="",type="text")#Pass
+														br
+														br
+														//- div(style='background-color:lightblue')
+															h3 This is a heading
+															p This is a paragraph.
+
+														.card
+															.row
+																h6
+																	center(style="color:blue")
+																		strong
+																			| identification
+																br
+																.col-md-10
+																	.col-md-2
+																		input(type='radio', name='gender', value='male', checked='')
+																		|  ID Number
+																		br
+																		input(type='radio', name='gender', value='female')
+																		|  Passport
+																		br
+																		input(type='radio', name='gender', value='other')
+																		|  None
+																	.col-md-7.col-md-offset-1
+																		.input-group 
+																			.row
+																				.input-group
+																					span.input-group-addon
+																						i.material-icons 
+																					.form-group.label-floating 
+																						label.control-label ID Number (required)
+																						input.form-control(ng-model="",ng-pattern="/^[07][0-9]{9}$/", data-toggle='tooltip', title='ID Card Number 16 digits Not Blank!',type="number")
+																				.input-group
+																					span.input-group-addon
+																						i.material-icons 
+																					.form-group.label-floating 
+																						label.control-label Passport card (required)
+																						input.form-control(ng-model="",data-toggle='tooltip', title='Passport Card Number',required="true",type="number")
+																	.col-md-1
+																		input(type='radio', name='gender', value='male', checked='')
+																		|  Male
+																		br
+																		input(type='radio', name='gender', value='female')
+																		|  Female
+																		br
+																		br
+														br
+														br
+
+													.col-md-6
+														.card
+															h6
+																center(style="color:blue")
+																	strong
+																		| Student Birth date
+
+															.col-md-3
+																
+																.form-group.label-floating
+																	label.control-label YEAR
+																	select.form-control(ng-model="school.district_name")
+																		option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+															.col-md-3
+																.form-group.label-floating
+																	label.control-label MONTH
+																	select.form-control(ng-model="school.district_name")
+																		option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+															.col-md-3
+																.form-group.label-floating
+																	label.control-label DATE
+																	select.form-control(ng-model="school.district_name")
+																		option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+														br
+														br
+														.card
+															h6
+																center(style="color:blue")
+																	strong
+																		| Parents
+															.row
+																br
+																.col-md-4.col-md-offset-1
+																	| Father's Name:
+																.col-md-4
+																	form-group.label-floating
+																	input(type='text')
+																	br
+																	br
+															.row
+																.col-md-4.col-md-offset-1
+																	| Father's Name:
+																.col-md-4
+																	input(type='text')
+																	br
+																	br
+														br
+														br
+														.card
+															h6
+																center(style="color:blue")
+																	strong
+																		| choose your country
+															.row
+																br
+																.col-md-5.col-md-offset-2
+																	.form-group.label-floating
+																		h5
+																			strong
+																				label.control-label select your country
+																		select.form-control(ng-model="")
+																			option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+
+
+									.tab-pane#academic
+										.row
+											.col-md-11.col-md-offset-0
+												div(style='background-color:lightblue')
+													.card
+														H4 
+														CENTER(style="color:blue")
+
+															STRONG
+																| ACADEMIC INFORMATION
+														br
+														.row
+															.col-md-3.col-md-offset-1
+																.form-group.label-floating
+																	label.control-label ACADEMIC GRADE
+																	select.form-control(ng-model="school.district_name")
+																		option(value="{{$index + 1}}", ng-repeat="district in districts") 
+
+															.col-md-3
+																.form-group.label-floating
+																	label.control-label ACADEMIC YEAR
+																	select.form-control(ng-model="school.district_name")
+																		option(value="{{$index + 1}}", ng-repeat="district in districts") 
+															.col-md-2
+																.form-group.label-floating
+																	label.control-label BOARDING SITUATION
+																	select.form-control(ng-model="school.district_name")
+																		option(value="{{$index + 1}}", ng-repeat="district in districts") 
+															.col-md-2
+																.form-group.label-floating
+																	label.control-label ACADEMIC SPONSER
+																	select.form-control(ng-model="school.district_name")
+																		option(value="{{$index + 1}}", ng-repeat="district in districts") 
+													.card
+														H4
+															center(style="color:blue")
+																strong
+																	| parenthood informatiom
+														br
+														.row
+															.col-md-3
+																.input-group
+																	span.input-group-addon
+																		i.material-icons
+																	.form-group.label-floating
+																		label.control-label SELECT PARENTHOOD
+																		select.form-control(ng-model="school.district_name")
+																			option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Father ID(required)
+																		input.form-control(type="number",ng-model="")
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Father phone (required)
+																		input.form-control(type="number",ng-model="")
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Father Email(required)
+																		input.form-control(type="email",ng-model="")
+															.col-md-3
+																.input-group
+																	span.input-group-addon
+																		i.material-icons
+																	//- .form-group.label-floating
+																		label.control-label SELECT PARENTHOOD
+																		select.form-control(ng-model="school.district_name")
+																			option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Mother's ID(required)
+																		input.form-control(type="number",ng-model="")
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Mother's phone (required)
+																		input.form-control(type="number",ng-model="")
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Mother's Email(required)
+																		input.form-control(type="email",ng-model="")
+
+															.col-md-3
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Guadian(Male) Full Name
+																		input.form-control(type="text",ng-model="")
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Guardian ID
+																		input.form-control(type="number",ng-model="")
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Guardian Phone
+																		input.form-control(type="number",ng-model="")
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Guardian email
+																		input.form-control(type="email",ng-model="")
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Relationship
+																		select.form-control(ng-model="school.district_name")
+																			option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+															.col-md-3
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Guadian(Female) Full Name
+																		input.form-control(type="text",ng-model="")
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Guardian Mother ID
+																		input.form-control(type="number",ng-model="")
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Guardian mother's Phone
+																		input.form-control(type="number",ng-model="")
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Guardian mother's email
+																		input.form-control(type="email",ng-model="")
+																.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Relationship
+																		select.form-control(ng-model="school.district_name")
+																			option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+
+									.tab-pane#Residence
+										.row
+											.col-md-12.col-md-offset-0
+												div(style='background-color:lightblue')
+													.card
+														H4 
+														CENTER(style="color:blue")
+
+															STRONG
+																| Birth INFORMATION
+														br
+														.col-md-6
+															h4(style="color:blue") 
+																strong
+																	| Place of Birth
+															.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Province
+																		select.form-control(ng-model="school.district_name")
+																			option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+															.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label District
+																		select.form-control(ng-model="school.district_name")
+																			option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+															.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Sector
+																		select.form-control(ng-model="school.district_name")
+																			option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+															.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Cell
+																		select.form-control(ng-model="school.district_name")
+																			option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+															.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Village
+																		select.form-control(ng-model="school.district_name")
+																			option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+														.col-md-6
+															h4(style="color:blue") 
+																strong 
+																	| Residence Place
+															.input-group
+																		span.input-group-addon
+																			i.material-icons 
+																		.form-group.label-floating
+																			label.control-label Province
+																			select.form-control(ng-model="school.district_name")
+																				option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+															.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label District
+																		select.form-control(ng-model="school.district_name")
+																			option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+															.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Sector
+																		select.form-control(ng-model="school.district_name")
+																			option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+															.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Cell
+																		select.form-control(ng-model="school.district_name")
+																			option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+															.input-group
+																	span.input-group-addon
+																		i.material-icons 
+																	.form-group.label-floating
+																		label.control-label Village
+																		select.form-control(ng-model="school.district_name")
+																			option(value="{{$index + 1}}", ng-repeat="district in districts") {{district}}
+															br
+													br
+													br
+
+
+										//- h4.info-text(ng-show="nvUser.type!=4")  Select the institution to which you belong to
+										//- .row(ng-show="nvUser.type!=4")
+										//- 	.col-md-10.center
+										//- 		.col-md-4
+										//- 			.choice(data-toggle="wizard-radio")
+										//- 				i.icon.material-icons(ng-click="setSchool(1)") school
+										//- 				h6 University
+										//- 		.col-md-4
+										//- 			.choice(data-toggle="wizard-radio")
+										//- 				i.icon.material-icons(ng-click="setSchool(2)") school
+										//- 				h6 High school
+										//- 		.col-md-4
+										//- 			.choice(data-toggle="wizard-radio")
+										//- 				i.icon.material-icons(ng-click="setSchool(3)") school   
+										//- 				h6 Primary school
+										//- h4.info-text(ng-show="nvUser.type==4") School details
+										//- .row(ng-show="nvUser.type==4")
+										//- 	.col-md-10.center
+										//- 		h3 Continue
+									.tab-pane#summary
+										.row(ng-show="nvUser.type!=4")
+											h4.info-text  Now, select your school
+											.col-md-12
+												.col-md-5.center(ng-show="nvUser.institution==1")
+													.form-group.label-floating
+														label.control-label Select your university
+														select.form-control(ng-model="nvUser.univ_id",ng-change="getListFaculties(nvUser.univ_id)",required="true")
+															option(disabled="", selected="")
+															option(value="{{eshuri._id}}",ng-repeat="eshuri in list_universities") {{eshuri.name|uppercase}}
+												.col-md-5.center(ng-show="nvUser.institution==1")
+													.form-group.label-floating
+														label.control-label Select your faculty
+														select.form-control(ng-model="nvUser.faculty_id",required="true",ng-change="getListDepartment(nvUser.faculty_id)")
+															option(disabled="", selected="")
+															option(value="{{eshuri._id}}",ng-repeat="eshuri in list_faculties") {{eshuri.name|uppercase}}
+												.col-md-5.center(ng-show="nvUser.institution==1")
+													.form-group.label-floating
+														label.control-label Choose the department
+														select.form-control(ng-model="nvUser.department_id",required="true",ng-change="getListOption(nvUser.department_id)")
+															option(disabled="", selected="")   
+															option(value="{{eshuri._id}}",ng-repeat="eshuri in list_departments") {{eshuri.name|uppercase}}
+												.col-md-5.center(ng-show="nvUser.institution==1")
+													.form-group.label-floating
+														label.control-label Choose now your option
+														select.form-control(ng-model="nvUser.option_id",required="true",ng-change="getListClasses(nvUser.option_id)")
+															option(disabled="", selected="")
+															option(value="{{eshuri._id}}",ng-repeat="eshuri in list_options") {{eshuri.name|uppercase}}
+												.col-md-5.center(ng-show="nvUser.institution !=1")
+													.form-group.label-floating
+														label.control-label Select your school
+														select.form-control(ng-model="nvUser.school_id",required="true",ng-change="getListClasses(nvUser.school_id)")
+															option(disabled="", selected="")
+															option(value="{{eshuri._id}}",ng-repeat="eshuri in list_schools") {{eshuri.name|uppercase}} 
+												.col-md-5.center(ng-show="nvUser.type==2")
+													.form-group.label-floating
+														label.control-label Choose now your class
+														select.form-control(ng-model="nvUser.class_id",required="true")
+															option(disabled="", selected="")
+															option(value="{{eshuri._id}}",ng-repeat="eshuri in list_classes") {{eshuri.name|uppercase}}
+										.row(ng-show="nvUser.type==4")
+											h4.info-text  School information
+											.col-md-12
+												.col-md-5.center
+													h3 Continue
+									//- .tab-pane#genderness
+									//- 	.row
+									//- 		h3.info-text Select your gender
+									//- 		.col-md-10.center
+									//- 			.col-md-6
+									//- 				.choice(data-toggle="wizard-radio")
+									//- 					i.icon.material-icons(ng-click="setGender(1)") person_outline
+									//- 					h6 Male
+									//- 			.col-md-6
+									//- 				.choice(data-toggle="wizard-radio")
+									//- 					i.icon.material-icons(ng-click="setGender(2)") person
+									//- 					h6 Female
+									//- .tab-pane#phoneNumber
+									//- 	.row
+									//- 		h3.info-text  Give us now, your phone number 
+									//- 		.col-md-5.center
+									//- 			.form-group.label-floating
+									//- 				label.control-label Phone number (e.g: 0734345678)
+									//- 				input.form-control(ng-pattern="/^[07][0-9]{9}$/", type="number",ng-model="nvUser.phone_number",required="true")
+									//- 				span(ng-show="registrationForm.nvUser.phone_number.$error.pattern") Phone number is invalid
+								.wizard-footer
+									.pull-right
+										input.btn.btn-next.btn-fill.btn-rose.btn-wd(type="button", value="Next")
+										input.btn.btn-finish.btn-fill.btn-rose.btn-wd(type="button", ng-click="signUp()" value="Finish")
+									.pull-left
+										input.btn.btn-previous.btn-fill.btn-default.btn-wd(type="button", value="Previous")
+									.clearfix
+block append scripts
+	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+	script(src="../js/MIT/jquery.bootstrap-wizard.js", type="text/javascript")
+	script(src="../js/MIT/init_wizard.js", type="text/javascript")
+	script(src="../js/MIT/jquery.validate.min.js", type="text/javascript")
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute', 'ngStorage']);
+
+		app.filter('toInstitution', function() {
+			  return function(input){
+			    if(isNaN(input)) return input;
+			    switch(input){
+			      case '1': input ="Department";break;case '2': input ="High school";break;case '3': input ="Primary";break;
+			      case '4': input ="Infant school";break;
+			      default: input="Invalid intitution";break;
+			    }
+			    return input;
+			  }
+			})
+			.controller('SignupCtrl', function($scope, $http, $window, $localStorage){
+			$scope.signUp = function(){
+				$scope.nvUser_csrf =$scope.anti_csrf;
+				$http
+					.post("/user.signup",$scope.nvUser)
+					.then(function(response){
+						swal({
+							type: 'success',
+							html: 'Congratulations '+$scope.nvUser.name+', you are now registered !. Please read your email to validate your account. Please check also your SPAM folder',
+							confirmButtonClass: 'btn btn-success',
+							buttonsStyling: false
+						})
+						$scope.nvUser =null;
+						setTimeout(function(){$window.location.href="/user.signin"},5000)
+					})
+					.catch(function(erreur){
+						Notifier.danger(erreur.data);
+					});
+			}
+			$scope.getListUniversities = function(){
+				$http
+					.get("/dashboard.universities.signup")
+					.then(function(response){
+						$scope.list_universities =response.data;
+					})
+					.catch(function(erreur){
+						Notifier.danger(erreur.data);
+					});
+			}
+			$scope.getListFaculties = function(univ_id){
+				$http
+					.get("/dashboard.faculties.signup/"+univ_id)
+					.then(function(response){
+						$scope.list_faculties = response.data;
+					})
+					.catch(function(erreur){
+						Notifier.danger(erreur.data);
+					});
+			}
+			$scope.getListDepartment = function(faculty_id){
+				$http
+					.get("/dashboard.department.signup/"+faculty_id)
+					.then(function(response){
+						$scope.list_departments = response.data;
+					})
+					.catch(function(erreur){
+						Notifier.danger(erreur.data);
+					});
+			}
+			$scope.getListOption = function(department_id){
+				$http
+					.get("/dashboard.option.signup/"+department_id)
+					.then(function(response){
+						$scope.list_options = response.data;
+					})
+					.catch(function(erreur){
+						Notifier.danger(erreur.data);
+					});
+			}
+			$scope.getListClasses = (school_id)=>{
+				$http
+					.get("/dashboard.class.signup/"+school_id)
+					.then(function(response){
+						$scope.list_classes = response.data;
+					})
+					.catch(function(erreur){
+						Notifier.danger(erreur.data);
+					});
+			}
+			$scope.setType = function(type){
+				$scope.nvUser.type =type;
+			}
+			$scope.getListSchools = function(){
+				$http
+					.get("/school.list")
+					.then(function(response){
+						$scope.list_schools =response.data;
+					})
+					.catch(function(erreur){
+						Notifier.danger(erreur.data);
+				});
+			}
+			$scope.setSchool = function(school){
+				$scope.nvUser.institution =school;
+				if(school== 1)
+					$scope.getListUniversities();
+				else 
+					$scope.getListSchools();
+			}
+			$scope.checkSchool = function(){
+				if (typeof(Storage) !== "undefined") {
+					$scope.infos = $localStorage.selected_school;
+					console.log("====="+JSON.stringify($scope.infos));
+					//- alert("Chosen:"+JSON.stringify($localStorage.selected_school));
+				} else {
+				    Notifier.danger("Sorry you are using the old browser");
+				}
+				//- alert("Chosen:"+JSON.stringify($localStorage.selected_school));
+			}
+			$scope.checkSchool();
+			$scope.setGender =(number)=>{
+				$scope.nvUser.gender= number;
+			}
+			$scope.anti_csrf ="#{csrf_token}";
+			$().ready(function() {
+				wizard.initMaterialWizard();
+			});
+		});
+=======
+	//- .main-panel
+		include ../partials/header
+	.wrapper.wrapper-full-page.full-page-background(ng-controller="settingsCtrl",style="background-image: url('../imgs/login.jpeg')")
+		.full-page.login-page(filter-color="yellow")
+			.content
+				.container-fluid
+					.row
+						.col-md-6.col-md-offset-3.col-sm-offset-3
+							.card
+								.card-header
+									.avatar-big.center
+										img(src="/pp.view/"+user_id,)
+								.card-content
+									.nav-center
+										ul.nav.nav-pills.nav-pills-success.col-md-offset-3
+											li.active: a(href="#profile", data-toggle="tab") My profile
+											li: a(href="#credentials", data-toggle="tab") Confidentiality
+											li: a(href="#policy", data-toggle="tab") Policy
+										.tab-content
+											.tab-pane.active#profile
+												form(action="/user.update.profile",method="POST",enctype="multipart/form-data")
+													.col-md-3
+														.form-group.label-floating
+															.avatar-big.center
+																img#profil_pic(src="/pp.view/"+user_id)
+															input(type='file',accept="image/*",name="profile_pic",onchange="loadFile(event)",required="true")
+														button.btn-simple.btn.label.btn-rose(type="submit") Change picture 
+													.col-md-9
+														h1 #{username}
+														a.btn-simple.btn.label.btn-rose
+															i.material-icons email
+															| #{email}
+														a.btn-simple.btn.label.btn-danger Access level: {{#{access_level}|toLevelName}}
+														h2 URN: {{'#{URN}'|uppercase}}
+											.tab-pane#credentials
+												h1
+												br
+												br
+												p.category Your password is personal, click here to change it if you think someone has been spying on you.
+												.col-md-12
+													.col-md-6 
+														a.btn-simple.btn.label.btn-rose(ng-click="changePassword()") Click here to change your password 
+															i.material-icons lock_open
+													.col-md-6
+														a.btn-simple.btn.label.btn-rose(ng-click="changeEmail()") Click here to change your email 
+															i.material-icons email
+											.tab-pane#policy
+												h4
+												|	For using this service you MUST enable cookie and javascript, cookie is just to record your session id and language preference, your Privacy is covered under <strong>our Privacy and Cookie policy</strong> .
+block append scripts
+	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute']);
+		app
+		.filter('toLevelName', function() {		
+			return function(input){	
+				switch(input){
+					case 1: input="Super admin ";break;
+					case 1.05: input="Head of Department";break;
+					case 1.1: input="School Super Administrator";break;
+					case 2: input="School Administrator";break;
+					case 3: input="Teacher";break;
+					case 4: input="Student";break;
+					case 5: input="Parent";break;
+					default :break;
+				}
+				return input;
+			}
+		})
+		.controller('settingsCtrl', function($scope, $http, $window){
+			$scope.anti_csrf ="#{csrf_token}";
+			$scope.changePassword = function(){
+				swal({
+					title: 'Set up a new password',
+					html: '<div class="form-group">' +
+							  '<input id="input1" type="password" class="form-control" placeholder="Old password" />' +
+							  '<input id="input2" type="password" class="form-control" placeholder="New password"/>' +
+							  '<input id="input3" type="password" class="form-control" placeholder="Confirm new password"/>' +
+						  '</div>',
+					showCancelButton: true,
+					confirmButtonClass: 'btn btn-success',
+					cancelButtonClass: 'btn btn-danger',
+					buttonsStyling: false
+				}).then(function(result) {
+					$scope.renewPassword();
+				}).catch(swal.noop)
+			}
+			$scope.renewPassword = function(){
+				$http
+				.post("/user.renew_password",{
+										oldPassword: $('#input1').val(),
+										password: $('#input2').val(),
+										password2: $('#input3').val(),
+										_csrf:$scope.anti_csrf
+									})
+				.then(function(response){
+					swal({
+						type: 'success',
+						html: 'Your password was successfully changed',
+						confirmButtonClass: 'btn btn-success',
+						buttonsStyling: false
+					})
+					setTimeout(function(){$window.location.href="/"; }, 2000);
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				}); 
+			}
+			$scope.changeEmail = function(){
+				swal({
+					title: 'Set up a new email',
+					html: '<div class="form-group">' +
+							  '<input id="oldEmail" type="text" class="form-control" placeholder="Old email" />' +
+							  '<input id="password" type="password" class="form-control" placeholder="password"/>' +
+							  '<input id="email" type="type" class="form-control" placeholder="New email"/>' +
+						  '</div>',
+					showCancelButton: true,
+					confirmButtonClass: 'btn btn-success',
+					cancelButtonClass: 'btn btn-danger',
+					buttonsStyling: false
+				}).then(function(result) {
+					$scope.renewEmail();
+				}).catch(swal.noop)
+			}
+			$scope.renewEmail = function(){
+				$http
+				.post("/user.change_email",{
+										oldEmail: $('#oldEmail').val(),
+										password: $('#password').val(),
+										email: $('#email').val(),
+										_csrf:$scope.anti_csrf
+									})
+				.then(function(response){
+					swal({
+						type: 'success',
+						html: 'Your email was successfully changed',
+						confirmButtonClass: 'btn btn-success',
+						buttonsStyling: false
+					})
+					setTimeout(function(){$window.location.href="/"; }, 2000);		 
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				}); 
+			}
+			
+			$scope.profile_URL ="";
+		});
+		var loadFile = function(event) {
+			var output = document.getElementById('profil_pic');
+			output.src = URL.createObjectURL(event.target.files[0]);
+		};
+>>>>>>> a9c64f30bdcaa75dc0a89155c7aaa739baaf4dbc
