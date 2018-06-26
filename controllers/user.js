@@ -11,6 +11,7 @@ const passport = require('passport'),
       Token =require('../models/Token'),
       Util=require('../utils.js'),
       Classe=require('../models/Classe'),
+      Mark = require('../models/MARKS'),
       log_err=require('./manage/errorLogger');
 
 exports.getPageSignIn = (req, res) => {
@@ -221,7 +222,9 @@ exports.postSignUp = (req, res, next) => {
   var accountType = req.body.type;
   // If account is being created by a gust
   var userURN;
-  if(accountType==4){
+  var thisYear = new Date().getFullYear();
+  var ay = Number(thisYear)-2000;
+  if(accountType==4){ 
     User.count((err,number)=>{
       if(err) return log_err(err,false,req,res);
       userURN = Util.generate_URN(number);
@@ -252,49 +255,53 @@ exports.postSignUp = (req, res, next) => {
   }
   else{
     var etablissement_id=req.body.institution == 1? String(req.body.option_id):String(req.body.school_id);
-  
-    School.findOne({_id:etablissement_id},(err,schoolExists)=>{
+    // Check if the class has marks
+    Mark.find({class_id:req.body.class_id, academic_year:ay},(err,marksExists)=>{
       if(err) return log_err(err,false,req,res);
-      else if(!schoolExists) return res.status(400).send(' Invalid data');
-        // Generate an XCode
-      // will generate a Unique registration number
-      User.count((err,number)=>{
+      else if(marksExists&&accountType==2) return res.status(400).send("Sorry, School is not allowing registration. Please contact your school administrator!");
+      School.findOne({_id:etablissement_id},(err,schoolExists)=>{
         if(err) return log_err(err,false,req,res);
-        userURN = Util.generate_URN(number);
-        User.findOne({URN:userURN}, (err, user_urn)=>{
+        else if(!schoolExists) return res.status(400).send(' Invalid data');
+          // Generate an XCode
+        // will generate a Unique registration number
+        User.count((err,number)=>{
           if(err) return log_err(err,false,req,res);
-          else if(user_urn) userURN = Util.generate_URN(number);
-
-          req.body.URN = userURN;
-          passport.authenticate('local.signup', (err, user, info)=>{
+          userURN = Util.generate_URN(number);
+          User.findOne({URN:userURN}, (err, user_urn)=>{
             if(err) return log_err(err,false,req,res);
-            else if(!user) return res.status(400).send(info.msg);
-            var token = Util.uid(req.app.locals.tokenLength);
-            var newToken = new Token({
-              value:req.body.email+token,
-            })
-            newToken.save((err)=>{
+            else if(user_urn) userURN = Util.generate_URN(number);
+
+            req.body.URN = userURN;
+            passport.authenticate('local.signup', (err, user, info)=>{
               if(err) return log_err(err,false,req,res);
-              // Now i will send the mail
-              var email_sender = require("./email_sender"); // the email file controller
-              var infos ={
-                email: req.body.email, // but other day its req.body.email
-                token: token,
-               };
-               // send the mail
-              email_sender
-              .sendEmailValidation(infos)
-              .then((info)=>{
-                console.log(" MAIL OK SENT !!!")
+              else if(!user) return res.status(400).send(info.msg);
+              var token = Util.uid(req.app.locals.tokenLength);
+              var newToken = new Token({
+                value:req.body.email+token,
               })
-              .catch((error)=>{
-                console.log(" MAIL NOT SENT !!!");
-              })
-            return res.end();
+              newToken.save((err)=>{
+                if(err) return log_err(err,false,req,res);
+                // Now i will send the mail
+                var email_sender = require("./email_sender"); // the email file controller
+                var infos ={
+                  email: req.body.email, // but other day its req.body.email
+                  token: token,
+                 };
+                 // send the mail
+                email_sender
+                .sendEmailValidation(infos)
+                .then((info)=>{
+                  console.log(" MAIL OK SENT !!!")
+                })
+                .catch((error)=>{
+                  console.log(" MAIL NOT SENT !!!");
+                })
+              return res.end();
+            })
+            })(req, res, next);
           })
-          })(req, res, next);
-        })
-      })  
+        })  
+      })
     })
   }
 };
