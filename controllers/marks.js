@@ -720,7 +720,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 					var courseMrks=0, courseWgt=0, avg_marks=0;
 					async.each(listCourses, (thisCourse, courseCb)=>{
 						async.series([(Cb_getAssessments)=>{
-							Marks.find().distinct("content_id", {class_id:req.body.class_id,course_id:thisCourse._id,student_id:thisStudent._id,isQuoted:true,academic_year:req.body.academic_year},(err, student_assmnts)=>{
+							Marks.find().distinct("content_id", {class_id:req.body.class_id,course_id:thisCourse._id,student_id:thisStudent._id,isQuoted:true,academic_year:req.body.academic_year,isCAT:true},(err, student_assmnts)=>{
 								if(err) return Cb_getAssessments(err);
 								listAssessmts = student_assmnts;
 								return Cb_getAssessments(null);

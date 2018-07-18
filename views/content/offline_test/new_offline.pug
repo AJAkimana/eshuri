@@ -22,18 +22,18 @@ block append content
 														.form-group.label-floating
 															label.control-label Title of the offline test
 															input.form-control(type="text",required="true",ng-model="title",maxlength="140")
-													.row
-														.col-md-4
-															.form-group.label-floating
-																label.control-label Marks for this test
-																input.form-control(type="number",required="true",ng-model="marks")
-														.col-md-3
-															.form-group.label-floating.bg-inverse.text-white
-																h4.text-title Is it exam?
-														.col-md-3
-															.form-group.label-floating.bg-inverse.text-white
-																label.control-label Tick the case if it is Exam
-																input.form-control(type="checkbox",ng-model="isexam")
+														.form-group.label-floating
+															label.control-label Marks for this test
+															input.form-control(type="number",required="true",ng-model="marks")
+														h4.info-text Assessment type
+															.radio
+																label
+																	input(name='maritus', type='radio', ng-model='isexam', value='cat')
+																	| CAT
+															.radio
+																label
+																	input(name='maritus', type='radio', ng-model='isexam', value='exam')
+																	| EXAM
 												button.btn.btn-fill.btn-rose(type="submit").pull-right Submit
 block append scripts
 	script.

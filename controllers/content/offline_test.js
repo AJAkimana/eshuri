@@ -43,8 +43,9 @@ exports.addOfflineTest = (req,res,next)=>{
   req.assert('unit_id', 'Invalid data').isMongoId();
   req.assert('title', 'Title is not valid').notEmpty().len(1,140);
   req.assert('marks', 'Invalid data').isFloat();
+  req.assert('isexam', 'Select assessment type').notEmpty();
   const errors = req.validationErrors();
-  if (errors) return res.status(400).send("back");
+  if (errors) return res.status(400).send(errors[0].msg);
   Unit.findOne({_id:req.body.unit_id},(err,unit_exists)=>{    
 	if(err) return log_err(err,false,req,res);
 	else if(!unit_exists) return res.status(400).send("Invalid input")
@@ -58,7 +59,7 @@ exports.addOfflineTest = (req,res,next)=>{
     Classe.findOne({_id:course_exists.class_id},(err,class_exists)=>{
       if(err) return log_err(err,false,req,res);
       else if(!class_exists) return res.status(400).send('Invalid data');
-        var isexam=!req.body.isexam;
+        var isexam=req.body.isexam=="cat"?true:false;
         new Content({
           title:req.body.title,
           marks:req.body.marks,
