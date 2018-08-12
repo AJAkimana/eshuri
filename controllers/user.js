@@ -258,7 +258,9 @@ exports.postSignUp = (req, res, next) => {
     // Check if the class has marks
     Mark.find({class_id:req.body.class_id, academic_year:ay},(err,marksExists)=>{
       if(err) return log_err(err,false,req,res);
-      else if(marksExists&&accountType==2) return res.status(400).send("Sorry, School is not allowing registration. Please contact your school administrator!");
+      if(marksExists.length&&accountType==2){ 
+        return res.status(400).send("Sorry, School is not allowing registration. Please contact your school administrator!");
+      }
       School.findOne({_id:etablissement_id},(err,schoolExists)=>{
         if(err) return log_err(err,false,req,res);
         else if(!schoolExists) return res.status(400).send(' Invalid data');

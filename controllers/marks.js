@@ -697,8 +697,10 @@ exports.getMidTermMarks = (req, res, next)=>{
 		else if(!classe_info) return log_err(err,false,req,res);
 		marks.classe_name = classe_info.name;
 		marks.students = [];
-		if(req.body.academic_year==classe_info.academic_year) parametters={class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT};
-		else parametters={prev_classes:req.body.class_id, access_level:req.app.locals.access_level.STUDENT}
+		// if(req.body.academic_year==classe_info.academic_year) parametters={class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT};
+		// else parametters={prev_classes:req.body.class_id, access_level:req.app.locals.access_level.STUDENT}
+		// Select student according to academic year
+		parametters=(req.body.academic_year==classe_info.academic_year)?{class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT}:{prev_classes:req.body.class_id, access_level:req.app.locals.access_level.STUDENT}
 		async.series([(callBack_getStudentList)=>{
 			User.find(parametters, {_id:1,name:1,class_id:1, URN:1},(err, this_class_students)=>{
 				if(err) return callBack_getStudentList(err);
