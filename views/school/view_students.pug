@@ -125,6 +125,7 @@ block append scripts
 				.post("/school.student.add",$scope.student)
 				.then(function(response){
 					$scope.getListStudents();
+					$("#add_student_Modal").modal("hide");
 					Notifier.success("Operation successful! "+$scope.student.names.toUpperCase()+" registered.");
 				})
 				.catch(function(erreur){
