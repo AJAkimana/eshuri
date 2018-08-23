@@ -656,7 +656,7 @@ exports.addNewStudent=(req,res,next)=>{
   req.body.password = "MyEshuri";
   req.body.type = 2;
   req.body.option_id =undefined;
-  console.log(JSON.stringify(req.user));
+  // console.log(JSON.stringify(req.user));
   School.findOne({_id:req.body.school_id},(err,schoolExists)=>{
     if(err) return log_err(err,false,req,res);
     else if(!schoolExists) return res.status(400).send(' Invalid data');
@@ -675,12 +675,11 @@ exports.addNewStudent=(req,res,next)=>{
             access_level = req.app.locals.access_level.STUDENT,
             isEnabled=false,
             class_id=req.body.class_id;
-        User
-          .aggregate([
+        User.aggregate([
             { $match:{email:email} },
             { $group:{_id:{email:"$email"}}},
             { $limit:1}
-          ],function(err, resultats){
+          ],(err, resultats)=>{
             if(err) return done(err, false, { msg: 'Service not available' });
             else if(resultats.length > 0 && resultats[0]._id.email==email)
               return done(null, false, { msg: 'This email is already registered' });
@@ -697,15 +696,10 @@ exports.addNewStudent=(req,res,next)=>{
               isEnabled:isEnabled,
               class_id:class_id
             });
-            newUser.save(function(err){
+            newUser.save((err)=>{
               return res.end();
             })
           })
-        // passport.authenticate('local.signup', (err, user, info)=>{
-        //   if(err) return log_err(err,false,req,res);
-        //   else if(!user) return res.status(400).send(info.msg);
-        //   return res.end();
-        // })(req, res, next);
       })
     })  
   })
