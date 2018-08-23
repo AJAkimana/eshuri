@@ -14,7 +14,7 @@ block append content
 								.card-content
 									h5.card-title Give higher privileges to a teacher
 									.col-md-12.text-right
-										a.btn-simple.btn.label.btn-rose(ng-click="addNew=!addNew") Add new student
+										a.btn-simple.btn.label.btn-rose(data-toggle="modal" data-target="#add_student_Modal") Add new student
 											i.material-icons person_outline
 									.col-md-12
 										h3.text-center List of students at 
@@ -55,6 +55,37 @@ block append content
 																	| dsfds
 											dir-pagination-controls.pull-right(pagination-id='allstudents', max-size='5', direction-links='true', boundary-links='true')
 										p.category.text-center(ng-show ="!students.length") No students registered here
+						#add_student_Modal.modal.fade
+							.modal-dialog
+								.modal-content
+									.modal-header
+										button.close(type='button', data-dismiss='modal') ×
+										h4.modal-title(ng-if="act!='e'") Register new student
+									.modal-body
+										.row
+											.col-md-4
+												input.form-control(type='text',placeholder='Student names',ng-model='student.names')
+											.col-md-5
+												input.form-control(type='text',placeholder='Email',ng-model='student.email')
+											.col-md-3
+												input.form-control(type='text',placeholder='Contact',ng-model='student.phone_number')
+										.row
+											.col-md-6
+												h4.info-text Gender
+												.radio
+													label
+														input(name='maritus', type='radio', ng-model='student.gender', value='1')
+														| Male
+												.radio
+													label
+														input(name='maritus', type='radio', ng-model='student.gender', value='2')
+														| Female
+											.col-md-6
+												select.form-control(ng-model='student.class_id')
+													option(value='') Select student class
+													option(ng-repeat='lc in list_classes', value='{{lc._id}}', ng-bind="'S'+lc.name|uppercase")
+										button.btn.btn-danger(ng-click='saveStudent()') Save
+										button.btn.btn-default.pull-right(data-dismiss='modal') Close
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
 	script.
@@ -62,12 +93,12 @@ block append scripts
 		app
 		.controller('studentCtrl', function($scope,$http){
 			$scope.getListStudents = function(){
+				$scope.finalists=0;
+				$scope.current_students=0;
 				$http
 				.post("/school.students.json",{_csrf:$scope.anti_csrf,school_id:$scope.school_id })
 				.then(function(response){
 					$scope.students = response.data;
-					$scope.finalists=0;
-					$scope.current_students=0;
 					for(var i=0; i<$scope.students.length; i++){
 						if($scope.students[i].classe==="Alumnus") $scope.finalists++;
 						else $scope.current_students++;
@@ -77,13 +108,24 @@ block append scripts
 					Notifier.danger(erreur.data);
 				});
 			}
-			$scope.removeAdmin = function(admin_id, admin_name){
+			$scope.getListClasses=()=>{
 				$http
-				.post("/school.teacher.to.admin",{_csrf:$scope.anti_csrf,admin_id:admin_id,school_id:$scope.school_id })
+				.get("/dashboard.class.signup/"+$scope.school_id)
 				.then(function(response){
-					$scope.getListAdmins();
-					$scope.getListTeachers();
-					Notifier.success("Operation successful! "+admin_name.toUpperCase()+" is no longer admin.");
+					$scope.list_classes = response.data;
+				})
+				.catch(function(erreur){
+					Notifier.danger(erreur.data);
+				});
+			}
+			$scope.saveStudent=()=>{
+				$scope.student.csrf=$scope.anti_csrf;
+				$scope.student.school_id=$scope.school_id;
+				$http
+				.post("/school.student.add",$scope.student)
+				.then(function(response){
+					$scope.getListStudents();
+					Notifier.success("Operation successful! "+$scope.student.names.toUpperCase()+" registered.");
 				})
 				.catch(function(erreur){
 					Notifier.danger(erreur.data);
@@ -93,4 +135,6 @@ block append scripts
 			$scope.anti_csrf ="#{csrf_token}";
 			$scope.school_id ="#{school_id}";
 			$scope.getListStudents();
+			$scope.getListClasses();
 		})
+//- email, names, gender, contact, class,

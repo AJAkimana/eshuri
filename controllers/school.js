@@ -1,4 +1,5 @@
-const School =require('../models/School'),
+const passport = require('passport'),
+      School =require('../models/School'),
       User =require('../models/User'),
       SchoolCourse = require('../models/SchoolCourse'),
       SchoolProgram = require('../models/SchoolProgram'),
@@ -644,80 +645,69 @@ exports.removeTeacher = function(req,res,next){
     })
   })
 }
-
-exports.removeStudent = function(req,res,next){ 
-  req.assert('student_id', 'Invalid data').isMongoId();
-  req.assert('confirmPass', 'Password to confirm is necessary').notEmpty();
+exports.addNewStudent=(req,res,next)=>{
+  req.assert('names', 'Type student names').notEmpty();
+  req.assert('email', 'Type the email').notEmpty();
+  req.assert('gender', 'Invalid data(gender)').isIn[1,2];
+  req.assert('class_id', 'No class selected').isMongoId();
+  req.assert('school_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
-  // first we check if your password is correct
-  User.findOne({_id:req.user._id},(err,user_exists)=>{
+  req.body.password = "MyEshuri";
+  req.body.type = 2;
+  req.body.option_id =undefined;
+  console.log(JSON.stringify(req.user));
+  School.findOne({_id:req.body.school_id},(err,schoolExists)=>{
     if(err) return log_err(err,false,req,res);
-    else if(!user_exists) return res.status(400).send("Invalid data");
-    user_exists.comparePassword(req.body.confirmPass,req.user.email, (err, isMatch) => {
+    else if(!schoolExists) return res.status(400).send(' Invalid data');
+      // Generate an XCode
+    // will generate a Unique registration number
+    User.count((err,number)=>{
       if(err) return log_err(err,false,req,res);
-      else if(!isMatch)   return res.status(400).send("Password is incorrect");
-      
-      // IF your pass is correct, then search the STUDENT and delete HIM
-      User.findOne({_id:req.body.student_id,access_level:req.app.locals.access_level.STUDENT},(err,studentExists)=>{
+      userURN = Util.generate_URN(number);
+      User.findOne({URN:userURN}, (err, user_urn)=>{
         if(err) return log_err(err,false,req,res);
-        else if(!studentExists) return res.status(400).send('Invalid data');
-        // We delete also his PROFIL PIC
-        var profile_pic = process.env.PROFILE_PIC_PATH+"/"+studentExists.profile_pic;
-        var hasProfilPic =studentExists.profile_pic;
-        Marks.remove({student_id:req.body.student_id},(err)=>{
-          if(err) return log_err(err,false,req,res);
-          studentExists.remove((err)=>{
-            if(err) return log_err(err,false,req,res);
-            if(hasProfilPic){
-              require('fs').unlink(profile_pic,(err)=>{
-                //console.log('File '+profile_pic+'deleted with err'+err);
-              });
-            }
-            return res.end();
-          }) 
-        })
+        else if(user_urn) userURN = Util.generate_URN(number);
+        req.body.URN = userURN;
+        var email = req.body.email.toLowerCase().trim(),
+            name = req.body.names.toLowerCase().trim(),
+            URN = req.body.URN.toLowerCase().trim(),
+            access_level = req.app.locals.access_level.STUDENT,
+            isEnabled=false,
+            class_id=req.body.class_id;
+        User
+          .aggregate([
+            { $match:{email:email} },
+            { $group:{_id:{email:"$email"}}},
+            { $limit:1}
+          ],function(err, resultats){
+            if(err) return done(err, false, { msg: 'Service not available' });
+            else if(resultats.length > 0 && resultats[0]._id.email==email)
+              return done(null, false, { msg: 'This email is already registered' });
+            var newUser = new User({
+              name:req.body.names,
+              email: email,
+              URN: URN,
+              password: req.body.password,
+              school_id:req.body.school_id,
+              department_id:req.body.department_id,
+              phone_number:req.body.phone_number,
+              access_level:access_level,
+              gender:req.body.gender,
+              isEnabled:isEnabled,
+              class_id:class_id
+            });
+            newUser.save(function(err){
+              return res.end();
+            })
+          })
+        // passport.authenticate('local.signup', (err, user, info)=>{
+        //   if(err) return log_err(err,false,req,res);
+        //   else if(!user) return res.status(400).send(info.msg);
+        //   return res.end();
+        // })(req, res, next);
       })
-    })
-  })
-}
-exports.editStudent = (req, res, next)=>{
-  req.assert('student_id', 'Invalid data').isMongoId();
-  req.assert('name', 'Enter name please').notEmpty();
-  req.assert('email', 'Enter email please').notEmpty();
-  req.assert('admin_pass', 'Enter your password').notEmpty();
-  const errors = req.validationErrors();
-  if(errors) return res.status(400).send(errors[0].msg);
-
-  User.findOne({email:req.user.email},(err, userExists)=>{
-    if(err) return log_err(err, false, req, res);
-    else if(!userExists) return res.status(400).send("System dont know you");
-    userExists.comparePassword(req.body.admin_pass, req.user.email, (err, isMatch)=>{
-      if(err) return log_err(err, false, req, res);
-      else if(!isMatch) return res.status(400).send("The password entered is incorrect!");
-      User.findOne({_id:req.body.student_id},(err, userDetails)=>{
-        if(err) return log_err(err, false, req, res);
-        else if(!userDetails) return res.status(400).send("Unkown user");
-        else if(userDetails.email===req.user.email) return res.status(400).send("Change your password using platform seting");
-        else if(userDetails.access_level<=req.user.access_level) return res.status(400).send("User password has not reset");
-        new Notification({
-          user_id:req.body.student_id,
-          user_name:userDetails.name,
-          content: "Your password has reset to "+req.app.locals.defaultPwd+". Please change it as long as you access the platform",
-          school_id:userDetails.school_id,
-          isAuto:false,            
-        }).save((err)=>{
-          if(err) console.log(" You have to log "+err)
-        })
-        userDetails.name=req.body.name;
-        userDetails.email = userDetails.email;
-        userDetails.password = req.app.locals.defaultPwd;
-        userDetails.save((err)=>{
-          if(err) return log_err(err, false, req, res);
-          return res.end();
-        });
-      })
-    })
+    })  
   })
 }
 exports.getPageStudents = (req, res, next)=>{
@@ -768,6 +758,81 @@ exports.getStudents_JSON = (req, res, next)=>{
       },(err)=>{
         if(err) return log_err(err,false,req,res);
         return res.json(students_list);
+      })
+    })
+  })
+}
+exports.editStudent = (req, res, next)=>{
+  req.assert('student_id', 'Invalid data').isMongoId();
+  req.assert('name', 'Enter name please').notEmpty();
+  req.assert('email', 'Enter email please').notEmpty();
+  req.assert('admin_pass', 'Enter your password').notEmpty();
+  const errors = req.validationErrors();
+  if(errors) return res.status(400).send(errors[0].msg);
+
+  User.findOne({email:req.user.email},(err, userExists)=>{
+    if(err) return log_err(err, false, req, res);
+    else if(!userExists) return res.status(400).send("System dont know you");
+    userExists.comparePassword(req.body.admin_pass, req.user.email, (err, isMatch)=>{
+      if(err) return log_err(err, false, req, res);
+      else if(!isMatch) return res.status(400).send("The password entered is incorrect!");
+      User.findOne({_id:req.body.student_id},(err, userDetails)=>{
+        if(err) return log_err(err, false, req, res);
+        else if(!userDetails) return res.status(400).send("Unkown user");
+        else if(userDetails.email===req.user.email) return res.status(400).send("Change your password using platform seting");
+        else if(userDetails.access_level<=req.user.access_level) return res.status(400).send("User password has not reset");
+        new Notification({
+          user_id:req.body.student_id,
+          user_name:userDetails.name,
+          content: "Your password has reset to "+req.app.locals.defaultPwd+". Please change it as long as you access the platform",
+          school_id:userDetails.school_id,
+          isAuto:false,            
+        }).save((err)=>{
+          if(err) console.log(" You have to log "+err)
+        })
+        userDetails.name=req.body.name;
+        userDetails.email = userDetails.email;
+        userDetails.password = req.app.locals.defaultPwd;
+        userDetails.save((err)=>{
+          if(err) return log_err(err, false, req, res);
+          return res.end();
+        });
+      })
+    })
+  })
+}
+exports.removeStudent = function(req,res,next){ 
+  req.assert('student_id', 'Invalid data').isMongoId();
+  req.assert('confirmPass', 'Password to confirm is necessary').notEmpty();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  // first we check if your password is correct
+  User.findOne({_id:req.user._id},(err,user_exists)=>{
+    if(err) return log_err(err,false,req,res);
+    else if(!user_exists) return res.status(400).send("Invalid data");
+    user_exists.comparePassword(req.body.confirmPass,req.user.email, (err, isMatch) => {
+      if(err) return log_err(err,false,req,res);
+      else if(!isMatch)   return res.status(400).send("Password is incorrect");
+      
+      // IF your pass is correct, then search the STUDENT and delete HIM
+      User.findOne({_id:req.body.student_id,access_level:req.app.locals.access_level.STUDENT},(err,studentExists)=>{
+        if(err) return log_err(err,false,req,res);
+        else if(!studentExists) return res.status(400).send('Invalid data');
+        // We delete also his PROFIL PIC
+        var profile_pic = process.env.PROFILE_PIC_PATH+"/"+studentExists.profile_pic;
+        var hasProfilPic =studentExists.profile_pic;
+        Marks.remove({student_id:req.body.student_id},(err)=>{
+          if(err) return log_err(err,false,req,res);
+          studentExists.remove((err)=>{
+            if(err) return log_err(err,false,req,res);
+            if(hasProfilPic){
+              require('fs').unlink(profile_pic,(err)=>{
+                //console.log('File '+profile_pic+'deleted with err'+err);
+              });
+            }
+            return res.end();
+          }) 
+        })
       })
     })
   })

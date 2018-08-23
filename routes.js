@@ -293,6 +293,7 @@ module.exports = function(app) {
 	app.post('/school.teacher.delete',isAtLeastAdmin, schoolController.removeTeacher);
 	app.post('/school.teacher.dissociate',isAtLeastAdmin, schoolController.dissociateTeacher);
 
+	app.post('/school.student.add',isAtLeastAdmin,schoolController.addNewStudent);
 	app.post('/school.students.list',isAuthenticated, schoolController.getStudentsList);
 	app.post('/school.student.delete',isAtLeastAdmin, schoolController.removeStudent);
 	//Akimanaedit student
