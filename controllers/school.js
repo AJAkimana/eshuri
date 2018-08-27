@@ -214,18 +214,18 @@ exports.getSchoolProfile = (req,res,next)=>{
   req.assert('school_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
   var picture_location=process.env.SCHOOL_PIC_PATH;
-  if(errors) return res.sendFile(picture_location+"/schoo_default.jpg");
+  if(errors) return res.sendFile(picture_location+"/schoo_default.png");
   
   var img_path;
   School.findOne({_id:req.params.school_id},(err,schoolExists)=>{
     // console.log(" i foud user ="+JSON.stringify(userExists))
     if(err){
       console.log("Error picture "+err);
-      return res.sendFile(picture_location+"/schoo_default.jpg");
+      return res.sendFile(picture_location+"/schoo_default.png");
     }
     if(schoolExists)
       img_path =schoolExists.cover_photo;
-    else  img_path ="schoo_default.jpg";
+    else  img_path ="schoo_default.png";
     // Send the file    
     
     var file_location=picture_location+"/"+img_path;
@@ -233,7 +233,7 @@ exports.getSchoolProfile = (req,res,next)=>{
     // console.log(" checkin for===>>>> "+file_location)
     fs.access(file_location, fs.constants.F_OK | fs.constants.R_O,(err)=>{
       if(err) {
-        file_location=picture_location+"/schoo_default.jpg";
+        file_location=picture_location+"/schoo_default.png";
       }
       // console.log("I am sending "+file_location)
       return res.sendFile(file_location);  
@@ -680,9 +680,9 @@ exports.addNewStudent=(req,res,next)=>{
             { $group:{_id:{email:"$email"}}},
             { $limit:1}
           ],(err, resultats)=>{
-            if(err) return done(err, false, { msg: 'Service not available' });
+            if(err) return res.status(400).send('Service not available');
             else if(resultats.length > 0 && resultats[0]._id.email==email)
-              return done(null, false, { msg: 'This email is already registered' });
+              return res.status(400).send('This email is already registered');
             var newUser = new User({
               name:req.body.names,
               email: email,
@@ -1320,3 +1320,4 @@ exports.setHeadOfDepartment = (req,res,next)=>{
     })
   })
 }
+
