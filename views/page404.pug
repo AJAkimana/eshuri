@@ -21,7 +21,9 @@ block append scripts
 
 		app.controller('errorCtrl', function($scope,$window, $timeout){
 			$scope.secs=3;
-			setTimeout(function(){ $window.history.back();}, $scope.secs*1000);
+			setTimeout(function(){ 
+				$window.history.back();
+			}, $scope.secs*1000);
 			$scope.counter = 3;
 			$scope.onTimeout = function(){
 				$scope.counter--;
