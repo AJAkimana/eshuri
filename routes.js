@@ -371,6 +371,7 @@ module.exports = function(app) {
 	app.get('/classe/:classe_id',isAuthenticated, classeController.getPageOneClasse);
 	app.post('/classe.get.courses', isAuthenticated, classeController.getClassCourses);
 	app.get('/classe.get.nexts/:class_id', isAtLeastAdmin,classeController.getNextClasses);
+	app.post('/set.ac_year.student/:class_id', isAtLeastAdmin,classeController.setAcYearOfRepeat);
 	app.get('/classe.get.repeat/:class_id', isAtLeastAdmin,classeController.getClasseToRepeat)
 	app.post('/school.change.to.next',isAtLeastAdmin, classeController.getToNextClass);
 	app.post('/school.change.to.previous',isAtLeastAdmin, classeController.returnToPreviousClass)

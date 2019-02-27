@@ -83,6 +83,9 @@ block append content
                               button.btn.btn-primary.btn-sm(ng-click="setCurrent(student)" ,data-target='#student_edit_Model', data-toggle='modal')
                                 i.material-icons edit
                                 | Edit
+                              button.btn.btn-info.btn-sm(ng-click="setCurrent(student)" ,data-target='#add_ay_Model', data-toggle='modal')
+                                i.material-icons edit
+                                | Set AY
                       dir-pagination-controls.pull-right(pagination-id='allstudents', max-size='5', direction-links='true', boundary-links='true')
       #student_rpt_Model.modal.fade(role='dialog')
         .modal-dialog
@@ -123,6 +126,30 @@ block append content
                 u
                   b.text-info MyEshuri
               button.btn.btn-sm.btn-primary(ng-click="editStudent()") Confirm
+              button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
+      #add_ay_Model.modal.fade(role='dialog')
+        .modal-dialog
+          .modal-content
+            .modal-header
+              h4.card-title.text-center 
+                | Add Academic year of previous class for
+                br
+                strong(ng-bind="currStudent.name|uppercase")
+            .modal-body
+              .table-responsive(ng-show="currStudent.prev_classes.length")
+                table.table.table-border
+                  tr
+                    th #
+                    th Class
+                    th Ac. Year
+                  tr(ng-repeat="classe in currStudent.prev_classes")
+                    td(ng-bind="$index+1")
+                    td(ng-bind="classe.class_id|toPreClasseName:classes|toClasseName:term_name|uppercase")
+                    td
+                      input.form-control(type="number" ng-model="classe.academic_year" min="17" max="19")
+              h4.text-info(ng-hide="currStudent.prev_classes.length") No classes
+            .modal-footer
+              button.btn.btn-sm.btn-primary(ng-click="editAcYear()") Confirm
               button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
 block append scripts
   script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
@@ -225,6 +252,17 @@ block append scripts
             Notifier.danger(error.data)
           })
         }).catch(swal.noop)
+      }
+      $scope.editAcYear=()=>{
+        var body={class_id:$scope.class_id,student_id:$scope.currStudent._id,classes:$scope.currStudent.prev_classes}
+        $http.post('/set.ac_year.student/'+$scope.class_id,body)
+        .then((response)=>{
+          $('#add_ay_Model').modal('hide');
+          Notifier.success('Successfully updated')
+        })
+        .catch((error)=>{
+          Notifier.danger(error.data)
+        })
       }
       $scope.editStudent=()=>{
         $http

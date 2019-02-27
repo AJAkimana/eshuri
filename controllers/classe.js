@@ -380,6 +380,39 @@ exports.returnToPreviousClass = (req,res,next)=>{
     })
   })
 }
+exports.setAcYearOfRepeat = (req,res)=>{
+  req.assert('class_id', 'Invalid data1').isMongoId();
+  req.assert('student_id', 'Invalid data2').isMongoId();
+  req.assert('classes', 'Invalid data3').isArray(); // not sure
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+
+  var async = require('async');
+  User.findOne({_id:req.body.student_id,class_id:req.body.class_id},(err, student)=>{
+    if(err) return res.status(400).send('Service not available');
+    if(!student) return res.status(400).send('User does not exist');
+    
+    var studentClasses = [];
+    async.eachSeries(req.body.classes, (current, callBack)=>{
+      if(!current.class_id) return callBack('Invalid data 4');
+      else if(!current.academic_year) return callBack('Set academic year');
+      else if(current.academic_year>19||current.academic_year<17){
+        return callBack('Set Invalid academic year');
+      }
+      studentClasses.push({class_id:current.class_id,academic_year:current.academic_year});
+
+      callBack(null);
+    },(err)=>{
+      if(err) return res.status(400).send(err);
+
+      student.prev_classes = studentClasses;
+      student.save((err, ok)=>{
+        if(err) log_err(err,false,req,res);
+        return res.end();
+      })
+    })
+  })
+}
 exports.getClasses_JSON_For_Report = (req,res,next)=>{
   req.assert('school_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
