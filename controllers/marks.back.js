@@ -623,7 +623,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 	var outMarks = 0, total=0;
 	var index_user;
 
-	Classe.findOne({_id:req.body.class_id},(err, classe_info)=>{
+	Classe.findOne({_id:req.body.class_id,academic_year:req.body.academic_year},(err, classe_info)=>{
 		if(err) return log_err(err,false,req,res);
 		else if(!classe_info) return log_err(err,false,req,res);
 		marks.classe_name = classe_info.name;

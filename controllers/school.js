@@ -860,20 +860,17 @@ exports.getUserClasses = (req, res, next)=>{
       },(cssCallback)=>{
         async.each(req.user.prev_classes, (thisClass, classCallBack)=>{
           // listClasses.push(thisClass);
-          Classe.findOne({_id:thisClass, school_id:req.user.school_id},(err, prev_class_details)=>{
+          Classe.findOne({_id:thisClass.class_id, school_id:req.user.school_id},(err, prev_class_details)=>{
             if(err) classCallBack(err);
             Marks.findOne({student_id:req.user._id,class_id:prev_class_details._id},(err,a_year)=>{
               if(err) classCallBack(err)
               // console.log('Aaaaa:'+a_year)
-              if(a_year!=null) listClasses.push({class_id:thisClass,name:prev_class_details.name,academic_year:a_year.academic_year});
+              if(a_year!=null) listClasses.push({class_id:thisClass.class_id,name:prev_class_details.name,academic_year:a_year.academic_year});
               classCallBack(null);
             })
           })
         },(err)=>{
           if(err) return cssCallback(err);
-          // allclasses=listClasses
-          // console.log('asdasd'+JSON.stringify(listClasses))
-          console.log('dsdsfsdfsdfsdfs')
           // append every class number of courses
           async.eachSeries(listClasses, (thisClass, callBack)=>{
             parametters = {class_id:thisClass.class_id};
@@ -1109,6 +1106,7 @@ exports.getStudentsList = (req,res,next)=>{
   req.assert('class_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
   if(errors) return res.status(400).send(errors[0].msg);
+  
   User.find({class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT},
   {__v:0,password:0,gender:0,isValidated:0,upload_time:0,updatedAt:0}).sort({name:1}).exec((err,students_list)=>{
     if(err) return log_err(err,false,req,res);
