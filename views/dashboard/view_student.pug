@@ -71,7 +71,7 @@ block append content
                               h5(ng-if="student.prev_classes.length==0") No class
                               ul(ng-if="student.prev_classes.length!=0")
                                 li(type="1" ng-repeat="classe in student.prev_classes")
-                                  a.btn-simple.btn.label.btn-rose(ng-bind="classe.class_id|toPreClasseName:classes|toClasseName:term_name|uppercase||classe|toPreClasseName:classes|toClasseName:term_name|uppercase",ng-click="revertStudent(classe.class_id, student.name, student._id)")
+                                  a.btn-simple.btn.label.btn-rose(ng-bind="classe.class_id==undefined?(classe.class_id|toPreClasseName:classes|toClasseName:term_name|uppercase):'--'",ng-click="revertStudent(classe.class_id, student.name, student._id)")
                             td.td-actions.text-right
                               select(ng-model="new_class",ng-change="changeClass(student, new_class)")
                                 option(value="{{classe._id}}" ng-repeat="classe in nextClasses") {{classe.name|uppercase|toClasseName:term_name}}
