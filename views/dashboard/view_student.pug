@@ -26,7 +26,7 @@ block append content
                         thead
                           th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Name
                         tbody
-                          tr(pagination-id="allclasses", dir-paginate="classe in classes|orderBy:name|filter:classe_search|itemsPerPage:5")
+                          tr(pagination-id="allclasses", dir-paginate="classe in classes|orderBy:name|filter:classe_search|itemsPerPage:10")
                             td: h3.btn.label(ng-click="getstudentList(classe._id, classe.name, classe.level)", ng-class="classe.name==classe_name?'btn-primary':'btn-danger'") {{classe.name|uppercase|toClasseName:term_name}}
                       dir-pagination-controls.pull-right(pagination-id='allclasses', max-size='5', direction-links='true', boundary-links='true')
               .col-xs-12.col-sm-12.col-md-9.col-lg-9
@@ -83,7 +83,7 @@ block append content
                               button.btn.btn-primary.btn-sm(ng-click="setCurrent(student)" ,data-target='#student_edit_Model', data-toggle='modal')
                                 i.material-icons edit
                                 | Edit
-                              button.btn.btn-info.btn-sm(ng-click="setCurrent(student)" ,data-target='#add_ay_Model', data-toggle='modal')
+                              button.btn.btn-info.btn-sm(ng-show="student.prev_classes.length!=0" ng-click="setCurrent(student)" ,data-target='#add_ay_Model', data-toggle='modal')
                                 i.material-icons edit
                                 | Set AY
                       dir-pagination-controls.pull-right(pagination-id='allstudents', max-size='5', direction-links='true', boundary-links='true')
@@ -144,9 +144,9 @@ block append content
                     th Ac. Year
                   tr(ng-repeat="classe in currStudent.prev_classes")
                     td(ng-bind="$index+1")
-                    td(ng-bind="classe.class_id!=undefined?(classe.class_id|toPreClasseName:classes|toClasseName:term_name|uppercase):(classe|toPreClasseName:classes|toClasseName:term_name|uppercase)")
+                    td(ng-bind="classe.class_id|toPreClasseName:classes|toClasseName:term_name|uppercase")
                     td
-                      input.form-control(type="number" ng-model="classe.academic_year" min="17" max="19")
+                      input.form-control(type="number" ng-model="classe.academic_year")
               h4.text-info(ng-hide="currStudent.prev_classes.length") No classes
             .modal-footer
               button.btn.btn-sm.btn-primary(ng-click="editAcYear()") Confirm
@@ -183,6 +183,13 @@ block append scripts
     .controller('studentCtrl', function($scope, $http,$window){
       $scope.setCurrent=(student)=>{
         $scope.currStudent=student;
+        if(student.prev_classes[0]['class_id']===undefined){
+          var stClasses = [];
+          for(var i=0; i<student.prev_classes.length; i++){
+            stClasses.push({class_id:student.prev_classes[i]})
+          }
+          $scope.currStudent.prev_classes = stClasses;
+        }
       }
       $scope.view_student = function(id_student){
         $window.location.href ="/student/"+id_student;

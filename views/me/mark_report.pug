@@ -287,7 +287,7 @@ block append scripts
             });
           });
           /*This forms the header for the table - to be used in <th>*/
-          $scope.keys = Object.keys($scope.termSumary[0]);
+          if($scope.termSumary.length) $scope.keys = Object.keys($scope.termSumary[0]);
         })
       }
       $scope.midTermMarks = function(){
@@ -311,7 +311,7 @@ block append scripts
             });
           });
           /*This forms the header for the table - to be used in <th>*/
-          $scope.keys = Object.keys($scope.midMarks[0]);
+          if($scope.midMarks.length) $scope.keys = Object.keys($scope.midMarks[0]);
         })
         .catch(function(err){
           Notifier.danger(err.data);
