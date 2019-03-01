@@ -56,8 +56,8 @@ block append content
                                 label.control-label {{term_name|toTermName}}:
                                 br
                                 select.form-control(required="true", title="Choose the {{term_name|toTermName}}",ng-model="newCourse.currentTerm", ng-disabled="term_quantity==3")
-                                  option(value="{{$index + 1}}", ng-repeat="i in getTerms_Limit()") {{term_name|toTermName}} {{$index + 1}}
                                   option(value="4") Whole year
+                                  option(value="{{$index + 1}}", ng-repeat="i in getTerms_Limit()") {{term_name|toTermName}} {{$index + 1}}
                             .col-md-8
                               .form-group.label-floating
                                 label.control-label Course code 
