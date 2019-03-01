@@ -10,7 +10,7 @@ var CourseSchema =new Schema({
 	school_id:{type: Schema.Types.ObjectId,required:true,unique:false},
 	class_id:{type: Schema.Types.ObjectId,required:true,unique:false},
 	teacher_list:{type:[Schema.Types.ObjectId],required:true,unique:false},
-	currentTerm:{type:Number,required:true, min:0,unique:false},
+	courseTerm:{type:Number,required:true, min:0,unique:false},
   level:{type:Number,required:true, min:0,unique:false},
   isConsidered:{type:Boolean,required:false, default:true, unique:false},
         /* Useful for the report */

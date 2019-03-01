@@ -55,7 +55,7 @@ block append content
                               .form-group.label-floating
                                 label.control-label {{term_name|toTermName}}:
                                 br
-                                select.form-control(required="true", title="Choose the {{term_name|toTermName}}",ng-model="newCourse.currentTerm", ng-disabled="term_quantity==3")
+                                select.form-control(required="true", title="Choose the {{term_name|toTermName}}",ng-model="newCourse.courseTerm", ng-disabled="term_quantity==3")
                                   option(value="4") Whole year
                                   option(value="{{$index + 1}}", ng-repeat="i in getTerms_Limit()") {{term_name|toTermName}} {{$index + 1}}
                             .col-md-8
@@ -137,7 +137,7 @@ block append content
                             td {{course.name | uppercase}}
                             td {{course.code|uppercase}}
                             td {{course.weightOnReport|uppercase}}
-                            td {{course.currentTerm|toTermName}} {{course.currentTerm}}
+                            td {{course.courseTerm|toTermName}} {{course.courseTerm}}
                             td {{course.teacher_list.length}} teachers
                               button.btn-simple.btn.label.btn-rose(type='button',ng-click="setCurrentCourse(course)",data-target='#add_teacher_Modal', data-toggle='modal')
                                 i.material-icons edit
@@ -147,7 +147,7 @@ block append content
                                 i.material-icons close
                               button.btn-simple.btn.label.btn-rose(type='button',ng-click="setCurrentCourse(course)",data-target='#edit_course_Modal', data-toggle='modal')
                                 i.material-icons edit
-                              button.btn-success.btn.label(type='button',ng-click="editCourseName(course._id,course.name, course.currentTerm)")
+                              button.btn-success.btn.label(type='button',ng-click="editCourseName(course._id,course.name, course.courseTerm)")
                                 i.material-icons edit
                               p.category.text-center(ng-show ="!courses.length") No courses provided yet
                       dir-pagination-controls.pull-right(pagination-id='allcourses', max-size='5', direction-links='true', boundary-links='true')
@@ -375,7 +375,7 @@ block append scripts
           else{
             courseAbbr = courseName.substring(0,3);
           }
-          var thiscourseCode = schoolAbbr+'-'+getclassName(className)+'-'+courseAbbr+'-'+academicYear+courseterm;
+          var thiscourseCode = schoolAbbr+'-'+getclassName(className)+'-'+courseAbbr;
           //console.log(thiscourseCode);
           $http
           .post("/course.change.coursename", {
@@ -565,7 +565,7 @@ block append scripts
       $scope.institution="#{institution}";
       $scope.currentTerm ="#{currentTerm}";
       $scope.newCourse ={}
-      if($scope.term_quantity==3) $scope.newCourse.currentTerm='4';
+      if($scope.term_quantity==3) $scope.newCourse.courseTerm='4';
       $scope.course_concerned;
       $scope.getListCourses();
       $scope.getListClasses();
