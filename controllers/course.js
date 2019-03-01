@@ -79,7 +79,7 @@ exports.postNewCourse = function(req,res,next){
   req.assert('class_id', 'Choose a class').isMongoId();
   req.assert('teacher_id', 'Choose a teacher').isMongoId();
   req.assert('school_id', 'Invalid data').isMongoId();
-  req.assert('currentTerm', 'Choose a term/semester').notEmpty();
+  req.assert('courseTerm', 'Choose a term/semester').notEmpty();
   req.assert('weightOnReport', 'Choose course weight on the report').notEmpty();
   // req.assert('year', 'year is required').notEmpty();
   // req.assert('attendance_limit', 'attendance_limit is required').notEmpty();
@@ -110,7 +110,7 @@ exports.postNewCourse = function(req,res,next){
         test_quota:devideQuota,
         // year:req.body.year,
         weightOnReport:req.body.weightOnReport,
-        currentTerm:req.body.currentTerm,
+        courseTerm:req.body.courseTerm,
         attendance_limit:0, // initially 0
       })
       nouveauCourse.save(function(err){
@@ -350,21 +350,24 @@ exports.getPageStudentsOneCourse = (req,res,next)=>{
   const errors = req.validationErrors();
   if(errors) return res.render("./lost",{msg:errors[0].msg});
   Course.findOne({_id:req.params.course_id},(err,course_exists)=>{
-     if(err) return log_err(err,true,req,res);
-     else if(!course_exists)
-      return res.render("./lost",{msg:"Invalid data"});
-     else if(course_exists.teacher_list.indexOf(String(req.user._id)) ==-1)
-      return res.render("./lost",{msg:"Sorry this course doesn't belong to you"});
-     return res.render('course/students_list',{
-          title:course_exists.name.toUpperCase(),
-          course_name :course_exists.name,
-          actual_term :course_exists.currentTerm,
-          course_id:req.params.course_id,
-          pic_id:req.user._id,
-          pic_name:req.user.name.replace('\'',"\\'")
-          ,access_lvl:req.user.access_level,
-          csrf_token:res.locals.csrftoken, // always set this buddy
+    if(err) return log_err(err,true,req,res);
+    else if(!course_exists) return res.render("./lost",{msg:"Invalid data"});
+    else if(course_exists.teacher_list.indexOf(String(req.user._id)) ==-1) return res.render("./lost",{msg:"Sorry this course doesn't belong to you"});
+    
+    Classe.findOne({_id:course_exists.class_id},{currentTerm:1},(err, classe)=>{
+      if(err) return log_err(err,true,req,res);
+      else if(!classe) return res.render("./lost",{msg:"Invalid data"});
+      return res.render('course/students_list',{
+        title:course_exists.name.toUpperCase(),
+        course_name :course_exists.name,
+        actual_term :classe.currentTerm,
+        course_id:req.params.course_id,
+        pic_id:req.user._id,
+        pic_name:req.user.name.replace('\'',"\\'")
+        ,access_lvl:req.user.access_level,
+        csrf_token:res.locals.csrftoken, // always set this buddy
       })
+    })
   })
 }
 exports.setStudentRetake = (req,res,next)=>{
@@ -428,18 +431,22 @@ exports.getPageMyMarks = (req,res,next)=>{
     else if(!course_exists)  return res.render("./lost",{msg:"Invalid data"});
     else if(String(req.user.school_id) != String(course_exists.school_id))
       return res.render("./lost",{msg:"No chances to view this course"});
-    return res.render('course/students_marks',{
-          title:course_exists.name.toUpperCase(),
-          course_name :course_exists.name,
-          actual_term :course_exists.currentTerm,
-          course_id:req.params.course_id,
-          pic_id:req.user._id,
-          pic_name:req.user.name.replace('\'',"\\'")
-          ,access_lvl:req.user.access_level,
-          csrf_token:res.locals.csrftoken, // always set this buddy
-      })
-  })
+    Classe.findOne({_id:course_exists.class_id},{currentTerm:1},(err, classe)=>{
+      if(err) return log_err(err,true,req,res);
+      else if(!classe)  return res.render("./lost",{msg:"Invalid data"});
 
+      return res.render('course/students_marks',{
+        title:course_exists.name.toUpperCase(),
+        course_name :course_exists.name,
+        actual_term :classe.currentTerm,
+        course_id:req.params.course_id,
+        pic_id:req.user._id,
+        pic_name:req.user.name.replace('\'',"\\'")
+        ,access_lvl:req.user.access_level,
+        csrf_token:res.locals.csrftoken, // always set this buddy
+      })
+    })
+  })
 }
 
 
