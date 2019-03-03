@@ -934,31 +934,26 @@ exports.getSchoolData = (req,res,next)=>{
   const errors = req.validationErrors();
   if(errors) return res.status(400).send(errors[0].msg);
 
-  var response={};
-  var theData=[];
+  var theData=[], schoolId=req.params.school_id;
+  var linkParams=req.user.access_level===req.app.locals.access_level.SUPERADMIN?'?s='+schoolId+'&allow=true':'';
   var program_name;
   theData.push({list:[]})
-  School.findOne({_id:req.params.school_id},(err,school_exists)=>{
+  School.findOne({_id:schoolId},(err,school_exists)=>{
     if(err) return log_err(err,false,req,res);
     else if(!school_exists) return res.status(400).send("School not found");
-    response.term_name = school_exists.term_name;
-    response.term_quantity = school_exists.term_quantity;
-    response.name = school_exists.name;
+  
     theData.push({infos:{}})
     program_name=school_exists.term_name==='T'?'Combinations':'Programs';
     theData[1].infos.term_name=school_exists.term_name
     theData[1].infos.term_quantity=school_exists.term_quantity
     theData[1].infos.name=school_exists.name
-    // theData.push({term_name:school_exists.term_name});
-    // theData.push({term_quantity:school_exists.term_quantity})
-    // theData.push({name:school_exists.name})
+
     var async = require('async');
-    async.parallel([(cb)=>{
-    User.count({school_id:req.params.school_id,isEnabled:false})
+    async.series([(cb)=>{
+    User.count({school_id:schoolId,isEnabled:false})
       .exec((err,number)=>{
         if(err) cb(err);
-        theData[0].list.push({type:'New accounts to confirm',number:number,url:'/dashboard.accounts.validation',icon:'verified_user'})
-        response.unConfirmed=number;
+        theData[0].list.push({type:'New accounts to confirm',number:number,url:'/dashboard.accounts.validation'+linkParams,icon:'verified_user'})
         cb(null);
       })
     },(cb2)=>{
@@ -966,53 +961,50 @@ exports.getSchoolData = (req,res,next)=>{
         .sort({name:1}).exec((err,classe_list)=>{
           if(err) return cb2(err);
           theData.push({classes:classe_list});
-          response.classes =classe_list;
           cb2(null);
         })
     },(cb3)=>{
       User.count({school_id:req.params.school_id,$or:[{access_level:req.app.locals.access_level.TEACHER},{access_level:req.app.locals.access_level.ADMIN_TEACHER}]},(err,num_teachers)=>{
         if(err) return cb3(err);
-        theData[0].list.push({type:'Teachers',number:num_teachers,url:'/dashboard.teachers/'+req.user.school_id,icon:'person'})
-        response.teachers =num_teachers
+        theData[0].list.push({type:'Teachers',number:num_teachers,url:'/dashboard.teachers/'+schoolId+linkParams,icon:'person'})
         cb3(null);
       })
     },(cb4)=>{
       User.count({school_id:req.params.school_id,access_level:{$lte:req.app.locals.access_level.ADMIN_TEACHER}},(err,num_admins)=>{
         if(err) return cb4(err);
-        theData[0].list.push({type:'Administrators',number:num_admins,url:'/dashboard.admins/'+req.user.school_id,icon:'supervisor_account'})
-        response.admins =num_admins;
+        theData[0].list.push({type:'Administrators',number:num_admins,url:'/dashboard.admins/'+schoolId+linkParams,icon:'supervisor_account'})
         cb4(null);
       })
     },(cb5)=>{
       User.count({school_id:req.params.school_id,access_level:req.app.locals.access_level.STUDENT, class_id:{$ne:null}},(err,num_students)=>{
         if(err) return cb5(err);
-        theData[0].list.push({type:'Students',number:num_students,url:'/school.students/'+req.user.school_id,icon:'person'})
-        response.num_students =num_students;
+        theData[0].list.push({type:'Students',number:num_students,url:'/school.students/'+schoolId+linkParams,icon:'person'})
         cb5(null);
       })
     },(cb6)=>{
       SchoolCourse.count({school_id:req.params.school_id},(err,num_school_courses)=>{
         if(err) return cb6(err);
-        theData[0].list.push({type:'Courses',number:num_school_courses,url:'/dashboard.register.course/'+req.user.school_id,icon:'class'})
-        response.school_courses =num_school_courses;
+        theData[0].list.push({type:'Courses',number:num_school_courses,url:'/dashboard.register.course/'+schoolId+linkParams,icon:'class'})
         cb6(null);
       })
     },(cb7)=>{
       SchoolProgram.count({school_id:req.params.school_id},(err,num_school_programs)=>{
         if(err) return cb7(err);
-        theData[0].list.push({type:program_name,number:num_school_programs,url:'/dashboard.register.course/'+req.user.school_id,icon:'class'})
-        response.school_programs =num_school_programs;
+        theData[0].list.push({type:program_name,number:num_school_programs,url:'/dashboard.register.course/'+schoolId+linkParams,icon:'class'})
         cb7(null);
       })
     },(cb8)=>{
       Finalist.count({school_id:req.params.school_id},(err,num_finalists)=>{
         if(err) return cb8(err);
-        theData[0].list.push({type:'Alumni',number:num_finalists,url:'/finalists/'+req.user.school_id,icon:'person'})
-        response.school_finalists =num_finalists;
+        theData[0].list.push({type:'Alumni',number:num_finalists,url:'/finalists/'+schoolId+linkParams,icon:'person'})
         cb8(null);
       })
     }],(err)=>{
-      if(err) return log_err(err,false,req,res);;
+      if(err) return log_err(err,false,req,res);
+
+      if(req.user.access_level===req.app.locals.access_level.SUPERADMIN){
+        theData[0].list.push({type:'Report',number:null,url:'/report'+linkParams})
+      }
       return res.json(theData);
     })
   })

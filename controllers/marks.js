@@ -46,7 +46,7 @@ exports.getPageReport = function(req,res,next){
 					telephone:school_exists.contact.telephone,
 					po_code:school_exists.contact.postal_code,
 					school_pob:school_exists.contact.postal_code,
-					pic_id:req.user._id,pic_name:req.user.name,access_lvl:req.user.access_level,
+					pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
 					csrf_token:res.locals.csrftoken, // always set this buddy
 				});
 			})
@@ -706,6 +706,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 			User.find(parametters, {_id:1,name:1,class_id:1, URN:1},(err, this_class_students)=>{
 				if(err) return callBack_getStudentList(err);
 				students = this_class_students;
+				console.log('Students:'+this_class_students)
 				return callBack_getStudentList(null);
 			})
 		},(callBack_treatEachStudents)=>{
