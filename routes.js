@@ -369,7 +369,7 @@ module.exports = function(app) {
 	app.post('/classe.delete',isAtLeastAdmin, classeController.removeClasse);
 	app.post('/class.update.settings',isAtLeastAdmin, classeController.updateSettings);
 	app.get('/classe/:classe_id',isAuthenticated, classeController.getPageOneClasse);
-	app.post('/classe.get.courses', isAuthenticated, classeController.getClassCourses);
+	app.get('/classe.get.courses/:class_id', isAuthenticated, classeController.getClassCourses);
 	app.get('/classe.get.nexts/:class_id', isAtLeastAdmin,classeController.getNextClasses);
 	app.post('/set.ac_year.student/:class_id', isAtLeastAdmin,classeController.setAcYearOfRepeat);
 	app.get('/classe.get.repeat/:class_id', isAtLeastAdmin,classeController.getClasseToRepeat)
@@ -515,6 +515,7 @@ module.exports = function(app) {
 	app.get('/student.marks.page/:course_id',isAuthenticated,coursesController.getPageMyMarks)
 	app.get('/user/:user_id',isAtLeastAdmin,userController.viewPageUserDetails);
 	app.get('/user.classe/:user_id',isAtLeastAdmin,userController.getListUserClasses)
+	app.get('/user.course/:class_id',isAtLeastAdmin,userController.getListUserCourses)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// app.get('/teacher.student.marks.page/:course_id',isTeacherOrAdmin,coursesController.getStudentPageMyMarks)

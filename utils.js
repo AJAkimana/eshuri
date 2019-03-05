@@ -127,6 +127,71 @@ exports.listClasses=(req, userId, callBack)=>{
     callBack(err, classes)
   })
 }
+exports.listCourses = (req, courseCallBack)=>{
+  var student = req.app.locals.access_level.STUDENT,
+      admin = req.app.locals.access_level.ADMIN,
+      teacher = req.app.locals.access_level.TEACHER,
+      admin_teacher = req.app.locals.access_level.ADMIN_TEACHER;
+
+  Classe.findOne({_id:req.params.class_id},(err, classe)=>{
+    if(err) courseCallBack('Service not available');
+    if(!classe) courseCallBack('Unknown classe');
+    
+    var queryAccLvl = 100;
+    var queries = {};
+    async.series([(treatAccessLevels)=>{
+
+      if(req.user.access_level<=admin){
+        if(!req.query.u&&!req.query.allow) return treatAccessLevels('Unknown data');
+        User.findOne({_id:req.query.u},(err, user)=>{
+          if(err) return treatAccessLevels('Service not available');
+          else if(!user) return treatAccessLevels('Unknown user');
+          else if(user.access_level<teacher) return treatAccessLevels('You do not have that privileges');
+          queryAccLvl = user.access_level;
+          return treatAccessLevels(null);
+        })
+      }else if(req.user.access_level===admin_teacher){
+        if(req.query.u&&req.query.allow){
+          User.findOne({_id:req.query.u},(err, user)=>{
+            if(err) return treatAccessLevels('Service not available');
+            else if(!user) return treatAccessLevels('Unknown user');
+            else if(user.access_level<teacher) return treatAccessLevels('You do not have that privileges');
+            var access = user.access_level;
+            if(user.access_level==student) access = student;
+            else if(user.access==teacher||user.access_level==admin_teacher) access = teacher;
+            queryAccLvl = access;
+            return treatAccessLevels(null);
+          })
+        }else{
+          queryAccLvl = teacher;
+          return treatAccessLevels(null);
+        }
+      }else if(req.user.access_level==teacher){
+        queryAccLvl = teacher;
+        return treatAccessLevels(null);
+      }else if(req.user.access_level==student){
+        queryAccLvl = student;
+        treatAccessLevels(null);
+      }else return treatAccessLevels('You do not have that access');
+    }],(err)=>{
+      if(err) courseCallBack(err);
+      switch(queryAccLvl){
+        case student:
+          queries = {class_id:req.params.class_id};
+          break;
+        case teacher:
+          queries = {class_id:req.params.class_id, teacher_list:req.user._id};
+          break;
+        default: break;
+      }
+      if(!queries) courseCallBack('Service not available q');
+      Course.find(queries, {_id:1,name:1,code:1}).sort({name:1}).exec((err, courses)=>{
+        courseCallBack(err, courses);
+      })
+    })
+  })
+}
+
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }

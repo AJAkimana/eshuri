@@ -406,6 +406,21 @@ exports.getListUserClasses=(req,res)=>{
     res.send(classes);
   })
 }
+exports.getListUserCourses=(req,res)=>{
+  req.assert('class_id', 'Invalid data').isMongoId();
+  if(req.query.u&&req.query.allow){
+    req.assert('u', 'Invalid datau').isMongoId();
+    req.assert('allow', 'Invalid data a').equals('true');
+  }
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+
+  Util.listCourses(req, (err, courses)=>{
+    if(err) return res.status(400).send(err);
+    if(!courses) return res.status(400).send('No courses listed');
+    res.send(courses);
+  })
+}
 exports.viewPageUserDetails=(req,res,next)=>{
   req.assert('user_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
