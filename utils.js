@@ -1,6 +1,8 @@
 const fs=require('fs'),
       path=require('path'),
-      async=require('async');
+      async=require('async'),
+      User=require('./models/User'),
+      Classe=require('./models/Classe');
 /**
  * Return a unique identifier with the given `len`.
  *
@@ -95,8 +97,36 @@ exports.getLocalName = (id)=>{
   })
   return 'Akimana:'+area_name;
 }
-exports.generatePws = ()=>{
-  
+exports.listClasses=(req, userId, callBack)=>{
+  User.findOne({_id:userId}, (err,user)=>{
+    if(err) return callBack(err);
+    if(!user) return callBack('No user found');
+
+    var classeIDs = [];
+    if(user.access_level===req.app.locals.access_level.STUDENT){
+      async.eachSeries(user.prev_classes, (current, classCb)=>{
+        classeIDs.push(current.class_id);
+        classCb(null);
+      },(err)=>{
+        if(err) return callBack(err);
+        classeIDs.push(user.class_id);
+        async(classeIDs, (currentClass, classCb)=>{
+          Classe.findOne({_id:currentClass,school_id:user.school_id},{_id:1,name:1},(err, the_class)=>{
+            if(err) return classCb(err);
+            var nCourses = 0;
+            Course.count({class_id:currentClass},(err,nCourses)=>{
+              if(err) return classCb(err)
+              nCourses = nCourses;
+
+              classCb(null);
+            })
+          })
+        });
+        
+      })
+    }
+    callBack(err, classes)
+  })
 }
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;

@@ -396,6 +396,16 @@ exports.resetUserPwd=(req,res,next)=>{
     })
   })
 }
+exports.getListUserClasses=(req,res)=>{
+  req.assert('user_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  Util.listClasses(req,req.params.user_id,(err, classes)=>{
+    if(err) return res.status(400).send(err);
+    if(!classes) return res.status(400).send('No class listed');
+    res.send(classes);
+  })
+}
 exports.viewPageUserDetails=(req,res,next)=>{
   req.assert('user_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
@@ -416,9 +426,17 @@ exports.viewPageUserDetails=(req,res,next)=>{
       if(!school) return res.render("./lost",{msg:"Unkown school"});
       async.series([(listClassesCb)=>{
         if(userExists.access_level==student){
-          listClasses=userExists.prev_classes;
-          listClasses.push(userExists.class_id);
-          return listClassesCb();
+          var studentClasses = [];
+          async.each(userExists.prev_classes, (current, cb)=>{
+            var classId=current.class_id?current.class_id:current;
+            studentClasses.push(classId);
+            cb();
+          }, (err)=>{
+            if(err) listClassesCb(err);
+            studentClasses.push(userExists.class_id);
+            listClasses = studentClasses;
+            listClassesCb();
+          });
         }
         else if(userExists.access_level==teacher||userExists.access_level==admin_teacher){
           Course.find().distinct("class_id",{teacher_list:req.params.user_id},(err, class_courses)=>{
@@ -427,12 +445,14 @@ exports.viewPageUserDetails=(req,res,next)=>{
             return listClassesCb(null);
           })
         }
+        else return listClassesCb('You do not have permission view this user');
       },(treatClassesCb)=>{
         async.each(listClasses, (thisClass, callBack)=>{
           Classe.findOne({_id:thisClass},(err, class_details)=>{
             if (err) return callBack(err);
             if(userExists.access_level==student) parametters={class_id:thisClass};
-            else if(userExists.access_level==teacher) parametters={class_id:thisClass, teacher_list:req.params.user_id};
+            else if(userExists.access_level==teacher||
+              userExists.access_level==admin_teacher) parametters={class_id:thisClass, teacher_list:req.params.user_id};
             Course.count(parametters, (err, number)=>{
               if (err) return callBack(err);
               classes.push({class_id:thisClass,name:class_details.name,academic_year:class_details.academic_year,number:number})
@@ -444,7 +464,7 @@ exports.viewPageUserDetails=(req,res,next)=>{
           return treatClassesCb(null);
         })
       }],(err)=>{
-        if(err) return res.render("./lost",{msg:"Service not available"});
+        if(err) return res.render("./lost",{msg:err});
         return res.render('dashboard/one_student_view',{
           title:userExists.name.toUpperCase(),
           school_id: req.user.school_id,

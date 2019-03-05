@@ -50,7 +50,7 @@ block append content
 												tbody
 													tr(pagination-id="alladmins", dir-paginate="admin in admins |orderBy:a:b|filter:search|itemsPerPage:n_pages")
 														td(width="1%" height="1%") {{$index + 1}}
-														td: a(href="/dashboard.course/{{classe._id}}") {{admin.name | uppercase}}
+														td: a(href="/user/{{admin._id}}") {{admin.name | uppercase}}
 														td {{admin.phone_number }}
 														td {{admin.email }}
 														td {{admin.access_level|toAccessLevel}}

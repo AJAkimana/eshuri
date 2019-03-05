@@ -513,7 +513,8 @@ module.exports = function(app) {
 	app.post('/student.set.retake',isAtLeastTeacher,coursesController.setStudentRetake);
 	app.post('/student.delete.retake',isAtLeastTeacher,coursesController.removeRetakeCourse);
 	app.get('/student.marks.page/:course_id',isAuthenticated,coursesController.getPageMyMarks)
-	app.get('/user/:user_id',isAtLeastAdmin,userController.viewPageUserDetails)
+	app.get('/user/:user_id',isAtLeastAdmin,userController.viewPageUserDetails);
+	app.get('/user.classe/:user_id',isAtLeastAdmin,userController.getListUserClasses)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// app.get('/teacher.student.marks.page/:course_id',isTeacherOrAdmin,coursesController.getStudentPageMyMarks)
