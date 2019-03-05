@@ -121,8 +121,7 @@ exports.listClasses=(req, userId, callBack)=>{
               classCb(null);
             })
           })
-        });
-        
+        })
       })
     }
     callBack(err, classes)
