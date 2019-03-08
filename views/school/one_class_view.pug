@@ -22,10 +22,10 @@ block append content
                         .col-xs-12.col-sm-12.col-md-12.col-lg-12
                           .col-xs-12.col-sm-6.col-md-4.col-lg-4(ng-repeat="course in courses")
                             h3
-                              a(href='/courses/{{course._id}}') {{course.name|uppercase}}
+                              a(href='/courses/{{course._id}}'+query, ng-bind="course.name|uppercase")
                             h4
                               | Code: 
-                              strong {{course.code|uppercase}}
+                              strong(ng-bind="course.code|uppercase")
                       .panel-footer
                         h4.text-center Number of courses {{courses.length}}
                     //- .panel-group(role='tablist')#accordion
@@ -57,7 +57,7 @@ block append content
                         .col-xs-12.col-sm-6.col-md-4.col-lg-4(ng-repeat="classe in classes")
                           div(ng-class="'s'+classe.name==name?'btn-danger':''")
                             h3
-                              a(href="#" ng-click="showCourses(classe)")
+                              a(href="/classe/{{classe.class_id}}"+query)
                                 b(ng-bind="classe.name|uppercase|toClasseName")
                             h3
                               strong {{classe.academic_year|yearToDate:term_name}}
@@ -98,8 +98,10 @@ block append scripts
         })
       }
       $scope.showCourses = (classe)=>{
-        var query = '#{query}'?'#{query}':'';
-        $window.location.href="/classe/"+classe.class_id+query;
+        $window.location.href="/classe/"+classe.class_id+$scope.query;
+      }
+      $scope.linkCourse = (course)=>{
+        $window.location.href="/course/"+course._id+$scope.query;
       }
       $scope.getCourses = function(){ 
         //- var v_data={classe_id:$scope.class_id,t_quantity:$scope.term_quantity,user_id:"#{pic_id}"}
@@ -118,6 +120,7 @@ block append scripts
       $scope.anti_csrf ="#{csrf_token}";
       $scope.term_name="#{term_name}";
       $scope.term_quantity="#{term_quantity}";
+      $scope.query = '#{query}'?'#{query}':'';
       $scope.getUserClasses();
       $scope.getCourses();
     })

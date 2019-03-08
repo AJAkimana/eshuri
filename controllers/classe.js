@@ -91,19 +91,21 @@ exports.getClasses_JSON = (req,res,next)=>{
 }
 exports.getPageOneClasse = (req,res,next)=>{
   req.assert('classe_id', 'Invalid data').isMongoId();
-  // req.assert('ay', 'Invalid data').isMongoId();
-  // var query = null;
+  
   if(req.query.u||req.query.allow){
     req.assert('u', 'Invalid datau').isMongoId();
     req.assert('allow', 'Invalid data a').equals('true');
   }
   const errors = req.validationErrors();
   if (errors) return res.render("./lost",{msg:errors[0].msg});
+
   var date = new Date();
   var year = parseInt(date.getFullYear())-2000;
   if(!req.query.ay||req.query.ay<17||req.query.ay>year) return res.render("./lost",{msg:"Invalid data"});
-  query=req.query.u&&req.query.allow?'?ay='+req.query.ay+'&u='+req.query.u+'&allow=true':'?ay='+req.query.ay;
 
+  let query=req.query.u&&req.query.allow?'?ay='+req.query.ay+'&u='+req.query.u+'&allow=true':'?ay='+req.query.ay;
+
+  console.log('query:',query)
   Classe.findOne({_id:req.params.classe_id},(err,classe_exists)=>{
     if(err) return log_err(err,true,req,res);
     else if(!classe_exists)  return res.render("./lost",{msg:"This class doesn't exists "});

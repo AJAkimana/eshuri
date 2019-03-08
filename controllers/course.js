@@ -13,14 +13,26 @@ A course is given by only one teacher and that teacher is set by the Admin of th
 */
 // return the initial page
 exports.getPageOneCourse = function(req,res,next){
-  var ac_year = req.params.course_id.slice(0,2);
-  var course = req.params.course_id.slice(2);
-  var num_ac = parseInt(ac_year)
-  if(num_ac<17) return res.render("./lost",{msg:"Invalid data"});
-  if(!ObjectID.isValid(course)) return res.render("./lost",{msg:"Invalid data"});
-  var response ={},temoin=false;
+  // var ac_year = req.params.course_id.slice(0,2);
+  // var course = req.params.course_id.slice(2);
+  // var num_ac = parseInt(ac_year)
+  // if(num_ac<17) return res.render("./lost",{msg:"Invalid data"});
+  // if(!ObjectID.isValid(course)) return res.render("./lost",{msg:"Invalid data"});
+  // var response ={},temoin=false;
   // Check if the course exists
-  Course.findOne({_id:course},(err,course_exists)=>{
+  req.assert('course_id', 'Invalid data').isMongoId();
+
+  if(req.query.u) req.assert('u', 'Invalid data').isMongoId();
+  if(req.query.allow) req.assert('allow', 'Invalid data a').equals('true');
+
+  const errors = req.validationErrors();
+  if (errors) return res.render("./lost",{msg:errors[0].msg});
+
+  var date = new Date();
+  var year = parseInt(date.getFullYear())-2000;
+  if(!req.query.ay||req.query.ay<17||req.query.ay>year) return res.render("./lost",{msg:"Invalid data"});
+
+  Course.findOne({_id:req.params.course_id},(err,course_exists)=>{
     if(err) return res.render("./lost",{msg:"Invalid data"});
     else if(!course_exists) return res.render("./lost",{msg:"This course is not recognized"})
       // if he is a student and it is not your class or your are not retaking it !!
@@ -60,9 +72,9 @@ exports.getPageOneCourse = function(req,res,next){
           teacher_name:teacher_exists.name,
           school_name:school_exists.name,
           course_name :course_exists.name,
-          academic_year:num_ac,
+          academic_year:req.query.ay,
           actual_term :course_exists.currentTerm,
-          course_id:course,
+          course_id:req.params.course_id,
           pic_id:req.user._id,
           pic_name:req.user.name.replace('\'',"\\'"),
           access_lvl:req.user.access_level,
