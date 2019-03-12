@@ -348,12 +348,12 @@ exports.getPageStudents = function(req,res,next){
   req.assert('class_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
   if (errors) return res.render("./lost",{msg:errors[0].msg})
-  School.findOne({_id:req.user.school_id},(err, school_exists)=>{
-    if(err) return log_err(err,false,req,res);
-    else if(!school_exists) return res.render("./lost",{msg:"School not recognized"});
-    Classe.findOne({_id:req.params.class_id, school_id:school_exists._id},(err,class_exists)=>{
-      if(err) return log_err(err,false,req,res);
-      else if(!class_exists) return res.render("./lost",{msg:"This class is not recognized"})
+  Classe.findOne({_id:req.params.class_id},(err,class_exists)=>{
+    if(err) return log_err(err,true,req,res);
+    else if(!class_exists) return res.render("./lost",{msg:"This class is not recognized"})
+    School.findOne({_id:class_exists.school_id},(err, school_exists)=>{
+      if(err) return log_err(err,true,req,res);
+      else if(!school_exists) return res.render("./lost",{msg:"School not recognized"});
       return res.render('dashboard/view_student',{
         title:'Students',
         class_id:req.params.class_id,
