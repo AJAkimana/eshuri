@@ -147,7 +147,7 @@ exports.listClasses=(req, userId, callBack)=>{
             if (err) return callBack(err);
             if(userExists.access_level==student) parametters={class_id:thisClass.class_id};
             else if(userExists.access_level==teacher||
-              userExists.access_level==admin_teacher) parametters={class_id:thisClass.class_id, teacher_list:req.params.user_id};
+              userExists.access_level==admin_teacher) parametters={class_id:thisClass.class_id, teacher_list:userId};
             Course.count(parametters, (err, number)=>{
               if (err) return callBack(err);
               var theAy = thisClass.academic_year?thisClass.academic_year:class_details.academic_year;
@@ -170,6 +170,7 @@ exports.listCourses = (req, courseCallBack)=>{
       admin = req.app.locals.access_level.ADMIN,
       teacher = req.app.locals.access_level.TEACHER,
       admin_teacher = req.app.locals.access_level.ADMIN_TEACHER;
+  var userId = req.query.u||req.user._id;
 
   Classe.findOne({_id:req.params.class_id},(err, classe)=>{
     if(err) courseCallBack('Service not available');
@@ -178,7 +179,6 @@ exports.listCourses = (req, courseCallBack)=>{
     var queryAccLvl = 100;
     var queries = {};
     async.series([(treatAccessLevels)=>{
-
       if(req.user.access_level<=admin){
         if(!req.query.u&&!req.query.allow) return treatAccessLevels('Unknown data');
         User.findOne({_id:req.query.u},(err, user)=>{
@@ -196,7 +196,7 @@ exports.listCourses = (req, courseCallBack)=>{
             else if(user.access_level<teacher) return treatAccessLevels('You do not have that privileges');
             var access = 100;
             if(user.access_level==student) access = student;
-            else if(user.access==teacher||user.access_level==admin_teacher) access = teacher;
+            else if(user.access_level==teacher||user.access_level==admin_teacher) access = teacher;
             queryAccLvl = access;
             return treatAccessLevels(null);
           })
@@ -218,7 +218,7 @@ exports.listCourses = (req, courseCallBack)=>{
           queries = {class_id:req.params.class_id};
           break;
         case teacher:
-          queries = {class_id:req.params.class_id, teacher_list:req.user._id};
+          queries = {class_id:req.params.class_id, teacher_list:userId};
           break;
         default: break;
       }

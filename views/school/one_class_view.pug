@@ -105,7 +105,7 @@ block append scripts
       }
       $scope.getCourses = function(){ 
         //- var v_data={classe_id:$scope.class_id,t_quantity:$scope.term_quantity,user_id:"#{pic_id}"}
-        $http.get('/classe.get.courses/#{class_id}'+'#{query}')
+        $http.get('/classe.get.courses/#{class_id}'+$scope.query)
         .then(function(response){
           $scope.courses = response.data;
           //- console.log(JSON.stringify($scope.termCourses))
