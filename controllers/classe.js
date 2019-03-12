@@ -119,6 +119,7 @@ exports.getPageOneClasse = (req,res,next)=>{
         pic_id:req.user._id,
         school_name:school_exists.name,
         academic_year:req.query.ay,
+        userid:req.query.u||'',
         term_name:school_exists.term_name,
         term_quantity:school_exists.term_quantity,
         class_id:req.params.classe_id,
@@ -134,7 +135,7 @@ exports.getPageOneClasse = (req,res,next)=>{
 exports.getClassCourses = (req, res, next)=>{
   req.assert('class_id', 'Invalid data').isMongoId();
   if(req.query.u&&req.query.allow){
-    req.assert('u', 'Invalid datau').isMongoId();
+    req.assert('u', 'Invalid data u').isMongoId();
     req.assert('allow', 'Invalid data a').equals('true');
   }
   const errors = req.validationErrors();

@@ -706,7 +706,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 			User.find(parametters, {_id:1,name:1,class_id:1, URN:1},(err, this_class_students)=>{
 				if(err) return callBack_getStudentList(err);
 				students = this_class_students;
-				console.log('Students:'+this_class_students)
+				// console.log('Students:'+this_class_students)
 				return callBack_getStudentList(null);
 			})
 		},(callBack_treatEachStudents)=>{

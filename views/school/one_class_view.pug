@@ -89,7 +89,7 @@ block append scripts
     .controller('classTermCtrl',function($scope,$http,$window, $document){
       $scope.getUserClasses = ()=>{
         $http
-        .get('/school.get.userClasses/'+$scope.school_id,{"_csrf":$scope.anti_csrf})
+        .get('/school.get.userClasses/'+$scope.school_id+$scope.query,{"_csrf":$scope.anti_csrf})
         .then(function(response){
           $scope.classes = response.data;
         })
@@ -120,7 +120,7 @@ block append scripts
       $scope.anti_csrf ="#{csrf_token}";
       $scope.term_name="#{term_name}";
       $scope.term_quantity="#{term_quantity}";
-      $scope.query = '#{query}'?'#{query}':'';
+      $scope.query = '?ay='+'#{academic_year}&u='+'#{userid}&allow=true';
       $scope.getUserClasses();
       $scope.getCourses();
     })

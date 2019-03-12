@@ -24,7 +24,8 @@ block append content
                           .col-xs-12.col-sm-6.col-md-4.col-lg-4
                             h3
                               a(href='/classe/'+classe.class_id+'?u='+userid+'&ay='+classe.academic_year+'&allow=true') {{'#{classe.name}'|uppercase|toClasseName}}
-                              strong(ng-bind="'#{classe.academic_year}'|yearToDate:term_name")
+                            h3
+                              strong.text-info {{'#{classe.academic_year}'|yearToDate:term_name}}
                             h4 #{classe.number} courses
                       .panel-footer
                         h4.text-center Number of class #{classes.length}
@@ -45,6 +46,12 @@ block append scripts
         return term=='S'?'Y'+input:'S'+input
       }
     })
+    .filter('yearToDate', function() {
+      return function(input, term){
+        input =Number(input)+2000;
+        return term=='T'?input:input+'/'+Number(Number(input)+1)
+      }
+    })
     .filter('toMoment', ['$interval', function ($interval){
       // trigger digest every 60 seconds
       $interval(function (){}, 60000);
@@ -56,5 +63,5 @@ block append scripts
       return fromNowFilter;
     }])
     .controller('homePageSchoolCtrl',($scope, $http,$window, $localStorage)=>{
-     
+      //- console.log(JSON.stringify('#{classes}'))
     })

@@ -425,60 +425,15 @@ exports.viewPageUserDetails=(req,res,next)=>{
   req.assert('user_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
   if (errors) return res.render("./lost",{msg:errors[0].msg});
-  var listClasses=[],allclasses=[],classes=[];
-  var student = req.app.locals.access_level.STUDENT,
-      teacher = req.app.locals.access_level.TEACHER,
-      admin_teacher = req.app.locals.access_level.ADMIN_TEACHER,
-      hMaster = req.app.locals.access_level.SA_SCHOOL;
-  var parametters={},userparams={};
-  // if(req.user.access_level===req.app.locals.access_level.SUPERADMIN) userparams={_id:req.params.user_id};
-  // else
+
   User.findOne({_id:req.params.user_id,},(err, userExists)=>{
     if(err) return res.render("./lost",{msg:"Invalid data"});
     if(!userExists) return res.render("./lost",{msg:"Unkown student"});
     School.findOne({_id:userExists.school_id},(err, school)=>{
       if(err) return res.render("./lost",{msg:"Invalid data"});
       if(!school) return res.render("./lost",{msg:"Unkown school"});
-      async.series([(listClassesCb)=>{
-        if(userExists.access_level==student){
-          var studentClasses = [];
-          async.each(userExists.prev_classes, (current, cb)=>{
-            var classId=current.class_id?current.class_id:current;
-            studentClasses.push(classId);
-            cb();
-          }, (err)=>{
-            if(err) listClassesCb(err);
-            studentClasses.push(userExists.class_id);
-            listClasses = studentClasses;
-            listClassesCb();
-          });
-        }
-        else if(userExists.access_level==teacher||userExists.access_level==admin_teacher){
-          Course.find().distinct("class_id",{teacher_list:req.params.user_id},(err, class_courses)=>{
-            if (err) return listClassesCb(err);
-            listClasses=class_courses;
-            return listClassesCb(null);
-          })
-        }
-        else return listClassesCb('You do not have permission view this user');
-      },(treatClassesCb)=>{
-        async.each(listClasses, (thisClass, callBack)=>{
-          Classe.findOne({_id:thisClass},(err, class_details)=>{
-            if (err) return callBack(err);
-            if(userExists.access_level==student) parametters={class_id:thisClass};
-            else if(userExists.access_level==teacher||
-              userExists.access_level==admin_teacher) parametters={class_id:thisClass, teacher_list:req.params.user_id};
-            Course.count(parametters, (err, number)=>{
-              if (err) return callBack(err);
-              classes.push({class_id:thisClass,name:class_details.name,academic_year:class_details.academic_year,number:number})
-              callBack();
-            })
-          })
-        },(err)=>{
-          if(err) return treatClassesCb(err);
-          return treatClassesCb(null);
-        })
-      }],(err)=>{
+
+      Util.listClasses(req, req.params.user_id, (err, classes)=>{
         if(err) return res.render("./lost",{msg:err});
         return res.render('dashboard/one_student_view',{
           title:userExists.name.toUpperCase(),
