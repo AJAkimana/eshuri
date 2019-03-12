@@ -105,7 +105,6 @@ exports.getPageOneClasse = (req,res,next)=>{
 
   let query=req.query.u&&req.query.allow?'?ay='+req.query.ay+'&u='+req.query.u+'&allow=true':'?ay='+req.query.ay;
 
-  console.log('query:',query)
   Classe.findOne({_id:req.params.classe_id},(err,classe_exists)=>{
     if(err) return log_err(err,true,req,res);
     else if(!classe_exists)  return res.render("./lost",{msg:"This class doesn't exists "});

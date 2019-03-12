@@ -23,7 +23,8 @@ block append content
                         each classe in classes.length?classes:classes=['No classes']
                           .col-xs-12.col-sm-6.col-md-4.col-lg-4
                             h3
-                              a(href='/classe/'+classe.class_id) {{'#{classe.name}'|uppercase|toClasseName}}
+                              a(href='/classe/'+classe.class_id+'?u='+userid+'&ay='+classe.academic_year+'&allow=true') {{'#{classe.name}'|uppercase|toClasseName}}
+                              strong(ng-bind="'#{classe.academic_year}'|yearToDate:term_name")
                             h4 #{classe.number} courses
                       .panel-footer
                         h4.text-center Number of class #{classes.length}
@@ -55,13 +56,5 @@ block append scripts
       return fromNowFilter;
     }])
     .controller('homePageSchoolCtrl',($scope, $http,$window, $localStorage)=>{
-      $scope.saveUserClasse = ()=>{
-        if (typeof(Storage) !== "undefined") {
-          $localStorage.classes="#{username}";
-          console.log($localStorage.classes);
-        }else console.log('It is not supported by browser')
-      }
-      $scope.anti_csrf ="#{csrf_token}";
-      $scope.school_id ="#{school_id}";
-      $scope.saveUserClasse();
+     
     })
