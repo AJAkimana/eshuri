@@ -254,10 +254,7 @@ exports.changeCourseName = (req, res, next)=>{
   Course.findOne({_id:req.body.course_id, class_id:req.body.class_id},(err, course_exists)=>{
     if (err) return log_err(err, false, req, res);
     else if(String(course_exists.name)==String(req.body.course_name)) return res.status(400).send("Class does not allowed 2 courses with same names");
-    else if(!course_exists) return res.status(400).send("Invalid data");
-    else if(String(req.user.school_id)!= String(course_exists.school_id)) return res.status(400).send("Not authorized to do this");
-      console.log(String(req.user.school_id)+' and '+String(course_exists.school_id))
-
+    else if(!course_exists) return res.status(400).send("Invalid data 1");
     course_exists.name = req.body.course_name;
     course_exists.code = req.body.code;
 
