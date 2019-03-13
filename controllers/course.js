@@ -18,13 +18,13 @@ exports.getPageOneCourse = function(req,res,next){
   // var num_ac = parseInt(ac_year)
   // if(num_ac<17) return res.render("./lost",{msg:"Invalid data"});
   // if(!ObjectID.isValid(course)) return res.render("./lost",{msg:"Invalid data"});
-  // var response ={},temoin=false;
+  var response ={},temoin=false;
   // Check if the course exists
   req.assert('course_id', 'Invalid data').isMongoId();
-
-  if(req.query.u) req.assert('u', 'Invalid data').isMongoId();
-  if(req.query.allow) req.assert('allow', 'Invalid data a').equals('true');
-
+  if(req.query.u||req.query.allow){
+    req.assert('u', 'Invalid data').isMongoId();
+    req.assert('allow', 'Invalid data a').equals('true');
+  }
   const errors = req.validationErrors();
   if (errors) return res.render("./lost",{msg:errors[0].msg});
 

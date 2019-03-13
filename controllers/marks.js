@@ -11,15 +11,21 @@ const Content =require('../models/Content'),
 	  log_err=require('./manage/errorLogger');
 
 exports.getPageReport = function(req,res,next){
+	if(accLvl == superadmin){
+		req.assert('s', 'Invalid data').isMongoId();
+	}
+	const errors = req.validationErrors();
+	if (errors) return res.render("./lost",{msg:errors[0].msg});
+	
 	var accLvl = req.user.access_level,
 		student=req.app.locals.access_level.STUDENT,
+		superadmin=req.app.locals.access_level.SUPERADMIN,
 		admin=req.app.locals.access_level.ADMIN,
-		adminteacher=req.app.locals.access_level.ADMIN_TEACHER;
+		adminteacher=req.app.locals.access_level.ADMIN_TEACHER,
 		teacher=req.app.locals.access_level.TEACHER;
+	var schoolId = accLvl==superadmin?req.query.s:req.user.shool_id;
 
-	//var thisUser='';
-
-	School.findOne({_id:req.user.school_id},(err,school_exists)=>{
+	School.findOne({_id:schoolId},(err,school_exists)=>{
 		if(err) return res.render("./lost",{msg:"Invalid data"});
 		else if(!school_exists) return res.render("./lost",{msg:"Invalid data"})
 		if(accLvl==student){
@@ -39,7 +45,7 @@ exports.getPageReport = function(req,res,next){
 				var classId=classinfo?classinfo._id:null;
 				return res.render('me/mark_report',{
 					title:"General marks",
-					school_id:req.user.school_id,
+					school_id:schoolId,
 					school_name:school_exists.name,
 					district:school_exists.district_name,
 					teacher_class:classId,

@@ -193,7 +193,7 @@ exports.getClasseToRepeat=(req,res,next)=>{
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
   var parametters = {};
-  Classe.findOne({_id:req.params.class_id,school_id:req.user.school_id},(err, class_exists)=>{
+  Classe.findOne({_id:req.params.class_id},(err, class_exists)=>{
     if(err) return log_err(err,false,req,res);
     if(!class_exists) return res.status(400).send("Unkown class");
     var level_class = Number(class_exists.level);
@@ -211,7 +211,7 @@ exports.getNextClasses = (req, res, next)=>{
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
   var parametters = {};
-  Classe.findOne({_id:req.params.class_id,school_id:req.user.school_id},(err, class_exists)=>{
+  Classe.findOne({_id:req.params.class_id},(err, class_exists)=>{
     if(err) return log_err(err,false,req,res);
     if(!class_exists) return res.status(400).send("Unkown class");
     var next_class = Number(class_exists.level)+1;

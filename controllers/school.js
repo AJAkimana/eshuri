@@ -708,18 +708,17 @@ exports.getPageStudents = (req, res, next)=>{
   req.assert('school_id', 'Invalid Data').isMongoId();
   const errors = req.validationErrors();
   if (errors) return res.render("./lost",{msg:errors[0].msg})
+  
   School.findOne({_id:req.params.school_id},(err,school)=>{
     if(err) return log_err(err,true,req,res);
     else if(!school) return res.render("./lost",{msg:"Invalid data"})
-    else if(String(school._id)!= String(req.user.school_id))
-      return res.render("./lost",{msg:"This is not your place"})
     // Mnt on va alors lui donner la HOMEPAGE DE CHAQUE SCHOOL
     var school_name = school.name.split(' ').map((item)=>{
       return item[0]
     }).join('').toUpperCase();
     return res.render('school/view_students',{
       title:school_name+' students',
-      school_id: school._id,
+      school_id: req.params.school_id,
       school_name: school.name,
       term_name: school.term_name,
       pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,student_class:req.user.class_id,
@@ -731,12 +730,13 @@ exports.getStudents_JSON = (req, res, next)=>{
   req.assert('school_id', 'Invalid Data').isMongoId();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
+  var superadmin=req.app.locals.access_level.SUPERADMIN;
+
   var async = require('async');
   School.findOne({_id:req.body.school_id},(err,school)=>{
     if(err) return log_err(err,true,req,res);
     else if(!school) return res.status(400).send('Invalid data');
-    else if(String(school._id)!= String(req.user.school_id))
-      return res.status(400).send('This is not your school');
+    
     var class_prefix = school.term_name=='T'?'S':'Y';
     User.find({school_id:req.body.school_id,access_level:req.app.locals.access_level.STUDENT},{__v:0,password:0,gender:0,isValidated:0,upload_time:0,updatedAt:0}).sort({name:1}).lean().exec((err, students_list)=>{
       if(err) return log_err(err,false,req,res);
