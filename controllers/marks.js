@@ -11,18 +11,17 @@ const Content =require('../models/Content'),
 	  log_err=require('./manage/errorLogger');
 
 exports.getPageReport = function(req,res,next){
-	if(accLvl == superadmin){
-		req.assert('s', 'Invalid data').isMongoId();
-	}
-	const errors = req.validationErrors();
-	if (errors) return res.render("./lost",{msg:errors[0].msg});
-	
 	var accLvl = req.user.access_level,
 		student=req.app.locals.access_level.STUDENT,
 		superadmin=req.app.locals.access_level.SUPERADMIN,
 		admin=req.app.locals.access_level.ADMIN,
 		adminteacher=req.app.locals.access_level.ADMIN_TEACHER,
 		teacher=req.app.locals.access_level.TEACHER;
+	if(accLvl === superadmin){
+		req.assert('s', 'Invalid data').isMongoId();
+	}
+	const errors = req.validationErrors();
+	if (errors) return res.render("./lost",{msg:errors[0].msg});
 	var schoolId = accLvl==superadmin?req.query.s:req.user.shool_id;
 
 	School.findOne({_id:schoolId},(err,school_exists)=>{

@@ -381,7 +381,8 @@ module.exports = function(app) {
 	app.post('/course.add',isAtLeastAdmin, coursesController.postNewCourse);
 	app.post('/course.list',isAuthenticated, coursesController.getCourses_JSON);
 	app.post('/course.delete',isAtLeastAdmin, coursesController.deleteCourse);
-	app.post('/course.change.coursename', isAtLeastAdmin, coursesController.changeCourseName)
+	app.post('/course.change.coursename', isAtLeastAdmin, coursesController.changeCourseName);
+	app.post('/course.structure', isAtLeastAdmin, coursesController.restructure);
 	app.post('/course.affect.teacher',isAtLeastAdmin, coursesController.affectTeacher_Course);
 	app.get('/course.page.edit.quota/:course_id',isAtLeastTeacher,coursesController.getPageEditQuota)
 	app.post('/course.update.quota',isAtLeastTeacher, coursesController.updateQuota);

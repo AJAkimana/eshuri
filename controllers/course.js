@@ -244,16 +244,82 @@ exports.deleteCourse = function(req,res,next){ // D
     })
   })    
 }
+exports.restructure = (req, res)=>{
+  req.assert('course_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+
+  var async = require('async');
+  Course.findOne({_id:req.body.course_id}, (err, courseRes)=>{
+    if(err) return res.status(500).send('Service not available');
+    else if(!courseRes) return res.status(404).send('COurse not found');
+
+    var listCoursesRes = [];
+    var masterIndex = courseRes._id;
+    var codeLen = courseRes.code.length;
+    var courseCode = courseRes.code.substring(0,codeLen-4);
+    async.series([(findSimilarCourseName)=>{
+      /**
+       *  Find courses with the similar names in the same classe
+       */
+      Course.find({name:courseRes.name,class_id:courseRes.class_id},(err, courseList)=>{
+        if(err) return findSimilarCourseName('Service not available');
+        listCoursesRes = courseList;
+        findSimilarCourseName(null);
+      })
+    },(treatCourseContent)=>{
+      async.eachSeries(listCoursesRes, (currentCourse, courseCallBack)=>{
+        var courseId = currentCourse._id;
+        var courseParams = {course_id:courseId};
+        async.parallel([(updateContents)=>{
+          Content.update({course_id:courseId}, {$set:courseParams}, {multi:true}, (err, done)=>{
+            if (err) return updateContents('Content update error');
+            updateContents(null);
+          })
+        },(updateMarks)=>{
+          Marks.update({course_id:courseId}, {$set:{course_id:masterIndex,course_name:courseRes.name}}, {multi:true}, (err, done)=>{
+            if (err) return updateMarks('Marks update error');
+            updateMarks(null);
+          })
+        },(updateUnits)=>{
+          Unit.update({course_id:courseId}, {$set:courseParams}, {multi:true}, (err, done)=>{
+            if (err) return updateUnits('Unit update error');
+            updateUnits(null);
+          })
+        }],(err)=>{
+          if(err) return courseCallBack(err);
+          courseCallBack(null)
+        })
+      },(err)=>{
+        if(err) return treatCourseContent(err);
+        treatCourseContent(null)
+      })
+    },(deleteRemainigCourses)=>{
+      Course.remove({_id:{$ne:masterIndex},name:courseRes.name,class_id:courseRes.class_id},(err, deleted)=>{
+        if(err) return deleteRemainigCourses('Course deletion error');
+        return deleteRemainigCourses(null)
+      })
+    }],(err)=>{
+      if(err) return res.status(500).send(err); //If error in async series return the error
+
+      courseRes.code = courseCode;
+      courseRes.courseTerm = 4;
+      courseRes.save((err, ok)=>{
+        if(err) return res.status(500).send('Service not available');
+        return res.status(200).send('Successfully structured');
+      })
+    })
+  })
+}
 exports.changeCourseName = (req, res, next)=>{
   req.assert('course_id', 'Invalid data').isMongoId();
   req.assert('class_id', 'Invalid data').isMongoId();
   req.assert('course_name', 'Enter course name please').notEmpty();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
-
+  
   Course.findOne({_id:req.body.course_id, class_id:req.body.class_id},(err, course_exists)=>{
     if (err) return log_err(err, false, req, res);
-    else if(String(course_exists.name)==String(req.body.course_name)) return res.status(400).send("Class does not allowed 2 courses with same names");
     else if(!course_exists) return res.status(400).send("Invalid data 1");
     course_exists.name = req.body.course_name;
     course_exists.code = req.body.code;

@@ -149,6 +149,9 @@ block append content
                                 i.material-icons edit
                               button.btn-success.btn.label(type='button',ng-click="editCourseName(course._id,course.name, course.courseTerm)")
                                 i.material-icons edit
+                              button.btn-danger.btn.label(type='button',ng-click="structureCourse(course)")
+                                i.material-icons edit
+                                | Structure
                               p.category.text-center(ng-show ="!courses.length") No courses provided yet
                       dir-pagination-controls.pull-right(pagination-id='allcourses', max-size='5', direction-links='true', boundary-links='true')
                   #add_teacher_Modal.modal.fade(role='dialog')
@@ -242,6 +245,16 @@ block append scripts
       }
     })
     .controller('course_ManageCtrl', function($scope,$interpolate, $http,$window){
+      $scope.structureCourse = (course)=>{
+        $http.post('/course.structure',{course_id:course._id})
+        .then((res)=>{
+          Notifier.success(res.data);
+          $scope.getListCourses();
+        })
+        .catch((err)=>{
+          Notifier.danger(err.data);
+        })
+      }
       var schoolName = "#{school_name}";
       var className = "#{classe_name}";
       var academicYear = "#{academic_year}";
