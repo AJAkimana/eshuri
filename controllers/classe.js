@@ -101,34 +101,54 @@ exports.getPageOneClasse = (req,res,next)=>{
 
   var date = new Date();
   var year = parseInt(date.getFullYear())-2000;
+  var async = require('async');
+  var classe={},school={},user={},class_name;
   if(!req.query.ay||req.query.ay<17||req.query.ay>year) return res.render("./lost",{msg:"Invalid data"});
 
   let query=req.query.u&&req.query.allow?'?ay='+req.query.ay+'&u='+req.query.u+'&allow=true':'?ay='+req.query.ay;
-
-  Classe.findOne({_id:req.params.classe_id},(err,classe_exists)=>{
-    if(err) return log_err(err,true,req,res);
-    else if(!classe_exists)  return res.render("./lost",{msg:"This class doesn't exists "});
-    School.findOne({_id:classe_exists.school_id},(err,school_exists)=>{
-      if(err) return log_err(err,false,req,res);
-      else if(!school_exists)  return res.render("./lost",{msg:"This school doesn't exists "});
+  async.series([(findClasse)=>{
+    Classe.findOne({_id:req.params.classe_id},(err,classe_exists)=>{
+      if(err) return findClasse('Service not available');
+      else if(!classe_exists)  return findClasse('This class doesn\'t exists');
+      classe = classe_exists;
       var first_letter=classe_exists.name.toLowerCase().charAt(0);
-      var class_name = first_letter==='s'?classe_exists.name:'s'+classe_exists.name;
-
-      return res.render('school/one_class_view',{
-        title:class_name.toUpperCase(),
-        pic_id:req.user._id,
-        school_name:school_exists.name,
-        academic_year:req.query.ay,
-        userid:req.query.u||'',
-        term_name:school_exists.term_name,
-        term_quantity:school_exists.term_quantity,
-        class_id:req.params.classe_id,
-        school_id:classe_exists.school_id,
-        query:query,
-        pic_name:req.user.name.replace('\'',"\\'"),
-        access_lvl:req.user.access_level,
-        csrf_token:res.locals.csrftoken, // always set this buddy
+      class_name = first_letter==='s'?classe_exists.name:'s'+classe_exists.name;
+      return findClasse(null);
+    })
+  },(findSchool)=>{
+    School.findOne({_id:classe.school_id},(err,school_exists)=>{
+      if(err) return findSchool('Service not available');
+      else if(!school_exists)  return findSchool('This school doesn\'t exists');
+      school = school_exists;
+      return findSchool(null);
+    })
+  },(findUser)=>{
+    if(req.query.u&&req.query.allow){
+      User.findOne({_id:req.query.u},(err, userExists)=>{
+        if(err) return findUser('Service not available');
+        else if(!userExists) return findUser('This user doesn\'t exists');
+        user = userExists;
+        return findUser(null);
       })
+    }
+    else return findUser(null)
+  }],(err)=>{
+    if(err) return res.render("./lost",{msg:err});
+    var subHeader = user.name?user.name.replace('\'',"\\'")+'->'+class_name.toUpperCase():class_name.toUpperCase();
+    return res.render('school/one_class_view',{
+      title:class_name.toUpperCase(),
+      school_id:classe.school_id,
+      school_name:school.name,
+      academic_year:req.query.ay,
+      userid:req.query.u||'',
+      subhead:subHeader,
+      term_name:school.term_name,
+      term_quantity:school.term_quantity,
+      class_id:req.params.classe_id,
+      query:query,
+      currentTerm:classe.currentTerm,
+      pic_id:req.user._id, access_lvl:req.user.access_level, pic_name:req.user.name.replace('\'',"\\'"),
+      csrf_token:res.locals.csrftoken, // always set this buddy
     })
   })
 }
@@ -146,47 +166,6 @@ exports.getClassCourses = (req, res, next)=>{
     if(!courses) return res.status(400).send('No courses listed');
     return res.json(courses);
   })
-  // req.assert('classe_id', 'Invalid data').isMongoId();
-  // req.assert('t_quantity', 'Invalid data').isIn([2,3]);
-  // req.assert('user_id', 'Invalid data').isMongoId();
-  // const errors = req.validationErrors();
-  // if(errors) return res.status(400).send("Invalid data")
-  // var t_qty = req.body.t_quantity;
-  // var allterms = [],response=[],term1=[],term2=[],term3=[], allcourses=[];
-  // var parametters = {};
-  // if(t_qty==3) allterms=[1,2,3];
-  // else if (t_qty==2) allterms=[1,2];
-  // var async = require('async');
-  // // Get courses according to the access level
-  // User.findOne({_id:req.body.user_id},(err, user_details)=>{
-  //   if(err) return log_err(err,false,req,res);
-  //   if(!user_details) return res.status(400).send("Invalid data");
-  //   // console.log('==========='+user_details.name)
-  //   var student = req.app.locals.access_level.STUDENT;
-  //   if(user_details.access_level==student) parametters = {class_id:req.body.classe_id};
-  //   else parametters = {class_id:req.body.classe_id, teacher_list:req.body.user_id};
-  //   Course.find(parametters,{teacher_list:0,__v:0,attendance_limit:0}).lean().exec((err, courses)=>{
-  //     if(err) return log_err(err,false,req,res);
-  //     allcourses=courses;
-  //     async.eachSeries(allcourses, (thisCourse, courseCallback)=>{
-  //       Content.count({course_id:thisCourse._id},(err, content_number)=>{
-  //         if(err) return courseCallback(err);
-  //         thisCourse.content_number=content_number;
-  //         courseCallback()
-  //       })
-  //     },(err)=>{
-  //       if(err) return log_err(err,false,req,res);
-  //       for(var i=0; i<allcourses.length; i++){
-  //         if(allcourses[i].currentTerm==1) term1.push(allcourses[i]);
-  //         if(allcourses[i].currentTerm==2) term2.push(allcourses[i]);
-  //         if(allcourses[i].currentTerm==3 && t_qty==3) term3.push(allcourses[i]);
-  //       }
-  //       response.push({t_name:'1',t_content:term1},{t_name:'2',t_content:term2},{t_name:'3',t_content:term3});
-  //       // console.log('Courses: '+JSON.stringify(response))
-  //       return res.json(response);
-  //     })
-  //   })
-  // })
 }
 exports.getClasseToRepeat=(req,res,next)=>{
   req.assert('class_id', 'Invalid data').isMongoId();

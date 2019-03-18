@@ -14,13 +14,6 @@ A course is given by only one teacher and that teacher is set by the Admin of th
 */
 // return the initial page
 exports.getPageOneCourse = function(req,res,next){
-  // var ac_year = req.params.course_id.slice(0,2);
-  // var course = req.params.course_id.slice(2);
-  // var num_ac = parseInt(ac_year)
-  // if(num_ac<17) return res.render("./lost",{msg:"Invalid data"});
-  // if(!ObjectID.isValid(course)) return res.render("./lost",{msg:"Invalid data"});
-  // var response ={},temoin=false;
-  // Check if the course exists
   req.assert('course_id', 'Invalid data').isMongoId();
   if(req.query.u||req.query.allow){
     req.assert('u', 'Invalid data').isMongoId();
@@ -31,104 +24,180 @@ exports.getPageOneCourse = function(req,res,next){
 
   var date = new Date();
   var year = parseInt(date.getFullYear())-2000;
+  var async = require('async');
+  var classe={},course={},school={},user={},userCourses=[],teacher_name,class_name;
   if(!req.query.ay||req.query.ay<17||req.query.ay>year) return res.render("./lost",{msg:"Invalid data"});
-  Course.findOne({_id:req.params.course_id},{}, (err, courseExists)=>{
-    if(err) return res.render("./lost",{msg:"Invalid data"});
-    else if(!courseExists) return res.render("./lost",{msg:"This course is not recognized"});
-    req.params.class_id = courseExists.class_id;
-    /**
-     * Get user proposed courses to check if this course
-     * exits in them
-     */
-    Util.listCourses(req, (err, userCourses)=>{
-      if(err) return res.render("./lost",{msg:err});
-      var thisCourseIndex = userCourses.findIndex(x=>x._id==req.params.course_id);
-      if(thisCourseIndex==-1) return res.render("./lost",{msg:"This course is not recognized"});
-      School.findOne({_id:courseExists.school_id},{term_name:1,name:1},(err, school)=>{
-        if(err) return res.render("./lost",{msg:"Invalid data"});
-        else if(!school) return res.render("./lost",{msg:"School does not exists"});
-        Classe.findOne({_id:courseExists.class_id},{currentTerm:1},(err,classe)=>{
-          if(err) return res.render("./lost",{msg:"Invalid data"});
-          else if(!classe) return res.render("./lost",{msg:"Unkown classe"});
-          /**
-           * Get information of first teacher
-           */
-          User.findOne({_id:courseExists.teacher_list[0]},{name:1},(err, user)=>{
-            if(err) return res.render("./lost",{msg:"Invalid data"});
-            else if(!user) return res.render("./lost",{msg:"Course does not have teacher"});
-            /**
-             * Render data on page after all
-             */
-            return res.render('course/display_course_content',{
-              title:courseExists.name.toUpperCase(),
-              term_name:school.term_name,
-              teacher_name:user.name,
-              school_name:school.name,
-              course_name :courseExists.name,
-              academic_year:req.query.ay,
-              actual_term :classe.currentTerm,
-              course_id:req.params.course_id,
-              pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),
-              access_lvl:req.user.access_level,
-              csrf_token:res.locals.csrftoken, // always set this buddy
-            });
-          })
-        })
-      })
-    })
-  })
 
-  // Course.findOne({_id:req.params.course_id},(err,course_exists)=>{
+  async.series([(findCourse)=>{
+    Course.findOne({_id:req.params.course_id}, (err, courseExists)=>{
+      if(err) return findCourse("Invalid data");
+      else if(!courseExists) return findCourse("This course is not recognized");
+      req.params.class_id = courseExists.class_id;
+      course = courseExists;
+      return findCourse(null);
+    })
+  },(getListCourses)=>{
+    Util.listCourses(req, (err, userCoursesList)=>{
+      if(err) return getListCourses(err);
+      var thisCourseIndex = userCoursesList.findIndex(x=>x._id==req.params.course_id);
+      if(thisCourseIndex==-1) return getListCourses("This course is not recognized");
+      userCourses = userCoursesList;
+      return getListCourses(null);
+    })
+  },(findSchool)=>{
+    School.findOne({_id:course.school_id},{term_name:1,name:1},(err, school_exists)=>{
+      if(err) return findSchool("Invalid data");
+      else if(!school_exists) return findSchool("School does not exists");
+      school = school_exists;
+      return findSchool(null);
+    })
+  },(findClasse)=>{
+    Classe.findOne({_id:course.class_id},(err,classe_exists)=>{
+      if(err) return findClasse('Service not available');
+      else if(!classe_exists)  return findClasse('This class doesn\'t exists');
+      classe = classe_exists;
+      var first_letter=classe_exists.name.toLowerCase().charAt(0);
+      class_name = first_letter==='s'?classe_exists.name:'s'+classe_exists.name;
+      return findClasse(null);
+    })
+  },(findFirstTeacher)=>{
+    User.findOne({_id:course.teacher_list[0]},{name:1},(err, teacher)=>{
+      if(err) return findFirstTeacher("Invalid data");
+      else if(!teacher) return findFirstTeacher("Course does not have teacher");
+
+      teacher_name = teacher.name;
+      return findFirstTeacher(null);
+    })
+  },(findUser)=>{
+    if(req.query.u&&req.query.allow){
+      User.findOne({_id:req.query.u},(err, userExists)=>{
+        if(err) return findUser('Service not available');
+        else if(!userExists) return findUser('This user doesn\'t exists');
+        user = userExists;
+        return findUser(null);
+      })
+    }
+    else return findUser(null)
+  }],(err)=>{
+    if(err) return res.render("./lost",{msg:err});
+    var subHeader = '';
+    if(user.name){
+      subHeader = user.name.replace('\'',"\\'");
+      subHeader += '->'+class_name+'->'+course.name;
+    }
+    else subHeader = class_name+'->'+course.name;
+    return res.render('course/display_course_content',{
+      title:course.name.toUpperCase(),
+      term_name:school.term_name,
+      teacher_name:teacher_name,
+      school_name:school.name,
+      course_name :course.name,
+      subhead:subHeader,
+      academic_year:req.query.ay,
+      actual_term :classe.currentTerm,
+      course_id:req.params.course_id,
+      pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),
+      access_lvl:req.user.access_level,
+      csrf_token:res.locals.csrftoken, // always set this buddy
+    });
+  })
+  // Course.findOne({_id:req.params.course_id},{}, (err, courseExists)=>{
   //   if(err) return res.render("./lost",{msg:"Invalid data"});
-  //   else if(!course_exists) return res.render("./lost",{msg:"This course is not recognized"})
-  //     // if he is a student and it is not your class or your are not retaking it !!
-    
-  //   else if(req.user.access_level == req.app.locals.access_level.STUDENT){
-  //     temoin =true;
-  //     // var student_id=req.user._id;
-  //     // var student_class=req.user.class_id;
-  //     if(String(course_exists.class_id)!= String(req.user.class_id) && 
-  //       req.user.course_retake.indexOf(String(course_exists._id))==-1 && req.user.prev_classes.indexOf(String(course_exists.class_id))==-1)
-  //       return res.render("./lost",{msg:"You don't have the right to view this course"});
-  //   }
-  //   else if(req.user.access_level == req.app.locals.access_level.TEACHER || req.user.access_level == req.app.locals.access_level.ADMIN_TEACHER){
-  //     temoin =true;
-  //     if(course_exists.teacher_list.indexOf(String(req.user._id))==-1)
-  //       return res.render("./lost",{msg:"This course doesn't belong to you"});
-  //   }
-  //   //si ce nest pas klk un ki a un droit d acces pas infrie a celui d un teacher et sur la meme ecole donc pas ACCPTER
-  //   // else if((req.user.access_level == req.app.locals.access_level.ADMIN_TEACHER||req.user.access_level == req.app.locals.access_level.ADMIN)){
-  //   //   temoin =true;
-  //   //   if(String(req.user.school_id)!= String(course_exists.school_id))
-  //   //    return res.render("./lost",{msg:"You are not authorized"});
-  //   // }
-  //   if(!temoin) // cad si il n est ni teacher ni student ni inferieur.. then just reject
-  //     return res.render("./lost",{msg:"You are not authorized to view this content"}); 
-  //   //Get the school Info
-  //   School.findOne({_id:course_exists.school_id},(err,school_exists)=>{
-  //     if(err) return log_err(err,false,req,res);
-  //     else if(!school_exists) return res.render("./lost",{msg:"This school was not recognized"})
-  //     //Get Teacher's informations the first course
-  //     User.findOne({_id:course_exists.teacher_list[0]}, (err,teacher_exists)=>{ //no pbm here
-  //       if(err) return log_err(err,true,req,res);
-  //       else if(!teacher_exists) return res.render("./lost",{msg:"Invalid data"});
-  //       return res.render('course/display_course_content',{
-  //         title:course_exists.name.toUpperCase(),
-  //         term_name:school_exists.term_name,
-  //         teacher_name:teacher_exists.name,
-  //         school_name:school_exists.name,
-  //         course_name :course_exists.name,
-  //         academic_year:req.query.ay,
-  //         actual_term :course_exists.currentTerm,
-  //         course_id:req.params.course_id,
-  //         pic_id:req.user._id,
-  //         pic_name:req.user.name.replace('\'',"\\'"),
-  //         access_lvl:req.user.access_level,
-  //         csrf_token:res.locals.csrftoken, // always set this buddy
+  //   else if(!courseExists) return res.render("./lost",{msg:"This course is not recognized"});
+  //   req.params.class_id = courseExists.class_id;
+  //   /**
+  //    * Get user proposed courses to check if this course
+  //    * exits in them
+  //    */
+  //   Util.listCourses(req, (err, userCourses)=>{
+  //     if(err) return res.render("./lost",{msg:err});
+  //     var thisCourseIndex = userCourses.findIndex(x=>x._id==req.params.course_id);
+  //     if(thisCourseIndex==-1) return res.render("./lost",{msg:"This course is not recognized"});
+  //     School.findOne({_id:courseExists.school_id},{term_name:1,name:1},(err, school)=>{
+  //       if(err) return res.render("./lost",{msg:"Invalid data"});
+  //       else if(!school) return res.render("./lost",{msg:"School does not exists"});
+  //       Classe.findOne({_id:courseExists.class_id},{currentTerm:1},(err,classe)=>{
+  //         if(err) return res.render("./lost",{msg:"Invalid data"});
+  //         else if(!classe) return res.render("./lost",{msg:"Unkown classe"});
+  //         /**
+  //          * Get information of first teacher
+  //          */
+  //         User.findOne({_id:courseExists.teacher_list[0]},{name:1},(err, user)=>{
+  //           if(err) return res.render("./lost",{msg:"Invalid data"});
+  //           else if(!user) return res.render("./lost",{msg:"Course does not have teacher"});
+  //           /**
+  //            * Render data on page after all
+  //            */
+  //           return res.render('course/display_course_content',{
+  //             title:courseExists.name.toUpperCase(),
+  //             term_name:school.term_name,
+  //             teacher_name:user.name,
+  //             school_name:school.name,
+  //             course_name :courseExists.name,
+  //             academic_year:req.query.ay,
+  //             actual_term :classe.currentTerm,
+  //             course_id:req.params.course_id,
+  //             pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),
+  //             access_lvl:req.user.access_level,
+  //             csrf_token:res.locals.csrftoken, // always set this buddy
+  //           });
+  //         })
   //       })
   //     })
   //   })
   // })
+
+  // // Course.findOne({_id:req.params.course_id},(err,course_exists)=>{
+  // //   if(err) return res.render("./lost",{msg:"Invalid data"});
+  // //   else if(!course_exists) return res.render("./lost",{msg:"This course is not recognized"})
+  // //     // if he is a student and it is not your class or your are not retaking it !!
+    
+  // //   else if(req.user.access_level == req.app.locals.access_level.STUDENT){
+  // //     temoin =true;
+  // //     // var student_id=req.user._id;
+  // //     // var student_class=req.user.class_id;
+  // //     if(String(course_exists.class_id)!= String(req.user.class_id) && 
+  // //       req.user.course_retake.indexOf(String(course_exists._id))==-1 && req.user.prev_classes.indexOf(String(course_exists.class_id))==-1)
+  // //       return res.render("./lost",{msg:"You don't have the right to view this course"});
+  // //   }
+  // //   else if(req.user.access_level == req.app.locals.access_level.TEACHER || req.user.access_level == req.app.locals.access_level.ADMIN_TEACHER){
+  // //     temoin =true;
+  // //     if(course_exists.teacher_list.indexOf(String(req.user._id))==-1)
+  // //       return res.render("./lost",{msg:"This course doesn't belong to you"});
+  // //   }
+  // //   //si ce nest pas klk un ki a un droit d acces pas infrie a celui d un teacher et sur la meme ecole donc pas ACCPTER
+  // //   // else if((req.user.access_level == req.app.locals.access_level.ADMIN_TEACHER||req.user.access_level == req.app.locals.access_level.ADMIN)){
+  // //   //   temoin =true;
+  // //   //   if(String(req.user.school_id)!= String(course_exists.school_id))
+  // //   //    return res.render("./lost",{msg:"You are not authorized"});
+  // //   // }
+  // //   if(!temoin) // cad si il n est ni teacher ni student ni inferieur.. then just reject
+  // //     return res.render("./lost",{msg:"You are not authorized to view this content"}); 
+  // //   //Get the school Info
+  // //   School.findOne({_id:course_exists.school_id},(err,school_exists)=>{
+  // //     if(err) return log_err(err,false,req,res);
+  // //     else if(!school_exists) return res.render("./lost",{msg:"This school was not recognized"})
+  // //     //Get Teacher's informations the first course
+  // //     User.findOne({_id:course_exists.teacher_list[0]}, (err,teacher_exists)=>{ //no pbm here
+  // //       if(err) return log_err(err,true,req,res);
+  // //       else if(!teacher_exists) return res.render("./lost",{msg:"Invalid data"});
+  // //       return res.render('course/display_course_content',{
+  // //         title:course_exists.name.toUpperCase(),
+  // //         term_name:school_exists.term_name,
+  // //         teacher_name:teacher_exists.name,
+  // //         school_name:school_exists.name,
+  // //         course_name :course_exists.name,
+  // //         academic_year:req.query.ay,
+  // //         actual_term :course_exists.currentTerm,
+  // //         course_id:req.params.course_id,
+  // //         pic_id:req.user._id,
+  // //         pic_name:req.user.name.replace('\'',"\\'"),
+  // //         access_lvl:req.user.access_level,
+  // //         csrf_token:res.locals.csrftoken, // always set this buddy
+  // //       })
+  // //     })
+  // //   })
+  // // })
 }
 // Create a new course
 exports.postNewCourse = function(req,res,next){

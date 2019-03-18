@@ -26,25 +26,27 @@ block append content
               .card
                 .card-header
                   .row
-                    .col-md-5
-                      h3.card-title <strong>{{'#{school_name}'|uppercase}}</strong>
+                    .col-sm-12.col-md-7.col-lg-7
+                      h3.card-title <strong>{{'#{subhead}'|uppercase}}</strong>
                       h4.card-title Course: <strong>{{course_name|uppercase}}</strong>
                       h5.card-title Teacher: {{teacher_name}}
                       h5.card-title 
                         |Academic year: 
                         strong {{'#{academic_year}'|yearToDate:term_name}} 
                       h5.card-title {{term_name|toTermName}} {{actual_term}}
-                    .col-md-5
+                    .col-sm-12.col-md-5.col-lg-5
                       if access >= 4 && access <= 5
                         a.btn-simple.btn.label.btn-rose(href="/student.marks.page/"+course_id) View marks
                           i.material-icons view_stream
                       if access <= 3
-                        .row
-                          a.col-md-3.btn-simple.btn.label.btn-rose(ng-click="add_unit=!add_unit") New unit  
+                        .col-sm-12.col-md-6.col-lg-4
+                          button.btn-simple.btn.btn-rose(ng-click="add_unit=!add_unit") New unit  
                             i.material-icons add
-                          a.col-md-6.btn-simple.btn.label.btn-rose(href="/students/"+course_id) Students following this course
+                        .col-sm-12.col-md-6.col-lg-4
+                          button.btn-simple.btn.btn-rose(href="/students/"+course_id) View students
                             i.material-icons add_to_queue
-                          a.col-md-3.btn-simple.btn.label.btn-rose(ng-click="sendToEditQuota()")  Course settings 
+                        .col-sm-12.col-md-6.col-lg-4
+                          button.btn-simple.btn.btn-rose(ng-click="sendToEditQuota()")  Course settings 
                             i.material-icons settings
                   h2.card-title.text-center <strong>Units</strong>
                   br

@@ -12,10 +12,12 @@ block append content
                 .card
                   .card-header
                     h3.card-title 
-                      strong {{'#{title}'|uppercase}}
+                      strong {{'#{subhead}'|uppercase}}
                       p.pull-right
                         | Academic Year: 
                         strong {{'#{academic_year}'|yearToDate:term_name}}
+                        br
+                        strong {{'#{term_name}'|toTermName}} #{currentTerm}
                   .card-content
                     .panel
                       .panel-body
