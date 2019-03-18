@@ -10,7 +10,13 @@ var CourseSchema =new Schema({
 	school_id:{type: Schema.Types.ObjectId,required:true,unique:false},
 	class_id:{type: Schema.Types.ObjectId,required:true,unique:false},
 	teacher_list:{type:[Schema.Types.ObjectId],required:true,unique:false},
-	currentTerm:{type:Number,required:true, min:0,unique:false},
+	/**
+	 * 1: sem 1, 2: sem: 2, 3: sem: 3, 4: Whole year
+	 * REB must use 4
+	 * WDA and university must use 1,2,3
+	 */
+	courseTerm:{type:Number,required:true, min:0,unique:false}, 
+	currentTerm:{type:Number, min:0,unique:false}, //For recorded data until 28-02-19
   level:{type:Number,required:true, min:0,unique:false},
   isConsidered:{type:Boolean,required:false, default:true, unique:false},
         /* Useful for the report */

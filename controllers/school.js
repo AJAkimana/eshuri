@@ -708,18 +708,17 @@ exports.getPageStudents = (req, res, next)=>{
   req.assert('school_id', 'Invalid Data').isMongoId();
   const errors = req.validationErrors();
   if (errors) return res.render("./lost",{msg:errors[0].msg})
+  
   School.findOne({_id:req.params.school_id},(err,school)=>{
     if(err) return log_err(err,true,req,res);
     else if(!school) return res.render("./lost",{msg:"Invalid data"})
-    else if(String(school._id)!= String(req.user.school_id))
-      return res.render("./lost",{msg:"This is not your place"})
     // Mnt on va alors lui donner la HOMEPAGE DE CHAQUE SCHOOL
     var school_name = school.name.split(' ').map((item)=>{
       return item[0]
     }).join('').toUpperCase();
     return res.render('school/view_students',{
       title:school_name+' students',
-      school_id: school._id,
+      school_id: req.params.school_id,
       school_name: school.name,
       term_name: school.term_name,
       pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,student_class:req.user.class_id,
@@ -731,12 +730,13 @@ exports.getStudents_JSON = (req, res, next)=>{
   req.assert('school_id', 'Invalid Data').isMongoId();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
+  var superadmin=req.app.locals.access_level.SUPERADMIN;
+
   var async = require('async');
   School.findOne({_id:req.body.school_id},(err,school)=>{
     if(err) return log_err(err,true,req,res);
     else if(!school) return res.status(400).send('Invalid data');
-    else if(String(school._id)!= String(req.user.school_id))
-      return res.status(400).send('This is not your school');
+    
     var class_prefix = school.term_name=='T'?'S':'Y';
     User.find({school_id:req.body.school_id,access_level:req.app.locals.access_level.STUDENT},{__v:0,password:0,gender:0,isValidated:0,upload_time:0,updatedAt:0}).sort({name:1}).lean().exec((err, students_list)=>{
       if(err) return log_err(err,false,req,res);
@@ -833,101 +833,16 @@ exports.removeStudent = function(req,res,next){
 }
 exports.getUserClasses = (req, res, next)=>{
   req.assert('school_id', 'Invalid Data').isMongoId();
+  if(req.query.u&&req.query.allow){
+    req.assert('u', 'Invalid data u').isMongoId();
+    req.assert('allow', 'Invalid data a').equals('true');
+  }
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
-  var listClasses=[], allclasses=[],coursesClasses=[],classes=[];
-  var response={};
-  var ac_year;
-  var access_lvl = req.user.access_level;
-  var student = req.app.locals.access_level.STUDENT,
-      teacher = req.app.locals.access_level.TEACHER?req.app.locals.access_level.STUDENT:req.app.locals.access_level.ADMIN_TEACHER,
-      hMaster = req.app.locals.access_level.SA_SCHOOL;
-  var parametters = {};
-  // response.classes=[];
-  // console.log('Users:'+JSON.stringify(req.user));
-  School.findOne({_id:req.params.school_id},(err, school_exists)=>{
-    if(err) return log_err(err,false,req,res);
-    else if(!school_exists) return res.status(400).send("Unkown school");
-    else if(String(school_exists._id)!=String(req.user.school_id)) return res.status(400).send("This is not your school:"+school_exists._id+" AND "+req.user.school_id);
-    if(access_lvl==student){
-      async.series([(firstClass)=>{
-        Classe.findOne({_id:req.user.class_id, school_id:req.user.school_id},(err, studentclass_details)=>{
-          if(err) return firstClass(err);
-          //ac_year=studentclass.academic_year;
-          listClasses.push({class_id:studentclass_details._id,name:studentclass_details.name,academic_year:studentclass_details.academic_year});
-          firstClass(null);
-        })
-      },(cssCallback)=>{
-        async.each(req.user.prev_classes, (thisClass, classCallBack)=>{
-          // listClasses.push(thisClass);
-          Classe.findOne({_id:thisClass, school_id:req.user.school_id},(err, prev_class_details)=>{
-            if(err) classCallBack(err);
-            Marks.findOne({student_id:req.user._id,class_id:prev_class_details._id},(err,a_year)=>{
-              if(err) classCallBack(err)
-              // console.log('Aaaaa:'+a_year)
-              if(a_year!=null) listClasses.push({class_id:thisClass,name:prev_class_details.name,academic_year:a_year.academic_year});
-              classCallBack(null);
-            })
-          })
-        },(err)=>{
-          if(err) return cssCallback(err);
-          // allclasses=listClasses
-          // console.log('asdasd'+JSON.stringify(listClasses))
-          console.log('dsdsfsdfsdfsdfs')
-          // append every class number of courses
-          async.eachSeries(listClasses, (thisClass, callBack)=>{
-            parametters = {class_id:thisClass.class_id};
-            Course.count(parametters,(err, number)=>{
-              if (err) return callBack(err);
-              thisClass.number=number;
-              callBack();
-            })
-          },(err)=>{
-            if(err) return log_err(err,false,req,res);
-            // console.log('Classes:'+JSON.stringify(listClasses))
-            // if everything are in place return data to front
-            return res.json(listClasses)
-          })
-        })
-      }])
-    }
-    else{
-      Course.find().distinct("class_id",{school_id:school_exists._id, teacher_list:req.user._id},(err, class_courses)=>{
-        if (err) return log_err(err,false,req,res);
-        async.each(class_courses, (thisList, listCallback)=>{
-          listClasses.push(thisList);
-          listCallback(null);
-        },(err)=>{
-          if (err) return log_err(err,false,req,res);
-          allclasses=listClasses;
-          // console.log('Courses:'+allclasses)
-          async.eachSeries(allclasses, (thisClass, callBack)=>{
-            Classe.findOne({_id:thisClass},(err, class_details)=>{
-              if (err) return callBack(err);
-              classes.push({class_id:thisClass,name:class_details.name,academic_year:class_details.academic_year})
-              callBack();
-            })
-          },(err)=>{
-            if(err) return log_err(err,false,req,res);
-            // append every class number of courses
-            async.eachSeries(classes, (thisClass, callBack)=>{
-              if(access_lvl == student) parametters = {class_id:thisClass.class_id};
-              else parametters = {class_id:thisClass.class_id, teacher_list:req.user._id}
-              Course.count(parametters,(err, number)=>{
-                if (err) return callBack(err);
-                thisClass.number=number;
-                callBack();
-              })
-            },(err)=>{
-              if(err) return log_err(err,false,req,res);
-              // console.log('Classes:'+JSON.stringify(classes))
-              // if everything are in place return data to front
-              return res.json(classes)
-            })
-          })
-        })
-      })
-    }
+  var userId=req.query.u?req.query.u:req.user._id;
+  Util.listClasses(req,userId, (err, classes)=>{
+    if(err) return res.status(400).send(err);
+    return res.json(classes);
   })
 }
 
@@ -937,31 +852,26 @@ exports.getSchoolData = (req,res,next)=>{
   const errors = req.validationErrors();
   if(errors) return res.status(400).send(errors[0].msg);
 
-  var response={};
-  var theData=[];
+  var theData=[], schoolId=req.params.school_id;
+  var linkParams=req.user.access_level===req.app.locals.access_level.SUPERADMIN?'?s='+schoolId+'&allow=true':'';
   var program_name;
   theData.push({list:[]})
-  School.findOne({_id:req.params.school_id},(err,school_exists)=>{
+  School.findOne({_id:schoolId},(err,school_exists)=>{
     if(err) return log_err(err,false,req,res);
     else if(!school_exists) return res.status(400).send("School not found");
-    response.term_name = school_exists.term_name;
-    response.term_quantity = school_exists.term_quantity;
-    response.name = school_exists.name;
+  
     theData.push({infos:{}})
     program_name=school_exists.term_name==='T'?'Combinations':'Programs';
     theData[1].infos.term_name=school_exists.term_name
     theData[1].infos.term_quantity=school_exists.term_quantity
     theData[1].infos.name=school_exists.name
-    // theData.push({term_name:school_exists.term_name});
-    // theData.push({term_quantity:school_exists.term_quantity})
-    // theData.push({name:school_exists.name})
+
     var async = require('async');
-    async.parallel([(cb)=>{
-    User.count({school_id:req.params.school_id,isEnabled:false})
+    async.series([(cb)=>{
+    User.count({school_id:schoolId,isEnabled:false})
       .exec((err,number)=>{
         if(err) cb(err);
-        theData[0].list.push({type:'New accounts to confirm',number:number,url:'/dashboard.accounts.validation',icon:'verified_user'})
-        response.unConfirmed=number;
+        theData[0].list.push({type:'New accounts to confirm',number:number,url:'/dashboard.accounts.validation'+linkParams,icon:'verified_user'})
         cb(null);
       })
     },(cb2)=>{
@@ -969,53 +879,50 @@ exports.getSchoolData = (req,res,next)=>{
         .sort({name:1}).exec((err,classe_list)=>{
           if(err) return cb2(err);
           theData.push({classes:classe_list});
-          response.classes =classe_list;
           cb2(null);
         })
     },(cb3)=>{
       User.count({school_id:req.params.school_id,$or:[{access_level:req.app.locals.access_level.TEACHER},{access_level:req.app.locals.access_level.ADMIN_TEACHER}]},(err,num_teachers)=>{
         if(err) return cb3(err);
-        theData[0].list.push({type:'Teachers',number:num_teachers,url:'/dashboard.teachers/'+req.user.school_id,icon:'person'})
-        response.teachers =num_teachers
+        theData[0].list.push({type:'Teachers',number:num_teachers,url:'/dashboard.teachers/'+schoolId+linkParams,icon:'person'})
         cb3(null);
       })
     },(cb4)=>{
       User.count({school_id:req.params.school_id,access_level:{$lte:req.app.locals.access_level.ADMIN_TEACHER}},(err,num_admins)=>{
         if(err) return cb4(err);
-        theData[0].list.push({type:'Administrators',number:num_admins,url:'/dashboard.admins/'+req.user.school_id,icon:'supervisor_account'})
-        response.admins =num_admins;
+        theData[0].list.push({type:'Administrators',number:num_admins,url:'/dashboard.admins/'+schoolId+linkParams,icon:'supervisor_account'})
         cb4(null);
       })
     },(cb5)=>{
       User.count({school_id:req.params.school_id,access_level:req.app.locals.access_level.STUDENT, class_id:{$ne:null}},(err,num_students)=>{
         if(err) return cb5(err);
-        theData[0].list.push({type:'Students',number:num_students,url:'/school.students/'+req.user.school_id,icon:'person'})
-        response.num_students =num_students;
+        theData[0].list.push({type:'Students',number:num_students,url:'/school.students/'+schoolId+linkParams,icon:'person'})
         cb5(null);
       })
     },(cb6)=>{
       SchoolCourse.count({school_id:req.params.school_id},(err,num_school_courses)=>{
         if(err) return cb6(err);
-        theData[0].list.push({type:'Courses',number:num_school_courses,url:'/dashboard.register.course/'+req.user.school_id,icon:'class'})
-        response.school_courses =num_school_courses;
+        theData[0].list.push({type:'Courses',number:num_school_courses,url:'/dashboard.register.course/'+schoolId+linkParams,icon:'class'})
         cb6(null);
       })
     },(cb7)=>{
       SchoolProgram.count({school_id:req.params.school_id},(err,num_school_programs)=>{
         if(err) return cb7(err);
-        theData[0].list.push({type:program_name,number:num_school_programs,url:'/dashboard.register.course/'+req.user.school_id,icon:'class'})
-        response.school_programs =num_school_programs;
+        theData[0].list.push({type:program_name,number:num_school_programs,url:'/dashboard.register.course/'+schoolId+linkParams,icon:'class'})
         cb7(null);
       })
     },(cb8)=>{
       Finalist.count({school_id:req.params.school_id},(err,num_finalists)=>{
         if(err) return cb8(err);
-        theData[0].list.push({type:'Alumni',number:num_finalists,url:'/finalists/'+req.user.school_id,icon:'person'})
-        response.school_finalists =num_finalists;
+        theData[0].list.push({type:'Alumni',number:num_finalists,url:'/finalists/'+schoolId+linkParams,icon:'person'})
         cb8(null);
       })
     }],(err)=>{
-      if(err) return log_err(err,false,req,res);;
+      if(err) return log_err(err,false,req,res);
+
+      if(req.user.access_level===req.app.locals.access_level.SUPERADMIN){
+        theData[0].list.push({type:'Report',number:null,url:'/report'+linkParams})
+      }
       return res.json(theData);
     })
   })
@@ -1109,6 +1016,7 @@ exports.getStudentsList = (req,res,next)=>{
   req.assert('class_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
   if(errors) return res.status(400).send(errors[0].msg);
+  
   User.find({class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT},
   {__v:0,password:0,gender:0,isValidated:0,upload_time:0,updatedAt:0}).sort({name:1}).exec((err,students_list)=>{
     if(err) return log_err(err,false,req,res);

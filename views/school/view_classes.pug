@@ -23,7 +23,7 @@ block append content
                       .panel-body
                         .col-xs-12.col-sm-6.col-md-4.col-lg-4(ng-repeat="classe in classes")
                           h3
-                            a(href='/classe/{{classe.class_id}}') {{classe.name|uppercase|toClasseName}}
+                            a(href='/classe/{{classe.class_id}}?ay={{classe.academic_year}}' ng-click="sho") {{classe.name|uppercase|toClasseName}}
                             span.btn-simple.btn.label(ng-show="classe.class_id=='#{student_class}'").btn-rose
                               i.icon.ion-ios-checkmark 
                           h3

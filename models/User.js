@@ -19,7 +19,9 @@ var UserSchema = new Schema({
   gender:{type:Number,default:4, enum:[1,2],unique:false},
   phone_number:{type:String,required:false,unique:false},
   class_id:{type: Schema.Types.ObjectId,required:false,unique:false},
-  prev_classes:{type:[Schema.Types.ObjectId],required:false,unique:false},
+  prev_classes:{type:Array,required:false,unique:false},
+
+  // prev_classes:{type:[Schema.Types.ObjectId],required:false,unique:false},
   school_id:{type: Schema.Types.ObjectId,required:false,unique:false},
 
   department_id:{type: Schema.Types.ObjectId,required:false,unique:false},
@@ -60,17 +62,6 @@ var UserSchema = new Schema({
   profile_pic:{type:String,required:false,unique:false},
   hasPaid:{type:Boolean,required:false, default:true, unique:false},
   lastSeen:{type:Date,required:false,unique:false},
-  /* source :http://stackoverflow.com/a/18148872/5680107
-    As favouriteFoods is a simple array of strings, you can just query that field directly:
-
-    PersonModel.find({ favouriteFoods: "sushi" }, ...);
-    But I'd also recommend making the string array explicit in your schema:
-
-    person = {
-        name : String,
-        favouriteFoods : [String]
-    }
-  */
 }, { timestamps: { createdAt: 'created_at' }});
 /**
  * Password hash middleware.

@@ -396,55 +396,45 @@ exports.resetUserPwd=(req,res,next)=>{
     })
   })
 }
+exports.getListUserClasses=(req,res)=>{
+  req.assert('user_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+  Util.listClasses(req,req.params.user_id,(err, classes)=>{
+    if(err) return res.status(400).send(err);
+    if(!classes) return res.status(400).send('No class listed');
+    res.send(classes);
+  })
+}
+exports.getListUserCourses=(req,res)=>{
+  req.assert('class_id', 'Invalid data').isMongoId();
+  if(req.query.u&&req.query.allow){
+    req.assert('u', 'Invalid datau').isMongoId();
+    req.assert('allow', 'Invalid data a').equals('true');
+  }
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+
+  Util.listCourses(req, (err, courses)=>{
+    if(err) return res.status(400).send(err);
+    if(!courses) return res.status(400).send('No courses listed');
+    res.send(courses);
+  })
+}
 exports.viewPageUserDetails=(req,res,next)=>{
   req.assert('user_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
   if (errors) return res.render("./lost",{msg:errors[0].msg});
-  var listClasses=[],allclasses=[],classes=[];
-  var student = req.app.locals.access_level.STUDENT,
-      teacher = req.app.locals.access_level.TEACHER,
-      admin_teacher = req.app.locals.access_level.ADMIN_TEACHER,
-      hMaster = req.app.locals.access_level.SA_SCHOOL;
-  var parametters={},userparams={};
-  // if(req.user.access_level===req.app.locals.access_level.SUPERADMIN) userparams={_id:req.params.user_id};
-  // else
+
   User.findOne({_id:req.params.user_id,},(err, userExists)=>{
     if(err) return res.render("./lost",{msg:"Invalid data"});
     if(!userExists) return res.render("./lost",{msg:"Unkown student"});
     School.findOne({_id:userExists.school_id},(err, school)=>{
       if(err) return res.render("./lost",{msg:"Invalid data"});
       if(!school) return res.render("./lost",{msg:"Unkown school"});
-      async.series([(listClassesCb)=>{
-        if(userExists.access_level==student){
-          listClasses=userExists.prev_classes;
-          listClasses.push(userExists.class_id);
-          return listClassesCb();
-        }
-        else if(userExists.access_level==teacher||userExists.access_level==admin_teacher){
-          Course.find().distinct("class_id",{teacher_list:req.params.user_id},(err, class_courses)=>{
-            if (err) return listClassesCb(err);
-            listClasses=class_courses;
-            return listClassesCb(null);
-          })
-        }
-      },(treatClassesCb)=>{
-        async.each(listClasses, (thisClass, callBack)=>{
-          Classe.findOne({_id:thisClass},(err, class_details)=>{
-            if (err) return callBack(err);
-            if(userExists.access_level==student) parametters={class_id:thisClass};
-            else if(userExists.access_level==teacher) parametters={class_id:thisClass, teacher_list:req.params.user_id};
-            Course.count(parametters, (err, number)=>{
-              if (err) return callBack(err);
-              classes.push({class_id:thisClass,name:class_details.name,academic_year:class_details.academic_year,number:number})
-              callBack();
-            })
-          })
-        },(err)=>{
-          if(err) return treatClassesCb(err);
-          return treatClassesCb(null);
-        })
-      }],(err)=>{
-        if(err) return res.render("./lost",{msg:"Service not available"});
+
+      Util.listClasses(req, req.params.user_id, (err, classes)=>{
+        if(err) return res.render("./lost",{msg:err});
         return res.render('dashboard/one_student_view',{
           title:userExists.name.toUpperCase(),
           school_id: req.user.school_id,

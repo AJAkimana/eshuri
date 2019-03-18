@@ -13,13 +13,18 @@ const Content =require('../models/Content'),
 exports.getPageReport = function(req,res,next){
 	var accLvl = req.user.access_level,
 		student=req.app.locals.access_level.STUDENT,
+		superadmin=req.app.locals.access_level.SUPERADMIN,
 		admin=req.app.locals.access_level.ADMIN,
-		adminteacher=req.app.locals.access_level.ADMIN_TEACHER;
+		adminteacher=req.app.locals.access_level.ADMIN_TEACHER,
 		teacher=req.app.locals.access_level.TEACHER;
+	if(accLvl === superadmin){
+		req.assert('s', 'Invalid data').isMongoId();
+	}
+	const errors = req.validationErrors();
+	if (errors) return res.render("./lost",{msg:errors[0].msg});
+	var schoolId = accLvl==superadmin?req.query.s:req.user.shool_id;
 
-	//var thisUser='';
-
-	School.findOne({_id:req.user.school_id},(err,school_exists)=>{
+	School.findOne({_id:schoolId},(err,school_exists)=>{
 		if(err) return res.render("./lost",{msg:"Invalid data"});
 		else if(!school_exists) return res.render("./lost",{msg:"Invalid data"})
 		if(accLvl==student){
@@ -39,14 +44,14 @@ exports.getPageReport = function(req,res,next){
 				var classId=classinfo?classinfo._id:null;
 				return res.render('me/mark_report',{
 					title:"General marks",
-					school_id:req.user.school_id,
+					school_id:schoolId,
 					school_name:school_exists.name,
 					district:school_exists.district_name,
 					teacher_class:classId,
 					telephone:school_exists.contact.telephone,
 					po_code:school_exists.contact.postal_code,
 					school_pob:school_exists.contact.postal_code,
-					pic_id:req.user._id,pic_name:req.user.name,access_lvl:req.user.access_level,
+					pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
 					csrf_token:res.locals.csrftoken, // always set this buddy
 				});
 			})
@@ -362,13 +367,14 @@ exports.getClassMarks =function(req,res,next){
 }
 exports.getEndTermMarks=(req,res,next)=>{
 	req.assert('class_id', 'Invalid data').isMongoId();
-	req.assert('academic_year', 'Invalid data').isInt();
-	req.assert('term', 'Invalid data').isInt();
+	req.assert('academic_year', 'Invalid academic year').isInt();
+	req.assert('term', 'Invalid term').isInt();
 
 	const errors = req.validationErrors();
 	if (errors) return res.status(400).send(errors[0].msg);
 
 	var async = require("async");
+	req.body.academic_year = Number(req.body.academic_year);
 	var students = [],marks = {}, mixed = [], ordered = [],objectMark = {}, parametters={};
 	var outTextMarks=0, outExamMarks=0, outTotal=0;
 	// Get class infomation
@@ -378,7 +384,7 @@ exports.getEndTermMarks=(req,res,next)=>{
 		marks.classe_name = classe_info.name;
 		marks.students = [];
 		if(req.body.academic_year==classe_info.academic_year) parametters={class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT};
-		else parametters={prev_classes:req.body.class_id, access_level:req.app.locals.access_level.STUDENT};
+		else parametters={'prev_classes':{$elemMatch:{class_id:req.body.class_id,academic_year:req.body.academic_year}}, access_level:req.app.locals.access_level.STUDENT};
 	//""""""""""""""""""//
 	//"""""" STart """""//
 	//""""""""""""""""""//
@@ -521,6 +527,7 @@ exports.getSumTermMarks = (req, res, next)=>{
 	if (errors) return res.status(400).send(errors[0].msg);
 
 	var async = require("async");
+	req.body.academic_year = Number(req.body.academic_year);
 	var students = [],marks = {}, mixed = [], ordered = [],objectMark = {}, parametters={};
 	var outTextMarks=0, outExamMarks=0, outTotal=0;
 	var index_user, cat_exam, courseWeight;
@@ -531,7 +538,7 @@ exports.getSumTermMarks = (req, res, next)=>{
 		marks.classe_name = classe_info.name;
 		marks.students = [];
 		if(req.body.academic_year==classe_info.academic_year) parametters={class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT};
-		else parametters={prev_classes:req.body.class_id, access_level:req.app.locals.access_level.STUDENT};
+		else parametters={'prev_classes':{$elemMatch:{class_id:req.body.class_id,academic_year:req.body.academic_year}}, access_level:req.app.locals.access_level.STUDENT};
 	//""""""""""""""""""//
 	//"""""" STart """""//
 	//""""""""""""""""""//
@@ -687,6 +694,8 @@ exports.getMidTermMarks = (req, res, next)=>{
 	req.assert('term', 'Invalid data').isInt();
 	const errors = req.validationErrors();
 	if (errors) return res.status(400).send(errors[0].msg);
+	
+	req.body.academic_year = Number(req.body.academic_year);
 	var async = require("async");
 	var students = [],marks = {}, mixed = [], ordered = [],objectMark = {}, parametters={}, stdt_courses=[];
 	var outMarks = 0, total=0;
@@ -697,14 +706,12 @@ exports.getMidTermMarks = (req, res, next)=>{
 		else if(!classe_info) return log_err(err,false,req,res);
 		marks.classe_name = classe_info.name;
 		marks.students = [];
-		// if(req.body.academic_year==classe_info.academic_year) parametters={class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT};
-		// else parametters={prev_classes:req.body.class_id, access_level:req.app.locals.access_level.STUDENT}
-		// Select student according to academic year
-		parametters=(req.body.academic_year==classe_info.academic_year)?{class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT}:{prev_classes:req.body.class_id, access_level:req.app.locals.access_level.STUDENT}
+		parametters=(req.body.academic_year==classe_info.academic_year)?{class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT}:{'prev_classes':{$elemMatch:{class_id:req.body.class_id,academic_year:req.body.academic_year}}, access_level:req.app.locals.access_level.STUDENT};
 		async.series([(callBack_getStudentList)=>{
 			User.find(parametters, {_id:1,name:1,class_id:1, URN:1},(err, this_class_students)=>{
 				if(err) return callBack_getStudentList(err);
 				students = this_class_students;
+				// console.log('Students:'+this_class_students)
 				return callBack_getStudentList(null);
 			})
 		},(callBack_treatEachStudents)=>{

@@ -369,8 +369,9 @@ module.exports = function(app) {
 	app.post('/classe.delete',isAtLeastAdmin, classeController.removeClasse);
 	app.post('/class.update.settings',isAtLeastAdmin, classeController.updateSettings);
 	app.get('/classe/:classe_id',isAuthenticated, classeController.getPageOneClasse);
-	app.post('/classe.get.courses', isAuthenticated, classeController.getClassCourses);
+	app.get('/classe.get.courses/:class_id', isAuthenticated, classeController.getClassCourses);
 	app.get('/classe.get.nexts/:class_id', isAtLeastAdmin,classeController.getNextClasses);
+	app.post('/set.ac_year.student/:class_id', isAtLeastAdmin,classeController.setAcYearOfRepeat);
 	app.get('/classe.get.repeat/:class_id', isAtLeastAdmin,classeController.getClasseToRepeat)
 	app.post('/school.change.to.next',isAtLeastAdmin, classeController.getToNextClass);
 	app.post('/school.change.to.previous',isAtLeastAdmin, classeController.returnToPreviousClass)
@@ -380,7 +381,8 @@ module.exports = function(app) {
 	app.post('/course.add',isAtLeastAdmin, coursesController.postNewCourse);
 	app.post('/course.list',isAuthenticated, coursesController.getCourses_JSON);
 	app.post('/course.delete',isAtLeastAdmin, coursesController.deleteCourse);
-	app.post('/course.change.coursename', isAtLeastAdmin, coursesController.changeCourseName)
+	app.post('/course.change.coursename', isAtLeastAdmin, coursesController.changeCourseName);
+	app.post('/course.structure', isAtLeastAdmin, coursesController.restructure);
 	app.post('/course.affect.teacher',isAtLeastAdmin, coursesController.affectTeacher_Course);
 	app.get('/course.page.edit.quota/:course_id',isAtLeastTeacher,coursesController.getPageEditQuota)
 	app.post('/course.update.quota',isAtLeastTeacher, coursesController.updateQuota);
@@ -512,7 +514,9 @@ module.exports = function(app) {
 	app.post('/student.set.retake',isAtLeastTeacher,coursesController.setStudentRetake);
 	app.post('/student.delete.retake',isAtLeastTeacher,coursesController.removeRetakeCourse);
 	app.get('/student.marks.page/:course_id',isAuthenticated,coursesController.getPageMyMarks)
-	app.get('/user/:user_id',isAtLeastAdmin,userController.viewPageUserDetails)
+	app.get('/user/:user_id',isAtLeastAdmin,userController.viewPageUserDetails);
+	app.get('/user.classe/:user_id',isAtLeastAdmin,userController.getListUserClasses)
+	app.get('/user.course/:class_id',isAtLeastAdmin,userController.getListUserCourses)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// app.get('/teacher.student.marks.page/:course_id',isTeacherOrAdmin,coursesController.getStudentPageMyMarks)

@@ -7,70 +7,128 @@ const Course =require('../models/Course'),
       Marks=require('../models/MARKS'),
       School =require('../models/School'),
       ObjectID = require('mongodb').ObjectID,
+      Util=require('../utils.js'),
       log_err=require('./manage/errorLogger');
 /*
 A course is given by only one teacher and that teacher is set by the Admin of the School
 */
 // return the initial page
 exports.getPageOneCourse = function(req,res,next){
-  var ac_year = req.params.course_id.slice(0,2);
-  var course = req.params.course_id.slice(2);
-  var num_ac = parseInt(ac_year)
-  if(num_ac<17) return res.render("./lost",{msg:"Invalid data"});
-  if(!ObjectID.isValid(course)) return res.render("./lost",{msg:"Invalid data"});
-  var response ={},temoin=false;
+  // var ac_year = req.params.course_id.slice(0,2);
+  // var course = req.params.course_id.slice(2);
+  // var num_ac = parseInt(ac_year)
+  // if(num_ac<17) return res.render("./lost",{msg:"Invalid data"});
+  // if(!ObjectID.isValid(course)) return res.render("./lost",{msg:"Invalid data"});
+  // var response ={},temoin=false;
   // Check if the course exists
-  Course.findOne({_id:course},(err,course_exists)=>{
+  req.assert('course_id', 'Invalid data').isMongoId();
+  if(req.query.u||req.query.allow){
+    req.assert('u', 'Invalid data').isMongoId();
+    req.assert('allow', 'Invalid data a').equals('true');
+  }
+  const errors = req.validationErrors();
+  if (errors) return res.render("./lost",{msg:errors[0].msg});
+
+  var date = new Date();
+  var year = parseInt(date.getFullYear())-2000;
+  if(!req.query.ay||req.query.ay<17||req.query.ay>year) return res.render("./lost",{msg:"Invalid data"});
+  Course.findOne({_id:req.params.course_id},{}, (err, courseExists)=>{
     if(err) return res.render("./lost",{msg:"Invalid data"});
-    else if(!course_exists) return res.render("./lost",{msg:"This course is not recognized"})
-      // if he is a student and it is not your class or your are not retaking it !!
-    
-    else if(req.user.access_level == req.app.locals.access_level.STUDENT){
-      temoin =true;
-      // var student_id=req.user._id;
-      // var student_class=req.user.class_id;
-      if(String(course_exists.class_id)!= String(req.user.class_id) && 
-        req.user.course_retake.indexOf(String(course_exists._id))==-1 && req.user.prev_classes.indexOf(String(course_exists.class_id))==-1)
-        return res.render("./lost",{msg:"You don't have the right to view this course"});
-    }
-    else if(req.user.access_level == req.app.locals.access_level.TEACHER || req.user.access_level == req.app.locals.access_level.ADMIN_TEACHER){
-      temoin =true;
-      if(course_exists.teacher_list.indexOf(String(req.user._id))==-1)
-        return res.render("./lost",{msg:"This course doesn't belong to you"});
-    }
-    //si ce nest pas klk un ki a un droit d acces pas infrie a celui d un teacher et sur la meme ecole donc pas ACCPTER
-    // else if((req.user.access_level == req.app.locals.access_level.ADMIN_TEACHER||req.user.access_level == req.app.locals.access_level.ADMIN)){
-    //   temoin =true;
-    //   if(String(req.user.school_id)!= String(course_exists.school_id))
-    //    return res.render("./lost",{msg:"You are not authorized"});
-    // }
-    if(!temoin) // cad si il n est ni teacher ni student ni inferieur.. then just reject
-      return res.render("./lost",{msg:"You are not authorized to view this content"}); 
-    //Get the school Info
-    School.findOne({_id:course_exists.school_id},(err,school_exists)=>{
-      if(err) return log_err(err,false,req,res);
-      else if(!school_exists) return res.render("./lost",{msg:"This school was not recognized"})
-      //Get Teacher's informations the first course
-      User.findOne({_id:course_exists.teacher_list[0]}, (err,teacher_exists)=>{ //no pbm here
-        if(err) return log_err(err,true,req,res);
-        else if(!teacher_exists) return res.render("./lost",{msg:"Invalid data"});
-        return res.render('course/display_course_content',{
-          title:course_exists.name.toUpperCase(),
-          term_name:school_exists.term_name,
-          teacher_name:teacher_exists.name,
-          school_name:school_exists.name,
-          course_name :course_exists.name,
-          academic_year:num_ac,
-          actual_term :course_exists.currentTerm,
-          course_id:course,
-          pic_id:req.user._id,
-          pic_name:req.user.name.replace('\'',"\\'"),
-          access_lvl:req.user.access_level,
-          csrf_token:res.locals.csrftoken, // always set this buddy
+    else if(!courseExists) return res.render("./lost",{msg:"This course is not recognized"});
+    req.params.class_id = courseExists.class_id;
+    /**
+     * Get user proposed courses to check if this course
+     * exits in them
+     */
+    Util.listCourses(req, (err, userCourses)=>{
+      if(err) return res.render("./lost",{msg:err});
+      var thisCourseIndex = userCourses.findIndex(x=>x._id==req.params.course_id);
+      if(thisCourseIndex==-1) return res.render("./lost",{msg:"This course is not recognized"});
+      School.findOne({_id:courseExists.school_id},{term_name:1,name:1},(err, school)=>{
+        if(err) return res.render("./lost",{msg:"Invalid data"});
+        else if(!school) return res.render("./lost",{msg:"School does not exists"});
+        Classe.findOne({_id:courseExists.class_id},{currentTerm:1},(err,classe)=>{
+          if(err) return res.render("./lost",{msg:"Invalid data"});
+          else if(!classe) return res.render("./lost",{msg:"Unkown classe"});
+          /**
+           * Get information of first teacher
+           */
+          User.findOne({_id:courseExists.teacher_list[0]},{name:1},(err, user)=>{
+            if(err) return res.render("./lost",{msg:"Invalid data"});
+            else if(!user) return res.render("./lost",{msg:"Course does not have teacher"});
+            /**
+             * Render data on page after all
+             */
+            return res.render('course/display_course_content',{
+              title:courseExists.name.toUpperCase(),
+              term_name:school.term_name,
+              teacher_name:user.name,
+              school_name:school.name,
+              course_name :courseExists.name,
+              academic_year:req.query.ay,
+              actual_term :classe.currentTerm,
+              course_id:req.params.course_id,
+              pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),
+              access_lvl:req.user.access_level,
+              csrf_token:res.locals.csrftoken, // always set this buddy
+            });
+          })
         })
       })
     })
   })
+
+  // Course.findOne({_id:req.params.course_id},(err,course_exists)=>{
+  //   if(err) return res.render("./lost",{msg:"Invalid data"});
+  //   else if(!course_exists) return res.render("./lost",{msg:"This course is not recognized"})
+  //     // if he is a student and it is not your class or your are not retaking it !!
+    
+  //   else if(req.user.access_level == req.app.locals.access_level.STUDENT){
+  //     temoin =true;
+  //     // var student_id=req.user._id;
+  //     // var student_class=req.user.class_id;
+  //     if(String(course_exists.class_id)!= String(req.user.class_id) && 
+  //       req.user.course_retake.indexOf(String(course_exists._id))==-1 && req.user.prev_classes.indexOf(String(course_exists.class_id))==-1)
+  //       return res.render("./lost",{msg:"You don't have the right to view this course"});
+  //   }
+  //   else if(req.user.access_level == req.app.locals.access_level.TEACHER || req.user.access_level == req.app.locals.access_level.ADMIN_TEACHER){
+  //     temoin =true;
+  //     if(course_exists.teacher_list.indexOf(String(req.user._id))==-1)
+  //       return res.render("./lost",{msg:"This course doesn't belong to you"});
+  //   }
+  //   //si ce nest pas klk un ki a un droit d acces pas infrie a celui d un teacher et sur la meme ecole donc pas ACCPTER
+  //   // else if((req.user.access_level == req.app.locals.access_level.ADMIN_TEACHER||req.user.access_level == req.app.locals.access_level.ADMIN)){
+  //   //   temoin =true;
+  //   //   if(String(req.user.school_id)!= String(course_exists.school_id))
+  //   //    return res.render("./lost",{msg:"You are not authorized"});
+  //   // }
+  //   if(!temoin) // cad si il n est ni teacher ni student ni inferieur.. then just reject
+  //     return res.render("./lost",{msg:"You are not authorized to view this content"}); 
+  //   //Get the school Info
+  //   School.findOne({_id:course_exists.school_id},(err,school_exists)=>{
+  //     if(err) return log_err(err,false,req,res);
+  //     else if(!school_exists) return res.render("./lost",{msg:"This school was not recognized"})
+  //     //Get Teacher's informations the first course
+  //     User.findOne({_id:course_exists.teacher_list[0]}, (err,teacher_exists)=>{ //no pbm here
+  //       if(err) return log_err(err,true,req,res);
+  //       else if(!teacher_exists) return res.render("./lost",{msg:"Invalid data"});
+  //       return res.render('course/display_course_content',{
+  //         title:course_exists.name.toUpperCase(),
+  //         term_name:school_exists.term_name,
+  //         teacher_name:teacher_exists.name,
+  //         school_name:school_exists.name,
+  //         course_name :course_exists.name,
+  //         academic_year:req.query.ay,
+  //         actual_term :course_exists.currentTerm,
+  //         course_id:req.params.course_id,
+  //         pic_id:req.user._id,
+  //         pic_name:req.user.name.replace('\'',"\\'"),
+  //         access_lvl:req.user.access_level,
+  //         csrf_token:res.locals.csrftoken, // always set this buddy
+  //       })
+  //     })
+  //   })
+  // })
 }
 // Create a new course
 exports.postNewCourse = function(req,res,next){
@@ -79,7 +137,7 @@ exports.postNewCourse = function(req,res,next){
   req.assert('class_id', 'Choose a class').isMongoId();
   req.assert('teacher_id', 'Choose a teacher').isMongoId();
   req.assert('school_id', 'Invalid data').isMongoId();
-  req.assert('currentTerm', 'Choose a term/semester').notEmpty();
+  req.assert('courseTerm', 'Choose a term/semester').notEmpty();
   req.assert('weightOnReport', 'Choose course weight on the report').notEmpty();
   // req.assert('year', 'year is required').notEmpty();
   // req.assert('attendance_limit', 'attendance_limit is required').notEmpty();
@@ -110,7 +168,7 @@ exports.postNewCourse = function(req,res,next){
         test_quota:devideQuota,
         // year:req.body.year,
         weightOnReport:req.body.weightOnReport,
-        currentTerm:req.body.currentTerm,
+        courseTerm:req.body.courseTerm,
         attendance_limit:0, // initially 0
       })
       nouveauCourse.save(function(err){
@@ -186,20 +244,86 @@ exports.deleteCourse = function(req,res,next){ // D
     })
   })    
 }
+exports.restructure = (req, res)=>{
+  req.assert('course_id', 'Invalid data').isMongoId();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+
+  var async = require('async');
+  Course.findOne({_id:req.body.course_id}, (err, courseRes)=>{
+    if(err) return res.status(500).send('Service not available');
+    else if(!courseRes) return res.status(404).send('COurse not found');
+
+    var listCoursesRes = [];
+    var masterIndex = courseRes._id;
+    var codeLen = courseRes.code.length;
+    var courseCode = courseRes.code.substring(0,codeLen-4);
+    async.series([(findSimilarCourseName)=>{
+      /**
+       *  Find courses with the similar names in the same classe
+       */
+      Course.find({name:courseRes.name,class_id:courseRes.class_id},(err, courseList)=>{
+        if(err) return findSimilarCourseName('Service not available');
+        listCoursesRes = courseList;
+        return findSimilarCourseName(null);
+      })
+    },(treatCourseContent)=>{
+      async.eachSeries(listCoursesRes, (currentCourse, courseCallBack)=>{
+        var courseId = currentCourse._id;
+        var courseParams = {course_id:currentCourse._id};
+        async.parallel([(updateContents)=>{
+          Content.update({course_id:courseId}, {$set:courseParams}, {multi:true}, (err, done)=>{
+            if (err) return updateContents('Content update error');
+            console.log('Content Up:',done);
+            return updateContents(null);
+          })
+        },(updateMarks)=>{
+          Marks.update({course_id:courseId}, {$set:{course_id:masterIndex,course_name:courseRes.name}}, {multi:true}, (err, done)=>{
+            if (err) return updateMarks('Marks update error');
+            console.log('Mark Up:',done);
+            return updateMarks(null);
+          })
+        },(updateUnits)=>{
+          Unit.update({course_id:courseId}, {$set:courseParams}, {multi:true}, (err, done)=>{
+            if (err) return updateUnits('Unit update error');
+            console.log('Unit Up:',done);
+            return updateUnits(null);
+          })
+        }],(err)=>{
+          if(err) return courseCallBack(err);
+          return courseCallBack(null)
+        })
+      },(err)=>{
+        if(err) return treatCourseContent(err);
+        return treatCourseContent(null)
+      })
+    },(deleteRemainigCourses)=>{
+      Course.remove({_id:{$ne:masterIndex},name:courseRes.name,class_id:courseRes.class_id},(err, deleted)=>{
+        if(err) return deleteRemainigCourses('Course deletion error');
+        console.log('Deleted:',deleted);
+        return deleteRemainigCourses(null)
+      })
+    }],(err)=>{
+      if(err) return res.status(500).send(err); //If error in async series return the error
+      courseRes.code = courseCode;
+      courseRes.courseTerm = 4;
+      courseRes.save((err, ok)=>{
+        if(err) return res.status(500).send('Service not available');
+        return res.status(200).send('Successfully structured');
+      })
+    })
+  })
+}
 exports.changeCourseName = (req, res, next)=>{
   req.assert('course_id', 'Invalid data').isMongoId();
   req.assert('class_id', 'Invalid data').isMongoId();
   req.assert('course_name', 'Enter course name please').notEmpty();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
-
+  
   Course.findOne({_id:req.body.course_id, class_id:req.body.class_id},(err, course_exists)=>{
     if (err) return log_err(err, false, req, res);
-    else if(String(course_exists.name)==String(req.body.course_name)) return res.status(400).send("Class does not allowed 2 courses with same names");
-    else if(!course_exists) return res.status(400).send("Invalid data");
-    else if(String(req.user.school_id)!= String(course_exists.school_id)) return res.status(400).send("Not authorized to do this");
-      console.log(String(req.user.school_id)+' and '+String(course_exists.school_id))
-
+    else if(!course_exists) return res.status(400).send("Invalid data 1");
     course_exists.name = req.body.course_name;
     course_exists.code = req.body.code;
 
@@ -350,21 +474,24 @@ exports.getPageStudentsOneCourse = (req,res,next)=>{
   const errors = req.validationErrors();
   if(errors) return res.render("./lost",{msg:errors[0].msg});
   Course.findOne({_id:req.params.course_id},(err,course_exists)=>{
-     if(err) return log_err(err,true,req,res);
-     else if(!course_exists)
-      return res.render("./lost",{msg:"Invalid data"});
-     else if(course_exists.teacher_list.indexOf(String(req.user._id)) ==-1)
-      return res.render("./lost",{msg:"Sorry this course doesn't belong to you"});
-     return res.render('course/students_list',{
-          title:course_exists.name.toUpperCase(),
-          course_name :course_exists.name,
-          actual_term :course_exists.currentTerm,
-          course_id:req.params.course_id,
-          pic_id:req.user._id,
-          pic_name:req.user.name.replace('\'',"\\'")
-          ,access_lvl:req.user.access_level,
-          csrf_token:res.locals.csrftoken, // always set this buddy
+    if(err) return log_err(err,true,req,res);
+    else if(!course_exists) return res.render("./lost",{msg:"Invalid data"});
+    else if(course_exists.teacher_list.indexOf(String(req.user._id)) ==-1) return res.render("./lost",{msg:"Sorry this course doesn't belong to you"});
+    
+    Classe.findOne({_id:course_exists.class_id},{currentTerm:1},(err, classe)=>{
+      if(err) return log_err(err,true,req,res);
+      else if(!classe) return res.render("./lost",{msg:"Invalid data"});
+      return res.render('course/students_list',{
+        title:course_exists.name.toUpperCase(),
+        course_name :course_exists.name,
+        actual_term :classe.currentTerm,
+        course_id:req.params.course_id,
+        pic_id:req.user._id,
+        pic_name:req.user.name.replace('\'',"\\'")
+        ,access_lvl:req.user.access_level,
+        csrf_token:res.locals.csrftoken, // always set this buddy
       })
+    })
   })
 }
 exports.setStudentRetake = (req,res,next)=>{
@@ -428,18 +555,22 @@ exports.getPageMyMarks = (req,res,next)=>{
     else if(!course_exists)  return res.render("./lost",{msg:"Invalid data"});
     else if(String(req.user.school_id) != String(course_exists.school_id))
       return res.render("./lost",{msg:"No chances to view this course"});
-    return res.render('course/students_marks',{
-          title:course_exists.name.toUpperCase(),
-          course_name :course_exists.name,
-          actual_term :course_exists.currentTerm,
-          course_id:req.params.course_id,
-          pic_id:req.user._id,
-          pic_name:req.user.name.replace('\'',"\\'")
-          ,access_lvl:req.user.access_level,
-          csrf_token:res.locals.csrftoken, // always set this buddy
-      })
-  })
+    Classe.findOne({_id:course_exists.class_id},{currentTerm:1},(err, classe)=>{
+      if(err) return log_err(err,true,req,res);
+      else if(!classe)  return res.render("./lost",{msg:"Invalid data"});
 
+      return res.render('course/students_marks',{
+        title:course_exists.name.toUpperCase(),
+        course_name :course_exists.name,
+        actual_term :classe.currentTerm,
+        course_id:req.params.course_id,
+        pic_id:req.user._id,
+        pic_name:req.user.name.replace('\'',"\\'")
+        ,access_lvl:req.user.access_level,
+        csrf_token:res.locals.csrftoken, // always set this buddy
+      })
+    })
+  })
 }
 
 

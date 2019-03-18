@@ -17,7 +17,18 @@ block append content
                         | Academic Year: 
                         strong {{'#{academic_year}'|yearToDate:term_name}}
                   .card-content
-                    .panel-group(role='tablist')#accordion
+                    .panel
+                      .panel-body
+                        .col-xs-12.col-sm-12.col-md-12.col-lg-12
+                          .col-xs-12.col-sm-6.col-md-4.col-lg-4(ng-repeat="course in courses")
+                            h3
+                              a(href='/courses/{{course._id}}'+query, ng-bind="course.name|uppercase")
+                            h4
+                              | Code: 
+                              strong(ng-bind="course.code|uppercase")
+                      .panel-footer
+                        h4.text-center Number of courses {{courses.length}}
+                    //- .panel-group(role='tablist')#accordion
                       .panel.panel-default(ng-repeat="term in termCourses")
                         .panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrentTerm(term, $index)")
                           a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
@@ -46,8 +57,8 @@ block append content
                         .col-xs-12.col-sm-6.col-md-4.col-lg-4(ng-repeat="classe in classes")
                           div(ng-class="'s'+classe.name==name?'btn-danger':''")
                             h3
-                              a(href='/classe/{{classe.class_id}}')
-                                b {{classe.name|uppercase|toClasseName}}
+                              a(href="/classe/{{classe.class_id}}"+query)
+                                b(ng-bind="classe.name|uppercase|toClasseName")
                             h3
                               strong {{classe.academic_year|yearToDate:term_name}}
                             h4 {{classe.number}} courses
@@ -76,9 +87,9 @@ block append scripts
       }
     })
     .controller('classTermCtrl',function($scope,$http,$window, $document){
-      $scope.getUserClasses = function(){
+      $scope.getUserClasses = ()=>{
         $http
-        .get('/school.get.userClasses/'+$scope.school_id,{"_csrf":$scope.anti_csrf})
+        .get('/school.get.userClasses/'+$scope.school_id+$scope.query,{"_csrf":$scope.anti_csrf})
         .then(function(response){
           $scope.classes = response.data;
         })
@@ -86,14 +97,17 @@ block append scripts
           Notifier.danger(error.data)
         })
       }
-      $scope.showCourse = function(cours){
-         $window.location.href="/courses/"+cours._id
+      $scope.showCourses = (classe)=>{
+        $window.location.href="/classe/"+classe.class_id+$scope.query;
+      }
+      $scope.linkCourse = (course)=>{
+        $window.location.href="/course/"+course._id+$scope.query;
       }
       $scope.getCourses = function(){ 
-        var v_data={classe_id:$scope.class_id,t_quantity:$scope.term_quantity,user_id:"#{pic_id}"}
-        $http.post('/classe.get.courses',v_data)
+        //- var v_data={classe_id:$scope.class_id,t_quantity:$scope.term_quantity,user_id:"#{pic_id}"}
+        $http.get('/classe.get.courses/#{class_id}'+$scope.query)
         .then(function(response){
-          $scope.termCourses = response.data;
+          $scope.courses = response.data;
           //- console.log(JSON.stringify($scope.termCourses))
         })
         .catch(function(error){
@@ -106,6 +120,7 @@ block append scripts
       $scope.anti_csrf ="#{csrf_token}";
       $scope.term_name="#{term_name}";
       $scope.term_quantity="#{term_quantity}";
+      $scope.query = '?ay='+'#{academic_year}&u='+'#{userid}&allow=true';
       $scope.getUserClasses();
       $scope.getCourses();
     })

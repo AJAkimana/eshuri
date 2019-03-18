@@ -47,7 +47,7 @@ block append content
                                 a(href="/dashboard.register.course/{{school_id}}") click to add more..
                           .form-group.label-floating
                             label.control-label Enter a new course
-                            select.form-control(required="true", title="Choose course", ng-model="newCourse.name", , ng-change="setCourseCode()")
+                            select.form-control(required="true", title="Choose course", ng-model="newCourse.name", ng-change="setCourseCode()")
                               option(value="{{cours.name}}", ng-repeat="cours in schoolCourses") {{cours.name|uppercase}}
                             //input.form-control(type="text",required="true",ng-model="newCourse.name")
                           .row
@@ -55,7 +55,8 @@ block append content
                               .form-group.label-floating
                                 label.control-label {{term_name|toTermName}}:
                                 br
-                                select.form-control(required="true", title="Choose the {{term_name|toTermName}}",ng-model="newCourse.currentTerm", ng-change="setCourseCode()")
+                                select.form-control(required="true", title="Choose the {{term_name|toTermName}}",ng-model="newCourse.courseTerm", ng-disabled="term_quantity==3")
+                                  option(value="4") Whole year
                                   option(value="{{$index + 1}}", ng-repeat="i in getTerms_Limit()") {{term_name|toTermName}} {{$index + 1}}
                             .col-md-8
                               .form-group.label-floating
@@ -78,7 +79,7 @@ block append content
                           .form-group
                             button.btn.btn-fill.btn-rose(ng-click="addNewCourse()") Add
                             button.btn.btn-fill.btn-danger.pull-right(ng-click="c_add =false") Cancel
-            .col-xs-12.col-sm-12.col-md-4.col-lg-4
+            .col-xs-12.col-sm-12.col-md-3.col-lg-3
               .card
                 .card-header.card-header-icon(data-background-color="rose")
                   i.material-icons school
@@ -97,7 +98,7 @@ block append content
                         tr(pagination-id="allclasses", dir-paginate="classe in classes|orderBy:name|filter:classe_search|itemsPerPage:10")
                           td: a(style='color:#3d4958;',href="/dashboard.course/{{classe._id}}") {{classe.name|uppercase|toClasseName:term_name}}
                     dir-pagination-controls.pull-right(pagination-id='allclasses', max-size='5', direction-links='true', boundary-links='true')
-            .col-xs-12.col-sm-12.col-md-8.col-lg-8
+            .col-xs-12.col-sm-12.col-md-9.col-lg-9
               .card
                 .card-header.card-header-icon(data-background-color="rose")
                   i.material-icons school
@@ -136,7 +137,7 @@ block append content
                             td {{course.name | uppercase}}
                             td {{course.code|uppercase}}
                             td {{course.weightOnReport|uppercase}}
-                            td {{course.currentTerm|toTermName}} {{course.currentTerm}}
+                            td {{course.courseTerm|toTermName}} {{course.courseTerm}}
                             td {{course.teacher_list.length}} teachers
                               button.btn-simple.btn.label.btn-rose(type='button',ng-click="setCurrentCourse(course)",data-target='#add_teacher_Modal', data-toggle='modal')
                                 i.material-icons edit
@@ -146,8 +147,11 @@ block append content
                                 i.material-icons close
                               button.btn-simple.btn.label.btn-rose(type='button',ng-click="setCurrentCourse(course)",data-target='#edit_course_Modal', data-toggle='modal')
                                 i.material-icons edit
-                              //- button.btn-success.btn.label(type='button',ng-click="editCourseName(course._id,course.name, course.currentTerm)")
+                              button.btn-success.btn.label(type='button',ng-click="editCourseName(course._id,course.name, course.courseTerm)")
                                 i.material-icons edit
+                              button.btn-danger.btn.label(type='button',ng-click="structureCourse(course)")
+                                i.material-icons edit
+                                | Structure
                               p.category.text-center(ng-show ="!courses.length") No courses provided yet
                       dir-pagination-controls.pull-right(pagination-id='allcourses', max-size='5', direction-links='true', boundary-links='true')
                   #add_teacher_Modal.modal.fade(role='dialog')
@@ -241,6 +245,16 @@ block append scripts
       }
     })
     .controller('course_ManageCtrl', function($scope,$interpolate, $http,$window){
+      $scope.structureCourse = (course)=>{
+        $http.post('/course.structure',{course_id:course._id})
+        .then((res)=>{
+          Notifier.success(res.data);
+          $scope.getListCourses();
+        })
+        .catch((err)=>{
+          Notifier.danger(err.data);
+        })
+      }
       var schoolName = "#{school_name}";
       var className = "#{classe_name}";
       var academicYear = "#{academic_year}";
@@ -297,9 +311,6 @@ block append scripts
       $scope.setCourseCode = function(){
         var schoolAbbr = getAbbreviation(schoolName);
         var coursename = $scope.newCourse.name?$scope.newCourse.name:'';
-        var courseterm = $scope.newCourse.currentTerm?$scope.newCourse.currentTerm:'';
-        //var courseCode = schoolAbbr+'-'+getclassName(className)+'-'+coursename.substring(0,3)+'-'+academicYear+courseterm;
-
 
         if(validateNameNumber(coursename)){
           var words = coursename.split(" ");  
@@ -309,8 +320,8 @@ block append scripts
         else{
           courseAbbr = coursename.substring(0,3);
         }
-        var courseCode = schoolAbbr+'-'+getclassName(coursename)+'-'+courseAbbr+'-'+academicYear+courseterm;
-        if (coursename!=''&&courseterm!='') {$scope.newCourse.code = !courseCode?' ':courseCode;}
+        var courseCode = schoolAbbr+'-'+getclassName(coursename)+'-'+courseAbbr;
+        if (coursename!='') {$scope.newCourse.code = !courseCode?' ':courseCode;}
       }
       $scope.getListSchoolCourses = function(){
         $http
@@ -372,12 +383,11 @@ block append scripts
           if(validateNameNumber(courseName)){
             var words = courseName.split(" ");  
             courseAbbr = words[0].substring(0,3)+'-'+getAbbreviation(words[1])
-
           }
           else{
             courseAbbr = courseName.substring(0,3);
           }
-          var thiscourseCode = schoolAbbr+'-'+getclassName(className)+'-'+courseAbbr+'-'+academicYear+courseterm;
+          var thiscourseCode = schoolAbbr+'-'+getclassName(className)+'-'+courseAbbr;
           //console.log(thiscourseCode);
           $http
           .post("/course.change.coursename", {
@@ -567,6 +577,7 @@ block append scripts
       $scope.institution="#{institution}";
       $scope.currentTerm ="#{currentTerm}";
       $scope.newCourse ={}
+      if($scope.term_quantity==3) $scope.newCourse.courseTerm='4';
       $scope.course_concerned;
       $scope.getListCourses();
       $scope.getListClasses();

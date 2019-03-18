@@ -7,6 +7,7 @@ const Classe =require('../models/Classe'),
       Content=require('../models/Content'),
       log_err=require('./manage/errorLogger'),
       Finalist=require('../models/Finalist'),
+      Util=require('../utils.js'),
       ObjectID = require('mongodb').ObjectID,
       SchoolProgram=require('../models/SchoolProgram'); 
 /*
@@ -90,35 +91,40 @@ exports.getClasses_JSON = (req,res,next)=>{
 }
 exports.getPageOneClasse = (req,res,next)=>{
   req.assert('classe_id', 'Invalid data').isMongoId();
+  
+  if(req.query.u||req.query.allow){
+    req.assert('u', 'Invalid datau').isMongoId();
+    req.assert('allow', 'Invalid data a').equals('true');
+  }
   const errors = req.validationErrors();
-  if(errors) return res.render("./lost",{msg:"Invalid data"});
-  var class_name = '', first_letter='';
-  var async=require('async');
+  if (errors) return res.render("./lost",{msg:errors[0].msg});
 
-  // var ac_year = req.params.classe_id.slice(0,2);
-  // var classe = req.params.classe_id.slice(2);
-  // var num_ac = parseInt(ac_year)
-  // if(num_ac<17) return res.render("./lost",{msg:"Invalid data"});
-  // if(!ObjectID.isValid(classe)) return res.render("./lost",{msg:"Invalid data"});
-  // var response ={},temoin=false;
+  var date = new Date();
+  var year = parseInt(date.getFullYear())-2000;
+  if(!req.query.ay||req.query.ay<17||req.query.ay>year) return res.render("./lost",{msg:"Invalid data"});
+
+  let query=req.query.u&&req.query.allow?'?ay='+req.query.ay+'&u='+req.query.u+'&allow=true':'?ay='+req.query.ay;
 
   Classe.findOne({_id:req.params.classe_id},(err,classe_exists)=>{
-    if(err) return log_err(err,false,req,res);
+    if(err) return log_err(err,true,req,res);
     else if(!classe_exists)  return res.render("./lost",{msg:"This class doesn't exists "});
     School.findOne({_id:classe_exists.school_id},(err,school_exists)=>{
       if(err) return log_err(err,false,req,res);
       else if(!school_exists)  return res.render("./lost",{msg:"This school doesn't exists "});
-      first_letter=classe_exists.name.toLowerCase().charAt(0);
-      class_name = first_letter==='s'?classe_exists.name:'s'+classe_exists.name;
+      var first_letter=classe_exists.name.toLowerCase().charAt(0);
+      var class_name = first_letter==='s'?classe_exists.name:'s'+classe_exists.name;
+
       return res.render('school/one_class_view',{
         title:class_name.toUpperCase(),
         pic_id:req.user._id,
         school_name:school_exists.name,
-        academic_year:classe_exists.academic_year,
+        academic_year:req.query.ay,
+        userid:req.query.u||'',
         term_name:school_exists.term_name,
         term_quantity:school_exists.term_quantity,
         class_id:req.params.classe_id,
         school_id:classe_exists.school_id,
+        query:query,
         pic_name:req.user.name.replace('\'',"\\'"),
         access_lvl:req.user.access_level,
         csrf_token:res.locals.csrftoken, // always set this buddy
@@ -127,54 +133,67 @@ exports.getPageOneClasse = (req,res,next)=>{
   })
 }
 exports.getClassCourses = (req, res, next)=>{
-  req.assert('classe_id', 'Invalid data').isMongoId();
-  req.assert('t_quantity', 'Invalid data').isIn([2,3]);
-  req.assert('user_id', 'Invalid data').isMongoId();
+  req.assert('class_id', 'Invalid data').isMongoId();
+  if(req.query.u&&req.query.allow){
+    req.assert('u', 'Invalid data u').isMongoId();
+    req.assert('allow', 'Invalid data a').equals('true');
+  }
   const errors = req.validationErrors();
-  if(errors) return res.status(400).send("Invalid data")
-  var t_qty = req.body.t_quantity;
-  var allterms = [],response=[],term1=[],term2=[],term3=[], allcourses=[];
-  var parametters = {};
-  if(t_qty==3) allterms=[1,2,3];
-  else if (t_qty==2) allterms=[1,2];
-  var async = require('async');
-  // Get courses according to the access level
-  User.findOne({_id:req.body.user_id},(err, user_details)=>{
-    if(err) return log_err(err,false,req,res);
-    if(!user_details) return res.status(400).send("Invalid data");
-    // console.log('==========='+user_details.name)
-    var student = req.app.locals.access_level.STUDENT;
-    if(user_details.access_level==student) parametters = {class_id:req.body.classe_id};
-    else parametters = {class_id:req.body.classe_id, teacher_list:req.body.user_id};
-    Course.find(parametters,{teacher_list:0,__v:0,attendance_limit:0}).lean().exec((err, courses)=>{
-      if(err) return log_err(err,false,req,res);
-      allcourses=courses;
-      async.eachSeries(allcourses, (thisCourse, courseCallback)=>{
-        Content.count({course_id:thisCourse._id},(err, content_number)=>{
-          if(err) return courseCallback(err);
-          thisCourse.content_number=content_number;
-          courseCallback()
-        })
-      },(err)=>{
-        if(err) return log_err(err,false,req,res);
-        for(var i=0; i<allcourses.length; i++){
-          if(allcourses[i].currentTerm==1) term1.push(allcourses[i]);
-          if(allcourses[i].currentTerm==2) term2.push(allcourses[i]);
-          if(allcourses[i].currentTerm==3 && t_qty==3) term3.push(allcourses[i]);
-        }
-        response.push({t_name:'1',t_content:term1},{t_name:'2',t_content:term2},{t_name:'3',t_content:term3});
-        // console.log('Courses: '+JSON.stringify(response))
-        return res.json(response);
-      })
-    })
+  if (errors) return res.status(400).send(errors[0].msg);
+
+  Util.listCourses(req, (err, courses)=>{
+    if(err) return res.status(400).send(err);
+    if(!courses) return res.status(400).send('No courses listed');
+    return res.json(courses);
   })
+  // req.assert('classe_id', 'Invalid data').isMongoId();
+  // req.assert('t_quantity', 'Invalid data').isIn([2,3]);
+  // req.assert('user_id', 'Invalid data').isMongoId();
+  // const errors = req.validationErrors();
+  // if(errors) return res.status(400).send("Invalid data")
+  // var t_qty = req.body.t_quantity;
+  // var allterms = [],response=[],term1=[],term2=[],term3=[], allcourses=[];
+  // var parametters = {};
+  // if(t_qty==3) allterms=[1,2,3];
+  // else if (t_qty==2) allterms=[1,2];
+  // var async = require('async');
+  // // Get courses according to the access level
+  // User.findOne({_id:req.body.user_id},(err, user_details)=>{
+  //   if(err) return log_err(err,false,req,res);
+  //   if(!user_details) return res.status(400).send("Invalid data");
+  //   // console.log('==========='+user_details.name)
+  //   var student = req.app.locals.access_level.STUDENT;
+  //   if(user_details.access_level==student) parametters = {class_id:req.body.classe_id};
+  //   else parametters = {class_id:req.body.classe_id, teacher_list:req.body.user_id};
+  //   Course.find(parametters,{teacher_list:0,__v:0,attendance_limit:0}).lean().exec((err, courses)=>{
+  //     if(err) return log_err(err,false,req,res);
+  //     allcourses=courses;
+  //     async.eachSeries(allcourses, (thisCourse, courseCallback)=>{
+  //       Content.count({course_id:thisCourse._id},(err, content_number)=>{
+  //         if(err) return courseCallback(err);
+  //         thisCourse.content_number=content_number;
+  //         courseCallback()
+  //       })
+  //     },(err)=>{
+  //       if(err) return log_err(err,false,req,res);
+  //       for(var i=0; i<allcourses.length; i++){
+  //         if(allcourses[i].currentTerm==1) term1.push(allcourses[i]);
+  //         if(allcourses[i].currentTerm==2) term2.push(allcourses[i]);
+  //         if(allcourses[i].currentTerm==3 && t_qty==3) term3.push(allcourses[i]);
+  //       }
+  //       response.push({t_name:'1',t_content:term1},{t_name:'2',t_content:term2},{t_name:'3',t_content:term3});
+  //       // console.log('Courses: '+JSON.stringify(response))
+  //       return res.json(response);
+  //     })
+  //   })
+  // })
 }
 exports.getClasseToRepeat=(req,res,next)=>{
   req.assert('class_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
   var parametters = {};
-  Classe.findOne({_id:req.params.class_id,school_id:req.user.school_id},(err, class_exists)=>{
+  Classe.findOne({_id:req.params.class_id},(err, class_exists)=>{
     if(err) return log_err(err,false,req,res);
     if(!class_exists) return res.status(400).send("Unkown class");
     var level_class = Number(class_exists.level);
@@ -192,11 +211,12 @@ exports.getNextClasses = (req, res, next)=>{
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
   var parametters = {};
-  Classe.findOne({_id:req.params.class_id,school_id:req.user.school_id},(err, class_exists)=>{
+  Classe.findOne({_id:req.params.class_id},(err, class_exists)=>{
     if(err) return log_err(err,false,req,res);
     if(!class_exists) return res.status(400).send("Unkown class");
     var next_class = Number(class_exists.level)+1;
     if(class_exists.level>3) parametters = {level:next_class, school_id:req.user.school_id, option:class_exists.option};
+    else if(class_exists.level==3) parametters = {level:next_class, school_id:req.user.school_id};
     else parametters = {level:next_class, school_id:req.user.school_id, $or:[{option:null},{option:''}]};
     Classe.find(parametters, (err, nextClasses)=>{
       if(err) return log_err(err,false,req,res);
@@ -225,7 +245,7 @@ exports.setStudentToRepeat = (req,res,next)=>{
         if(err) return log_err(err,false,req,res);
         else if(!student_exists) return res.status(400).send("Unkown student");
         student_exists.class_id = class_exists._id;
-        student_exists.prev_classes.push(req.body.class_id);
+        student_exists.prev_classes.push({class_id:req.body.class_id,academic_year:class_exists.academic_year});
         student_exists.save((err, done)=>{
           if(err) return log_err(err,false,req,res);
           // Save for user notification
@@ -271,7 +291,7 @@ exports.getToNextClass = (req,res,next)=>{
           if(err) return log_err(err,false,req,res);
           else if(!student_exists) return res.status(400).send("Unkown student");
           student_exists.class_id = class_exists._id;
-          student_exists.prev_classes.push(req.body.class_id);
+          student_exists.prev_classes.push({class_id:req.body.class_id,academic_year:class_exists.academic_year});
           student_exists.save((err, done)=>{
             if(err) return log_err(err,false,req,res);
             // Save for user notification
@@ -297,7 +317,7 @@ exports.getToNextClass = (req,res,next)=>{
         if(err) return log_err(err,false,req,res);
         else if(!student_exists) return res.status(400).send("Unkown student");
         student_exists.class_id = null;
-        student_exists.prev_classes.push(req.body.class_id);
+        student_exists.prev_classes.push({class_id:req.body.class_id,academic_year:req.body.academic_year});
         student_exists.save((err, done)=>{
           if(err) return log_err(err,false,req,res);
           new Finalist({
@@ -338,9 +358,7 @@ exports.returnToPreviousClass = (req,res,next)=>{
   var parametters = {}
   if(req.body.class_id) parametters={_id:req.body.student_id,school_id:req.user.school_id,class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT};
   else parametters={_id:req.body.student_id,school_id:req.user.school_id,class_id:null,access_level:req.app.locals.access_level.STUDENT}
-  // var level = req.body.level,
-  //     previous_level = Number(level)-1;
-  console.log(parametters)
+
   School.findOne({_id:req.user.school_id},(err, school_exists)=>{
     if(err) return log_err(err,false,req,res);
     else if(!school_exists)  return res.status(400).send("This school doesn't exists ");
@@ -351,10 +369,14 @@ exports.returnToPreviousClass = (req,res,next)=>{
       User.findOne(parametters,(err, student_exists)=>{
         if(err) return log_err(err,false,req,res);
         else if(!student_exists) return res.status(400).send("Unkown student");
-        else if(student_exists.prev_classes.indexOf(new_class)==-1) return res.status(400).send("Service is'nt available");
+        var prevClassIndex = student_exists.prev_classes[0]['class_id']!==undefined?student_exists.prev_classes.findIndex(x=>x.class_id==new_class):student_exists.prev_classes.indexOf(new_class);
+        // console.log('Prev class:',student_exists.prev_classes[0]['class_id'])
+        if(prevClassIndex===-1){
+          return res.status(400).send("Service isn't available");
+        }
         var newClasses = [];
         async.each(student_exists.prev_classes, (thisClasse, callBack)=>{
-          if(thisClasse!=new_class) newClasses.push(thisClasse);
+          if(thisClasse.class_id!=new_class) newClasses.push({class_id:new_class,academic_year:class_exists.academic_year});
           return callBack(null);
         },(err)=>{
           if(err) return log_err(err,false,req,res);
@@ -373,6 +395,39 @@ exports.returnToPreviousClass = (req,res,next)=>{
             } else return res.end();
           })
         })
+      })
+    })
+  })
+}
+exports.setAcYearOfRepeat = (req,res)=>{
+  req.assert('class_id', 'Invalid data1').isMongoId();
+  req.assert('student_id', 'Invalid data2').isMongoId();
+  req.assert('classes', 'Invalid data3').isArray(); // not sure
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+
+  var async = require('async');
+  User.findOne({_id:req.body.student_id,class_id:req.body.class_id},(err, student)=>{
+    if(err) return res.status(400).send('Service not available');
+    if(!student) return res.status(400).send('User does not exist');
+    
+    var studentClasses = [];
+    async.eachSeries(req.body.classes, (current, callBack)=>{
+      if(!current.class_id) return callBack('Invalid data 4');
+      else if(!current.academic_year) return callBack('Set academic year');
+      else if(current.academic_year>19||current.academic_year<17){
+        return callBack('Set Invalid academic year');
+      }
+      studentClasses.push({class_id:current.class_id,academic_year:current.academic_year});
+
+      callBack(null);
+    },(err)=>{
+      if(err) return res.status(400).send(err);
+
+      student.prev_classes = studentClasses;
+      student.save((err, ok)=>{
+        if(err) log_err(err,false,req,res);
+        return res.end();
       })
     })
   })

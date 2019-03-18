@@ -4,3 +4,4 @@ node_modules/
 .eShuri.env.PROD
 .eShuri.env.TEST
 .npmrc
+eshuri.js

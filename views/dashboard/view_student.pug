@@ -26,7 +26,7 @@ block append content
                         thead
                           th: a.btn-simple.btn.label.btn-rose(ng-click="a='name';b=!b") Name
                         tbody
-                          tr(pagination-id="allclasses", dir-paginate="classe in classes|orderBy:name|filter:classe_search|itemsPerPage:5")
+                          tr(pagination-id="allclasses", dir-paginate="classe in classes|orderBy:name|filter:classe_search|itemsPerPage:10")
                             td: h3.btn.label(ng-click="getstudentList(classe._id, classe.name, classe.level)", ng-class="classe.name==classe_name?'btn-primary':'btn-danger'") {{classe.name|uppercase|toClasseName:term_name}}
                       dir-pagination-controls.pull-right(pagination-id='allclasses', max-size='5', direction-links='true', boundary-links='true')
               .col-xs-12.col-sm-12.col-md-9.col-lg-9
@@ -70,7 +70,8 @@ block append content
                             td
                               h5(ng-if="student.prev_classes.length==0") No class
                               ul(ng-if="student.prev_classes.length!=0")
-                                li(type="1" ng-repeat="classe in student.prev_classes"): a.btn-simple.btn.label.btn-rose(ng-click="revertStudent(classe, student.name, student._id)") {{classe|toPreClasseName:classes|toClasseName:term_name|uppercase}}
+                                li(type="1" ng-repeat="classe in student.prev_classes")
+                                  a.btn-simple.btn.label.btn-rose(ng-bind="classe.class_id!=undefined?(classe.class_id|toPreClasseName:classes|toClasseName:term_name|uppercase):(classe|toPreClasseName:classes|toClasseName:term_name|uppercase)",ng-click="revertStudent(classe, student.name, student._id)")
                             td.td-actions.text-right
                               select(ng-model="new_class",ng-change="changeClass(student, new_class)")
                                 option(value="{{classe._id}}" ng-repeat="classe in nextClasses") {{classe.name|uppercase|toClasseName:term_name}}
@@ -82,6 +83,9 @@ block append content
                               button.btn.btn-primary.btn-sm(ng-click="setCurrent(student)" ,data-target='#student_edit_Model', data-toggle='modal')
                                 i.material-icons edit
                                 | Edit
+                              button.btn.btn-info.btn-sm(ng-show="student.prev_classes.length!=0" ng-click="setCurrent(student)" ,data-target='#add_ay_Model', data-toggle='modal')
+                                i.material-icons edit
+                                | Set AY
                       dir-pagination-controls.pull-right(pagination-id='allstudents', max-size='5', direction-links='true', boundary-links='true')
       #student_rpt_Model.modal.fade(role='dialog')
         .modal-dialog
@@ -123,6 +127,30 @@ block append content
                   b.text-info MyEshuri
               button.btn.btn-sm.btn-primary(ng-click="editStudent()") Confirm
               button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
+      #add_ay_Model.modal.fade(role='dialog')
+        .modal-dialog
+          .modal-content
+            .modal-header
+              h4.card-title.text-center 
+                | Add Academic year of previous class for
+                br
+                strong(ng-bind="currStudent.name|uppercase")
+            .modal-body
+              .table-responsive(ng-show="currStudent.prev_classes.length")
+                table.table.table-border
+                  tr
+                    th #
+                    th Class
+                    th Ac. Year
+                  tr(ng-repeat="classe in currStudent.prev_classes")
+                    td(ng-bind="$index+1")
+                    td(ng-bind="classe.class_id|toPreClasseName:classes|toClasseName:term_name|uppercase")
+                    td
+                      input.form-control(type="number" ng-model="classe.academic_year")
+              h4.text-info(ng-hide="currStudent.prev_classes.length") No classes
+            .modal-footer
+              button.btn.btn-sm.btn-primary(ng-click="editAcYear()") Confirm
+              button.btn.btn-sm.btn-warning(type='button', data-dismiss='modal') Cancel
 block append scripts
   script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
   script(src="../js/MIT/jasny-bootstrap.min.js", type="text/javascript")
@@ -155,6 +183,13 @@ block append scripts
     .controller('studentCtrl', function($scope, $http,$window){
       $scope.setCurrent=(student)=>{
         $scope.currStudent=student;
+        if(student.prev_classes[0]['class_id']===undefined){
+          var stClasses = [];
+          for(var i=0; i<student.prev_classes.length; i++){
+            stClasses.push({class_id:student.prev_classes[i]})
+          }
+          $scope.currStudent.prev_classes = stClasses;
+        }
       }
       $scope.view_student = function(id_student){
         $window.location.href ="/student/"+id_student;
@@ -196,10 +231,11 @@ block append scripts
       }
       $scope.revertStudent = function(classe, name, id){
         console.log('nexts:'+classe+' name: '+name)
-        var body={class_id:$scope.class_id,student_id:id,new_class:classe, level:$scope.level}
+        var prevClass = classe.class_id!=undefined?classe.class_id:classe
+        var body={class_id:$scope.class_id,student_id:id,new_class:prevClass, level:$scope.level}
         var classeName='';
         for(var i=0;i<$scope.classes.length;i++){
-          if($scope.classes[i]._id==classe){
+          if($scope.classes[i]._id==prevClass){
             if($scope.term_name=="T") classeName='S'+$scope.classes[i].name.toUpperCase();
             else classeName='Y'+$scope.classes[i].name.toUpperCase();
           } 
@@ -224,6 +260,17 @@ block append scripts
             Notifier.danger(error.data)
           })
         }).catch(swal.noop)
+      }
+      $scope.editAcYear=()=>{
+        var body={class_id:$scope.class_id,student_id:$scope.currStudent._id,classes:$scope.currStudent.prev_classes}
+        $http.post('/set.ac_year.student/'+$scope.class_id,body)
+        .then((response)=>{
+          $('#add_ay_Model').modal('hide');
+          Notifier.success('Successfully updated')
+        })
+        .catch((error)=>{
+          Notifier.danger(error.data)
+        })
       }
       $scope.editStudent=()=>{
         $http
