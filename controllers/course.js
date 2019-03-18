@@ -265,7 +265,7 @@ exports.restructure = (req, res)=>{
       Course.find({name:courseRes.name,class_id:courseRes.class_id},(err, courseList)=>{
         if(err) return findSimilarCourseName('Service not available');
         listCoursesRes = courseList;
-        findSimilarCourseName(null);
+        return findSimilarCourseName(null);
       })
     },(treatCourseContent)=>{
       async.eachSeries(listCoursesRes, (currentCourse, courseCallBack)=>{
@@ -274,34 +274,37 @@ exports.restructure = (req, res)=>{
         async.parallel([(updateContents)=>{
           Content.update({course_id:courseId}, {$set:courseParams}, {multi:true}, (err, done)=>{
             if (err) return updateContents('Content update error');
-            updateContents(null);
+            console.log('Content Up:',done);
+            return updateContents(null);
           })
         },(updateMarks)=>{
           Marks.update({course_id:courseId}, {$set:{course_id:masterIndex,course_name:courseRes.name}}, {multi:true}, (err, done)=>{
             if (err) return updateMarks('Marks update error');
-            updateMarks(null);
+            console.log('Mark Up:',done);
+            return updateMarks(null);
           })
         },(updateUnits)=>{
           Unit.update({course_id:courseId}, {$set:courseParams}, {multi:true}, (err, done)=>{
             if (err) return updateUnits('Unit update error');
-            updateUnits(null);
+            console.log('Unit Up:',done);
+            return updateUnits(null);
           })
         }],(err)=>{
           if(err) return courseCallBack(err);
-          courseCallBack(null)
+          return courseCallBack(null)
         })
       },(err)=>{
         if(err) return treatCourseContent(err);
-        treatCourseContent(null)
+        return treatCourseContent(null)
       })
     },(deleteRemainigCourses)=>{
       Course.remove({_id:{$ne:masterIndex},name:courseRes.name,class_id:courseRes.class_id},(err, deleted)=>{
         if(err) return deleteRemainigCourses('Course deletion error');
+        console.log('Deleted:',deleted);
         return deleteRemainigCourses(null)
       })
     }],(err)=>{
       if(err) return res.status(500).send(err); //If error in async series return the error
-
       courseRes.code = courseCode;
       courseRes.courseTerm = 4;
       courseRes.save((err, ok)=>{
