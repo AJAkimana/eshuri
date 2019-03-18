@@ -270,7 +270,7 @@ exports.restructure = (req, res)=>{
     },(treatCourseContent)=>{
       async.eachSeries(listCoursesRes, (currentCourse, courseCallBack)=>{
         var courseId = currentCourse._id;
-        var courseParams = {course_id:courseId};
+        var courseParams = {course_id:currentCourse._id};
         async.parallel([(updateContents)=>{
           Content.update({course_id:courseId}, {$set:courseParams}, {multi:true}, (err, done)=>{
             if (err) return updateContents('Content update error');
