@@ -242,7 +242,7 @@ block append scripts
           confirmButtonText: 'Yes, i am sure!',
           buttonsStyling: false
         }).then(function(){
-          var user_data = {_csrf:$scope.anti_csrf,user_id:user.id,password:$("#admin_pwd").val()};
+          var user_data = {_csrf:$scope.anti_csrf,user_id:user._id,password:$("#admin_pwd").val()};
           $http
           .post("/user.reset.pwd", user_data)
           .then(function(response){
@@ -289,11 +289,11 @@ block append scripts
           confirmButtonText: 'Yes, delete!',
           buttonsStyling: false
         }).then(()=>{
-          var user_data = {_csrf:$scope.anti_csrf,user_id:user.id,password:$("#admin_pwd").val()};
+          var user_data = {_csrf:$scope.anti_csrf,user_id:user._id,password:$("#admin_pwd").val()};
           $http
           .post("/user.delete_complete", user_data)
           .then((response)=>{
-            Notifier.success("User has deleted");
+            Notifier.success("User has been deleted");
             $scope.getUsersList();
           })
           .catch((erreur)=>{
