@@ -78,7 +78,7 @@ block append content
                           .form-group
                             button.btn.btn-fill.btn-rose(ng-click="addNewCourse()") Add
                             button.btn.btn-fill.btn-danger.pull-right(ng-click="c_add =false") Cancel
-            .col-xs-12.col-sm-12.col-md-4.col-lg-4
+            .col-xs-12.col-sm-12.col-md-3.col-lg-3
               .card
                 .card-header.card-header-icon(data-background-color="rose")
                   i.material-icons school
@@ -97,7 +97,7 @@ block append content
                         tr(pagination-id="allclasses", dir-paginate="classe in classes|orderBy:name|filter:classe_search|itemsPerPage:10")
                           td: a(style='color:#3d4958;',href="/dashboard.course/{{classe._id}}") {{classe.name|uppercase|toClasseName:term_name}}
                     dir-pagination-controls.pull-right(pagination-id='allclasses', max-size='5', direction-links='true', boundary-links='true')
-            .col-xs-12.col-sm-12.col-md-8.col-lg-8
+            .col-xs-12.col-sm-12.col-md-9.col-lg-9
               .card
                 .card-header.card-header-icon(data-background-color="rose")
                   i.material-icons school
@@ -146,7 +146,7 @@ block append content
                                 i.material-icons close
                               button.btn-simple.btn.label.btn-rose(type='button',ng-click="setCurrentCourse(course)",data-target='#edit_course_Modal', data-toggle='modal')
                                 i.material-icons edit
-                              //- button.btn-success.btn.label(type='button',ng-click="editCourseName(course._id,course.name, course.currentTerm)")
+                              button.btn-success.btn.label(type='button',ng-click="editCourseName(course._id,course.name, course.currentTerm)")
                                 i.material-icons edit
                               p.category.text-center(ng-show ="!courses.length") No courses provided yet
                       dir-pagination-controls.pull-right(pagination-id='allcourses', max-size='5', direction-links='true', boundary-links='true')

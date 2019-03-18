@@ -197,6 +197,7 @@ exports.getNextClasses = (req, res, next)=>{
     if(!class_exists) return res.status(400).send("Unkown class");
     var next_class = Number(class_exists.level)+1;
     if(class_exists.level>3) parametters = {level:next_class, school_id:req.user.school_id, option:class_exists.option};
+    else if(class_exists.level==3) parametters = {level:next_class, school_id:req.user.school_id};
     else parametters = {level:next_class, school_id:req.user.school_id, $or:[{option:null},{option:''}]};
     Classe.find(parametters, (err, nextClasses)=>{
       if(err) return log_err(err,false,req,res);
@@ -225,7 +226,7 @@ exports.setStudentToRepeat = (req,res,next)=>{
         if(err) return log_err(err,false,req,res);
         else if(!student_exists) return res.status(400).send("Unkown student");
         student_exists.class_id = class_exists._id;
-        student_exists.prev_classes.push(req.body.class_id);
+        student_exists.prev_classes.push({class_id:req.body.class_id,academic_year:class_exists.academic_year});
         student_exists.save((err, done)=>{
           if(err) return log_err(err,false,req,res);
           // Save for user notification
@@ -271,7 +272,7 @@ exports.getToNextClass = (req,res,next)=>{
           if(err) return log_err(err,false,req,res);
           else if(!student_exists) return res.status(400).send("Unkown student");
           student_exists.class_id = class_exists._id;
-          student_exists.prev_classes.push(req.body.class_id);
+          student_exists.prev_classes.push({class_id:req.body.class_id,academic_year:class_exists.academic_year});
           student_exists.save((err, done)=>{
             if(err) return log_err(err,false,req,res);
             // Save for user notification
@@ -297,7 +298,7 @@ exports.getToNextClass = (req,res,next)=>{
         if(err) return log_err(err,false,req,res);
         else if(!student_exists) return res.status(400).send("Unkown student");
         student_exists.class_id = null;
-        student_exists.prev_classes.push(req.body.class_id);
+        student_exists.prev_classes.push({class_id:req.body.class_id,academic_year:req.body.academic_year});
         student_exists.save((err, done)=>{
           if(err) return log_err(err,false,req,res);
           new Finalist({
@@ -338,9 +339,7 @@ exports.returnToPreviousClass = (req,res,next)=>{
   var parametters = {}
   if(req.body.class_id) parametters={_id:req.body.student_id,school_id:req.user.school_id,class_id:req.body.class_id,access_level:req.app.locals.access_level.STUDENT};
   else parametters={_id:req.body.student_id,school_id:req.user.school_id,class_id:null,access_level:req.app.locals.access_level.STUDENT}
-  // var level = req.body.level,
-  //     previous_level = Number(level)-1;
-  console.log(parametters)
+
   School.findOne({_id:req.user.school_id},(err, school_exists)=>{
     if(err) return log_err(err,false,req,res);
     else if(!school_exists)  return res.status(400).send("This school doesn't exists ");
@@ -351,10 +350,14 @@ exports.returnToPreviousClass = (req,res,next)=>{
       User.findOne(parametters,(err, student_exists)=>{
         if(err) return log_err(err,false,req,res);
         else if(!student_exists) return res.status(400).send("Unkown student");
-        else if(student_exists.prev_classes.indexOf(new_class)==-1) return res.status(400).send("Service is'nt available");
+        var prevClassIndex = student_exists.prev_classes[0]['class_id']!==undefined?student_exists.prev_classes.findIndex(x=>x.class_id==new_class):student_exists.prev_classes.indexOf(new_class);
+        // console.log('Prev class:',student_exists.prev_classes[0]['class_id'])
+        if(prevClassIndex===-1){
+          return res.status(400).send("Service isn't available");
+        }
         var newClasses = [];
         async.each(student_exists.prev_classes, (thisClasse, callBack)=>{
-          if(thisClasse!=new_class) newClasses.push(thisClasse);
+          if(thisClasse.class_id!=new_class) newClasses.push({class_id:new_class,academic_year:class_exists.academic_year});
           return callBack(null);
         },(err)=>{
           if(err) return log_err(err,false,req,res);
@@ -373,6 +376,39 @@ exports.returnToPreviousClass = (req,res,next)=>{
             } else return res.end();
           })
         })
+      })
+    })
+  })
+}
+exports.setAcYearOfRepeat = (req,res)=>{
+  req.assert('class_id', 'Invalid data1').isMongoId();
+  req.assert('student_id', 'Invalid data2').isMongoId();
+  req.assert('classes', 'Invalid data3').isArray(); // not sure
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors[0].msg);
+
+  var async = require('async');
+  User.findOne({_id:req.body.student_id,class_id:req.body.class_id},(err, student)=>{
+    if(err) return res.status(400).send('Service not available');
+    if(!student) return res.status(400).send('User does not exist');
+    
+    var studentClasses = [];
+    async.eachSeries(req.body.classes, (current, callBack)=>{
+      if(!current.class_id) return callBack('Invalid data 4');
+      else if(!current.academic_year) return callBack('Set academic year');
+      else if(current.academic_year>19||current.academic_year<17){
+        return callBack('Set Invalid academic year');
+      }
+      studentClasses.push({class_id:current.class_id,academic_year:current.academic_year});
+
+      callBack(null);
+    },(err)=>{
+      if(err) return res.status(400).send(err);
+
+      student.prev_classes = studentClasses;
+      student.save((err, ok)=>{
+        if(err) log_err(err,false,req,res);
+        return res.end();
       })
     })
   })
