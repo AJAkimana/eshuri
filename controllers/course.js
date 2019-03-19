@@ -108,13 +108,15 @@ exports.courseDashboardSummary = (req,res)=>{
   req.assert('academic_year', 'Invalid data').isInt();
   if(req.body.visited_user){
     req.assert('visited_user', 'Invalid data').isMongoId();
+    req.query.u = req.body.visited_user;
+    req.query.allow = true;
   }
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
 
   courseHelper.contentsSummary(req, (err, contents)=>{
     if(err) return res.status(400).send(err);
-    // console.log('Contents:',contents)
+    
     return res.json(contents);
   })
 }
@@ -404,17 +406,6 @@ exports.updateQuota =(req,res,next)=>{
     if(err) return log_err(err,true,req,res);
     return res.end();
   })
-  // Course.update({
-  //     class_id:req.body.classe_id,
-  //     name:req.body.course_name,
-  //   },{$set:{
-  //     test_quota:req.body.test_quota,
-  //     exam_quota:req.body.exam_quota,
-  //     weightOnReport:req.body.course_weight
-  //   }},{multi:true},(err)=>{
-  //   if(err) return log_err(err,true,req,res);
-  //   return res.end();
-  // })
 }
 exports.getListStudentsCourse = (req,res,next)=>{
   req.assert('course_id', 'Invalid data').isMongoId();

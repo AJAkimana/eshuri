@@ -59,8 +59,7 @@ exports.getUnit_JSON = function(req,res,next){ // R
   req.assert('academic_year','Invalid data').isInt();
   const errors = req.validationErrors();
   if (errors)  return res.status(400).send(errors[0].msg);
-  Unit
-  .find({course_id:req.body.course_id},{__v:0,description:0})
+  Unit.find({course_id:req.body.course_id},{__v:0,description:0})
   // .limit(100)
   // .sort({date:1})
   .exec(function(err, units){

@@ -56,12 +56,13 @@ block append content
                       .card-header
                         h3.text-center <strong>Course overview</strong>
                       .card-content
-                        h4.card-title Number of assessment: 3
-                        h4.card-title Assessment done: 2
-                        h4.card-title Undone assessment: 1
-                        h4.card-title Total marks: 23/30
+                        h4.card-title Number of assessment: <strong>{{marks.assessments}}</strong>
+                        h4.card-title Assessment done: <strong>{{marks.done}}</strong>
+                        h4.card-title Undone assessment: <strong>{{marks.undone}}</strong>
+                        h4.card-title Total marks: <strong>{{marks.marks}}/{{marks.quota}}</strong>
+                        h4.card-title Average: {{marks.average.toFixed(2)}}
                       .card-footer
-                        h4.card-title Average: <strong>60%</strong>
+                        h4.card-title Average: <strong>{{marks.average.toFixed(2)}}%</strong>
                   .col-md-6
                     .card
                       .card-content
@@ -184,7 +185,10 @@ block append scripts
         var data = {_csrf:$scope.anti_csrf,course_id:"#{course_id}",academic_year:"#{academic_year}",visited_user:"#{visited_user}"}
         $http.post('/course.summary', data)
         .then((response)=>{
-          $scope.summaries = response.data;
+          Notifier.success('No error');
+          $scope.summaries = response.data.contents;
+          $scope.level=response.data.access_level;
+          $scope.marks=response.data.marks[0];
         })
         .catch((error)=>{
           Notifier.danger(error.data);

@@ -517,8 +517,7 @@ exports.postAnswers = (req,res,next)=>{
 			    			return res.json(finalMarks);
 		    			})
 		    		})
-				})
-	    		
+				})	
 	    	})
 	    })
 	});
