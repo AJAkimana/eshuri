@@ -377,7 +377,8 @@ module.exports = function(app) {
 	app.post('/school.change.to.previous',isAtLeastAdmin, classeController.returnToPreviousClass)
 	app.post('/student.post.repeat',isAtLeastAdmin,classeController.setStudentToRepeat);
 				/*COURSES THINGS*/
-	app .get('/courses/:course_id',isAuthenticated, coursesController.getPageOneCourse);
+	app.get('/courses/:course_id',isAuthenticated, coursesController.getPageOneCourse);
+	app.post('/course.summary',isAuthenticated, coursesController.courseDashboardSummary);
 	app.post('/course.add',isAtLeastAdmin, coursesController.postNewCourse);
 	app.post('/course.list',isAuthenticated, coursesController.getCourses_JSON);
 	app.post('/course.delete',isAtLeastAdmin, coursesController.deleteCourse);
