@@ -24,7 +24,7 @@ exports.contentsSummary = (req, contentCb)=>{
         })
     },(findContents)=>{
         async.series([(findAllContents)=>{
-            Content.find({course_id:req.body.course_id},(err, the_contents)=>{
+            Content.find({course_id:req.body.course_id, academic_year:req.body.academic_year},(err, the_contents)=>{
                 if(err) return findAllContents('Service not available');
                 mixContents = the_contents;
                 return findAllContents(null);
@@ -45,7 +45,8 @@ exports.contentsSummary = (req, contentCb)=>{
                 return callBack(null);
             },(err)=>{
                 if(err) return arrangeContents(err);
-                contents.push({type:'Notes',number:notes},{type:'Assessments',number:assmts},{type:'Quizes',number:quizes},{type:'Videos',number:videos});
+                if(notes||assmts||quizes||videos)
+                    contents.push({type:'Notes',number:notes},{type:'Assessments',number:assmts},{type:'Quizes',number:quizes},{type:'Videos',number:videos});
                 return arrangeContents(null);
             })
         }],(err)=>{

@@ -52,7 +52,7 @@ block append content
               .card-content
                 .row
                   .col-md-3
-                    .card
+                    .card(ng-show="summaries.length")
                       .card-header
                         h3.text-center <strong>Course overview</strong>
                       .card-content
@@ -63,11 +63,12 @@ block append content
                         h4.card-title Average: {{marks.average.toFixed(2)}}
                       .card-footer
                         h4.card-title Average: <strong>{{marks.average.toFixed(2)}}%</strong>
+                    //- h4.text-center(ng-hide="summaries.length") No overview
                   .col-md-6
                     .card
                       .card-content
                         if access > 2 && access <= 3
-                          .col-md-12.center
+                          .col-md-12.center(ng-show="units.length")
                             .row
                               .col-md-6
                                 .form-group.label-floating
@@ -112,18 +113,18 @@ block append content
                                     include partials/upload_assessmt
                                     include partials/off_assessmt
                   .col-md-3
-                    .col-md-12(ng-repeat="summary in summaries")
-                      .card.card-stats
-                        .card-header
-                          i.material-icons equalizer
-                        .card-content
-                          a(href="/course.written")
-                            h4.card-title {{summary.type}}: <strong>{{summary.number}}</strong>
-                            //- p.category Written assessment
-                            //-   h1.card-title 5
-                        .card-footer
-                          .stats
-                            i.material-icons local_offer </i> Click to view details
+                    div(ng-show="summaries.length")
+                      .col-md-12(ng-repeat="summary in summaries")
+                        .card.card-stats
+                          .card-header
+                            i.material-icons equalizer
+                          .card-content
+                            a(href="/course.written")
+                              h4.card-title {{summary.type}}: <strong>{{summary.number}}</strong>
+                          .card-footer
+                            .stats
+                              i.material-icons local_offer <i>Click to view details</i>
+                    //- h4.text-center(ng-hide="summaries.length") No summary to display
 block append scripts
   script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
   script(src="../js/MIT/jasny-bootstrap.min.js", type="text/javascript")
@@ -185,7 +186,6 @@ block append scripts
         var data = {_csrf:$scope.anti_csrf,course_id:"#{course_id}",academic_year:"#{academic_year}",visited_user:"#{visited_user}"}
         $http.post('/course.summary', data)
         .then((response)=>{
-          Notifier.success('No error');
           $scope.summaries = response.data.contents;
           $scope.level=response.data.access_level;
           $scope.marks=response.data.marks[0];
