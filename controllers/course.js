@@ -534,7 +534,7 @@ exports.getPageMyMarks = (req,res,next)=>{
     else if(!course_exists)  return res.render("./lost",{msg:"Invalid data"});
     else if(String(req.user.school_id) != String(course_exists.school_id))
       return res.render("./lost",{msg:"No chances to view this course"});
-    Classe.findOne({_id:course_exists.class_id},{currentTerm:1},(err, classe)=>{
+    Classe.findOne({_id:course_exists.class_id},{currentTerm:1,academic_year:1},(err, classe)=>{
       if(err) return log_err(err,true,req,res);
       else if(!classe)  return res.render("./lost",{msg:"Invalid data"});
 
@@ -544,6 +544,7 @@ exports.getPageMyMarks = (req,res,next)=>{
         actual_term :classe.currentTerm,
         course_id:req.params.course_id,
         pic_id:req.user._id,
+        academic_year:classe.academic_year,
         pic_name:req.user.name.replace('\'',"\\'")
         ,access_lvl:req.user.access_level,
         csrf_token:res.locals.csrftoken, // always set this buddy

@@ -8,6 +8,7 @@ const Content =require('../../models/Content'),
 
 exports.pageNew_WrittenNote = (req,res,next)=>{
   req.assert('unit_id', 'Invalid data').isMongoId();
+  req.assert('ay', 'Invalid data').isInt();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send("back");
   Unit.findOne({_id:req.params.unit_id},(err,unit_exists)=>{    
@@ -17,16 +18,23 @@ exports.pageNew_WrittenNote = (req,res,next)=>{
 
     Course.findOne({_id:unit_exists.course_id},(err,course_exists)=>{
       if(err) return res.redirect("back");
-      else if(!course_exists) return res.render("./lost",{msg:"Invalid data"})
+      else if(!course_exists) return res.render("./lost",{msg:"Invalid data"});
       else if(course_exists.teacher_list.indexOf(String(req.user._id)) ==-1)
-        return res.render("./lost",{msg:"This course is not yours"})
-      return res.render('content/written_note/new_W_note',{
-        title:'Written course',
-        course_id:unit_exists.course_id,
-        unit_name:unit_exists.title,
-        unit_id:req.params.unit_id,
-        pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
-        csrf_token:res.locals.csrftoken, // always set this buddy
+        return res.render("./lost",{msg:"This course is not yours"});
+      Classe.findOne({_id:course_exists.class_id},(err, class_exists)=>{
+        if(err) return res.redirect("back");
+        else if(!class_exists) return res.render("./lost",{msg:"Invalid data"});
+        else if(req.query.ay!=class_exists.academic_year) return res.render("./lost",{msg:"You cannot add content in past"});
+
+        return res.render('content/written_note/new_W_note',{
+          title:'Written course',
+          course_id:unit_exists.course_id,
+          unit_name:unit_exists.title,
+          unit_id:req.params.unit_id,
+          academic_year:req.query.ay,
+          pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
+          csrf_token:res.locals.csrftoken, // always set this buddy
+        })
       })
     })    
   })

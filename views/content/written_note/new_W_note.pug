@@ -6,7 +6,7 @@ block append content
 	//- .main-panel
 		//include ../../partials/header
 	.wrapper.wrapper-full-page.full-page-background(ng-controller="add_WNote_Ctrl",style="background-image: url('../imgs/register.jpeg')")
-		.full-page
+		.full-page.login-page
 			.content
 				.container-fluid
 					.row
@@ -17,7 +17,7 @@ block append content
 								.card-content
 									.row
 										.col-md-12
-											a.label.btn.btn-fill.btn-danger.pull-right(href="/courses/"+course_id) Cancel
+											a.label.btn.btn-fill.btn-danger.pull-right(href="/courses/"+course_id+'?ay='+academic_year) Cancel
 											h3.card-title.text-center Add a new written note to <strong>{{'#{unit_name}'|uppercase}}</strong>
 											form(ng-submit="add_Wnote()")
 												.form-group.label-floating
@@ -26,7 +26,7 @@ block append content
 												.form-group.label-floating
 													textarea.form-control(rows="4" cols="50",ng-model="w_note.code_md")#myTextArea
 												button.btn.btn-fill.btn-rose(type="submit") Submit
-												a.label.btn.btn-fill.btn-danger.pull-right(href="/courses/"+course_id) Cancel
+												a.label.btn.btn-fill.btn-danger.pull-right(href="/courses/"+course_id+'?ay='+academic_year) Cancel
 
 block append scripts
 	script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")

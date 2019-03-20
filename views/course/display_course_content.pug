@@ -52,18 +52,18 @@ block append content
               .card-content
                 .row
                   .col-md-3
-                    .card(ng-show="summaries.length")
+                    .card(ng-show="marks.assessments")
                       .card-header
                         h3.text-center <strong>Course overview</strong>
                       .card-content
                         h4.card-title Number of assessment: <strong>{{marks.assessments}}</strong>
                         h4.card-title Assessment done: <strong>{{marks.done}}</strong>
                         h4.card-title Undone assessment: <strong>{{marks.undone}}</strong>
-                        h4.card-title Total marks: <strong>{{marks.marks}}/{{marks.quota}}</strong>
-                        h4.card-title Average: {{marks.average.toFixed(2)}}
-                      .card-footer
+                        h4.card-title(ng-show="marks.marks") Total marks: <strong>{{marks.marks}}/{{marks.quota}}</strong>
+                        h4.card-title(ng-show="marks.marks") Average: {{marks.average.toFixed(2)}}
+                      .card-footer(ng-show="marks.marks")
                         h4.card-title Average: <strong>{{marks.average.toFixed(2)}}%</strong>
-                    //- h4.text-center(ng-hide="summaries.length") No overview
+                    //- h4.text-center(ng-hide="marks.assessments") No overview
                   .col-md-6
                     .card
                       .card-content
@@ -119,7 +119,7 @@ block append content
                           .card-header
                             i.material-icons equalizer
                           .card-content
-                            a(href="/course.written")
+                            a(href="#")
                               h4.card-title {{summary.type}}: <strong>{{summary.number}}</strong>
                           .card-footer
                             .stats
@@ -215,9 +215,9 @@ block append scripts
         $scope.currentUnitName= unit_name;
         $scope.getContent(index);
       }
-      $scope.addContent=function(){
+      $scope.addContent=()=>{
         if(!$scope.add_content||!$scope.this_unit) return;
-        $window.location.href="/content.add."+$scope.add_content+"/"+$scope.this_unit;
+        $window.location.href="/content.add."+$scope.add_content+"/"+$scope.this_unit+"?ay=#{academic_year}";
       }
       $scope.getContent = function(index){
         $scope.content_index = index;

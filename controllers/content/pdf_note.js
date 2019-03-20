@@ -29,6 +29,7 @@ exports.pageNew_Note = (req,res,next)=>{
         course_id:unit_exists.course_id,
         unit_name:unit_exists.title,
         unit_id:req.params.unit_id,
+        academic_year:unit_exists.academic_year,
         pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),
         access_lvl:req.user.access_level,
         csrf_token:res.locals.csrftoken, // always set this buddy
@@ -166,6 +167,7 @@ exports.viewContent = (req,res,next)=>{
       pdfUrl: content_exists.source_question, // FOR UPLOADED
       pdf_name:content_exists.title, // FOR UPLOADED TEST
       course_id:content_exists.course_id,
+      academic_year:content_exists.academic_year,
       content_id:content_exists._id,
       pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
       csrf_token:res.locals.csrftoken, // always set this buddy

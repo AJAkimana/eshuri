@@ -12,7 +12,7 @@ block append content
 						.col-md-10.center
 							.card
 								.card-header
-									a.btn-simple.btn.label.btn-rose(href="/courses/"+course_id) Go back
+									a.btn-simple.btn.label.btn-rose(href="/courses/"+course_id+'?ay='+academic_year) Go back
 									h4.card-title.text-center {{Q.length || 0}} Questions up to<strong> {{getTotal()}} Pts</strong>
 									h6 Subject: {{title|uppercase}}
 									h6 Deadline: <strong>{{deadline|fromNow}}</strong> <small>{{deadline}}</small>
@@ -111,7 +111,7 @@ block append scripts
 				$http
 				.post("/content.questions.do.automated/#{content_id}",{_csrf:$scope.anti_csrf,studentChoices:reponses})
 				.then(function(response){
-					$window.location.href="/courses/#{course_id}";
+					$window.location.href="/courses/#{course_id}?ay=#{academic_year}";
 					$scope.isSubmitted=true;
 				})
 				.catch(function(erreur){

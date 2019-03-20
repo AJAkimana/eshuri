@@ -14,7 +14,7 @@ block append content
 								.card-header.card-header-icon(data-background-color="rose")
 									i.material-icons assessment
 								h3.card-title.text-center Add a new written assessment to <strong>{{'#{unit_name}'|uppercase}}</strong>
-								a.btn-simple.btn.label.btn-rose(href="/courses/"+course_id) Go back
+								a.btn-simple.btn.label.btn-rose(href="/courses/"+course_id+'?ay='+academic_year) Go back
 								h1
 								.card-content
 									form(ng-submit="addQuestion()")

@@ -8,7 +8,7 @@ html(lang="fr")
 		link(rel="stylesheet", type="text/css", href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons")
 		link(rel='shortcut icon', href='/favicon.png')
 	body
-		a(href="/courses/"+course_id)
+		a(href="/courses/"+course_id+'?ay='+academic_year)
 			button.btn.btn-label Go back
 		textarea(theme="") #{code_md}
 

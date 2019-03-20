@@ -14,7 +14,7 @@ block append content
 								.card-content
 									.row
 										.col-md-12.center
-											a.label.btn.btn-fill.btn-danger.pull-right(href="/courses/"+course_id) Cancel
+											a.label.btn.btn-fill.btn-danger.pull-right(href="/courses/"+course_id+'?ay='+academic_year) Cancel
 											h3.card-title.text-center Add a new pdf note to <strong>{{'#{unit_name}'|uppercase}}</strong> 
 											form(action="/content.add.uploaded",method="POST",enctype="multipart/form-data")
 												.row

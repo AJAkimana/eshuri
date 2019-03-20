@@ -29,6 +29,7 @@ exports.pageNewWritten = (req,res,next)=>{
 		unit_name:unit_exists.title,
 		course_id:course_exists._id,
 		unit_id:req.params.unit_id,
+		academic_year:unit_exists.academic_year,
 		pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
 		csrf_token:res.locals.csrftoken, // always set this buddy
 	  })

@@ -59,7 +59,7 @@ block append content
                         .col-xs-12.col-sm-6.col-md-4.col-lg-4(ng-repeat="classe in classes")
                           div(ng-class="'s'+classe.name==name?'btn-danger':''")
                             h3
-                              a(href="/classe/{{classe.class_id}}"+query)
+                              a(href="#", ng-click="showCourses(classe)")
                                 b(ng-bind="classe.name|uppercase|toClasseName")
                             h3
                               strong {{classe.academic_year|yearToDate:term_name}}
@@ -100,7 +100,9 @@ block append scripts
         })
       }
       $scope.showCourses = (classe)=>{
-        $window.location.href="/classe/"+classe.class_id+$scope.query;
+        var query='ay='+classe.academic_year;
+        if('#{userid}') query+='\&u='+'#{userid}'+'\&allow=true';
+        $window.location.href="/classe/"+classe.class_id+'?'+query;
       }
       $scope.linkCourse = (course)=>{
         $window.location.href="/course/"+course._id+$scope.query;

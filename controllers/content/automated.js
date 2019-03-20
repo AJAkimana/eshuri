@@ -13,25 +13,26 @@ exports.pageNewAutomated = (req,res,next)=>{
   if (errors) return log_err(errors,true,req,res);  
 
   Unit.findOne({_id:req.params.unit_id},(err,unit_exists)=>{    
-	if(err) return log_err(err,true,req,res);
-	else if(!unit_exists) return res.render("./lost",{msg:"Invalid data"})
-	//Check if the course is yours
+		if(err) return log_err(err,true,req,res);
+		else if(!unit_exists) return res.render("./lost",{msg:"Invalid data"})
+		//Check if the course is yours
 
-	Course.findOne({_id:unit_exists.course_id},(err,course_exists)=>{
-	  if(err) return log_err(err,true,req,res);
-	  else if(course_exists.teacher_list.indexOf(String(req.user._id)) ==-1) 
-		return res.render("./lost",{msg:"Sorry this course is not yours"})
-	  else if(!course_exists)
-			return res.render("./lost",{msg:"Invalid data"});
-	  return res.render('content/automated/new_Automated',{
-		title:'Automated assessment',
-		unit_name:unit_exists.title,
-		course_id:course_exists._id,
-		unit_id:req.params.unit_id,
-		pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
-		csrf_token:res.locals.csrftoken, // always set this buddy
-	  })
-	})
+		Course.findOne({_id:unit_exists.course_id},(err,course_exists)=>{
+			if(err) return log_err(err,true,req,res);
+			else if(course_exists.teacher_list.indexOf(String(req.user._id)) ==-1) 
+			return res.render("./lost",{msg:"Sorry this course is not yours"})
+			else if(!course_exists)
+				return res.render("./lost",{msg:"Invalid data"});
+			return res.render('content/automated/new_Automated',{
+			title:'Automated assessment',
+			unit_name:unit_exists.title,
+			course_id:course_exists._id,
+			academic_year:unit_exists.academic_year,
+			unit_id:req.params.unit_id,
+			pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
+			csrf_token:res.locals.csrftoken, // always set this buddy
+			})
+		})
   })
 }
 /* We receive a post of unit_id and Q and title deadline */
@@ -322,21 +323,22 @@ exports.pageDO_Automated = (req,res,next)=>{
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
   else if(!req.user.hasPaid && req.user.access_level ==req.app.locals.access_level.STUDENT)
-	return res.render("./lost",{msg:"Sorry you have not paid "})
+		return res.render("./lost",{msg:"Sorry you have not paid "})
   Content.findOne({_id:req.params.content_id,type:req.app.locals.type.Auto_Assessment}
   	,(err,content_exists)=>{
     if(err) return log_err(err,false,req,res);
     else if(!content_exists) return res.render("./lost",{msg:"Invalid data"})
     else if(new Date().getTime() > content_exists.time)
 	    return res.render("./lost",{msg:"Deadline is already reached"})
-	else if(!req.user.hasPaid)
-		return res.render("./lost",{msg:"Sorry, you  cannot view this ! Pay first"})
+		else if(!req.user.hasPaid)
+			return res.render("./lost",{msg:"Sorry, you  cannot view this ! Pay first"})
     // here let s end the page to the user
     return res.render('content/automated/examination_page',{
 		title:'Automated assessment',
 		course_id:content_exists.course_id,
 		content_id:content_exists._id,
 		unit_id:req.params.unit_id,
+		academic_year:content_exists.academic_year,
 		pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
 		csrf_token:res.locals.csrftoken, // always set this buddy
 	  })

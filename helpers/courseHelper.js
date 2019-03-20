@@ -24,7 +24,7 @@ exports.contentsSummary = (req, contentCb)=>{
         })
     },(findContents)=>{
         async.series([(findAllContents)=>{
-            Content.find({course_id:req.body.course_id, academic_year:req.body.academic_year},(err, the_contents)=>{
+            Content.find({course_id:req.body.course_id,academic_year:req.body.academic_year},(err, the_contents)=>{
                 if(err) return findAllContents('Service not available');
                 mixContents = the_contents;
                 return findAllContents(null);
@@ -57,7 +57,7 @@ exports.contentsSummary = (req, contentCb)=>{
         var allAssessments=[];
         var totalMarks=0, totalOuts=0, n_assmts=0, done=0, undone=0, average=0;
         async.series([(getAssessments)=>{
-            Content.find({course_id:req.body.course_id, type:{$gt:2},type:{$lt:7}},{_id:1,marks:1},(err, assesments)=>{
+            Content.find({course_id:req.body.course_id, marks:{$ne:null},academic_year:req.body.academic_year},{_id:1,marks:1},(err, assesments)=>{
                 if(err) return getAssessments('Service not available');
                 allAssessments = assesments;
                 n_assmts = assesments.length;
