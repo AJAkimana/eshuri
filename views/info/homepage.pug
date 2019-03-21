@@ -31,9 +31,83 @@ html(lang='en' ng-app="eshuri_App")
             h2
               b
                 span(style='color:#f05167;border:solid 1px #fff;border-radius:3px;font-weight: 700;font-family:Times New Roman;') eShuri Platform
-                h3 Akimana
+                    
         nav#nav-menu-container(style='top:23%')
           ul.nav-menu 
+            //- li.root.pull-left.menu-active
+              a.dropdown-toggle(href='#', data-toggle='dropdown')
+                | Explore e-Shuri 
+                //- b.caret
+              ul.dropdown-menu
+                li.dropdown-submenu
+                  a(href='#') Schools
+                  ul.dropdown-menu
+                    li
+                      a(href='#') SD
+                    li
+                      a(href='#') MGS
+                    li
+                      a(href='#') LDK
+                li.dropdown-submenu
+                  a(href='#') Combinations
+                  ul.dropdown-menu
+                    li
+                      //- a(href='#') 
+                      .card
+                        .card-header MEG
+                    li
+                      a(href='#') MPC
+                    li
+                      a(href='#') PCB
+                li.dropdown-submenu
+                  a(href='#') Levels
+                  ul.dropdown-menu
+                    li
+                      a(href='#') Ordinal level
+                    li
+                      a(href='#') Advanced level
+              //- ul.dropdown-menu
+                li.dropdown-submenu
+                  a(href='#') Level 1
+                li.dropdown-submenu
+                  a(href='#') More options
+                  ul.dropdown-menu
+                    li
+                      a(href='#') Level 2
+                    li.dropdown-submenu
+                      a(href='#') More..
+                      ul.dropdown-menu
+                        li
+                          a(href='#') Level 3
+                        li
+                          a(href='#') Level 3
+                        li.dropdown-submenu
+                          a(href='#') More..
+                          ul.dropdown-menu
+                            li
+                              a(href='#') Level 4
+                            li
+                              a(href='#') Level 4
+                            li.dropdown-submenu
+                              a(href='#') More..
+                              ul.dropdown-menu
+                                li
+                                  a(href='#') Level 5
+                                li
+                                  a(href='#') Level 5
+                    li
+                      a(href='#') Level 2
+                    li
+                      a(href='#') Level 2
+                li
+                  a(href='#') Level 1
+            li.menu-active
+              .navbar-form(role='search')
+                .input-group
+                  input#srch-term.form-control(type='text', placeholder='Search', name='srch-term')
+                  .input-group-btn
+                    button.btn.btn-sm.btn-default
+                      i.fa.fa-search
             li.menu-active
               a(href='/home') Home
             li
