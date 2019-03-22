@@ -401,7 +401,7 @@ exports.getEndTermMarks=(req,res,next)=>{
 			async.each(students, (thisStudent, student_Cb)=>{
 				var markCat=0,markExam=0,markCatOutOf=0,markExamOutOf=0;
 				async.series([(getStudentCourses_Cb)=>{
-					Course.find({class_id:req.body.class_id,currentTerm:req.body.term,name:{$ne:'conduite'}},(err,list_Courses)=>{
+					Course.find({class_id:req.body.class_id,name:{$ne:'conduite'}},(err,list_Courses)=>{
 						if(err) return getStudentCourses_Cb(err);
 						listCourses =list_Courses;
 						getStudentCourses_Cb(null);
@@ -412,14 +412,14 @@ exports.getEndTermMarks=(req,res,next)=>{
 	// 3-- Get quizzes and Exams for every courses
 						async.series([(catAndExamContents_Cb)=>{
 							async.parallel([(cat_Cb)=>{
-								Marks.find().distinct("content_id",{class_id:req.body.class_id, student_id:thisStudent._id,isQuoted:true, academic_year:req.body.academic_year,course_id:thisCourse._id,isCAT:true},
+								Marks.find().distinct("content_id",{class_id:req.body.class_id, student_id:thisStudent._id,isQuoted:true, academic_year:req.body.academic_year,course_id:thisCourse._id,isCAT:true, currentTerm:req.body.term},
 								(err,list_CAT)=>{
 									 if(err) return cat_Cb(err);
 									 listCATs=list_CAT;
 									 return cat_Cb(null);
 								}) 
 							},(exam_Cb)=>{
-								Marks.find().distinct("content_id",{class_id:req.body.class_id, student_id:thisStudent._id,isQuoted:true, academic_year:req.body.academic_year,course_id:thisCourse._id,isCAT:false},
+								Marks.find().distinct("content_id",{class_id:req.body.class_id, student_id:thisStudent._id,isQuoted:true, academic_year:req.body.academic_year,course_id:thisCourse._id,isCAT:false, currentTerm:req.body.term},
 								(err,list_exams)=>{
 									 if(err) return exam_Cb(err);
 									 listExams=list_exams;
@@ -556,7 +556,7 @@ exports.getSumTermMarks = (req, res, next)=>{
 				mixed.push({name:thisStudent.name, urn:thisStudent.URN, courses:[]})
 	// 2--Get courses for every students
 				async.series([(getStudentCourses_Cb)=>{
-					Course.find({class_id:req.body.class_id,currentTerm:req.body.term,name:{$ne:'conduite'}},(err,list_Courses)=>{
+					Course.find({class_id:req.body.class_id,name:{$ne:'conduite'}},(err,list_Courses)=>{
 						if(err) return getStudentCourses_Cb(err);
 						listCourses =list_Courses;
 						getStudentCourses_Cb(null);
@@ -568,14 +568,14 @@ exports.getSumTermMarks = (req, res, next)=>{
 	// 3-- Get quizzes and Exams for every courses
 						async.series([(catAndExamContents_Cb)=>{
 							async.parallel([(cat_Cb)=>{
-								Marks.find().distinct("content_id",{class_id:req.body.class_id, student_id:thisStudent._id,isQuoted:true, academic_year:req.body.academic_year,course_id:thisCourse._id,isCAT:true},
+								Marks.find().distinct("content_id",{class_id:req.body.class_id, student_id:thisStudent._id,isQuoted:true, academic_year:req.body.academic_year,course_id:thisCourse._id,isCAT:true, currentTerm:req.body.term},
 								(err,list_CAT)=>{
 									 if(err) return cat_Cb(err);
 									 listCATs=list_CAT;
 									 return cat_Cb(null);
 								}) 
 							},(exam_Cb)=>{
-								Marks.find().distinct("content_id",{class_id:req.body.class_id, student_id:thisStudent._id,isQuoted:true, academic_year:req.body.academic_year,course_id:thisCourse._id,isCAT:false},
+								Marks.find().distinct("content_id",{class_id:req.body.class_id, student_id:thisStudent._id,isQuoted:true, academic_year:req.body.academic_year,course_id:thisCourse._id,isCAT:false, currentTerm:req.body.term},
 								(err,list_exams)=>{
 									 if(err) return exam_Cb(err);
 									 listExams=list_exams;
@@ -721,7 +721,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 				var listAssessmts = [],listCourses=[];
 				var echecs=0;
 				async.series([(Cb_getCourses)=>{
-					Course.find({class_id:req.body.class_id, currentTerm:req.body.term, name:{$ne:'conduite'}},(err, clsCourses)=>{
+					Course.find({class_id:req.body.class_id, name:{$ne:'conduite'}},(err, clsCourses)=>{
 						if(err) return Cb_getCourses(err);
 						listCourses = clsCourses;
 						return Cb_getCourses(null);
@@ -730,7 +730,7 @@ exports.getMidTermMarks = (req, res, next)=>{
 					var courseMrks=0, courseWgt=0, avg_marks=0;
 					async.each(listCourses, (thisCourse, courseCb)=>{
 						async.series([(Cb_getAssessments)=>{
-							Marks.find().distinct("content_id", {class_id:req.body.class_id,course_id:thisCourse._id,student_id:thisStudent._id,isQuoted:true,academic_year:req.body.academic_year,isCAT:true},(err, student_assmnts)=>{
+							Marks.find().distinct("content_id", {class_id:req.body.class_id,course_id:thisCourse._id,student_id:thisStudent._id,isQuoted:true,academic_year:req.body.academic_year,isCAT:true, currentTerm:req.body.term},(err, student_assmnts)=>{
 								if(err) return Cb_getAssessments(err);
 								listAssessmts = student_assmnts;
 								return Cb_getAssessments(null);
@@ -1024,14 +1024,14 @@ exports.getFullReportOneStudent =(req,res,next)=>{
 					var listExams=[];
 					async.series([(testAndExamCallback)=>{
 						async.series([(testCallback)=>{
-							Marks.find().distinct("content_id",{class_id:thisClass,student_id:thisStudent,isQuoted:true, academic_year:currentAcademicYear,course_id:thisCourse._id,isCAT:true},(err, testsList)=>{
+							Marks.find().distinct("content_id",{class_id:thisClass,student_id:thisStudent,isQuoted:true, academic_year:currentAcademicYear,course_id:thisCourse._id,isCAT:true,currentTerm:thisTerm},(err, testsList)=>{
 								if(err) return testCallback(err);
 								listTESTs = testsList;
 								//console.warn("------Test in "+thisCourse.name+" in Term "+thisTerm+" -=-=-=-=-=-=-=> "+JSON.stringify(listTESTs));
 								return testCallback(null);
 							})
 						},(examCallback)=>{
-							Marks.find().distinct("content_id",{class_id:thisClass,student_id:thisStudent,isQuoted:true, academic_year:currentAcademicYear,course_id:thisCourse._id,isCAT:false},(err, examsList)=>{
+							Marks.find().distinct("content_id",{class_id:thisClass,student_id:thisStudent,isQuoted:true, academic_year:currentAcademicYear,course_id:thisCourse._id,isCAT:false,currentTerm:thisTerm},(err, examsList)=>{
 								if(err) return examCallback(err);
 								listExams = examsList;
 								//console.warn("------Exam in "+thisCourse.name+" in Term "+thisTerm+" -+-+-+-+-+-+-> "+JSON.stringify(listExams));

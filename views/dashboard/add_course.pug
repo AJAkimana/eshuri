@@ -137,7 +137,7 @@ block append content
                             td {{course.name | uppercase}}
                             td {{course.code|uppercase}}
                             td {{course.weightOnReport|uppercase}}
-                            td {{course.courseTerm|toTermName}} {{course.courseTerm}}
+                            td {{course.course_term}}
                             td {{course.teacher_list.length}} teachers
                               button.btn-simple.btn.label.btn-rose(type='button',ng-click="setCurrentCourse(course)",data-target='#add_teacher_Modal', data-toggle='modal')
                                 i.material-icons edit

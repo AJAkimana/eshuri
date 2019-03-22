@@ -39,7 +39,7 @@ CourseSchema.pre('save', function (next) {
 CourseSchema.statics.checkCourseExists = function (course, cb) {
   this.findOne({
   		$and:[
-  			{$or:[{'code': course.code.trim().toLowerCase()}]},
+  			{$or:[{'code': course.code.trim().toLowerCase()},{'name': course.name.trim().toLowerCase()}]},
   			{'class_id':course.class_id}
   		]
   	},

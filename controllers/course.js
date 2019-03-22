@@ -141,7 +141,7 @@ exports.postNewCourse = function(req,res,next){
   Classe.findOne({_id:req.body.class_id},(err,classe_exists)=>{
     if(err) return log_err(err,false,req,res);
     else if(!classe_exists)  return res.status(400).send("This class doesn't exists ");
-     Course.checkCourseExists(req.body,(err,course_exists)=>{
+    Course.checkCourseExists(req.body,(err,course_exists)=>{
       if(err) return log_err(err,false,req,res);
       else if(course_exists) return res.status(400).send("This course or code is already used");
       //if validation is okay
@@ -174,15 +174,21 @@ exports.getCourses_JSON = function(req,res,next){ // R
   req.assert('class_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
   if (errors)  return res.status(400).send(errors[0].msg);
+  var async = require('async');
   Course
   .find({school_id:req.body.school_id,class_id:req.body.class_id},
     {__v:0,school_id:0,})
   // .limit(100)
   .sort({name:1})
-  .exec(function(err, courses){
-
-    if(err) return log_err(err,false,req,res);
-    return res.json(courses);
+  .lean()
+  .exec((err, courses)=>{
+    async.eachSeries(courses, (current, cB)=>{ 
+      current.course_term=current.courseTerm==4?'Whole year':'Term '+current.courseTerm;
+      cB(null);
+    },(err)=>{
+      if(err) return log_err(err,false,req,res);
+      return res.json(courses);
+    })
   })
 }
 exports.getSchoolCourse_JSON = function(req,res,next){ // R
@@ -242,18 +248,21 @@ exports.restructure = (req, res)=>{
   var async = require('async');
   Course.findOne({_id:req.body.course_id}, (err, courseRes)=>{
     if(err) return res.status(500).send('Service not available');
-    else if(!courseRes) return res.status(404).send('COurse not found');
+    else if(!courseRes) return res.status(404).send('Course not found');
 
     var listCoursesRes = [];
     var masterIndex = courseRes._id;
     var codeLen = courseRes.code.length;
     var courseCode = courseRes.code.substring(0,codeLen-4);
+    var ayTerm = courseRes.code.substr(codeLen-3);
+    if(isNaN(ayTerm)) return res.status(400).send('Course already structured');
     async.series([(findSimilarCourseName)=>{
       /**
        *  Find courses with the similar names in the same classe
        */
       Course.find({name:courseRes.name,class_id:courseRes.class_id},(err, courseList)=>{
         if(err) return findSimilarCourseName('Service not available');
+        else if(courseList.length<2) return findSimilarCourseName('This course cannot be structured');
         listCoursesRes = courseList;
         return findSimilarCourseName(null);
       })
@@ -270,13 +279,13 @@ exports.restructure = (req, res)=>{
         },(updateMarks)=>{
           Marks.update({course_id:courseId}, {$set:{course_id:masterIndex,course_name:courseRes.name}}, {multi:true}, (err, done)=>{
             if (err) return updateMarks('Marks update error');
-            console.log('Mark Up:',done);
+            // console.log('Mark Up:',done);
             return updateMarks(null);
           })
         },(updateUnits)=>{
           Unit.update({course_id:courseId}, {$set:courseParams}, {multi:true}, (err, done)=>{
             if (err) return updateUnits('Unit update error');
-            console.log('Unit Up:',done);
+            // console.log('Unit Up:',done);
             return updateUnits(null);
           })
         }],(err)=>{
@@ -290,7 +299,7 @@ exports.restructure = (req, res)=>{
     },(deleteRemainigCourses)=>{
       Course.remove({_id:{$ne:masterIndex},name:courseRes.name,class_id:courseRes.class_id},(err, deleted)=>{
         if(err) return deleteRemainigCourses('Course deletion error');
-        console.log('Deleted:',deleted);
+        // console.log('Deleted:',deleted);
         return deleteRemainigCourses(null)
       })
     }],(err)=>{
