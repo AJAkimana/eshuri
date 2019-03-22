@@ -22,8 +22,9 @@ exports.getPageReport = function(req,res,next){
 	}
 	const errors = req.validationErrors();
 	if (errors) return res.render("./lost",{msg:errors[0].msg});
-	var schoolId = accLvl==superadmin?req.query.s:req.user.shool_id;
-
+	
+	var schoolId = accLvl==superadmin?req.query.s:req.user.school_id;
+	
 	School.findOne({_id:schoolId},(err,school_exists)=>{
 		if(err) return res.render("./lost",{msg:"Invalid data"});
 		else if(!school_exists) return res.render("./lost",{msg:"Invalid data"})

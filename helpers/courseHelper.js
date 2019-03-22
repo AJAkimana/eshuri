@@ -112,8 +112,11 @@ exports.contentsSummary = (req, contentCb)=>{
             })
         }],(err)=>{
             if(err) return summingMarks(err);
-            var avg = average/done;
-            marks_All.push({marks:totalMarks,quota:totalOuts,assessments:n_assmts,done:done,undone:undone,average:avg});
+            var avg = 0
+            
+            if(access_level==student) avg=(totalMarks/totalOuts)*100;
+            if(access_level==teacher) avg = average?average/done:0;
+            marks_All.push({marks:totalMarks,quota:totalOuts,assessments:n_assmts,done:done,undone:undone,average:avg.toFixed(2)});
             return summingMarks(null);
         })
     }],(err)=>{

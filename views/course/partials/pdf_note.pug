@@ -6,7 +6,7 @@
 			th.text-center #
 			th Name
 			th Upload time
-			if access <= 3
+			if access <= 3 && !visited_user
 				th Status
 				th Actions
 		tbody
@@ -14,7 +14,7 @@
 				td(width="1%" height="1%") {{$index + 1}}
 				td: a(href="/content.do.{{content.type|toLink}}/{{content._id}}") {{content.title|uppercase}}
 				td {{content.upload_time| my_timeAgo}}
-				if access <= 3
+				if access <= 3 && !visited_user
 					td: a.btn-simple.btn.label(ng-class="content.isPublished?'btn-ssuccess':'btn-rose'",ng-click="setPublish(content._id,2)") {{content.isPublished|toPublish}}
 						i.material-icons trending_up
 					td.td-actions.text-right

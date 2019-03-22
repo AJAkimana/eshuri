@@ -37,7 +37,7 @@ block append content
                     if access >= 4 && access <= 5
                       a.btn-simple.btn.label.btn-rose(href="/student.marks.page/"+course_id) View marks
                         i.material-icons view_stream
-                    if access <= 3
+                    if access <= 3 && !visited_user
                       .col-md-12
                         button.btn-simple.btn.btn-rose(ng-click="add_unit=!add_unit") New unit  
                           i.material-icons add
@@ -60,14 +60,14 @@ block append content
                         h4.card-title Assessment done: <strong>{{marks.done}}</strong>
                         h4.card-title Undone assessment: <strong>{{marks.undone}}</strong>
                         h4.card-title(ng-show="marks.marks") Total marks: <strong>{{marks.marks}}/{{marks.quota}}</strong>
-                        h4.card-title(ng-show="marks.marks") Average: {{marks.average.toFixed(2)}}
-                      .card-footer(ng-show="marks.marks")
-                        h4.card-title Average: <strong>{{marks.average.toFixed(2)}}%</strong>
+                        h4.card-title(ng-show="marks.marks") Average: {{marks.average}}
+                      .card-footer(ng-show="marks.average")
+                        h4.card-title Average: <strong>{{marks.average}}%</strong>
                     //- h4.text-center(ng-hide="marks.assessments") No overview
                   .col-md-6
                     .card
                       .card-content
-                        if access > 2 && access <= 3
+                        if access > 2 && access <= 3 && !visited_user
                           .col-md-12.center(ng-show="units.length")
                             .row
                               .col-md-6
@@ -98,7 +98,7 @@ block append content
                               .panel-body
                                 .col-md-12
                                   a.btn.btn-success.pull-left(ng-click="getContent($index)") View all contents
-                                  if access <= 3
+                                  if access <= 3 && !visited_user
                                     .row
                                       a.btn-simple.btn.label.btn-rose.pull-right(type='button',ng-click="delCurrentUnit()") 
                                         i.material-icons delete
@@ -123,7 +123,7 @@ block append content
                               h4.card-title {{summary.type}}: <strong>{{summary.number}}</strong>
                           .card-footer
                             .stats
-                              i.material-icons local_offer <i>Click to view details</i>
+                              i.material-icons local_offer </i>Click to view details
                     //- h4.text-center(ng-hide="summaries.length") No summary to display
 block append scripts
   script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
