@@ -503,6 +503,7 @@ module.exports = function(app) {
 	app.post('/report.termSum', isAtLeastTeacher, marksController.getSumTermMarks);
 	app.post('/report.endterm', isAtLeastTeacher, marksController.getEndTermMarks);
 	app.post('/get.general.class.marks',isAuthenticated,marksController.getClassMarks);
+	app.get('/statistics', isAtLeastAdmin, marksController.getStatisticsPage);
 	//new administration report
 	app.get('/printable.report',isAuthenticated,marksController.printableReport);
 

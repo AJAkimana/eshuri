@@ -29,7 +29,7 @@ exports.getPageReport = function(req,res,next){
 		if(err) return res.render("./lost",{msg:"Invalid data"});
 		else if(!school_exists) return res.render("./lost",{msg:"Invalid data"})
 		if(accLvl==student){
-			return res.render('me/report2',{
+			return res.render('mark/report2',{
 				title:"Report",
 				term_name:school_exists.term_name,
 				pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
@@ -43,7 +43,7 @@ exports.getPageReport = function(req,res,next){
 					if(!classinfo) return res.render("./lost",{msg:"Sorry, It seems like you don't have any class as CLASSTEACHER. Please contact you admin to assign to it"});
 				}
 				var classId=classinfo?classinfo._id:null;
-				return res.render('me/mark_report',{
+				return res.render('mark/mark_report',{
 					title:"General marks",
 					school_id:schoolId,
 					school_name:school_exists.name,
@@ -60,10 +60,10 @@ exports.getPageReport = function(req,res,next){
 	})
 }
 exports.getStatisticsPage = (req,res)=>{
-	
+
 }
 exports.getPageChart = function(req, res, next){
-	return res.render('me/chart')
+	return res.render('mark/chart')
 }
 exports.getReportPageToTeacher=(req, res, next)=>{
 	var accLvl = req.user.access_level;
@@ -77,7 +77,7 @@ exports.getReportPageToTeacher=(req, res, next)=>{
 		Classe.findOne({school_id:school_exists._id,class_teacher:req.user._id},(err, thisClass)=>{
 			if(err) return log_err(err,false,req,res);
 			else if(!thisClass) return res.render("./lost",{msg:"Sorry, you are not CLASS TEACHER. Please contact admin!"});
-			return 	res.render('me/class_report',{
+			return 	res.render('mark/class_report',{
 			title:"General marks",
 			classe:thisClass._id,
 			school_id:req.user.school_id,
@@ -102,7 +102,7 @@ exports.getPageReportUniversity = function(req,res,next){
 			if(err)return log_err(err,false,req,res);
 			else if(!school_exists) return res.render("./lost",{msg:"Invalid data"});
 			if(req.session.student){
-				return res.render('me/report2',{
+				return res.render('mark/report2',{
 					title:"Transcript",
 					term_name:school_exists.term_name,
 					student_name:student_exists.name,
@@ -113,7 +113,7 @@ exports.getPageReportUniversity = function(req,res,next){
 					csrf_token:res.locals.csrftoken, // always set this buddy
 				})
 			}else{
-				return res.render('me/report2',{
+				return res.render('mark/report2',{
 					title:"Transcript",
 					term_name:school_exists.term_name,
 					student_name:student_exists.name,
@@ -137,7 +137,7 @@ exports.printableReport = (req,res)=>{
 	School.findOne({_id:school_id},{name:1,cover_photo:1,district_name:1},(err, school_exists)=>{
 		if(err) return log_err(err,false,req,res);
     else if(!school_exists) return res.render("./lost",{msg:"This school was not recognized"});
-	  return res.render('me/mark_report',{
+	  return res.render('mark/mark_report',{
 			title:"General marks",
 			school_id:req.user.school_id,
 			school_name:school_exists.name,
