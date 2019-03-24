@@ -1,0 +1,36 @@
+extends ../layout
+block append content 
+	.wrapper.wrapper-full-page.fullff-page-background(style="background-image: url('../imgs/register.jpeg')")
+		.full-page.register-page(filter-color="white", ng-controller="statistiCtlr")
+			.content.reg_touch
+				.container.no-padding()
+					.col-md-12
+						.col-sm-10
+
+						.col-md-12.app_cont
+							.card
+								.card-header(data-background-color="red")
+									h4.title #{school_name} statistical analysis
+								.card-content
+												
+block append scripts
+	script(src="../js/select/select.js", type="text/javascript")
+	//- script(src="../js/_app.js", type="text/javascript")
+	script.
+		var app =angular.module('eshuri_App', ['ngRoute']);
+		app.filter('to_Status', function() {
+			return function(input){
+				//- if(isNaN(input)) return '----';
+				switch(input){
+					case 'A': input ="Admitted";break;
+					case 'P': input ="Pending";break;
+					case 'F': input ="Missing information";break;
+					case 'R': input ="Rejected"; break;
+					default: input="___";break;
+				}
+				return input;
+			}
+		})
+		.controller('statistiCtlr', ($scope, $http, $window)=>{
+
+		})	

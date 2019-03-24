@@ -60,7 +60,34 @@ exports.getPageReport = function(req,res,next){
 	})
 }
 exports.getStatisticsPage = (req,res)=>{
+	var accLvl = req.user.access_level,
+		student=req.app.locals.access_level.STUDENT,
+		superadmin=req.app.locals.access_level.SUPERADMIN,
+		admin=req.app.locals.access_level.ADMIN,
+		adminteacher=req.app.locals.access_level.ADMIN_TEACHER,
+		teacher=req.app.locals.access_level.TEACHER;
+	if(accLvl === superadmin){
+		req.assert('s', 'Invalid data').isMongoId();
+	}
+	const errors = req.validationErrors();
+	if (errors) return res.render("./lost",{msg:errors[0].msg});
+	var schoolId = accLvl==superadmin?req.query.s:req.user.school_id;
+	School.findOne({_id:schoolId},(err,school_exists)=>{
+		if(err) return res.render("./lost",{msg:"Invalid data"});
+		else if(!school_exists) return res.render("./lost",{msg:"Invalid data"})
 
+		return res.render('mark/statistic_analysis',{
+			title:"Statical analysis",
+			school_id:schoolId,
+			school_name:school_exists.name.toUpperCase(),
+			district:school_exists.district_name,
+			telephone:school_exists.contact.telephone,
+			po_code:school_exists.contact.postal_code,
+			school_pob:school_exists.contact.postal_code,
+			pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
+			csrf_token:res.locals.csrftoken, // always set this buddy
+		});
+	})
 }
 exports.getPageChart = function(req, res, next){
 	return res.render('mark/chart')
