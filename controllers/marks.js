@@ -59,6 +59,9 @@ exports.getPageReport = function(req,res,next){
 		}
 	})
 }
+exports.getStatisticsPage = (req,res)=>{
+	
+}
 exports.getPageChart = function(req, res, next){
 	return res.render('me/chart')
 }
