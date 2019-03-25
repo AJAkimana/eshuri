@@ -1,17 +1,84 @@
 extends ../layout
 block append content 
-	.wrapper.wrapper-full-page.fullff-page-background(style="background-image: url('../imgs/register.jpeg')")
-		.full-page.register-page(filter-color="white", ng-controller="statistiCtlr")
-			.content.reg_touch
-				.container.no-padding()
-					.col-md-12
-						.col-sm-10
-
-						.col-md-12.app_cont
-							.card
-								.card-header(data-background-color="red")
-									h4.title #{school_name} statistical analysis
-								.card-content
+	.wrapper.wrapper-full-page.full-page-background(style="background-image: url('../imgs/register.jpeg')")
+		.full-page.login-page(filter-color="white", ng-controller="statistiCtlr")
+			.content
+				.container-fluid.app_cont
+					.card
+						.card-header(data-background-color="red")
+							h2.text-center #{school_name} statistical analysis	
+						.card-content
+							.col-lg-12.col-md-12.col-sm-12.col-xs-12
+							.col-md-3.col-sm-6.col-xs-12
+								.card
+									.card-header
+										h4.card-title Statistical basis
+									.card-content
+										.col-md-12
+											h4.info-text Based on
+												label.radio-inline
+													input(name='based_on', type='radio', ng-model='based_on', value='C', ng-change="basedOn(based_on)")
+													| Classe
+												label.radio-inline
+													input(name='based_on', type='radio', ng-model='based_on', value='S', ng-change="basedOn(based_on)")
+													| School
+										.panel-group(role='tablist')#accordion
+											.panel.panel-default(ng-repeat="set in sets")
+												.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrent(set)")
+													a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
+														h4.panel-title
+															| {{set.name}} <strong>(16)</strong>
+															i.material-icons keyboard_arrow_down
+												.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
+													.panel-body
+															.col-md-12(ng-repeat="cont in contents")
+																label.radio-inline
+																	input(type="radio",name="selected_cont",ng-model="selected_cont", value="{{cont.name}}", ng-change="selectContent(cont,set)")
+																	| {{cont.name}}
+										p Students
+										.row
+											.col-md-12
+												h4.text-center Select academic
+											.col-md-12
+												.col-md-6
+													.form-group.label-floating
+														label.control-label Year
+														select.form-control(required="true",ng-model="choosen_year",ng-change="getListTerms()")
+															option(value="", disabled selected)
+															option(value="{{umwaka}}", ng-repeat="umwaka in academic_years", ng-bind="umwaka|toNormal") 
+												.col-md-6
+													.form-group.label-floating
+														label.control-label Term 
+															span(ng-bind="term_name|toTermName")
+														select.form-control(required="true",ng-model="choosen_term")
+															option(value="", disabled selected)
+															option(value="{{term}}", ng-repeat="term in list_terms" ng-bind="(term_name|toTermName)+(term)")
+											.col-md-12
+												h4.text-center Select type
+											.col-md-12
+												label.radio-inline
+													input(type="radio",ng-model="report_type", value="is_midterm")
+													| Mid-Term 
+											.col-md-12
+												label.radio-inline
+													input(type="radio",ng-model="report_type", value="is_term_sum")
+													| Term Summary
+											.col-md-12
+												label.radio-inline
+													input(type="radio",ng-model="report_type", value="is_term")
+													| End of Term
+									.card-footer
+										.container
+											p
+											| &copy; 2016 |
+											i.fa.fa-value(aria-hidden='true') &nbsp;
+											a(href='#') View Source
+							.col-md-6.col-sm-6.col-xs-12
+								.card
+									.card-header
+										h4.card-title.text-center Title
+									.card-content
+							.col-md-3.col-sm-6.col-xs-12
 												
 block append scripts
 	script(src="../js/select/select.js", type="text/javascript")
@@ -32,5 +99,25 @@ block append scripts
 			}
 		})
 		.controller('statistiCtlr', ($scope, $http, $window)=>{
-
+			$scope.sets=[{name:'Classes',type:'class'},{name:'Courses',type:'course'}];
+			$scope.classes=[{name:'S1'},{name:'S1'},{name:'S1'}];
+			$scope.courses=[{name:'Math'},{name:'Computer'}]
+			$scope.setCurrent=(set)=>{
+				if($scope.criteria['basis']===undefined) return Notifier.danger('Select criteria basis');
+				$scope.contents=set.type=='class'?$scope.classes:$scope.courses;
+			}
+			$scope.criteria={};
+			$scope.basedOn=(basis)=>{
+				$scope.criteria.basis=basis;
+				console.log($scope.criteria);
+			}
+			$scope.selectContent=(content,set)=>{
+				if($scope.criteria['basis']===undefined) return;
+				$scope.criteria.basis
+				if($scope.criteria['basis']=='C'){
+					if(set.type=='class') {
+						$scope.criteria.basis='class'
+					}
+				}
+			}
 		})	
