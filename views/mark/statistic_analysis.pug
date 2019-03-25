@@ -35,7 +35,7 @@ block append content
 																label.radio-inline
 																	input(type="radio",name="selected_cont",ng-model="selected_cont", value="{{cont.name}}", ng-change="selectContent(cont,set)")
 																	| {{cont.name}}
-										p Students
+										a.btn-simple.btn-rose(href="#", ng-click="studentAggr()"): strong Students
 										.row
 											.col-md-12
 												h4.text-center Select academic
@@ -76,10 +76,53 @@ block append content
 							.col-md-6.col-sm-6.col-xs-12
 								.card
 									.card-header
-										h4.card-title.text-center Title
+										h4.card-title.text-center Class
 									.card-content
+										.table-responsive
+											table.table
+												thead
+													th.text-center #
+													th: a.btn-simple.btn-rose Name
+													th: a.btn-simple.btn-rose Min
+													th: a.btn-simple.btn-rose Max
+													th: a.btn-simple.btn-rose Average
+													th: a.btn-simple.btn-rose Total
+												tbody
+													tr
+														td(width="1%" height="1%") 1
+														td: a(href="#", ng-click="showNext('classe')")
+															strong S1A
+														td 15
+														td 34
+														td 27
+														td: strong 40
 							.col-md-3.col-sm-6.col-xs-12
-												
+								.card
+									.card-header
+										h4.card-title.text-center Marks
+									.card-content
+										.table-responsive
+											table.table
+												thead
+													th.text-center #
+													th: a.btn-simple.btn-rose Name
+													th: a.btn-simple.btn-rose Marks
+													th: a.btn-simple.btn-rose Total
+												tbody
+													tr
+														td(width="1%" height="1%") 1
+														td: a(href="#", ng-click="showNext('classe')")
+															strong KALISA Calixte
+														td 27
+														td: strong 40
+											table.table
+												thead
+													th: a.btn-simple.btn-rose Student name
+													th: a.btn-simple.btn-rose Marks/100
+												tbody
+													tr
+														td: strong KALISA Calixte
+														td 88
 block append scripts
 	script(src="../js/select/select.js", type="text/javascript")
 	//- script(src="../js/_app.js", type="text/javascript")
@@ -104,20 +147,33 @@ block append scripts
 			$scope.courses=[{name:'Math'},{name:'Computer'}]
 			$scope.setCurrent=(set)=>{
 				if($scope.criteria['basis']===undefined) return Notifier.danger('Select criteria basis');
-				$scope.contents=set.type=='class'?$scope.classes:$scope.courses;
+				else if($scope.criteria.basis=='S'){
+					if($scope.criteria['ay']===undefined||$scope.criteria['term']===undefined){
+						return Notifier.danger('Select term and academic year');
+					}
+					// Load classes with the statistics
+				}
+				else $scope.contents=set.type=='class'?$scope.classes:$scope.courses;
+			}
+			$scope.showNext=(next_type)=>{
+				if(next_type=='course'){
+					//Load course and its aggregations
+				}
 			}
 			$scope.criteria={};
 			$scope.basedOn=(basis)=>{
 				$scope.criteria.basis=basis;
-				console.log($scope.criteria);
 			}
 			$scope.selectContent=(content,set)=>{
 				if($scope.criteria['basis']===undefined) return;
-				$scope.criteria.basis
-				if($scope.criteria['basis']=='C'){
-					if(set.type=='class') {
-						$scope.criteria.basis='class'
-					}
+				if(set.tye=='class'){
+					//Load classes satistics
+				}else if(set.type=='course'){
+					//Load school courses aggregation
 				}
+			}
+			$scope.studentAggr=()=>{
+				if($scope.criteria['basis']===undefined) return Notifier.danger('Select criteria basis');
+				// Load students aggregations
 			}
 		})	
