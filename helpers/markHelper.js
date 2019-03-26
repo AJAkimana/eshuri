@@ -9,11 +9,11 @@ const fs=require('fs'),
 	Util=require('../utils'),
 	School=require('../models/School');
 
-exports.classMark = (courseInfo, classMarkCallback)=>{
-	var classId = courseInfo.class_id,
-			ay = courseInfo.academic_year,
-			term = courseInfo.term;
-	var courses = [],courseMarks=[],marksParams={};
+exports.classMark = (classInfo, classMarkCallback)=>{
+	var classId = classInfo.class_id,
+			ay = classInfo.academic_year,
+			term = classInfo.term;
+	var courses = [],courseMarks=[];
 	async.series([(findClassCourses)=>{
 		Course.find({class_id:classId},(err, coursesList)=>{
 			if(err) return findClassCourses('Service not available');
@@ -29,7 +29,7 @@ exports.classMark = (courseInfo, classMarkCallback)=>{
 				],(err, contentMarks)=>{
 					if(err) return marksAggregatePerc('Service not available');
 					else if(!contentMarks[0]) return marksAggregatePerc(null);
-					
+
 					// console.log('Marks Percent:',contentMarks);
 					min_p=contentMarks[0].min||0;
 					max_p=contentMarks[0].max||0;
@@ -72,4 +72,59 @@ exports.classMark = (courseInfo, classMarkCallback)=>{
 		return classMarkCallback(err, courseMarks);
 	})
 }
+exports.courseMark = (courseInfo, courseMarkCb)=>{
+	var classId = courseInfo.class_id,
+			courseId = courseInfo.course_id,
+			ay = courseInfo.academic_year,
+			term = courseInfo.term,
+			student = courseInfo.student;
+	var students = [],studentsMarks=[];
+	
+	async.series([(findCourseStudents)=>{
+		Classe.findOne({_id:classId},(err, theClass)=>{
+			if(err) return findCourseStudents('Service not available');
+			var parametters;
+			if(ay==theClass.academic_year) parametters={class_id:classId,access_level:student};
+			else parametters={'prev_classes':{$elemMatch:{class_id:classId,academic_year:ay}}, access_level:student};
 
+			User.find(parametters,(err, studentsList)=>{
+				if(err) return findCourseStudents('Service not available');
+				students = studentsList;
+				return findCourseStudents(null);
+			})
+		})
+	},(eachStudent)=>{
+		async.eachSeries(students, (thisStudent, studentCb)=>{
+			var marks=0,quota=0;
+			async.series([(findMarks)=>{
+				Mark.aggregate([{$match:{student_id:thisStudent._id,course_id:courseId,academic_year:ay,currentTerm:term}},
+					{$group:{_id:null,marks:{$sum:'$marks'}}}
+				],(err, marksSum)=>{
+					if(err) return findMarks('Service not available');
+					else if(!marksSum[0]) return findMarks(null);
+
+					// console.log('Marts sum:',marksSum);
+					marks=marksSum[0].marks||0;
+					return findMarks(null);
+				})
+			},(findQuota)=>{
+				Content.aggregate([{$match:{course_id:courseId, marks:{$ne:null},academic_year:ay,currentTerm:term}},{$group:{_id:null,total:{$sum:'$marks'}}}],(err, tot_quota)=>{
+					if(err) return findQuota('Service not available');
+					else if(!tot_quota[0]) return findQuota(null);
+					// console.log('Total quota:',tot_quota);
+					quota=tot_quota[0].total||0;
+					return findQuota(null);
+				})
+			}],(err)=>{
+				if(err) return studentCb(err);
+				studentsMarks.push({_id:thisStudent._id,name:thisStudent.name,marks:marks,quota:quota});
+				return studentCb(null);
+			})
+		},(err)=>{
+			if(err) return eachStudent(err);
+			return eachStudent(null);
+		})
+	}],(err)=>{
+		return courseMarkCb(err, studentsMarks);
+	})
+}
