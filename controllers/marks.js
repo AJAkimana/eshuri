@@ -5,9 +5,8 @@ const Content =require('../models/Content'),
 	  School =require('../models/School'),
 	  Classe =require('../models/Classe'),
 	  Course =require('../models/Course'),
-	  Util=require('../utils'),
-	  fs=require('fs'),
-      path=require('path'),
+		Util=require('../utils'),
+		MarkHelper = require('../helpers/markHelper'),
 	  log_err=require('./manage/errorLogger');
 
 exports.getPageReport = function(req,res,next){
@@ -87,6 +86,20 @@ exports.getStatisticsPage = (req,res)=>{
 			pic_id:req.user._id,pic_name:req.user.name.replace('\'',"\\'"),access_lvl:req.user.access_level,
 			csrf_token:res.locals.csrftoken, // always set this buddy
 		});
+	})
+}
+exports.getClasseAggregation=(req,res)=>{
+	req.assert('class_id', 'Invalid data').isMongoId();
+	req.assert('academic_year', 'Invalid data').isInt();
+	req.assert('term', 'Invalid data').isInt();
+
+	const errors = req.validationErrors();
+	if (errors) return res.status(400).send(errors[0].msg);
+	MarkHelper.classMark(req.body, (err, classMarks)=>{
+		if(err) return res.status(400).send(err);
+
+		console.log('Marks:',classMarks);
+		return res.json(classMarks);
 	})
 }
 exports.getPageChart = function(req, res, next){
@@ -175,20 +188,16 @@ exports.printableReport = (req,res)=>{
 	})
 }
 exports.getListAcademicYears =function(req,res,next){
-	if(req.session.student){
-		Marks.find().distinct("academic_year",{student_id:req.session.student._id},
-			(err,listYears)=>{
-			if(err) return log_err(err,false,req,res);
-			return res.json(listYears);
-		})
-	}else{
-		Marks.find().distinct("academic_year",{student_id:req.user._id},
-			(err,listYears)=>{
-			if(err) return log_err(err,false,req,res);
-			return res.json(listYears);
-		})
-	}
-	
+	var parameters=null;
+	if(req.query.school) parameters = {school_id:req.query.school};
+	else if(req.session.student) parameters = {student_id:req.session.student._id};
+	else parameters = {student_id:req.user._id};
+	if(parameters==null) return res.status(400).send('Invalid data');
+	Marks.find().distinct("academic_year",parameters,
+		(err,listYears)=>{
+		if(err) return log_err(err,false,req,res);
+		return res.json(listYears);
+	})
 }
 exports.getClassAcademicYears =function(req,res,next){
 	req.assert('class_id', 'Please choose class').isMongoId();

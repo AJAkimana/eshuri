@@ -23,17 +23,29 @@ block append content
 													input(name='based_on', type='radio', ng-model='based_on', value='S', ng-change="basedOn(based_on)")
 													| School
 										.panel-group(role='tablist')#accordion
-											.panel.panel-default(ng-repeat="set in sets")
-												.panel-heading(role='tab', id="{{'tab_'+$index}}", ng-click="setCurrent(set)")
-													a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_'+$index}}", aria-expanded="false", aria-controls="{{'collapse_'+$index}}")
+											.panel.panel-default
+												.panel-heading(role='tab', id="{{'tab_1'}}", ng-click="setCurrent('class')")
+													a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_1'}}", aria-expanded="false", aria-controls="{{'collapse_1'}}")
 														h4.panel-title
-															| {{set.name}} <strong>(16)</strong>
+															| Classes <strong>(16)</strong>
 															i.material-icons keyboard_arrow_down
-												.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_'+$index}}", id="{{'collapse_'+$index}}")
+												.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_1'}}", id="{{'collapse_1'}}")
 													.panel-body
 															.col-md-12(ng-repeat="cont in contents")
 																label.radio-inline
-																	input(type="radio",name="selected_cont",ng-model="selected_cont", value="{{cont.name}}", ng-change="selectContent(cont,set)")
+																	input(type="radio",name="selected_cont",ng-model="selected_cont", value="{{cont.name}}", ng-change="selectContent(cont,'class')")
+																	| {{cont.name|uppercase|toClasseName}}
+											.panel.panel-default
+												.panel-heading(role='tab', id="{{'tab_2'}}", ng-click="setCurrent('course')")
+													a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_2'}}", aria-expanded="false", aria-controls="{{'collapse_2'}}")
+														h4.panel-title
+															| Courses <strong>(16)</strong>
+															i.material-icons keyboard_arrow_down
+												.panel-collapse.collapse(role='tabpanel', aria-labelledby="{{'tab_2'}}", id="{{'collapse_2'}}")
+													.panel-body
+															.col-md-12(ng-repeat="cont in contents")
+																label.radio-inline
+																	input(type="radio",name="selected_cont",ng-model="selected_cont", value="{{cont.name}}", ng-change="selectContent(cont,'course')")
 																	| {{cont.name}}
 										a.btn-simple.btn-rose(href="#", ng-click="studentAggr()"): strong Students
 										.row
@@ -128,24 +140,25 @@ block append scripts
 	//- script(src="../js/_app.js", type="text/javascript")
 	script.
 		var app =angular.module('eshuri_App', ['ngRoute']);
-		app.filter('to_Status', function() {
+		app.filter('toNormal', function() {
 			return function(input){
-				//- if(isNaN(input)) return '----';
-				switch(input){
-					case 'A': input ="Admitted";break;
-					case 'P': input ="Pending";break;
-					case 'F': input ="Missing information";break;
-					case 'R': input ="Rejected"; break;
-					default: input="___";break;
-				}
-				return input;
+				return Number(input)+Number(2000)
+			}
+		})
+		.filter('toTermName', function() {    
+			return function(input){       
+				return input=='S'?'Semester':'Term'
+			}
+		})
+		.filter('toClasseName', function() {
+			return function(input, term){
+				return term=='S'?'Y'+input:'S'+input
 			}
 		})
 		.controller('statistiCtlr', ($scope, $http, $window)=>{
 			$scope.sets=[{name:'Classes',type:'class'},{name:'Courses',type:'course'}];
-			$scope.classes=[{name:'S1'},{name:'S1'},{name:'S1'}];
-			$scope.courses=[{name:'Math'},{name:'Computer'}]
-			$scope.setCurrent=(set)=>{
+			$scope.courses=[{_id:1,name:'Math'},{_id:2,name:'Computer'}]
+			$scope.setCurrent=(type)=>{
 				if($scope.criteria['basis']===undefined) return Notifier.danger('Select criteria basis');
 				else if($scope.criteria.basis=='S'){
 					if($scope.criteria['ay']===undefined||$scope.criteria['term']===undefined){
@@ -153,7 +166,8 @@ block append scripts
 					}
 					// Load classes with the statistics
 				}
-				else $scope.contents=set.type=='class'?$scope.classes:$scope.courses;
+				else $scope.contents=type=='class'?$scope.classes:$scope.courses;
+				//- console.log('Contents:',$scope.contents)
 			}
 			$scope.showNext=(next_type)=>{
 				if(next_type=='course'){
@@ -164,16 +178,59 @@ block append scripts
 			$scope.basedOn=(basis)=>{
 				$scope.criteria.basis=basis;
 			}
-			$scope.selectContent=(content,set)=>{
+			$scope.selectContent=(content,type)=>{
 				if($scope.criteria['basis']===undefined) return;
-				if(set.tye=='class'){
+				if(type=='class'){
+					if(!$scope.choosen_year&&!$scope.choosen_term) return Notifier.danger('Select term and year');
+					$scope.loadClassStats(content._id,$scope.choosen_year,$scope.choosen_term);
 					//Load classes satistics
-				}else if(set.type=='course'){
+				}else if(type=='course'){
 					//Load school courses aggregation
 				}
+			}
+			$scope.loadClassStats=(classId,a_year,term)=>{
+				$http.post('/statistics.classe',{class_id:classId,academic_year:a_year,term:term})
+				.then((response)=>{
+					console.log('Okkkkkkkk')
+				}).catch((error)=>{
+					Notifier.danger(error.data);
+				})
 			}
 			$scope.studentAggr=()=>{
 				if($scope.criteria['basis']===undefined) return Notifier.danger('Select criteria basis');
 				// Load students aggregations
 			}
+			$scope.getClassList = ()=>{
+				$http
+				.get("/classe.list.for.report/#{school_id}")
+				.then((response)=>{
+					$scope.classes= response.data;
+					//console.log("Classes: "+$scope.ClassList)
+				})
+				.catch((erreur)=>{
+					Notifier.danger(erreur.data);
+				});        
+			};
+			$scope.getListTerms = ()=>{
+				$http
+				.get("/student.get.terms/"+$scope.choosen_year)
+				.then((response)=>{
+					$scope.list_terms= response.data;
+				})
+				.catch((erreur)=>{
+					Notifier.danger(erreur.data)
+				}); 
+			}
+			$scope.getAcademicYearsList=()=>{
+				$http.get("/class.academic_years?school=#{school_id}")
+				.then((response)=>{
+					$scope.academic_years= response.data;
+				})
+				.catch((erreur)=>{
+					Notifier.danger(erreur.data)
+				});        
+			}
+			$scope.getClassList();
+			$scope.getAcademicYearsList();
+			$scope.loadClassStats('58c970b9708c4a9f40dfbb85',19,1)
 		})	
