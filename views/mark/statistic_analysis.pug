@@ -112,7 +112,7 @@ block append content
 												tbody(ng-show="show_courses_")
 													tr(ng-repeat="course in courses_agg")
 														td(width="1%" height="1%" ng-bind="$index+1")
-														td: a(href="#", ng-click="showNext('classe')")
+														td: a(href="#", ng-click="loadCoursesStats(course,academic_year,term)")
 															strong(ng-bind="course.name|uppercase")
 														td(ng-bind="course.min_p")
 														td(ng-bind="course.max_p")
@@ -180,8 +180,8 @@ block append scripts
 			}
 		})
 		.controller('statistiCtlr', ($scope, $http, $window)=>{
-			$scope.loadStudentsStats=(student,a_year,term)=>{
-				$http.post('/statistics.student',{class_id:student.classe_id,student_id:student._id,academic_year:a_year,term:term})
+			$scope.loadCoursesStats=(course,a_year,term)=>{
+				$http.post('/statistics.course',{course_id:course._id,class_id:course.class_id,academic_year:a_year,term:term})
 				.then((response)=>{
 					$scope.show_classes_=false;
 					$scope.show_courses_=false;

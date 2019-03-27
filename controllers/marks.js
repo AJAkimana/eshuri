@@ -118,19 +118,20 @@ exports.schoolAggregation = (req, res)=>{
 		return res.json(school_marks);
 	})
 }
-exports.studentAggregation = (req, res)=>{
+exports.courseAggregation = (req, res)=>{
 	req.assert('class_id', 'Invalid data').isMongoId();
-	req.assert('student_id', 'Invalid data').isMongoId();
+	req.assert('course_id', 'Invalid data').isMongoId();
 	req.assert('academic_year', 'Invalid data').isInt();
 	req.assert('term', 'Invalid data').isInt();
 
 	const errors = req.validationErrors();
 	if (errors) return res.status(400).send(errors[0].msg);
 
-	MarkHelper.studentMark(req.body, (err, student_marks)=>{
+	req.body.student = req.app.locals.access_level.STUDENT;
+	MarkHelper.courseMark(req.body, (err, course_marks)=>{
 		if(err) return res.status(400).send(err);
 
-		return res.json(student_marks);
+		return res.json(course_marks);
 	})
 }
 exports.getPageChart = function(req, res, next){

@@ -50,7 +50,7 @@ exports.classMark = (classInfo, classMarkCallback)=>{
 			}],(err)=>{
 				if(err) return courseCb(err);
 
-				courseMarks.push({_id:thisCourse._id,name:thisCourse.name,min:min,max:max,avg:avg.toFixed(2),min_p:min_p.toFixed(2),max_p:max_p.toFixed(2),avg_p:avg_p.toFixed(2),total:total});
+				courseMarks.push({_id:thisCourse._id,class_id:classId,name:thisCourse.name,min:min,max:max,avg:avg.toFixed(2),min_p:min_p.toFixed(2),max_p:max_p.toFixed(2),avg_p:avg_p.toFixed(2),total:total});
 				// console.log('Params:',thisCourse.name)
 				return courseCb(null);
 			})	
@@ -77,9 +77,11 @@ exports.courseMark = (courseInfo, courseMarkCb)=>{
 			if(ay==theClass.academic_year) parametters={class_id:classId,access_level:student};
 			else parametters={'prev_classes':{$elemMatch:{class_id:classId,academic_year:ay}}, access_level:student};
 
-			User.find(parametters,(err, studentsList)=>{
+			User.find(parametters,{_id:1,name:1},(err, studentsList)=>{
 				if(err) return findCourseStudents('Service not available');
 				students = studentsList;
+				console.log('Students:',students)
+				console.log('Params:',parametters)
 				return findCourseStudents(null);
 			})
 		})
