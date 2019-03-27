@@ -14,7 +14,24 @@ block append content
 									.card-header
 										h4.card-title Statistical basis
 									.card-content
-										.col-md-12
+										.row
+											.col-md-12
+												h4.text-center Select academic
+											.col-md-12
+												.col-md-6
+													.form-group.label-floating
+														label.control-label Year
+														select.form-control(required="true",ng-model="choosen_year",ng-change="getListTerms()")
+															option(value="", disabled selected)
+															option(value="{{umwaka}}", ng-repeat="umwaka in academic_years", ng-bind="umwaka|toNormal") 
+												.col-md-6
+													.form-group.label-floating
+														label.control-label Term 
+															span(ng-bind="term_name|toTermName")
+														select.form-control(required="true",ng-model="choosen_term", ng-change="loadSchoolStats(choosen_year,choosen_term)")
+															option(value="", disabled selected)
+															option(value="{{term}}", ng-repeat="term in list_terms" ng-bind="(term_name|toTermName)+(term)")
+										//- .col-md-12
 											h4.info-text Based on
 												label.radio-inline
 													input(name='based_on', type='radio', ng-model='based_on', value='C', ng-change="basedOn(based_on)")
@@ -22,7 +39,7 @@ block append content
 												label.radio-inline
 													input(name='based_on', type='radio', ng-model='based_on', value='S', ng-change="basedOn(based_on)")
 													| School
-										.panel-group(role='tablist')#accordion
+										//- .panel-group(role='tablist')#accordion
 											.panel.panel-default
 												.panel-heading(role='tab', id="{{'tab_1'}}", ng-click="setCurrent('class')")
 													a(role='button', data-toggle='collapse', data-parent='#accordion', href="#{{'collapse_1'}}", aria-expanded="false", aria-controls="{{'collapse_1'}}")
@@ -48,23 +65,7 @@ block append content
 																	input(type="radio",name="selected_cont",ng-model="selected_cont", value="{{cont.name}}", ng-change="selectContent(cont,'course')")
 																	| {{cont.name}}
 										a.btn-simple.btn-rose(href="#", ng-click="studentAggr()"): strong Students
-										.row
-											.col-md-12
-												h4.text-center Select academic
-											.col-md-12
-												.col-md-6
-													.form-group.label-floating
-														label.control-label Year
-														select.form-control(required="true",ng-model="choosen_year",ng-change="getListTerms()")
-															option(value="", disabled selected)
-															option(value="{{umwaka}}", ng-repeat="umwaka in academic_years", ng-bind="umwaka|toNormal") 
-												.col-md-6
-													.form-group.label-floating
-														label.control-label Term 
-															span(ng-bind="term_name|toTermName")
-														select.form-control(required="true",ng-model="choosen_term")
-															option(value="", disabled selected)
-															option(value="{{term}}", ng-repeat="term in list_terms" ng-bind="(term_name|toTermName)+(term)")
+										//- .row
 											.col-md-12
 												h4.text-center Select type
 											.col-md-12
@@ -79,7 +80,7 @@ block append content
 												label.radio-inline
 													input(type="radio",ng-model="report_type", value="is_term")
 													| End of Term
-									.card-footer
+									//- .card-footer
 										.container
 											p
 											| &copy; 2016 |
@@ -90,7 +91,7 @@ block append content
 									.card-header
 										h4.card-title.text-center Class
 									.card-content
-										.table-responsive
+										.table-responsive(ng-show="show_classes_||show_courses_")
 											table.table
 												thead
 													th.text-center #
@@ -99,15 +100,38 @@ block append content
 													th: a.btn-simple.btn-rose Max
 													th: a.btn-simple.btn-rose Average
 													th: a.btn-simple.btn-rose Total
-												tbody
-													tr
-														td(width="1%" height="1%") 1
+												tbody(ng-show="show_classes_")
+													tr(ng-repeat="classe in classes_agg")
+														td(width="1%" height="1%" ng-bind="$index+1")
+														td: a(href="#", ng-click="loadClassStats(classe,academic_year,term)")
+															strong(ng-bind="classe.name|uppercase|toClasseName:term_name")
+														td(ng-bind="classe.min_p")
+														td(ng-bind="classe.max_p")
+														td(ng-bind="classe.avg_p")
+														td: strong 100
+												tbody(ng-show="show_courses_")
+													tr(ng-repeat="course in courses_agg")
+														td(width="1%" height="1%" ng-bind="$index+1")
 														td: a(href="#", ng-click="showNext('classe')")
-															strong S1A
-														td 15
-														td 34
-														td 27
-														td: strong 40
+															strong(ng-bind="course.name|uppercase")
+														td(ng-bind="course.min_p")
+														td(ng-bind="course.max_p")
+														td(ng-bind="course.avg_p")
+														td: strong 100
+										.table-responsive(ng-show="show_students_")
+											table.table
+												thead
+													th.text-center #
+													th: a.btn-simple.btn-rose Student name
+													th: a.btn-simple.btn-rose Marks
+													th: a.btn-simple.btn-rose Total
+												tbody
+													tr(ng-repeat="student in students_agg")
+														td(width="1%" height="1%" ng-bind="$index+1")
+														td: a(href="#", ng-click="showNext('classe')")
+															strong(ng-bind="student.name|uppercase")
+														td(ng-bind="student.marks")
+														td: strong(ng-bind="student.quota")
 							.col-md-3.col-sm-6.col-xs-12
 								.card
 									.card-header
@@ -156,42 +180,37 @@ block append scripts
 			}
 		})
 		.controller('statistiCtlr', ($scope, $http, $window)=>{
-			$scope.sets=[{name:'Classes',type:'class'},{name:'Courses',type:'course'}];
-			$scope.courses=[{_id:1,name:'Math'},{_id:2,name:'Computer'}]
-			$scope.setCurrent=(type)=>{
-				if($scope.criteria['basis']===undefined) return Notifier.danger('Select criteria basis');
-				else if($scope.criteria.basis=='S'){
-					if($scope.criteria['ay']===undefined||$scope.criteria['term']===undefined){
-						return Notifier.danger('Select term and academic year');
-					}
-					// Load classes with the statistics
-				}
-				else $scope.contents=type=='class'?$scope.classes:$scope.courses;
-				//- console.log('Contents:',$scope.contents)
-			}
-			$scope.showNext=(next_type)=>{
-				if(next_type=='course'){
-					//Load course and its aggregations
-				}
-			}
-			$scope.criteria={};
-			$scope.basedOn=(basis)=>{
-				$scope.criteria.basis=basis;
-			}
-			$scope.selectContent=(content,type)=>{
-				if($scope.criteria['basis']===undefined) return;
-				if(type=='class'){
-					if(!$scope.choosen_year&&!$scope.choosen_term) return Notifier.danger('Select term and year');
-					$scope.loadClassStats(content._id,$scope.choosen_year,$scope.choosen_term);
-					//Load classes satistics
-				}else if(type=='course'){
-					//Load school courses aggregation
-				}
-			}
-			$scope.loadClassStats=(classId,a_year,term)=>{
-				$http.post('/statistics.classe',{class_id:classId,academic_year:a_year,term:term})
+			$scope.loadStudentsStats=(student,a_year,term)=>{
+				$http.post('/statistics.student',{class_id:student.classe_id,student_id:student._id,academic_year:a_year,term:term})
 				.then((response)=>{
-					console.log('Okkkkkkkk')
+					$scope.show_classes_=false;
+					$scope.show_courses_=false;
+					$scope.show_students_=true;
+					$scope.students_agg=response.data;
+					//- console.log('Okkkkkkkk')
+				}).catch((error)=>{
+					Notifier.danger(error.data);
+				})
+			}
+			$scope.loadClassStats=(classe,a_year,term)=>{
+				$http.post('/statistics.classe',{class_id:classe._id,academic_year:a_year,term:term})
+				.then((response)=>{
+					$scope.show_classes_=false;
+					$scope.show_courses_=true;
+					$scope.show_students_=false;
+					$scope.courses_agg=response.data;
+					//- console.log('Okkkkkkkk')
+				}).catch((error)=>{
+					Notifier.danger(error.data);
+				})
+			}
+			$scope.loadSchoolStats=(a_year,term)=>{
+				$http.post('/statistics.school',{academic_year:a_year,term:term,school_id:'#{school_id}'})
+				.then((response)=>{
+					$scope.show_classes_=true;
+					$scope.show_courses_=false;
+					$scope.show_students_=false;
+					$scope.classes_agg=response.data;
 				}).catch((error)=>{
 					Notifier.danger(error.data);
 				})
@@ -230,7 +249,13 @@ block append scripts
 					Notifier.danger(erreur.data)
 				});        
 			}
+			$scope.term=1,
+			$scope.academic_year=17
+			$scope.show_classes_=true;
+			$scope.show_courses_=false;
+			$scope.show_students_=false;
 			$scope.getClassList();
 			$scope.getAcademicYearsList();
-			$scope.loadClassStats('58c970b9708c4a9f40dfbb85',19,1)
+			$scope.loadSchoolStats($scope.academic_year,$scope.term);
+			//- $scope.loadClassStats('58c970b9708c4a9f40dfbb85',19,1)
 		})	

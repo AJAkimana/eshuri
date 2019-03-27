@@ -6,6 +6,7 @@ const Content =require('../models/Content'),
 	  Classe =require('../models/Classe'),
 	  Course =require('../models/Course'),
 		Util=require('../utils'),
+		async = require('async'),
 		MarkHelper = require('../helpers/markHelper'),
 	  log_err=require('./manage/errorLogger');
 
@@ -100,6 +101,36 @@ exports.getClasseAggregation=(req,res)=>{
 
 		console.log('Marks:',classMarks);
 		return res.json(classMarks);
+	})
+}
+exports.schoolAggregation = (req, res)=>{
+	req.assert('school_id', 'Invalid data').isMongoId();
+	req.assert('academic_year', 'Invalid data').isInt();
+	req.assert('term', 'Invalid data').isInt();
+
+	const errors = req.validationErrors();
+	if (errors) return res.status(400).send(errors[0].msg);
+
+	MarkHelper.schoolMark(req.body, (err, school_marks)=>{
+		if(err) return res.status(400).send(err);
+
+		// console.log('School marks:',school_marks);
+		return res.json(school_marks);
+	})
+}
+exports.studentAggregation = (req, res)=>{
+	req.assert('class_id', 'Invalid data').isMongoId();
+	req.assert('student_id', 'Invalid data').isMongoId();
+	req.assert('academic_year', 'Invalid data').isInt();
+	req.assert('term', 'Invalid data').isInt();
+
+	const errors = req.validationErrors();
+	if (errors) return res.status(400).send(errors[0].msg);
+
+	MarkHelper.studentMark(req.body, (err, student_marks)=>{
+		if(err) return res.status(400).send(err);
+
+		return res.json(student_marks);
 	})
 }
 exports.getPageChart = function(req, res, next){
@@ -1436,4 +1467,7 @@ function endTermPlaces(a, b) {
 }
 function termPlaces(a, b) {
 	return b.pct - a.pct;
+}
+function minMax(a, b) {
+	return a.avg_p - b.avg_p;
 }

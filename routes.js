@@ -505,6 +505,8 @@ module.exports = function(app) {
 	app.post('/get.general.class.marks',isAuthenticated,marksController.getClassMarks);
 	app.get('/statistics', isAtLeastAdmin, marksController.getStatisticsPage);
 	app.post('/statistics.classe',isAtLeastAdmin, marksController.getClasseAggregation);
+	app.post('/statistics.school', isAtLeastAdmin, marksController.schoolAggregation);
+	app.post('/statistics.student', isAtLeastAdmin, marksController.studentAggregation);
 	//new administration report
 	app.get('/printable.report',isAuthenticated,marksController.printableReport);
 

@@ -23,34 +23,24 @@ exports.classMark = (classInfo, classMarkCallback)=>{
 	},(eachCourse)=>{
 		async.eachSeries(courses, (thisCourse, courseCb)=>{
 			var min_p=0,max_p=0,avg_p=0,min=0,max=0,avg=0,total=0;
-			async.series([(marksAggregatePerc)=>{
+			async.series([(marksAggregate)=>{
 				Mark.aggregate([{$match:{course_id:thisCourse._id, academic_year:ay,currentTerm:term}},
-					{$group:{_id:null,min:{$min:'$percentage'},max:{$max:'$percentage'},avg:{$avg:'$percentage'}}}
+					{$group:{_id:null,min_p:{$min:'$percentage'},max_p:{$max:'$percentage'},avg_p:{$avg:'$percentage'},min:{$min:'$marks'},max:{$max:'$marks'},avg:{$avg:'$marks'}}}
 				],(err, contentMarks)=>{
-					if(err) return marksAggregatePerc('Service not available');
-					else if(!contentMarks[0]) return marksAggregatePerc(null);
+					if(err) return marksAggregate('Service not available');
+					else if(!contentMarks[0]) return marksAggregate(null);
 
 					// console.log('Marks Percent:',contentMarks);
-					min_p=contentMarks[0].min||0;
-					max_p=contentMarks[0].max||0;
-					avg_p=contentMarks[0].avg||0;
-					return marksAggregatePerc(null);
-				})
-			},(marksAggregateTot)=>{
-				Mark.aggregate([{$match:{course_id:thisCourse._id, academic_year:ay,currentTerm:term}},
-					{$group:{_id:null,min:{$min:'$marks'},max:{$max:'$marks'},avg:{$avg:'$marks'}}}
-				],(err, contentMarksTot)=>{
-					if(err) return marksAggregateTot('Service not available');
-					else if(!contentMarksTot[0]) return marksAggregateTot(null);
-
-					// console.log('Marts Total:',contentMarksTot);
-					min=contentMarksTot[0].min||0;
-					max=contentMarksTot[0].max||0;
-					avg=contentMarksTot[0].avg||0;
-					return marksAggregateTot(null);
+					min_p=contentMarks[0].min_p||0;
+					max_p=contentMarks[0].max_p||0;
+					avg_p=contentMarks[0].avg_p||0;
+					min=contentMarks[0].min||0;
+					max=contentMarks[0].max||0;
+					avg=contentMarks[0].avg||0;
+					return marksAggregate(null);
 				})
 			},(getMarksDetails)=>{
-				Content.aggregate([{$match:{course_id:thisCourse._id, marks:{$ne:null},academic_year:ay,currentTerm:term}},{$group:{_id:null,total:{$sum:'$marks'}}}],(err, tot_quota)=>{
+				Content.aggregate([{$match:{course_id:thisCourse._id, marks:{$ne:null},academic_year:ay,currentTerm:term}}, {$group:{_id:null,total:{$sum:'$marks'}}}],(err, tot_quota)=>{
 					if(err) return getMarksDetails('Service not available');
 					else if(!tot_quota[0]) return getMarksDetails(null);
 					// console.log('Total quota:',tot_quota);
@@ -74,10 +64,10 @@ exports.classMark = (classInfo, classMarkCallback)=>{
 }
 exports.courseMark = (courseInfo, courseMarkCb)=>{
 	var classId = courseInfo.class_id,
-			courseId = courseInfo.course_id,
-			ay = courseInfo.academic_year,
-			term = courseInfo.term,
-			student = courseInfo.student;
+		courseId = courseInfo.course_id,
+		ay = courseInfo.academic_year,
+		term = courseInfo.term,
+		student = courseInfo.student;
 	var students = [],studentsMarks=[];
 	
 	async.series([(findCourseStudents)=>{
@@ -117,7 +107,7 @@ exports.courseMark = (courseInfo, courseMarkCb)=>{
 				})
 			}],(err)=>{
 				if(err) return studentCb(err);
-				studentsMarks.push({_id:thisStudent._id,name:thisStudent.name,marks:marks,quota:quota});
+				studentsMarks.push({_id:thisStudent._id,class_id:classId,name:thisStudent.name,marks:marks,quota:quota});
 				return studentCb(null);
 			})
 		},(err)=>{
@@ -126,5 +116,85 @@ exports.courseMark = (courseInfo, courseMarkCb)=>{
 		})
 	}],(err)=>{
 		return courseMarkCb(err, studentsMarks);
+	})
+}
+exports.studentMark = (studentInfo, studentMarkCb)=>{
+	var classId = studentInfo.class_id,
+		studentId = studentInfo.student_id,
+		ay = studentInfo.academic_year,
+		term = studentInfo.term;
+	var assessments = [],assemtsMarks=[];
+	async.series([(getAssessments)=>{
+		Content.find({class_id:classId, marks:{$ne:null},academic_year:ay,currentTerm:term},{_id:1,title:1,marks:1},(err, assmtsList)=>{
+			if(err) return getAssessments('Service not available');
+			assessments = assmtsList;
+			return getAssessments(null);
+		})
+	},(eachAssmnt)=>{
+		async.eachSeries(assessments, (thisAssmt, assmntCb)=>{
+			Mark.findOne({content_id:thisAssmt._id, student_id:studentId},{marks:1},(err, assMark)=>{
+				if(err) return assmntCb('Service is not available');
+				assemtsMarks.push({name:thisAssmt.title,marks:assMark.marks,quota:thisAssmt.marks});
+				return assmntCb(null);
+			})
+		},(err)=>{
+			if(err) return eachAssmnt(err);
+			return eachAssmnt(null);
+		})
+	}],(err)=>{
+		return studentMarkCb(err, assemtsMarks);
+	})
+}
+
+exports.schoolMark = (schoolInfo, schoolMarkCb)=>{
+	var schoolId = schoolInfo.school_id,
+		ay = schoolInfo.academic_year,
+		term = schoolInfo.term;
+	var classes = [], classesMarks = [];
+	async.series([(getClasses)=>{
+		Classe.find({school_id:schoolId},{_id:1,name:1}).sort({name:1}).exec((err, classesList)=>{
+			if(err) return getClasses('Service not available');
+			classes = classesList;
+
+			return getClasses(null);
+		})
+	},(eachClass)=>{
+		async.eachSeries(classes, (thisClasse, classeCb)=>{
+			var min_p=0,max_p=0,avg_p=0,min=0,max=0,avg=0,total=0;
+			async.series([(getClassMark)=>{
+				Mark.aggregate([{$match:{class_id:thisClasse._id,academic_year:ay,currentTerm:term}},
+					{$group:{_id:null,min_p:{$min:'$percentage'},max_p:{$max:'$percentage'},avg_p:{$avg:'$percentage'},min:{$min:'$marks'},max:{$max:'$marks'},avg:{$avg:'$marks'}}}
+				],(err, classMarks)=>{
+					if(err) return getClassMark('Service not available');
+					else if(!classMarks[0]) return getClassMark(null);
+
+					min_p=classMarks[0].min_p||0;
+					max_p=classMarks[0].max_p||0;
+					avg_p=classMarks[0].avg_p||0;
+					min=classMarks[0].min||0;
+					max=classMarks[0].max||0;
+					avg=classMarks[0].avg||0;
+					return getClassMark(null);
+				})
+			},(getTotalQuota)=>{
+				Content.aggregate([{$match:{class_id:thisClasse._id, marks:{$ne:null},academic_year:ay,currentTerm:term}}, {$group:{_id:null,total:{$sum:'$marks'}}}],(err, tot_quota)=>{
+					if(err) return getTotalQuota('Service not available');
+					else if(!tot_quota[0]) return getTotalQuota(null);
+					// console.log('Total quota:',tot_quota);
+					total=tot_quota[0].total||0;
+					return getTotalQuota(null);
+				})
+			}],(err)=>{
+				if(err) return classeCb(err);
+
+				classesMarks.push({_id:thisClasse._id,name:thisClasse.name,min:min,max:max,avg:avg.toFixed(2),min_p:min_p.toFixed(2),max_p:max_p.toFixed(2),avg_p:avg_p.toFixed(2),total:total});
+				return classeCb(null);
+			})
+		},(err)=>{
+			if(err) return eachClass(err);
+			return eachClass(null);
+		})
+	}],(err)=>{
+		return schoolMarkCb(err, classesMarks);
 	})
 }
