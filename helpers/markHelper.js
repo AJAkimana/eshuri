@@ -81,7 +81,7 @@ exports.courseMark = (courseInfo, courseMarkCb)=>{
 				if(err) return findCourseStudents('Service not available');
 				students = studentsList;
 				console.log('Students:',students)
-				console.log('Params:',parametters)
+				console.log('Paramsg:',parametters)
 				return findCourseStudents(null);
 			})
 		})
