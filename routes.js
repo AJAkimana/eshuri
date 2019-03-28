@@ -504,9 +504,10 @@ module.exports = function(app) {
 	app.post('/report.endterm', isAtLeastTeacher, marksController.getEndTermMarks);
 	app.post('/get.general.class.marks',isAuthenticated,marksController.getClassMarks);
 	app.get('/statistics', isAtLeastAdmin, marksController.getStatisticsPage);
-	app.post('/statistics.classe',isAtLeastAdmin, marksController.getClasseAggregation);
+	app.post('/statistics.classe', isAtLeastAdmin, marksController.getClasseAggregation);
 	app.post('/statistics.school', isAtLeastAdmin, marksController.schoolAggregation);
 	app.post('/statistics.course', isAtLeastAdmin, marksController.courseAggregation);
+	app.post('/statistics.student', isAtLeastAdmin, marksController.studentCourseMarks);
 	//new administration report
 	app.get('/printable.report',isAuthenticated,marksController.printableReport);
 

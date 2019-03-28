@@ -245,13 +245,13 @@ exports.restructure = (req, res)=>{
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors[0].msg);
 
+  var masterIndex = req.body.course_id;
   var async = require('async');
-  Course.findOne({_id:req.body.course_id}, (err, courseRes)=>{
+  Course.findOne({_id:masterIndex}, (err, courseRes)=>{
     if(err) return res.status(500).send('Service not available');
     else if(!courseRes) return res.status(404).send('Course not found');
 
     var listCoursesRes = [];
-    var masterIndex = courseRes._id;
     var codeLen = courseRes.code.length;
     var courseCode = courseRes.code.substring(0,codeLen-4);
     var ayTerm = courseRes.code.substr(codeLen-3);
@@ -268,24 +268,22 @@ exports.restructure = (req, res)=>{
       })
     },(treatCourseContent)=>{
       async.eachSeries(listCoursesRes, (currentCourse, courseCallBack)=>{
-        var courseId = currentCourse._id;
-        var courseParams = {course_id:currentCourse._id};
         async.parallel([(updateContents)=>{
-          Content.update({course_id:courseId}, {$set:courseParams}, {multi:true}, (err, done)=>{
+          Content.update({course_id:currentCourse._id}, {$set:{course_id:masterIndex}}, {multi:true}, (err, done)=>{
             if (err) return updateContents('Content update error');
             console.log('Content Up:',done);
             return updateContents(null);
           })
         },(updateMarks)=>{
-          Marks.update({course_id:courseId}, {$set:{course_id:masterIndex,course_name:courseRes.name}}, {multi:true}, (err, done)=>{
+          Marks.update({course_id:currentCourse._id}, {$set:{course_id:masterIndex,course_name:courseRes.name}}, {multi:true}, (err, done)=>{
             if (err) return updateMarks('Marks update error');
-            // console.log('Mark Up:',done);
+            console.log('Mark Up:',done);
             return updateMarks(null);
           })
         },(updateUnits)=>{
-          Unit.update({course_id:courseId}, {$set:courseParams}, {multi:true}, (err, done)=>{
+          Unit.update({course_id:currentCourse._id}, {$set:{course_id:masterIndex}}, {multi:true}, (err, done)=>{
             if (err) return updateUnits('Unit update error');
-            // console.log('Unit Up:',done);
+            console.log('Unit Up:',done);
             return updateUnits(null);
           })
         }],(err)=>{
@@ -299,7 +297,7 @@ exports.restructure = (req, res)=>{
     },(deleteRemainigCourses)=>{
       Course.remove({_id:{$ne:masterIndex},name:courseRes.name,class_id:courseRes.class_id},(err, deleted)=>{
         if(err) return deleteRemainigCourses('Course deletion error');
-        // console.log('Deleted:',deleted);
+        console.log('Deleted:',deleted);
         return deleteRemainigCourses(null)
       })
     }],(err)=>{

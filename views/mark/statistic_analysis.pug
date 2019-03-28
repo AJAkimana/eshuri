@@ -89,7 +89,15 @@ block append content
 							.col-md-6.col-sm-6.col-xs-12
 								.card
 									.card-header
-										h4.card-title.text-center Class
+										h4.card-title.text-center.text-info
+											| Academic year:
+											span(ng-bind="academic_year|toNormal")
+											br
+											span(ng-bind="(term_name|toTermName)+(term)")
+											br
+											strong(ng-click="loadConts('classe')") <a href="#">Classes</a>
+											strong(ng-click="loadConts('course')" ng-show="show_courses_||show_students_") <a href="#" ng-bind="'->'+class_name"></a>
+											strong(ng-show="show_students_") <i ng-bind="'->'+course_name"></i>
 									.card-content
 										.table-responsive(ng-show="show_classes_||show_courses_")
 											table.table
@@ -124,18 +132,20 @@ block append content
 													th.text-center #
 													th: a.btn-simple.btn-rose Student name
 													th: a.btn-simple.btn-rose Marks
+													th: a.btn-simple.btn-rose Marks %
 													th: a.btn-simple.btn-rose Total
 												tbody
 													tr(ng-repeat="student in students_agg")
 														td(width="1%" height="1%" ng-bind="$index+1")
-														td: a(href="#", ng-click="showNext('classe')")
+														td: a(href="#", ng-click="loadStudentMarks(student,academic_year,term)")
 															strong(ng-bind="student.name|uppercase")
 														td(ng-bind="student.marks")
+														td(ng-bind="student.percentage")
 														td: strong(ng-bind="student.quota")
 							.col-md-3.col-sm-6.col-xs-12
 								.card
 									.card-header
-										h4.card-title.text-center Marks
+										h4.card-title.text-center(ng-bind="student_name")
 									.card-content
 										.table-responsive
 											table.table
@@ -145,12 +155,11 @@ block append content
 													th: a.btn-simple.btn-rose Marks
 													th: a.btn-simple.btn-rose Total
 												tbody
-													tr
-														td(width="1%" height="1%") 1
-														td: a(href="#", ng-click="showNext('classe')")
-															strong KALISA Calixte
-														td 27
-														td: strong 40
+													tr(ng-repeat="assmt in assessments")
+														td(width="1%" height="1%" ng-bind="$index+1")
+														td: strong(ng-bind="assmt.title")
+														td(ng-bind="assmt.marks")
+														td: strong(ng-bind="assmt.quota")
 											table.table
 												thead
 													th: a.btn-simple.btn-rose Student name
@@ -163,7 +172,7 @@ block append scripts
 	script(src="../js/select/select.js", type="text/javascript")
 	//- script(src="../js/_app.js", type="text/javascript")
 	script.
-		var app =angular.module('eshuri_App', ['ngRoute']);
+		var app =angular.module('eshuri_App', ['ngRoute','ngSanitize']);
 		app.filter('toNormal', function() {
 			return function(input){
 				return Number(input)+Number(2000)
@@ -179,37 +188,49 @@ block append scripts
 				return term=='S'?'Y'+input:'S'+input
 			}
 		})
-		.controller('statistiCtlr', ($scope, $http, $window)=>{
+		.controller('statistiCtlr', ($scope, $http, $window,$filter)=>{
 			$scope.loadCoursesStats=(course,a_year,term)=>{
-				$http.post('/statistics.course',{course_id:course._id,class_id:course.class_id,academic_year:a_year,term:term})
+				$http.post('/statistics.course',{course_id:course._id,class_id:course.class_id,academic_year:Number(a_year),term:Number(term)})
 				.then((response)=>{
 					$scope.show_classes_=false;
 					$scope.show_courses_=false;
 					$scope.show_students_=true;
 					$scope.students_agg=response.data;
-					//- console.log('Okkkkkkkk')
+					$scope.course_name=course.name.toUpperCase();
+					$scope.class_id=course.class_id;
+				}).catch((error)=>{
+					Notifier.danger(error.data);
+				})
+			}
+			$scope.loadStudentMarks=(student,a_year,term)=>{
+				$http.post('/statistics.student',{student_id:student._id,class_id:$scope.class_id,academic_year:Number(a_year),term:Number(term)})
+				.then((response)=>{
+					$scope.assessments=response.data;
+					$scope.student_name=student.name.toUpperCase()
 				}).catch((error)=>{
 					Notifier.danger(error.data);
 				})
 			}
 			$scope.loadClassStats=(classe,a_year,term)=>{
-				$http.post('/statistics.classe',{class_id:classe._id,academic_year:a_year,term:term})
+				$http.post('/statistics.classe',{class_id:classe._id,academic_year:Number(a_year),term:Number(term)})
 				.then((response)=>{
 					$scope.show_classes_=false;
 					$scope.show_courses_=true;
 					$scope.show_students_=false;
 					$scope.courses_agg=response.data;
-					//- console.log('Okkkkkkkk')
+					var class_name = $filter('toClasseName')(classe.name);
+					$scope.class_name = class_name.toUpperCase();
 				}).catch((error)=>{
 					Notifier.danger(error.data);
 				})
 			}
 			$scope.loadSchoolStats=(a_year,term)=>{
-				$http.post('/statistics.school',{academic_year:a_year,term:term,school_id:'#{school_id}'})
+				$http.post('/statistics.school',{academic_year:Number(a_year),term:Number(term),school_id:'#{school_id}'})
 				.then((response)=>{
 					$scope.show_classes_=true;
 					$scope.show_courses_=false;
 					$scope.show_students_=false;
+					$scope.header='Classes'
 					$scope.classes_agg=response.data;
 				}).catch((error)=>{
 					Notifier.danger(error.data);
@@ -218,6 +239,17 @@ block append scripts
 			$scope.studentAggr=()=>{
 				if($scope.criteria['basis']===undefined) return Notifier.danger('Select criteria basis');
 				// Load students aggregations
+			}
+			$scope.loadConts=(content_type)=>{
+				if(content_type=='classe'){
+					$scope.show_classes_=true;
+					$scope.show_courses_=false;
+					$scope.show_students_=false;
+				}else if(content_type=='course'){
+					$scope.show_classes_=false;
+					$scope.show_courses_=true;
+					$scope.show_students_=false;
+				}
 			}
 			$scope.getClassList = ()=>{
 				$http
@@ -250,7 +282,7 @@ block append scripts
 				});        
 			}
 			$scope.term=1,
-			$scope.academic_year=17
+			$scope.academic_year=19
 			$scope.show_classes_=true;
 			$scope.show_courses_=false;
 			$scope.show_students_=false;

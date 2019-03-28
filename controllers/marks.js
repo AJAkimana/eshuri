@@ -99,7 +99,7 @@ exports.getClasseAggregation=(req,res)=>{
 	MarkHelper.classMark(req.body, (err, classMarks)=>{
 		if(err) return res.status(400).send(err);
 
-		console.log('Marks:',classMarks);
+		// console.log('Marks:',classMarks);
 		return res.json(classMarks);
 	})
 }
@@ -132,6 +132,21 @@ exports.courseAggregation = (req, res)=>{
 		if(err) return res.status(400).send(err);
 
 		return res.json(course_marks);
+	})
+}
+exports.studentCourseMarks = (req, res)=>{
+	req.assert('student_id', 'Invalid data').isMongoId();
+	req.assert('class_id', 'Invalid data').isMongoId();
+	req.assert('academic_year', 'Invalid data').isInt();
+	req.assert('term', 'Invalid data').isInt();
+
+	const errors = req.validationErrors();
+	if (errors) return res.status(400).send(errors[0].msg);
+
+	MarkHelper.studentMark(req.body, (err, student_marks)=>{
+		if(err) return res.status(400).send(err);
+		console.log('S marks:',student_marks)
+		return res.json(student_marks);
 	})
 }
 exports.getPageChart = function(req, res, next){
