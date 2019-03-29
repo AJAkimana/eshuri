@@ -144,10 +144,9 @@ block append content
 														td: strong(ng-bind="student.quota")
 							.col-md-3.col-sm-6.col-xs-12
 								.card
-									.card-header
-										h4.card-title.text-center(ng-bind="student_name")
 									.card-content
-										.table-responsive
+										.table-responsive(ng-show="assessments.length")
+											h4.card-title.text-center(ng-bind="student_name+' from '+class_name")
 											table.table
 												thead
 													th.text-center #
@@ -160,7 +159,8 @@ block append content
 														td: strong(ng-bind="assmt.title")
 														td(ng-bind="assmt.marks")
 														td: strong(ng-bind="assmt.quota")
-											table.table
+										h4.text-center(ng-hide="assessments.length") No marks to display
+											//- table.table
 												thead
 													th: a.btn-simple.btn-rose Student name
 													th: a.btn-simple.btn-rose Marks/100
@@ -236,6 +236,14 @@ block append scripts
 					Notifier.danger(error.data);
 				})
 			}
+			$scope.loadOverallStats=(a_year,term)=>{
+				$http.post('/statistics.overall',{academic_year:Number(a_year),term:Number(term),school_id:'#{school_id}'})
+				.then((response)=>{
+					console.log('OOOOOOOOOOOOOOOOOOKKKKKKKKKKKKKKKKKK')
+				}).catch((error)=>{
+					Notifier.danger(error.data);
+				})
+			}
 			$scope.studentAggr=()=>{
 				if($scope.criteria['basis']===undefined) return Notifier.danger('Select criteria basis');
 				// Load students aggregations
@@ -250,6 +258,11 @@ block append scripts
 					$scope.show_courses_=true;
 					$scope.show_students_=false;
 				}
+			}
+			$scope.reload = ()=>{
+				$scope.getAcademicYearsList();
+				$scope.loadSchoolStats($scope.academic_year,$scope.term);
+				$scope.loadOverallStats($scope.academic_year,$scope.term);
 			}
 			$scope.getClassList = ()=>{
 				$http
@@ -287,7 +300,6 @@ block append scripts
 			$scope.show_courses_=false;
 			$scope.show_students_=false;
 			$scope.getClassList();
-			$scope.getAcademicYearsList();
-			$scope.loadSchoolStats($scope.academic_year,$scope.term);
+			$scope.reload();
 			//- $scope.loadClassStats('58c970b9708c4a9f40dfbb85',19,1)
 		})	

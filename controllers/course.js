@@ -319,15 +319,16 @@ exports.changeCourseName = (req, res, next)=>{
   if (errors) return res.status(400).send(errors[0].msg);
   
   Course.findOne({_id:req.body.course_id, class_id:req.body.class_id},(err, course_exists)=>{
-    if (err) return log_err(err, false, req, res);
-    else if(!course_exists) return res.status(400).send("Invalid data 1");
+    if (err) return res.status(400).send("Service not available");
+    else if(!course_exists) return res.status(400).send("Invalid data");
     course_exists.name = req.body.course_name;
     course_exists.code = req.body.code;
+    course_exists.courseTerm = 4;
 
     Marks.update({course_id:req.body.course_id}, {$set:{course_name:req.body.course_name}}, {multi:true}, (err, done)=>{
-      if (err) return log_err(err, false, req, res);
+      if (err) return res.status(400).send("Invalid data");
       course_exists.save((err, ok)=>{
-        if (err) return log_err(err, false, req, res);
+        if (err) return res.status(400).send("Service not available");
         return res.end();
       })
     })
