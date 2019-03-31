@@ -152,16 +152,22 @@ exports.studentCourseMarks = (req, res)=>{
 exports.getFirstAndLastStudents = (req, res)=>{
 	req.assert('school_id', 'Invalid data').isMongoId();
 	req.assert('academic_year', 'Invalid data').isInt();
-	req.assert('term', 'Invalid data').isInt();
+	// req.assert('term', 'Invalid data').isInt();
 
 	const errors = req.validationErrors();
 	if (errors) return res.status(400).send(errors[0].msg);
-
 	req.body.student = req.app.locals.access_level.STUDENT;
-	MarkHelper.overAllStats(req.body, (err, students)=>{
-		if(err) return res.status(400).send(err);
-		// console.log('S marks:',students)
-		return  res.json(students);
+	// Use currTerm from classes
+	Classe.findOne({school_id:req.body.school_id},{currentTerm:1},(err, the_classe)=>{
+		if(err) return res.status(400).send('Invalid data');
+		else if(!the_classe) return res.status(400).send('Invalid data');
+
+		req.body.term = the_classe.currentTerm;
+		MarkHelper.overAllStats(req.body, (err, students)=>{
+			if(err) return res.status(400).send(err);
+			// console.log('S marks:',students)
+			return  res.json(students);
+		})
 	})
 }
 exports.getPageChart = function(req, res, next){
