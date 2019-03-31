@@ -221,7 +221,7 @@ exports.overAllStats = (schoolInfo, studentsCb)=>{
 				User.find(parametters,{_id:1,name:1}, (err, studentsList)=>{
 					if(err) return getClassStudents('Service not available');
 					classStudents = studentsList;
-					nStudents = studentsList.length;
+					// nStudents = studentsList.length;
 					return getClassStudents(null);
 				})
 			},(getClassTotalQuota)=>{
@@ -254,21 +254,23 @@ exports.overAllStats = (schoolInfo, studentsCb)=>{
 				},(err)=>{
 					if(err) return getClassStudentsMarks(err);
 					classStudentsMarks.sort(minMax);
+					nStudents = classStudentsMarks.length;
 					// console.log('Students class marks:',classStudentsMarks);
 					return getClassStudentsMarks(null);
 				})
 			}],(err)=>{
 				if(err) return classCb(err);
-
+				else if(nStudents===0) return classCb(null);
 				if(classStudentsMarks[0]) classSelectedStudents.push(classStudentsMarks[0])
 				if(classStudentsMarks[1]) classSelectedStudents.push(classStudentsMarks[1])
 				if((nStudents-2)>0) classSelectedStudents.push(classStudentsMarks[nStudents-2])
 				if((nStudents-1)>0) classSelectedStudents.push(classStudentsMarks[nStudents-1])
-
+				
 				return classCb(null);
 			})
 		},(err)=>{
 			if(err) return treatEachClass(err);
+			
 			classSelectedStudents.sort(minMax);
 			return treatEachClass(null);
 		})

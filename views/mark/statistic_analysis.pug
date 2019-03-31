@@ -247,8 +247,8 @@ block append scripts
 			$scope.loadOverallStats=(a_year,term)=>{
 				$http.post('/statistics.overall',{academic_year:Number(a_year),term:Number(term),school_id:'#{school_id}'})
 				.then((response)=>{
-					//- console.log('OOOOOOOOOOOOOOOOOOKKKKKKKKKKKKKKKKKK')
 					$scope.the_students = response.data;
+					console.log('OOOOOOOOOOOOOOOOOOKKKKKKKKKKKKKKKKKK',$scope.the_students)
 				}).catch((error)=>{
 					Notifier.danger(error.data);
 				})
