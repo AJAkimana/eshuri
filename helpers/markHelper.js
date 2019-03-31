@@ -30,7 +30,7 @@ exports.classMark = (classInfo, classMarkCallback)=>{
 					if(err) return marksAggregate('Service not available');
 					else if(!contentMarks[0]) return marksAggregate(null);
 
-					console.log('Marks Percent:',contentMarks);
+					// console.log('Marks Percent:',contentMarks);
 					min_p=contentMarks[0].min_p||0;
 					max_p=contentMarks[0].max_p||0;
 					avg_p=contentMarks[0].avg_p||0;
