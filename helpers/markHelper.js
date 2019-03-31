@@ -204,7 +204,7 @@ exports.overAllStats = (schoolInfo, studentsCb)=>{
 		ay = schoolInfo.academic_year,
 		term = schoolInfo.term,
 		student = schoolInfo.student;
-	var classes = [], classesMarks = [], selectedStudents = [];
+	var classes = [], classesMarks = [], classSelectedStudents = [], studentsOfInterest = [];
 	async.series([(getClasses)=>{
 		Classe.find({school_id:schoolId},{_id:1,name:1}).sort({name:1}).exec((err, classesList)=>{
 			if(err) return getClasses('Service not available');
@@ -248,7 +248,7 @@ exports.overAllStats = (schoolInfo, studentsCb)=>{
 						if(!studentMarks[0]) return studentCb(null);
 						var student_marks = studentMarks[0].sum_marks||0;
 						var student_marks_pct = (student_marks*100/total_quota)||0;
-						classStudentsMarks.push({_id:thisStudent._id,name:thisStudent.name,classe:thisClasse.name,marks:student_marks,percentage:student_marks_pct});
+						classStudentsMarks.push({_id:thisStudent._id,name:thisStudent.name,classe:thisClasse.name,marks:student_marks.toFixed(2),quota:total_quota,percentage:student_marks_pct.toFixed(2)});
 						return studentCb(null);
 					})
 				},(err)=>{
@@ -260,21 +260,27 @@ exports.overAllStats = (schoolInfo, studentsCb)=>{
 			}],(err)=>{
 				if(err) return classCb(err);
 
-				if(classStudentsMarks[0]) selectedStudents.push(classStudentsMarks[0])
-				if(classStudentsMarks[1]) selectedStudents.push(classStudentsMarks[1])
-				if(classStudentsMarks[nStudents-2]) selectedStudents.push(classStudentsMarks[nStudents-2])
-				if(classStudentsMarks[nStudents-1]) selectedStudents.push(classStudentsMarks[nStudents-1])
+				if(classStudentsMarks[0]) classSelectedStudents.push(classStudentsMarks[0])
+				if(classStudentsMarks[1]) classSelectedStudents.push(classStudentsMarks[1])
+				if((nStudents-2)>0) classSelectedStudents.push(classStudentsMarks[nStudents-2])
+				if((nStudents-1)>0) classSelectedStudents.push(classStudentsMarks[nStudents-1])
 
 				return classCb(null);
 			})
 		},(err)=>{
 			if(err) return treatEachClass(err);
-			console.log('Selected students:',selectedStudents)
+			classSelectedStudents.sort(minMax);
 			return treatEachClass(null);
 		})
 	}],(err)=>{
 		if(err) return studentsCb(err);
-		console.log('THis is the end. It seems everything is working as expected')
+		var _nStudents = classSelectedStudents.length;
+		if(classSelectedStudents[0]) studentsOfInterest.push(classSelectedStudents[0])
+		if(classSelectedStudents[1]) studentsOfInterest.push(classSelectedStudents[1])
+		if((_nStudents-2)>0) studentsOfInterest.push(classSelectedStudents[_nStudents-2])
+		if((_nStudents-1)>0) studentsOfInterest.push(classSelectedStudents[_nStudents-1])
+		
+		return studentsCb(err, studentsOfInterest);
 	})
 }
 function minMax(a, b) {

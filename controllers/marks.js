@@ -160,8 +160,8 @@ exports.getFirstAndLastStudents = (req, res)=>{
 	req.body.student = req.app.locals.access_level.STUDENT;
 	MarkHelper.overAllStats(req.body, (err, students)=>{
 		if(err) return res.status(400).send(err);
-		console.log('S marks:')
-		return res.end();
+		// console.log('S marks:',students)
+		return  res.json(students);
 	})
 }
 exports.getPageChart = function(req, res, next){
