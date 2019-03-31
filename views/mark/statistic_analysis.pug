@@ -21,15 +21,15 @@ block append content
 												.col-md-6
 													.form-group.label-floating
 														label.control-label Year
-														select.form-control(required="true",ng-model="choosen_year",ng-change="getListTerms()")
-															option(value="", disabled selected)
+														select.form-control(required="true",ng-model="academic_year",ng-change="getListTerms()")
+															option(value="")
 															option(value="{{umwaka}}", ng-repeat="umwaka in academic_years", ng-bind="umwaka|toNormal") 
 												.col-md-6
 													.form-group.label-floating
 														label.control-label
 															span(ng-bind="term_name|toTermName")
-														select.form-control(required="true",ng-model="choosen_term", ng-change="loadSchoolStats(choosen_year,choosen_term)")
-															option(value="", disabled selected)
+														select.form-control(required="true",ng-model="term", ng-change="loadSchoolStats(academic_year,term)")
+															option(value="")
 															option(value="{{term}}", ng-repeat="term in list_terms" ng-bind="(term_name|toTermName)+(term)")
 										//- .col-md-12
 											h4.info-text Based on
@@ -248,7 +248,7 @@ block append scripts
 				$http.post('/statistics.overall',{academic_year:Number(a_year),term:Number(term),school_id:'#{school_id}'})
 				.then((response)=>{
 					$scope.the_students = response.data;
-					console.log('OOOOOOOOOOOOOOOOOOKKKKKKKKKKKKKKKKKK',$scope.the_students)
+					//- console.log('OOOOOOOOOOOOOOOOOOKKKKKKKKKKKKKKKKKK',$scope.the_students)
 				}).catch((error)=>{
 					Notifier.danger(error.data);
 				})
@@ -270,8 +270,8 @@ block append scripts
 			}
 			$scope.reload = ()=>{
 				$scope.getAcademicYearsList();
-				$scope.loadSchoolStats($scope.academic_year,$scope.term);
-				$scope.loadOverallStats($scope.academic_year,$scope.term);
+				$scope.loadSchoolStats(19,1);
+				$scope.loadOverallStats(19,1);
 			}
 			$scope.getClassList = ()=>{
 				$http
@@ -286,7 +286,7 @@ block append scripts
 			};
 			$scope.getListTerms = ()=>{
 				$http
-				.get("/student.get.terms/"+$scope.choosen_year)
+				.get("/student.get.terms/"+$scope.academic_year)
 				.then((response)=>{
 					$scope.list_terms= response.data;
 				})
@@ -303,12 +303,10 @@ block append scripts
 					Notifier.danger(erreur.data)
 				});        
 			}
-			$scope.term=1,
-			$scope.academic_year=19
 			$scope.show_classes_=true;
 			$scope.show_courses_=false;
 			$scope.show_students_=false;
-			$scope.getClassList();
+			//- $scope.getClassList();
 			$scope.reload();
 			//- $scope.loadClassStats('58c970b9708c4a9f40dfbb85',19,1)
 		})	

@@ -99,7 +99,7 @@ exports.courseMark = (courseInfo, courseMarkCb)=>{
 				},(err)=>{
 					if(err) return studentCb(err);
 					var marks_pct_= (marks_pct/student_m.length)||0;
-					studentsMarks.push({_id:thisStudent._id,class_id:classId,name:thisStudent.name,marks:marks,percentage:marks_pct_.toFixed(2),quota:quota});
+					studentsMarks.push({_id:thisStudent._id,class_id:classId,name:thisStudent.name,marks:marks.toFixed(2),percentage:marks_pct_.toFixed(2),quota:quota});
 					// console.log('student:',thisStudent);
 					return studentCb(null)
 				})
