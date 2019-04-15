@@ -51,5 +51,8 @@
     "twitter": "^1.7.1",
     "urlencode": "^1.1.0",
     "validator": "^10.9.0"
+  },
+  "devDependencies": {
+    "my-rwanda": "^1.0.1"
   }
 }

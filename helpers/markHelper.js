@@ -7,6 +7,7 @@ const fs=require('fs'),
 	Mark=require('../models/MARKS'),
 	Course=require('../models/Course'),
 	Util=require('../utils'),
+	// MyRwanda = require('my-rwanda'),
 	School=require('../models/School');
 
 exports.classMark = (classInfo, classMarkCallback)=>{
@@ -281,7 +282,7 @@ exports.overAllStats = (schoolInfo, studentsCb)=>{
 		if(classSelectedStudents[1]) studentsOfInterest.push(classSelectedStudents[1])
 		if((_nStudents-2)>0) studentsOfInterest.push(classSelectedStudents[_nStudents-2])
 		if((_nStudents-1)>0) studentsOfInterest.push(classSelectedStudents[_nStudents-1])
-		
+		// console.log('My country phone is: ',MyRwanda(250783543016));
 		return studentsCb(err, studentsOfInterest);
 	})
 }
