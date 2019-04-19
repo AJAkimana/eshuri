@@ -152,6 +152,8 @@ nav.navbar.navbar-default.navbar-fixed-top
 					li: a(style='color:#3d4958;',href="/parents")
 						//i.material-icons school
 						strong My parents 
+					li: a(style='color:#1382E2;',href="/payment")
+						strong Payment
 				if access ==5
 					li: a(style='color:#f05167;',href="/parent")
 						//i.material-icons school
@@ -198,6 +200,20 @@ nav.navbar.navbar-default.navbar-fixed-top
 							li
 								a(style='color:#3d4958;',href="/application")
 									span Applications
+					li.dropdown
+						a.dropdown-toggle(style='color:#f05167;',data-toggle="dropdown")
+							strong Payment
+						ul.dropdown-menu
+							//- if access == 4||access==2.1||access==2||access==1.1||access==3
+							li
+								a(href="/payment.add") Add Payment
+							li.divider
+							//- if access==2.1||access==3
+							li
+								a(href="/payment.collection") Payment Collection
+							li.divider
+							li
+								a(href="/payment") Pay For Services
 				li: a(href="http://gocoderz.com/wp-content/uploads/articulate_uploads/Lesson_1:_Drivetrain/story_html5.html" target="_blank")
 					//i.material-icons code
 					strong Robotics Programming

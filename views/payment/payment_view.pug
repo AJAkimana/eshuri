@@ -1,83 +1,221 @@
 extends ../layout
 block append content
-    .wrapper.wrapper-full-page.full-page-background(ng-controller="paymentCtrl",style="background: linear-gradient(to right, blue , green) ")
-        .full-page.login-page(filter-color="white")
-            .content
-                .container-fluid
-                    .row
-                        .col-md-3.col-sm-4.col-lg-4.col-md-offset-1
-                            .form-group.label-floating
-                                label.control-label Email
-                                input.form-control(ng-model="email", type="email", name="e",required="true",autocomplete="off")
-                            .form-group.label-floating
-                                label.control-label Phone number
-                                input.form-control(ng-model="phone", type='text', name='phone', ng-maxlength='12')
-                            .form-group.label-floating
-                                label.control-label Student number
-                                input.form-control(ng-model="number", type='text', name='student number')
-                            .form-group.label-floating
-                                label.control-label Amount
-                                input.form-control(ng-model="amount", type='text', name='amount')
-                            .form-group.label-floating
-                                label.control-label Select School
-                                select(ng-model="school", ng-options="school.name|uppercase|limitTo: 17 for school in schools")
-                            .btn.btn-success.col-md-4(ng-click="pay()") Pay
+  .wrapper.wrapper-full-page.full-page-background(ng-controller="paymentCtrl",style="background-image: url('../imgs/login.jpeg')")
+      .full-page.login-page(filter-color="white")
+          .content
+              .container-fluid
+                  .row
+                    .col-md-7.col-sm-offset-3
+                      .card.card-box
+                        .card-head
+                        #bar-parent.card-body
+                          form.form-horizontal
+                            .form-body
+                              h3.text-center
+                                  b(style='color:#1382E2;') Fill the info below to pay  
+                              .col-md-6
+                                  .form-group.row
+                                    label.control-label.col-md-4
+                                      | schools
+                                      span.required  * 
+                                    .col-md-7
+                                      select.form-control.input-height(require='true',ng-model='school', ng-change='getListStudents()')
+                                        option(value="{{school._id}}", ng-repeat="school in schools") {{school.name|uppercase}}
+                                  .form-group.row
+                                    label.control-label.col-md-4
+                                      | Roll No
+                                      span.required  * 
+                                    .col-md-7
+                                      input.form-control.input-height(type='text', name='rollno', data-required='1',ng-blur='verifyURN(stud_urn)',ng-model='stud_urn',placeholder='enter roll number')
+                                  .form-group.row
+                                    label.control-label.col-md-4
+                                      | student name
+                                      span.required  * 
+                                    .col-md-7
+                                      input.form-control.input-height(type='text', name='stud_name', data-required='1',ng-model='studentToPayFor.name',ng-disabled='true')
+                                  .form-group.row
+                                    label.control-label.col-md-4
+                                      | Payer Name
+                                      span.required  * 
+                                    .col-md-7
+                                      input.form-control.input-height(type='text',name='payr_name', data-required='1',ng-model='payer_name')
+                                  
+                                  
+                                  
+                                  
+                              .col-md-6
+                                  .form-group.row
+                                    label.control-label.col-md-4
+                                      | Payer Email
+                                      span.required  * 
+                                    .col-md-7
+                                      input.form-control.input-height(type='email', data-required='1',ng-model='email')
+                                  .form-group.row
+                                    label.control-label.col-md-4
+                                      | Payer Phone
+                                      span.required  * 
+                                    .col-md-7
+                                      input.form-control.input-height(type='number', data-required='1',ng-model='phone_number')
+                                  .form-group.row
+                                    label.control-label.col-md-4
+                                      | Fees Type
+                                      span.required  * 
+                                    .col-md-7
+                                      select.form-control.input-height(name='selectType',ng-model='fee_type')
+                                        option(value='', disabled='true', selected='') Select current term
+                                        option(value="{{fee.fee_type}}", ng-repeat="fee in fees") {{fee.fee_type|toGotType}}
+                                  .form-group.row
+                                    label.control-label.col-md-4
+                                      | Current Term
+                                      span.required  * 
+                                    .col-md-7
+                                      select.form-control.input-height(ng-model='currentTerm')
+                                        option(value='', disabled='true', selected='') Select current term
+                                        option(value='1') First Term
+                                        option(value='2') Second Term
+                                        option(value='3') Third Term
+                                        //- option(value='4') Whole Year
+                                  .form-group.row
+                                    label.control-label.col-md-4
+                                      | Amount to pay
+                                      span.required  *
+                                    .col-md-7
+                                      input.form-control.input-height(name='number', type='text',ng-model='amount', placeholder='enter amount' ng-disabled="disable_field")
+                                    //- .img(src='../imgs/DPOLogo.jpeg', alt='Italian Trulli')
+                              
+                            .form-actions
+                              .row
+                                .offset-md-4.col-md-11
+                                  .text-right
+                                      button.btn.btn-success(type='button' ng-click='payServices()' ng-disabled="disable_field") PAY
+                                      button.btn.btn-default.pull-right(type='button',ng-click='previousPage()') Cancel
+                          //- .btn.btn-success.col-md-4(ng-click="pay()") Pay
 
 
 block append scripts
-    script(src="../js/MIT/MIT_sweetalert2.js", type="text/javascript")
-    script(src="../js/MIT/jquery.bootstrap-wizard.js", type="text/javascript")
-    script(src="../js/MIT/init_wizard.js", type="text/javascript")
-    script(src="../js/MIT/jquery.validate.min.js", type="text/javascript")
-    script(src="../homejs/ng-file-upload.min.js")
-    script(src="../homejs/ng-file-upload-shim.min.js")
-    script.
-        var app = angular.module('eshuri_App', ['ngRoute', 'ngStorage', 'ngFileUpload']);
-        app.controller('paymentCtrl', function($scope, $http, $window, $localStorage){
-            $scope.paymentForm={};
-            $scope.email="";
-            $scope.phone="";
-            $scope.number="";
-            $scope.amount="";
-            $scope.school="";
-            $scope.pay= function() {
-                console.log("I am here");
-                console.log($scope.email);
-                console.log($scope.phone);
-                console.log($scope.number);
-                console.log($scope.amount);
-                console.log($scope.school.name);
-                console.log($window.location);
-                console.log($window.location.host);
-                $scope.paymentForm.email = $scope.email;
-                $scope.paymentForm.phone = $scope.phone;
-                $scope.paymentForm.student_URN = $scope.number;
-                $scope.paymentForm.amount = $scope.amount;
-                $scope.paymentForm.school_name = $scope.school.name;
-                $scope.paymentForm.url = $window.location.host;
-                $http
-                    .post('/payment.post', $scope.paymentForm)
-                    .then(function (response) {
-                        Notifier.success("Seen url " + response.data.url);
-                        $window.location.href = response.data.url;
-                    })
-                    .catch(function (error) {
-                        Notifier.danger(error.data);
-                    });
+  script.
+      var app = angular.module('eshuri_App', ['ngRoute']);
+      app.filter('toGotType', function() {
+          return function(input){
+            var got_type='';
+            switch(input){
+              case 1: got_type='First Term';break;
+              case 2:got_type='Second Term';break;
+              case 3:got_type='Third Term';break;
+              case 4:got_type='Whole Year';break;
+              case 5:got_type='Damage Payment';break;
+              default: break;
+              
             }
-            $scope.loadSchools = function () {
-                $http
-                    .get("/eshuri/schools/alljson.json")
-                    .then(function (response) {
-                        $scope.schools = response.data;
-                    })
-                    .catch(function (erreur) {
-                        Notifier.danger('erreur.data');
-                    });
-            }
-            $scope.loadSchools();
-            $().ready(function () {
-                wizard.initMaterialWizard();
-            });
+            return got_type;
+          }
+        })
+        .controller('paymentCtrl', function($scope, $http, $window){
 
-        });
+          $scope.loadSchools = function(){ 
+              $http
+              .get("/school.list")
+              .then(function(response){
+                $scope.schools=response.data;
+                //- console.log(schools)
+              })
+              .catch(function(erreur){
+                Notifier.danger(erreur.data)
+              }); 
+
+            }
+          $scope.previousPage= function() { 
+            window.history.back(); 
+          } 
+          $scope.payServices=()=>{ 
+          $scope.nePayService._csrf='#{anti_csrf}';
+          $scope.nePayService.school_id=$scope.school;
+          $scope.nePayService.stud_urn=$scope.stud_urn;
+          $scope.nePayService.student_name=$scope.studentToPayFor.name;
+          $scope.nePayService.student_id=$scope.studentToPayFor._id;
+          $scope.nePayService.payer_name=$scope.payer_name;
+          $scope.nePayService.email=$scope.email;
+          $scope.nePayService.phone_number=$scope.phone_number;
+          $scope.nePayService.amount=$scope.amount;
+          $scope.nePayService.currentTerm=$scope.currentTerm;
+          $scope.nePayService.fee_type=$scope.fee_type;
+          $http
+          //- /newPaidServices.add/
+          .post("/newPaidServices.add/"+$scope.school,$scope.nePayService)
+          .then(function(response){
+            $window.location.href ='https://secure1.sandbox.directpay.online/payv2.php?ID=9F416C11-127B-4DE2-AC7F-D5710E4C5E0A';
+            //- $scope.redirect(a(href="https://secure1.sandbox.directpay.online/payv2.php?ID=9F416C11-127B-4DE2-AC7F-D5710E4C5E0A", title="Payment Services").class )
+            Notifier.success("You have Paid Services Successfully");
+            $scope.nePayService=null;
+          })
+          .catch(function(erreur){
+            Notifier.danger(erreur.data);
+          });
+          }
+
+          $scope.getListStudents = function(){
+              $http
+              .post("/school.students",{_csrf:$scope.anti_csrf,school_id:$scope.school })
+              .then(function(response){
+                  $scope.students = response.data;
+                  $scope.getListFees();
+              })
+              .catch(function(erreur){
+                  Notifier.danger(erreur.data);
+              });
+          }
+          $scope.loadSchools();
+          
+          $scope.verifyURN=(inputUrn)=>{
+              var urn = inputUrn.trim().toLowerCase()
+              $scope.studentToPayFor=null;
+              for (var i=0; i<$scope.students.length; i++){
+                  var studentUrn = $scope.students[i].URN.trim().toLowerCase();
+
+                  if(studentUrn==urn) {
+                      $scope.studentToPayFor=$scope.students[i];
+                      $scope.disable_field=false;
+                  }
+              }
+              $scope.getListFees();
+              //- console.log($scope.getListFees());
+              if($scope.studentToPayFor===null){
+                  Notifier.info("The URN not found Please verify and try again...");
+                  $scope.disable_field=true;
+              }
+          }
+          $scope.loadFeesType=()=>{
+            $http
+            .get("/fees.list.amount/"+ $scope.pay_type)
+            .then(function(response){
+              $scope.feesAmount=response.data;
+              console.log($scope.feesAmount)
+              //- var feestype= $scope.fees.fee_type;
+              //- var amount_due_type=null;
+              
+            })
+            .catch(function(erreur){
+              Notifier.danger(erreur.data)
+            }); 
+          }
+          $scope.getListFees=()=>{
+            //- $scope.school_id=schools.school._id;
+            $http
+            .get("/fees.list/"+ $scope.school)
+            .then(function(response){
+              $scope.fees=response.data;
+              //- console.log($scope.fees)
+              var feestype= $scope.fee_type;
+              //- var amount_due_type=null;
+              
+            })
+            .catch(function(erreur){
+              Notifier.danger(erreur.data)
+            }); 
+          }
+          $scope.anti_csrf ="#{csrf_token}";
+          $scope.disable_field=false;
+          $scope.newPayment={};
+          $scope.nePayService={};
+      })
+      
