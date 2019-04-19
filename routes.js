@@ -579,6 +579,17 @@ module.exports = function(app) {
     ----------------------------------------------------------------------------*/
     app.get('/payment', paymentCtrl.getPaymentPage);
     app.post('/payment.post', paymentCtrl.postPayment);
+    app.get('/payment.add/', isAtLeastAdmin,paymentCtrl.addPayment);
+		app.get('/payment.collection/',isAtLeastAdmin,paymentCtrl.collectFess);
+		app.get('/fees.list/:school_id',isAtLeastAdmin,paymentCtrl.getFeesListJSON);
+		app.get('/fees.list.amount/:school_id',isAtLeastAdmin,paymentCtrl.getFeesAmountListJSON);
+		app.post('/createFees.add',isAtLeastAdmin,paymentCtrl.createNewFees);
+		app.post('/postNewPayment/:school_id',paymentCtrl.postPayment);
+		app.post('/fee.edit',isAtLeastAdmin,paymentCtrl.editPayment);
+		app.post('/feesAdded.delete',isAtLeastAdmin,paymentCtrl.removePay)
+		app.post('/newPaidServices.add/:school_id',paymentCtrl.savePaidService)
+		app.get('/findCollectedFeesList/:school_id',isAtLeastAdmin,paymentCtrl.getCollectedFeesListJson)
+		// app.post('/delete.record',isAtLeastAdmin, paymentCtrl.removeRecord);
 
     /*---------------------------------------------------------------------------
                     Application for admission
