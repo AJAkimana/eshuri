@@ -5,3 +5,4 @@ node_modules/
 .eShuri.env.TEST
 .npmrc
 eshuri.js
+config/
