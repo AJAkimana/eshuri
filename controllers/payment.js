@@ -4,6 +4,7 @@ const Payurl = require('../config/migs'),
       Fees = require('../models/Fees'),
       School = require('../models/School');
 
+      // Add payment function
 exports.addPayment =(req,res)=>{   
     School.findOne({_id:req.user.school_id},(err,school)=>{
     if(err) return log_err(err,true,req,res);
