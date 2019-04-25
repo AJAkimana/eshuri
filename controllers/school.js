@@ -30,6 +30,20 @@ function checkArray(array, attr, value){
 exports.getPageSchool = function(req,res,next){
   return res.redirect("/school/"+req.user.school_id);
 }
+exports.getIndependentSchoolStudentList = function(req,res,next){
+  req.assert('school_id','the process is invalid').isMongoId();
+  req.assert('student_id','No student id found').notEmpty();
+  const errors = req.validationErrors();
+  if (errors) return res.render("./lost",{msg:errors[0].msg})
+  School.findOne({school_id:req.params.school_id},(errors,ikigo)=>{
+    if(errors) return status(400).send('this school is not existing');
+    User.find({school_id:req.params.school_id},{student_id:req.params.student_id}).exec(function(err, school_student){
+      if(err) status(400).send('we are unable to find students');
+      console.log(school_student);
+      return res.json;
+    })
+  })
+}
 exports.homepageSchool = function(req,res,next){ 
   req.assert('id_school', 'Invalid Data').isMongoId();
   const errors = req.validationErrors();

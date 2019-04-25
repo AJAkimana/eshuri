@@ -388,6 +388,11 @@ module.exports = function(app) {
 	app.get('/course.page.edit.quota/:course_id',isAtLeastTeacher,coursesController.getPageEditQuota)
 	app.post('/course.update.quota',isAtLeastTeacher, coursesController.updateQuota);
 
+	///////////////////////////////////////////////////////////////
+		// get student list for undependent user
+	app.post('/school.students',schoolController.getStudents_JSON)
+	app.get('/school.studentIndependent/:school_id',schoolController.getIndependentSchoolStudentList)
+	///////////////////////////////////////////////////////////////////
 	app.get('/school.students/:school_id', isAtLeastAdmin, schoolController.getPageStudents)
 	app.post('/school.students.json', isAtLeastAdmin,schoolController.getStudents_JSON)
 	app.post('/school.add.new_program', isAtLeastAdmin, schoolController.postSchoolProgram);
