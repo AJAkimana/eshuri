@@ -35,7 +35,7 @@ exports.getPageAbout = function(req,res,next){
 }
 exports.getTerms_Conditions = function(req,res){
 	return res.render('info/termsConditions',{
-		title:'About me'
+		title:'Terms and Conditions'
 	})
 }
 exports.getPage404 = (req, res,next) => {	

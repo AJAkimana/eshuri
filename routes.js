@@ -626,5 +626,5 @@ module.exports = function(app) {
 	app .get('/aboutme', infoController.getPageAbout)
 			/* TERMS AND CONDITIONS  ABOUT*/
 	app .get('/termsConditions',infoController.getTerms_Conditions);
-	app.all('*',infoController.getPage404);
+	app.all('*',infoController.getPage404); 
 }
