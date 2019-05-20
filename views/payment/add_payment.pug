@@ -25,8 +25,8 @@ block append content
                                         tbody
                                           tr(style='color:#3d4958;', ng-repeat="fee in fees")
                                             td(width="1%" height="1%") {{$index + 1}}
-                                            td {{fee.fee_type|toDuration}}
-                                            td {{fee.duration|toGotType}}  
+                                            td {{fee.fee_type|toGotType}}
+                                            td {{fee.duration|toDuration}}  
                                             td {{fee.due_amount}}
                                             td {{fee.currentTerm}}
                                             td.td-actions.text-center
@@ -108,11 +108,11 @@ block append scripts
             return function(input){
               var my_duration='';
               switch(input){
-                case 1:my_duration='Yearly Tuition';break;
-                case 2:my_duration='Tuition Installment';break;
-                case 3:my_duration='Registration';break;
+                case 1:my_duration='First Term';break;
+                case 2:my_duration='Second Term';break;
+                case 3:my_duration='Third Term';break;
                 case 4:my_duration='Term Payment';break;
-                case 5:my_duration='Monthly Payment';break;
+                case 5:my_duration='Whole Year';break;
                 
                 //- case 5:my_duration='Damage Payment';break;
                 default: break;
