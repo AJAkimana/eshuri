@@ -177,7 +177,7 @@ block append scripts
       //-   //- $scope.fee_id=fee._id;
       //- }
       $scope.deleteRecord = function(gotFee){
-        $scope.gotFee_id=gotFee.id=""
+        $scope.gotFee_id=gotFee._id
               swal({
                 title: 'Do you want to delete the selected fees type \n<i style="color:red">'+ '' +'</i> \n ?',
                 text: " <b>Remember </b>You will not be able to revert this!",
@@ -192,7 +192,7 @@ block append scripts
                 buttonsStyling: false
               }).then(function(){
                   $http
-                .post("/feesAdded.delete",{_csrf:$scope.anti_csrf,fee_id:fee_id})
+                .post("/feesAdded.delete",{_csrf:$scope.anti_csrf,gotFee_id:gotFee_id})
                 .then(function(response){
                   $scope.getListFees();
                   swal({

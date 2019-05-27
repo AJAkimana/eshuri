@@ -51,7 +51,7 @@ exports.editPayment = (req, res, next)=>{
   })
 }
 exports.removePay = function(req,res,next){ // D  
-  req.assert('fee_id', 'Invalid data').isMongoId();
+  req.assert('gotFee_id', 'Invalid data').isMongoId();
   const errors = req.validationErrors();
   if (errors)  return res.status(400).send(errors[0].msg);
   // Content.count({unit_id:req.body.unit_id},(err,num)=>{
@@ -59,7 +59,7 @@ exports.removePay = function(req,res,next){ // D
   //   else if(num >0)
   //     return res.status(400).send("There is "+num+" contents in this unit, delete them first");
   Fees
-  .remove({_id:req.body.fee_id},function(err, fees){
+  .remove({_id:req.body.gotFee_id},function(err, fees){
     if(err) return log_err(err,false,req,res);
     return res.end(); // when OK
   })
