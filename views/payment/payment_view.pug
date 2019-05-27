@@ -147,9 +147,9 @@ block append scripts
           //- /newPaidServices.add/
           .post("/newPaidServices.add/"+$scope.school,$scope.nePayService)
           .then(function(response){
-            $window.location.href ='https://secure1.sandbox.directpay.online/payv2.php?ID=9F416C11-127B-4DE2-AC7F-D5710E4C5E0A';
-            //- $scope.redirect(a(href="https://secure1.sandbox.directpay.online/payv2.php?ID=9F416C11-127B-4DE2-AC7F-D5710E4C5E0A", title="Payment Services").class )
+            //- $window.location.href ='https://secure1.sandbox.directpay.online/payv2.php?ID=9F416C11-127B-4DE2-AC7F-D5710E4C5E0A';
             Notifier.success("You have Paid Services Successfully");
+            $window.history.back();
             $scope.nePayService=null;
           })
           .catch(function(erreur){
